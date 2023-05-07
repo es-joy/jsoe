@@ -54,7 +54,6 @@ separate enumeration.
 ## To-dos
 
 1. Add tests of demo (lower priority as have tests in `idb-manager`)
-1. Support Schemas based on a JSON serialization of Zod
 1. Expand fundamental types
     1. Not in typeson-registry
         1. Structured Cloning
@@ -83,3 +82,44 @@ separate enumeration.
 1. Expand subtypes
     1. As supported by Zod, JSON Schema, etc. (e.g., email addresses as
         subtype of `string`)
+1. Support Schemas based on a JSON serialization of Zod
+    - Need special handling for arrays with properties (intersections of arrays and objects) and to handle recursion
+    - May just need to streamline to a simpler JSON Schema/Zodex Schema?
+
+This would present a choice of array with specific elements, object
+with specific properties, or string (with `maxLength`).
+
+```js
+const schema = {union: [{
+  type: 'array',
+  refinements: [],
+  // A union of allowable children
+  arrayChildElements: [{
+    type: 'string'
+  }, {
+    type: 'object',
+    childElements: {key1: [/* ... */], key2: [/* ... */]}
+  }]
+  // For tuple, also potentially:
+  //   restType: {type: 'object', childElements: {...}}
+}, {
+  type: 'object',
+  refinements: [],
+  childElements: {
+    // A union of elements
+    key1: [],
+    key2: []
+  }
+}, {
+  type: 'string',
+  // A union of refinements
+  refinements: [{
+    minLength: 20,
+    maxLength: 100
+  }, {
+    minLength: 500
+  }]
+  // childElements: {}
+}]};
+console.log(schema);
+```
