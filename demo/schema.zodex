@@ -12,7 +12,7 @@
       ]
     },
     "reference": {
-      "describe": "JSON Reference",
+      "description": "JSON Reference",
       "type": "object",
       "properties": {
         "$ref": {
@@ -22,9 +22,9 @@
     },
     "string": {
       "type": "intersection",
-      "describe": "String",
+      "description": "String",
       "left": {
-        "describe": "String basics",
+        "description": "String basics",
         "type": "object",
         "properties": {
           "type": {
@@ -47,7 +47,7 @@
       "right": {
         "type": "intersection",
         "left": {
-          "describe": "String includes",
+          "description": "String includes",
           "type": "union",
           "options": [
             {
@@ -65,7 +65,7 @@
           ]
         },
         "right": {
-          "describe": "String kinds",
+          "description": "String kinds",
           "type": "union",
           "options": [
             {
@@ -145,7 +145,7 @@
       }
     },
     "number": {
-      "describe": "Number",
+      "description": "Number",
       "type": "object",
       "properties": {
         "type": {
@@ -164,7 +164,7 @@
       }
     },
     "key": {
-      "describe": "Key",
+      "description": "Key",
       "type": "union",
       "options": [
         {
@@ -176,7 +176,7 @@
       ]
     },
     "tuple": {
-      "describe": "Tuple",
+      "description": "Tuple",
       "type": "object",
       "properties": {
         "type": {
@@ -210,7 +210,7 @@
         "type": "union",
         "options": [
           {
-            "describe": "Boolean",
+            "description": "Boolean",
             "type": "object",
             "properties": {
               "type": {
@@ -228,7 +228,7 @@
             "$ref": "#/$defs/number"
           },
           {
-            "describe": "BigInt",
+            "description": "BigInt",
             "type": "object",
             "properties": {
               "type": {
@@ -248,7 +248,7 @@
             "$ref": "#/$defs/string"
           },
           {
-            "describe": "Not a Number",
+            "description": "Not a Number",
             "type": "object",
             "properties": {
               "type": {
@@ -259,7 +259,7 @@
             }
           },
           {
-            "describe": "Date",
+            "description": "Date",
             "type": "object",
             "properties": {
               "type": {
@@ -273,7 +273,7 @@
             }
           },
           {
-            "describe": "Undefined",
+            "description": "Undefined",
             "type": "object",
             "properties": {
               "type": {
@@ -284,7 +284,7 @@
             }
           },
           {
-            "describe": "Null",
+            "description": "Null",
             "type": "object",
             "properties": {
               "type": {
@@ -295,7 +295,7 @@
             }
           },
           {
-            "describe": "Any",
+            "description": "Any",
             "type": "object",
             "properties": {
               "type": {
@@ -306,7 +306,7 @@
             }
           },
           {
-            "describe": "Unknown",
+            "description": "Unknown",
             "type": "object",
             "properties": {
               "type": {
@@ -317,7 +317,7 @@
             }
           },
           {
-            "describe": "Never",
+            "description": "Never",
             "type": "object",
             "properties": {
               "type": {
@@ -328,7 +328,7 @@
             }
           },
           {
-            "describe": "Void",
+            "description": "Void",
             "type": "object",
             "properties": {
               "type": {
@@ -339,7 +339,7 @@
             }
           },
           {
-            "describe": "Symbol",
+            "description": "Symbol",
             "type": "object",
             "properties": {
               "type": {
@@ -350,7 +350,7 @@
             }
           },
           {
-            "describe": "Literal",
+            "description": "Literal",
             "type": "object",
             "properties": {
               "type": {
@@ -375,7 +375,7 @@
             }
           },
           {
-            "describe": "Array",
+            "description": "Array",
             "type": "object",
             "properties": {
               "type": {
@@ -391,7 +391,7 @@
             }
           },
           {
-            "describe": "Object",
+            "description": "Object",
             "type": "object",
             "properties": {
               "type": {
@@ -422,7 +422,7 @@
             }
           },
           {
-            "describe": "Union",
+            "description": "Union",
             "type": "object",
             "properties": {
               "type": {
@@ -444,7 +444,7 @@
             }
           },
           {
-            "describe": "Discriminated Union",
+            "description": "Discriminated Union",
             "type": "object",
             "properties": {
               "type": {
@@ -464,7 +464,7 @@
             }
           },
           {
-            "describe": "Intersection",
+            "description": "Intersection",
             "type": "object",
             "properties": {
               "type": {
@@ -484,7 +484,7 @@
             "$ref": "#/$defs/tuple"
           },
           {
-            "describe": "Record",
+            "description": "Record",
             "type": "object",
             "properties": {
               "type": {
@@ -501,7 +501,7 @@
             }
           },
           {
-            "describe": "Map",
+            "description": "Map",
             "type": "object",
             "properties": {
               "type": {
@@ -518,7 +518,7 @@
             }
           },
           {
-            "describe": "Set",
+            "description": "Set",
             "type": "object",
             "properties": {
               "type": {
@@ -534,7 +534,7 @@
             }
           },
           {
-            "describe": "Function",
+            "description": "Function",
             "type": "object",
             "properties": {
               "type": {
@@ -551,7 +551,7 @@
             }
           },
           {
-            "describe": "Enum",
+            "description": "Enum",
             "type": "object",
             "properties": {
               "type": {
@@ -571,7 +571,7 @@
             }
           },
           {
-            "describe": "Promise",
+            "description": "Promise",
             "type": "object",
             "properties": {
               "type": {
@@ -585,7 +585,7 @@
             }
           },
           {
-            "describe": "Effect",
+            "description": "Effect",
             "type": "object",
             "properties": {
               "type": {
@@ -618,7 +618,7 @@
             }
           },
           {
-            "describe": "Catch",
+            "description": "Catch",
             "type": "object",
             "properties": {
               "type": {
@@ -637,7 +637,7 @@
         ]
       },
       "right": {
-        "describe": "Modifiers",
+        "description": "Modifiers",
         "type": "object",
         "properties": {
           "isNullable": {"type": "boolean", "isOptional": true},

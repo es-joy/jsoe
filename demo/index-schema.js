@@ -4,7 +4,85 @@ import {
   formatAndTypeChoices
 } from '../src/formatAndTypeChoices.js';
 
-const zodexSchemaJSON = await (await fetch('./schema.zodex')).json();
+// const zodexSchemaJSON = await (await fetch('./schema.zodex')).json();
+// const zodexSchemaJSON = {
+//   type: 'union',
+//   options: [
+//     {
+//       type: 'string'
+//     },
+//     {
+//       type: 'number'
+//     }
+//   ]
+// };
+const zodexSchemaJSON = {
+  type: 'union',
+  options: [
+    {
+      type: 'boolean'
+    },
+    {
+      type: 'number'
+    },
+    {
+      type: 'nan'
+    },
+    {
+      type: 'bigInt'
+    },
+    {
+      type: 'string'
+    },
+    {
+      type: 'date'
+    },
+    {
+      type: 'undefined'
+    },
+    {
+      type: 'void'
+    },
+    {
+      type: 'null'
+    },
+    {
+      type: 'array'
+    },
+    {
+      type: 'object'
+    },
+    {
+      type: 'tuple'
+    },
+    {
+      type: 'record'
+    },
+    {
+      type: 'map'
+    },
+    {
+      type: 'set'
+    }
+
+    // Todo:
+    //        literal (boolean, number, string), enum subgroups
+    //        any, unknown, never, catch,
+    //        effect (and preset examples like -0, Infinity, -Infinity,
+    //          classes: Blob, Boolean, DOMException, Error, FileList,
+    //          File, noneditable?, Number, RegExp, String; subtypes:
+    //          BlobHTML; supertypes (including inner items): BufferSource,
+    //          DOMMatrix, DOMPoint, DOMRect, Errors, SpecialNumber)
+
+    // 'literal',
+    // 'enum',
+    // 'any',
+    // 'unknown',
+    // 'never',
+    // 'catch',
+    // 'effect'
+  ]
+};
 
 const keyPathNotExpectedTypeChoices = await formatAndTypeChoices({
   hasKeyPath: false,

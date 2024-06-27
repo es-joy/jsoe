@@ -41,10 +41,13 @@ const json = {
       return undefined; // Todo: Fix?
     }
   },
-  getTypesForState (types, state) {
+  getTypesAndSchemasForState (types, state) {
     /* istanbul ignore else -- No other states apparently */
     if (!state || ['array', 'object'].includes(state)) {
-      return this.types();
+      return {
+        types: this.types(),
+        schemaObjects: []
+      };
     }
     // Shouldn't normally reach here
     return undefined;

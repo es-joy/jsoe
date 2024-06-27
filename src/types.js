@@ -12,18 +12,23 @@ import {$e, $$e} from './utils/templateUtils.js';
 import nullType from './fundamentalTypes/nullType.js';
 import trueType from './subTypes/trueType.js';
 import falseType from './subTypes/falseType.js';
+import nanType from './fundamentalTypes/nanType.js';
 import blobHTMLType from './subTypes/blobHTMLType.js';
+import booleanType from './fundamentalTypes/booleanType.js';
 import numberType from './fundamentalTypes/numberType.js';
 import bigintType from './fundamentalTypes/bigintType.js';
 import stringType from './fundamentalTypes/stringType.js';
 import arrayReferenceType from './fundamentalTypes/arrayReferenceType.js';
 import objectReferenceType from './fundamentalTypes/objectReferenceType.js';
 import arrayType from './fundamentalTypes/arrayType.js';
+import tupleType from './fundamentalTypes/tupleType.js';
 import objectType from './fundamentalTypes/objectType.js';
+import recordType from './fundamentalTypes/recordType.js';
 import dateType from './fundamentalTypes/dateType.js';
 import setType from './fundamentalTypes/setType.js';
 import mapType from './fundamentalTypes/mapType.js';
 import undefinedType from './fundamentalTypes/undefinedType.js';
+import voidType from './fundamentalTypes/voidType.js';
 import regexpType from './fundamentalTypes/regexpType.js';
 import BooleanObjectType from './fundamentalTypes/BooleanObjectType.js';
 import NumberObjectType from './fundamentalTypes/NumberObjectType.js';
@@ -293,6 +298,10 @@ export const getPropertyValueFromLegend = (legend) => {
  *   it is a `Map`. Do not use in other types.
  * @property {boolean} [set] Private context variable. Whether or not
  *   it is a `Set`. Do not use in other types.
+ * @property {boolean} [record] Private context variable. Whether or not
+ *   it is a `Record`. Do not use in other types.
+ * @property {boolean} [tuple] Private context variable. Whether or not
+ *   it is a tuple type. Do not use in other types.
  * @property {boolean} [filelist] Private context variable. Whether or not
  *   it is a `FileList` type. Do not use in other types.
  * @property {boolean} [sparse] Private context variable. Whether or not
@@ -380,7 +389,8 @@ export const getPropertyValueFromLegend = (legend) => {
  *   "int8array"|"uint8array"|"uint8clampedarray"|"int16array"|"uint16array"|
  *   "int32array"|"uint32array"|"float32array"|"float64array"|"ValidDate"|
  *   "arrayNonindexKeys"|"error"|"errors"|"blob"|"domexception"|"domrect"|
- *   "dompoint"|"dommatrix"|"resurrectable"} AvailableType
+ *   "dompoint"|"dommatrix"|"resurrectable"|"boolean"|"nan"|"tuple"|
+ *   "record"|"void"} AvailableType
  */
 
 /**
@@ -410,16 +420,20 @@ class Types {
       null: nullType,
       true: trueType,
       false: falseType,
+      nan: nanType, // Schema type
+      boolean: booleanType, // Schema type
       number: numberType,
       bigint: bigintType,
       string: stringType,
       arrayReference: arrayReferenceType,
       objectReference: objectReferenceType,
       array: arrayType,
+      tuple: tupleType, // Schema type
       // Note: We don't do for BooleanObject/NumberObject/StringObject, date,
       //   regexp, as added properties on them are not being cloned (in Chrome
       //   at least)
       object: objectType,
+      record: recordType, // Schema type
       date: dateType,
 
       // This type is only for throwing upon cloning errors:
@@ -428,6 +442,7 @@ class Types {
       //   passed in:
       userObject: ['User objects'],
       undef: undefinedType,
+      void: voidType,
       SpecialRealNumber: SpecialRealNumberSuperType,
       SpecialNumber: SpecialNumberSuperType,
 
@@ -667,14 +682,15 @@ class Types {
 
   /** @type {GetTypeOptionsForFormatAndState} */
   getTypeOptionsForFormatAndState (format, parserState, schemaContent) {
-    const typesForFormatAndState = this.formats.getTypesForFormatAndState(
-      this, format, parserState, schemaContent
-    );
+    const typesForFormatAndState =
+      this.formats.getTypesAndSchemasForFormatAndState(
+        this, format, parserState, schemaContent
+      );
     if (!typesForFormatAndState) {
       throw new Error('Unexpected type for format and state');
     }
 
-    return typesForFormatAndState.map((type) => {
+    return typesForFormatAndState.types.map((type) => {
       return this.getOptionForType(type);
     });
   }
@@ -778,9 +794,9 @@ class Types {
     format, state, endMatchTypeObjs = [], firstRun = true,
     rootHolder = [], parent, parentPath, schemaObject
   }) {
-    const allowedTypes = this.formats.getTypesForFormatAndState(
+    const allowedTypes = this.formats.getTypesAndSchemasForFormatAndState(
       this, format, state, schemaObject
-    );
+    )?.types;
     if (!allowedTypes) {
       throw new Error('Could not get types for format and state');
     }

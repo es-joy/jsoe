@@ -39,12 +39,16 @@ video.recordedMedia {
   height: 60px;
 }
 
-[data-type="undef"] {
+[data-type="undef"], [data-type="void"] {
   background-color: green;
 }
 [data-type="null"] {
   background-color: lightgreen;
 }
+[data-type="nan"] {
+  background-color: green;
+}
+
 [data-type="true"] {
   background-color: blue;
   color: white;
@@ -52,16 +56,19 @@ video.recordedMedia {
 [data-type="false"] {
   background-color: pink;
 }
+[data-type="boolean"] {
+  background-color: aqua;
+}
 [data-type="number"] {
   background-color: violet;
 }
 [data-type="string"] {
   background-color: lightblue;
 }
-[data-type="array"], [data-type="sparseArrays"], [data-type="arrayNonindexKeys"] {
+[data-type="array"], [data-type="sparseArrays"], [data-type="arrayNonindexKeys"], [data-type="tuple"] {
   background-color: lightyellow;
 }
-[data-type="object"] {
+[data-type="object"], [data-type="record"] {
   background-color: orange;
 }
 

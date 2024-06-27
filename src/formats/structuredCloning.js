@@ -320,8 +320,10 @@ const canonicalToAvailableType = (
   types, formats, format, state, valType, v
 ) => {
   const frmt = formats.getAvailableFormat(format);
-  const {getTypesForState, convertFromTypeson, testInvalid} = frmt;
-  const allowableTypes = getTypesForState.call(frmt, types, state);
+  const {getTypesAndSchemasForState, convertFromTypeson, testInvalid} = frmt;
+  const allowableTypes = getTypesAndSchemasForState.call(
+    frmt, types, state
+  )?.types;
   /* istanbul ignore if -- Guard */
   if (!allowableTypes) {
     throw new Error('Unexpected undefined type for state');
@@ -445,9 +447,9 @@ const structuredCloning = {
       }
     });
   },
-  getTypesForState (types, state) {
+  getTypesAndSchemasForState (types, state) {
     if (state && types.getContextInfo('structuredCloning', state)) {
-      const typesForFormat = this.getTypesForState(types) ||
+      const typesForFormat = this.getTypesAndSchemasForState(types)?.types ||
         /* istanbul ignore next -- types should be an array */
         [];
       const contextInfo = types.getContextInfo('structuredCloning', state);
@@ -455,18 +457,30 @@ const structuredCloning = {
         const precedingIdx = typesForFormat.indexOf(after);
         typesForFormat.splice(precedingIdx + 1, 0, type);
       });
-      return typesForFormat;
+      return {
+        types: typesForFormat,
+        schemaObjects: []
+      };
     }
     // Todo: Could we implement schemas here by introducing new keys to
     //         `Types.contexts` which could be used rather than manual
     //         handling to determine a delimited group of children
     if (state === 'errorsArray') {
-      return ['error', 'errors'];
+      return {
+        types: ['error', 'errors'],
+        schemaObjects: []
+      };
     }
     if (state === 'filelistArray') {
-      return ['file'];
+      return {
+        types: ['file'],
+        schemaObjects: []
+      };
     }
-    return this.types();
+    return {
+      types: this.types(),
+      schemaObjects: []
+    };
     /*
     // Todo (low): These need to specify their own inner contexts
     if (['map', 'set'].includes(state)) {return;}

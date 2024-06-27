@@ -9,13 +9,13 @@ import schema from './formats/schema.js';
  */
 
 /**
- * @callback GetTypesForFormatAndState
+ * @callback GetTypesAndSchemasForFormatAndState
  * @param {import('./types.js').default} types
  * @param {AvailableFormat} format
  * @param {string} [state]
  * @param {import('./formatAndTypeChoices.js').ZodexSchema|
  *   undefined} [schemaObject]
- * @returns {import('./types.js').AvailableType[]|undefined}
+ * @returns {TypesAndSchemaObjects|undefined}
  */
 
 /* schema:
@@ -33,6 +33,13 @@ export const getTypeForFormatStateAndValue = ({format, state, value}) => {
 
 /**
  * @typedef {{
+ *   types: (import('./types.js').AvailableType)[],
+ *   schemaObjects: import('./formats/schema.js').ZodexSchema[]
+ * }} TypesAndSchemaObjects
+ */
+
+/**
+ * @typedef {{
  *   types: () => (import('./types.js').AvailableType)[],
  *   testInvalid?: (
  *     newType: string, value: Date|Array<StructuredCloneValue>
@@ -41,12 +48,11 @@ export const getTypeForFormatStateAndValue = ({format, state, value}) => {
  *     typesonType: import('./types.js').AvailableType
  *   ) => import('./types.js').AvailableType|undefined,
  *   iterate: import('./formats/structuredCloning.js').FormatIterator,
- *   getTypesForState: (
+ *   getTypesAndSchemasForState: (
  *     types: import('./types.js').default,
  *     state?: string,
  *     schemaObject?: import('./formatAndTypeChoices.js').ZodexSchema|undefined
- *   ) => undefined|
- *     (import('./types.js').AvailableType)[]
+ *   ) => TypesAndSchemaObjects|undefined
  * }} Format
  */
 
@@ -109,12 +115,12 @@ class Formats {
   }
 
   /**
-   * @type {GetTypesForFormatAndState}
+   * @type {GetTypesAndSchemasForFormatAndState}
    */
-  getTypesForFormatAndState (
+  getTypesAndSchemasForFormatAndState (
     types, format, state, schemaObject
   ) {
-    return this.availableFormats[format].getTypesForState(
+    return this.availableFormats[format].getTypesAndSchemasForState(
       types, state, schemaObject
     );
   }

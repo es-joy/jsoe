@@ -53,7 +53,8 @@
     "jamilih": "0.59.0",
     "jsonref": "^8.0.8",
     "sceditor": "3.2.0",
-    "typeson-registry": "10.0.0"
+    "typeson-registry": "10.0.0",
+    "zodex": "^0.14.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

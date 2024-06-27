@@ -33,9 +33,12 @@ const indexedDBKey = {
     stateObj.format = 'indexedDBKey';
     return structuredCloning.iterate(records, stateObj);
   },
-  getTypesForState (types, state) {
+  getTypesAndSchemasForState (types, state) {
     if (!state || ['array'].includes(state)) {
-      return this.types();
+      return {
+        types: this.types(),
+        schemaObjects: []
+      };
     }
     // Can't be object, so shouldn't normally reach here
     return undefined;

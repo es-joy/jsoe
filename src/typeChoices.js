@@ -163,7 +163,7 @@ export const buildTypeChoices = ({
         if (parEl.nodeName.toLowerCase() === 'fieldset') {
           parEl.dataset.type = type;
           DOM.filterChildElements(parEl, 'legend').forEach((legend) => {
-            /** @type {HTMLElement} */ (legend).dataset.type = type;
+            legend.dataset.type = type;
           });
         }
       },
