@@ -113,7 +113,8 @@ const arraybuffer = {
             stateObj.buffers.push(b);
             return {
                 s: encode(b),
-                maxByteLength: b.maxByteLength
+                maxByteLength: b.maxByteLength,
+                resizable: b.resizable
             };
         },
         revive (
@@ -137,7 +138,11 @@ const arraybuffer = {
             }
             const buffer = decode(
                 /** @type {string} */ (b64.s),
-                {maxByteLength: b64.maxByteLength}
+                b64.resizable
+                    // todo[engine:node@>20]: Remove comment
+                    /* c8 ignore next -- Node >= 20 */
+                    ? {maxByteLength: b64.maxByteLength}
+                    : undefined
             );
             stateObj.buffers.push(buffer);
             return buffer;
@@ -323,11 +328,11 @@ function generateUUID () { //  Adapted from original: public domain/MIT: http://
     let d = Date.now();
 
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/gu, function (c) {
-        /* eslint-disable no-bitwise -- Convenient */
+        /* eslint-disable no-bitwise, sonarjs/pseudo-random -- Convenient */
         const r = Math.trunc((d + (Math.random() * 16)) % 16);
         d = Math.floor(d / 16);
         return (c === 'x' ? r : ((r & 0x3) | 0x8)).toString(16);
-        /* eslint-enable no-bitwise -- Convenient */
+        /* eslint-enable no-bitwise, sonarjs/pseudo-random -- Convenient */
     });
 }
 
@@ -437,6 +442,7 @@ const dataview = {
             return {
                 encoded: encode(buffer),
                 maxByteLength: buffer.maxByteLength,
+                resizable: buffer.resizable,
                 byteOffset,
                 byteLength
             };
@@ -454,7 +460,8 @@ const dataview = {
                 stateObj.buffers = [];
             }
             const {
-                byteOffset, byteLength, encoded, index, maxByteLength
+                byteOffset, byteLength, encoded, index, maxByteLength,
+                resizable
             } = b64Obj;
             let buffer;
             if ('index' in b64Obj) {
@@ -462,10 +469,11 @@ const dataview = {
             } else {
                 buffer = decode(
                     encoded,
+                    // todo[engine:node@>20]: Remove comment
                     /* c8 ignore next 3 -- Depends on Node version */
-                    maxByteLength === undefined
-                        ? maxByteLength
-                        : {maxByteLength}
+                    resizable
+                        ? {maxByteLength}
+                        : maxByteLength
                 );
                 stateObj.buffers.push(buffer);
             }
@@ -1423,6 +1431,7 @@ function create (TypedArray) {
             stateObj.buffers.push(buffer);
             return {
                 maxByteLength: buffer.maxByteLength,
+                resizable: buffer.resizable,
                 encoded: encode(buffer),
                 byteOffset,
                 length: l
@@ -1441,7 +1450,8 @@ function create (TypedArray) {
                 stateObj.buffers = [];
             }
             const {
-                byteOffset, length: len, encoded, index, maxByteLength
+                byteOffset, length: len, encoded, index, maxByteLength,
+                resizable
             } = b64Obj;
             let buffer;
             if ('index' in b64Obj) {
@@ -1449,10 +1459,11 @@ function create (TypedArray) {
             } else {
                 buffer = decode(
                     encoded,
+                    // todo[engine:node@>20]: Remove comment
                     /* c8 ignore next 3 -- Depends on Node version */
-                    maxByteLength === undefined
-                        ? undefined
-                        : {maxByteLength}
+                    resizable
+                        ? {maxByteLength}
+                        : undefined
                 );
                 stateObj.buffers.push(buffer);
             }

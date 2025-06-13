@@ -5,6 +5,7 @@ describe('dialogs', function () {
   describe('makeDialog', function () {
     it('allows close argument', function (done) {
       const dialog = dialogs.makeDialog({
+        // @ts-ignore Sometimes errs
         close () {
           done();
         }
@@ -15,6 +16,7 @@ describe('dialogs', function () {
 
     it('allows true close argument', function (done) {
       const dialog = dialogs.makeDialog({
+        // @ts-ignore Sometimes errs
         close: true,
         atts: {
           $on: {
@@ -92,6 +94,7 @@ describe('dialogs', function () {
 
   describe('makeSubmitDialog', function () {
     it('submits', function (done) {
+      // @ts-ignore Sometimes errs
       const dialog = dialogs.makeSubmitDialog({
         submit ({e, dialog}) {
           expect(e).to.be.instanceOf(Event);

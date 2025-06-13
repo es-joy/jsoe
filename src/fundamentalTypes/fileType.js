@@ -82,7 +82,7 @@ function newFileForBinary (viewBinary, value) {
  * @returns {import('jamilih').JamilihArray}
  */
 function binaryButton (value, editable) {
-  // @ts-expect-error It's ok
+  // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
   return ['button', /** @type {import('jamilih').JamilihAttributes} */ ({
     class: 'viewBinary',
     $custom: {
@@ -376,7 +376,7 @@ const fileType = {
         })()
         : '',
       value.type.startsWith('image/')
-        // @ts-expect-error It's ok
+        // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
         ? ['img', /** @type {import('jamilih').JamilihAttributes} */ ({
           class: 'imageView',
           src: URL.createObjectURL(value),
@@ -554,7 +554,7 @@ const fileType = {
         ['legend', ['Supply file through upload']],
         ['label', [
           'File ',
-          // @ts-expect-error It's ok
+          // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
           ['input', /** @type {import('jamilih').JamilihAttributes} */ ({
             $on: {
               /**
@@ -819,7 +819,7 @@ const fileType = {
         })(),
         ' ',
         ['div', [
-          // @ts-expect-error It's ok
+          // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
           ['button', /** @type {import('jamilih').JamilihAttributes} */ ({
             class: 'recordMedia',
             $on: {

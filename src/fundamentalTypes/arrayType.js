@@ -1193,7 +1193,8 @@ const arrayType = {
                   this
                 ).$parseInt();
                 if (intVal === false) {
-                  inputs.reverse().some((input) => {
+                  inputs.reverse();
+                  inputs.some((input) => {
                     if (input === this) { // No need to search further
                       return true;
                     }

@@ -254,7 +254,7 @@ describe('String spec - Misc. (schemas)', () => {
       'textarea[name="demo-keypath-not-expected-string"]',
       'abc'
     ).then((elem) => {
-      // todo[cypress@>=14]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
+      // todo[cypress@>=16]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
       // expect(elem[0].validity.tooShort).to.equal(true);
       expect(elem[0].validity.tooLong).to.equal(false);
     });
@@ -264,7 +264,7 @@ describe('String spec - Misc. (schemas)', () => {
       'abcdefghijklmnop'
     ).then((elem) => {
       expect(elem[0].validity.tooShort).to.equal(false);
-      // todo[cypress@>=14]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
+      // todo[cypress@>=16]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
       // expect(elem[0].validity.tooLong).to.equal(true);
     });
 
@@ -289,7 +289,7 @@ describe('String spec - Misc. (schemas)', () => {
       'textarea[name="demo-keypath-not-expected-string"]',
       'abc'
     ).then((elem) => {
-      // todo[cypress@>=14]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
+      // todo[cypress@>=16]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
       // expect(elem[0].validity.tooShort).to.equal(true);
       expect(elem[0].validity.tooLong).to.equal(false);
     });
@@ -299,7 +299,7 @@ describe('String spec - Misc. (schemas)', () => {
       'abcdefghijklmnop'
     ).then((elem) => {
       expect(elem[0].validity.tooShort).to.equal(false);
-      // todo[cypress@>=14]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
+      // todo[cypress@>=16]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
       // expect(elem[0].validity.tooLong).to.equal(true);
     });
 

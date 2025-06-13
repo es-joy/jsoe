@@ -569,7 +569,7 @@
       });
 
       // eslint-disable-next-line @stylistic/max-len -- Long
-      // eslint-disable-next-line mocha/no-skipped-tests -- scinstance retrieval not working
+      // eslint-disable-next-line mocha/no-pending-tests -- scinstance retrieval not working
       it.skip('Selects a blob HTML', function () {
         const sel = 'section:nth-of-type(3) > .innerItem:nth-of-type(3) ' +
           arraySels;

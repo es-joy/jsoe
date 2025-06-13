@@ -41,7 +41,7 @@ export default [
       'no-shadow': 0,
 
       '@stylistic/quotes': ['error', 'single', {
-        avoidEscape: true, allowTemplateLiterals: true
+        avoidEscape: true, allowTemplateLiterals: 'always'
       }],
 
       'jsdoc/require-jsdoc': ['warn', {
