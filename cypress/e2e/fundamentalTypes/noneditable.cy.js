@@ -87,7 +87,6 @@ describe('Non-editable (Resurrectable) spec', () => {
       '#viewUIResults div[data-type="resurrectable"]'
     ).should('contain', 'Non-editable');
 
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line cypress/no-unnecessary-waiting -- Wait for timeout
     cy.wait(3000);
     cy.get(

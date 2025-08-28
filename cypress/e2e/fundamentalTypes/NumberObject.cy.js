@@ -60,7 +60,6 @@ describe('NumberObject spec', () => {
     );
 
     cy.get('button#logValue').click();
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
     cy.get('@consoleLog').should('be.calledWith', new Number(123.45));
   });

@@ -53,7 +53,6 @@ import buffersourceType from './superTypes/buffersourceType.js';
 import noneditableType from './fundamentalTypes/noneditableType.js';
 import neverType from './fundamentalTypes/neverType.js';
 import catchType from './fundamentalTypes/catchType.js';
-import nativeEnumType from './fundamentalTypes/nativeEnumType.js';
 
 import symbolType from './fundamentalTypes/symbolType.js';
 import promiseType from './fundamentalTypes/promiseType.js';
@@ -419,7 +418,7 @@ export const getPropertyValueFromLegend = (legend) => {
  *   "int32array"|"uint32array"|"float32array"|"float64array"|"ValidDate"|
  *   "arrayNonindexKeys"|"error"|"errors"|"blob"|"domexception"|"domrect"|
  *   "dompoint"|"dommatrix"|"resurrectable"|"boolean"|"nan"|"tuple"|
- *   "record"|"void"|"enum"|"literal"|"never"|"catch"|"nativeEnum"
+ *   "record"|"void"|"enum"|"literal"|"never"|"catch"
  * } AvailableType
  */
 
@@ -513,7 +512,6 @@ class Types {
       function: functionType,
 
       catch: catchType,
-      nativeEnum: nativeEnumType,
 
       buffersource: buffersourceType,
       dataview: {
@@ -1003,7 +1001,6 @@ class Types {
             // @ts-expect-error Reference method exists
             const val = typeObject.resolveReference(path, topRoot);
             const basicType = getJSONType(val);
-            // eslint-disable-next-line @stylistic/max-len -- Long
             /* istanbul ignore else -- Successful reference always an object/array? */
             if (
               ['array', 'object'].includes(type) && basicType === type

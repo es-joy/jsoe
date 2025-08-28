@@ -54,7 +54,7 @@
   "exports": {
     ".": {
       "browser": "./dist/jml.js",
-      "import": "./dist/jml-es.js",
+      "import": "./dist/jml.mjs",
       "require": "./dist/jml-jsdom.js"
     },
     "./dist/jml-jsdom.js": "./dist/jml-jsdom.js",

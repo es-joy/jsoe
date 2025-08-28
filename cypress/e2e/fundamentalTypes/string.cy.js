@@ -537,6 +537,50 @@ describe('String spec - Misc. (schemas)', () => {
     });
   });
 
+  it('checks ip v4 cidr', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodex schema instance strings 10'
+    );
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      // eslint-disable-next-line sonarjs/no-hardcoded-ip -- Safe
+      '192.168.1.0/24'
+    ).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      '2001:db8::/64'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value doesn't match IP v4 pattern.`
+      );
+    });
+  });
+
+  it('checks ip v6 cidr', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodex schema instance strings 11'
+    );
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      '2001:db8::/64'
+    ).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      // eslint-disable-next-line sonarjs/no-hardcoded-ip -- Safe
+      '192.168.1.0/24'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value doesn't match IP v6 pattern.`
+      );
+    });
+  });
+
   it('checks emoji', () => {
     cy.get('.formatChoices:first').select(
       'Schema: Zodex schema instance strings 9'
@@ -741,6 +785,32 @@ describe('String spec - Misc. (schemas)', () => {
     ).then((elem) => {
       expect(elem[0].validationMessage).to.equal(
         `Value does not match base64 pattern`
+      );
+    });
+  });
+
+  it('checks base64url', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodex schema instance strings 9'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'String (Base64 URL)'
+    );
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      'OTcsOTgsOTksMTAwLDEwMSwxMDI'
+    ).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      'ábc'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value does not match base64url pattern`
       );
     });
   });

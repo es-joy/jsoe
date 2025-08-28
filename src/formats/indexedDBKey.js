@@ -41,7 +41,6 @@ const indexedDBKey = {
         schemaObjects: []
       };
     }
-    // eslint-disable-next-line @stylistic/max-len -- Long
     /* istanbul ignore next -- Can't be object, so shouldn't normally reach here */
     return undefined;
   }

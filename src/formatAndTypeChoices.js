@@ -27,7 +27,6 @@ export const getFormatAndSchemaChoices = ({
   schemas, selectedSchema, hasKeyPath, preselectSchema, arbitraryJS = false
 } = {}) => {
   const hasSchema = schemas && schemas.length;
-  // eslint-disable-next-line @stylistic/max-len -- Long
   return /** @type {[optText: string, opts: {value: import('./formats.js').AvailableFormat, selected?: boolean}][]} */ ([
     ['JSON only', {value: 'json'}],
     ...(hasKeyPath
@@ -294,7 +293,6 @@ export async function formatAndTypeChoices ({
      * @returns {import('./formats.js').StructuredCloneValue}
      */
     getValue (stateObj, currentPath) {
-      // eslint-disable-next-line @stylistic/max-len -- Long
       const root = /** @type {HTMLDivElement & {$getTypeRoot: TypeRootGetter}} */ (
         typesHolder
       ).$getTypeRoot();
@@ -313,7 +311,6 @@ export async function formatAndTypeChoices ({
      * @returns {string}
      */
     getType () {
-      // eslint-disable-next-line @stylistic/max-len -- Long
       const root = /** @type {HTMLDivElement & {$getTypeRoot: TypeRootGetter}} */ (
         typesHolder
       ).$getTypeRoot();
@@ -324,7 +321,6 @@ export async function formatAndTypeChoices ({
      * @returns {boolean}
      */
     validValuesSet () {
-      // eslint-disable-next-line @stylistic/max-len -- Long
       const root = /** @type {HTMLDivElement & {$getTypeRoot: TypeRootGetter}} */ (
         typesHolder
       ).$getTypeRoot();
@@ -347,11 +343,9 @@ export async function formatAndTypeChoices ({
         )).rootUI
       );
       const type = Types.getTypeForRoot(rootEditUI);
-      // eslint-disable-next-line @stylistic/max-len -- Long
       const sel = /** @type {HTMLDivElement & {$getTypeSelect: TypeSelectGetter}} */ (
         typesHolder
       ).$getTypeSelect();
-      // eslint-disable-next-line @stylistic/max-len -- Long
       /** @type {HTMLSelectElement & {$addTypeAndEditUI: import('./typeChoices.js').AddTypeAndEditUI}} */ (
         sel
       ).$addTypeAndEditUI({type, editUI: rootEditUI});

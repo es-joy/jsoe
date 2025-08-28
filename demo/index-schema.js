@@ -15,7 +15,9 @@ import {
   schemaInstanceJSON10, schemaInstanceJSON11
 } from './schema-data.js';
 
-const zodexSchemaJSON = await (await fetch('./schema.zodex.json')).json();
+const zodexSchemaJSON = await (
+  await fetch('../vendor/zodex/dist/schema.zodex.json')
+).json();
 
 const anySchemaJSON = {
   type: 'any'
@@ -241,6 +243,34 @@ const schemaInstanceJSONStrings9 = {
       description: 'Base64',
       type: 'string',
       kind: 'base64'
+    },
+
+    {
+      description: 'Base64 URL',
+      type: 'string',
+      kind: 'base64url'
+    }
+  ]
+};
+
+const schemaInstanceJSONStrings10 = {
+  type: 'union',
+  options: [
+    {
+      type: 'string',
+      kind: 'cidr',
+      version: 'v4'
+    }
+  ]
+};
+
+const schemaInstanceJSONStrings11 = {
+  type: 'union',
+  options: [
+    {
+      type: 'string',
+      kind: 'cidr',
+      version: 'v6'
     }
   ]
 };
@@ -308,6 +338,10 @@ function getSchemaContent (schema) {
     return schemaInstanceJSONStrings8;
   case 'Zodex schema instance strings 9':
     return schemaInstanceJSONStrings9;
+  case 'Zodex schema instance strings 10':
+    return schemaInstanceJSONStrings10;
+  case 'Zodex schema instance strings 11':
+    return schemaInstanceJSONStrings11;
   case 'any schema':
     return anySchemaJSON;
   case 'unknown schema':
@@ -405,7 +439,6 @@ setTimeout(function () {
       $on: {
         async click () {
           const controls =
-            // eslint-disable-next-line @stylistic/max-len -- Long
             (await keyPathNotExpectedTypeChoices.formats.getControlsForFormatAndValue(
               keyPathNotExpectedTypeChoices.types,
               keyPathNotExpectedTypeChoices.formatChoices.

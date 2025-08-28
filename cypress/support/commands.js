@@ -111,7 +111,6 @@ Cypress.Commands.add(
    */
   (url, options) => {
     cy.visit(url, options);
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line cypress/no-unnecessary-waiting -- Not initially ready
     cy.wait(1000);
     checkAccessibility();

@@ -1,5 +1,9 @@
-import {datetimeRegex} from 'zod';
+import {core} from 'zod';
 import {$e} from '../utils/templateUtils.js';
+
+const datetimeRegex = core.regexes.datetime({
+  precision: 456
+});
 
 // Adapted from Zod: https://github.com/colinhacks/zod/blob/9257ab78eec366c04331a3c2d59deb344a02d9f6/src/types.ts
 const ipv4Regex =
@@ -10,7 +14,7 @@ const ipv6Regex =
 const base64Regex =
   /^([\da-zA-Z+/]{4})*(([\da-zA-Z+/]{2}==)|([\da-zA-Z+/]{3}=))?$/u;
 // from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
-const emojiRegexStr = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
+const emojiRegexStr = String.raw`^(\p{Extended_Pictographic}|\p{Emoji_Component})+$`;
 const emojiRegex = new RegExp(emojiRegexStr, 'u');
 const cuidRegex = /^c[^\s-]{8,}$/iu;
 const cuid2Regex = /^[\da-z]+$/u;
@@ -21,6 +25,13 @@ const nanoidRegex = /^[a-z\d_-]{21}$/iu;
 const durationRegex =
   // eslint-disable-next-line sonarjs/no-empty-after-reluctant -- Ok
   /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/u;
+// https://github.com/colinhacks/zod/blob/5bfc8f269a81d9edc283e7920868161e4129fb23/packages/zod/src/v3/types.ts#L642
+const base64urlRegex = /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/u;
+const ipv4CidrRegex =
+  /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\/(3[0-2]|[12]?\d)$/u;
+const ipv6CidrRegex =
+  /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]+|::(ffff(:0{1,4})?:)?((25[0-5]|(2[0-4]|1?\d)?\d)\.){3}(25[0-5]|(2[0-4]|1?\d)?\d)|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1?\d)?\d)\.){3}(25[0-5]|(2[0-4]|1?\d)?\d))\/(12[0-8]|1[01]\d|[1-9]?\d)$/u;
+
 // End adapted from Zod
 
 /**
@@ -29,12 +40,12 @@ const durationRegex =
  */
 function timeRegexSource (args) {
   // let regex = `\\d{2}:\\d{2}:\\d{2}`;
-  let regex = `([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d`;
+  let regex = String.raw`([01]\d|2[0-3]):[0-5]\d:[0-5]\d`;
 
   if (args.precision) {
-    regex = `${regex}\\.\\d{${args.precision}}`;
+    regex = String.raw`${regex}\.\d{${args.precision}}`;
   } else if (args.precision === null || args.precision === undefined) {
-    regex = `${regex}(\\.\\d+)?`;
+    regex = String.raw`${regex}(\.\d+)?`;
   }
   return regex;
 }
@@ -65,7 +76,7 @@ const stringType = {
   },
   getInput ({root}) {
     return /** @type {HTMLTextAreaElement} */ (
-      $e(root, '[data-type="string"] > textarea,input')
+      $e(root, '[data-type="string"] > textarea,input,select')
     );
   },
   setValue ({root, value}) {
@@ -75,10 +86,8 @@ const stringType = {
     return this.getInput({root}).value;
   },
   viewUI ({value, specificSchemaObject}) {
-    const kind = /** @type {import('zodex').SzString} */ (
-      specificSchemaObject
-    // @ts-expect-error Does exist
-    )?.kind;
+    const kind = specificSchemaObject && 'kind' in specificSchemaObject &&
+      specificSchemaObject.kind;
     return ['span', {
       dataset: {type: 'string'},
       title: specificSchemaObject?.description ??
@@ -93,8 +102,7 @@ const stringType = {
     const stringSchemaObject = /** @type {import('zodex').SzString} */ (
       specificSchemaObject
     );
-    // @ts-expect-error Does exist
-    const kind = stringSchemaObject?.kind;
+    const kind = 'kind' in stringSchemaObject ? stringSchemaObject.kind : null;
     const isLiteral = specificSchemaObject?.type === 'literal';
     const minlength = stringSchemaObject?.min ?? stringSchemaObject?.length;
     const maxlength = stringSchemaObject?.max ?? stringSchemaObject?.length;
@@ -106,15 +114,17 @@ const stringType = {
     const toUpperCase = stringSchemaObject?.toUpperCase;
     const trim = stringSchemaObject?.trim;
 
-    // @ts-expect-error It is indeed potentially present
-    const includes = stringSchemaObject?.includes;
-    // @ts-expect-error It is indeed potentially present
-    const position = stringSchemaObject?.position;
+    const includes = 'includes' in stringSchemaObject &&
+      stringSchemaObject.includes;
+    const position = 'position' in stringSchemaObject
+      ? stringSchemaObject.position
+      : undefined;
 
-    // @ts-expect-error It is indeed potentially present
-    const regex = stringSchemaObject?.regex;
-    // @ts-expect-error It is indeed potentially present
-    const flags = stringSchemaObject?.flags;
+    const regex = 'regex' in stringSchemaObject &&
+      stringSchemaObject.regex;
+    const flags = 'flags' in stringSchemaObject
+      ? stringSchemaObject.flags
+      : undefined;
 
     /**
      * @param {string} value
@@ -139,8 +149,8 @@ const stringType = {
       if (kind) {
         switch (kind) {
         case 'ip':
-          // @ts-expect-error Is present
-          switch (stringSchemaObject?.version) {
+          switch ('version' in stringSchemaObject &&
+              stringSchemaObject.version) {
           case 'v4':
             if (!ipv4Regex.test(value)) {
               return `Value doesn't match IP v4 pattern.`;
@@ -204,6 +214,25 @@ const stringType = {
             return `Value does not match base64 pattern`;
           }
           break;
+        case 'base64url':
+          if (!base64urlRegex.test(value)) {
+            return `Value does not match base64url pattern`;
+          }
+          break;
+        case 'cidr':
+          switch ('version' in stringSchemaObject &&
+            stringSchemaObject.version) {
+          case 'v4':
+            if (!ipv4CidrRegex.test(value)) {
+              return `Value doesn't match IP v4 cidr pattern.`;
+            }
+            break;
+          default:
+            if (!ipv6CidrRegex.test(value)) {
+              return `Value doesn't match IP v6 cidr pattern.`;
+            }
+          }
+          break;
         default:
           // 'email'|'url'|'date' should already be handled by the input element
           break;
@@ -232,7 +261,7 @@ const stringType = {
       dataset: {type: 'string'},
       title: specificSchemaObject?.description ?? 'String'
     }, [
-      [
+      kind && [
         // There is a `time` and `datetime-local` but they don't
         //    support milliseconds
         'email', 'url', 'date'
@@ -255,24 +284,32 @@ const stringType = {
           minlength: kind === 'date' ? undefined : minlength,
           maxlength: kind === 'date' ? undefined : maxlength
         }]
-        : ['textarea', {
-          $on: {
-            change () {
-              const that = /** @type {HTMLTextAreaElement} */ (this);
-              that.value = transform(that.value);
-              const message = checkValue(that.value);
-              that.setCustomValidity(message ?? '');
-              that.reportValidity();
-            }
-          },
-          name: `${typeNamespace}-string`,
-          disabled: isLiteral,
-          minlength, maxlength
-        }, [
-          isLiteral
-            ? specificSchemaObject?.value
-            : (value ?? specificSchemaObject?.defaultValue ?? '')
-        ]]
+        : isLiteral
+          ? ['select', specificSchemaObject.values.filter((
+            /** @type {string} */ val
+          ) => {
+            return typeof val === 'string';
+          }).map((
+            /** @type {string} */ val
+          ) => {
+            return ['option', [val]];
+          })]
+          : ['textarea', {
+            $on: {
+              change () {
+                const that = /** @type {HTMLTextAreaElement} */ (this);
+                that.value = transform(that.value);
+                const message = checkValue(that.value);
+                that.setCustomValidity(message ?? '');
+                that.reportValidity();
+              }
+            },
+            name: `${typeNamespace}-string`,
+            disabled: isLiteral,
+            minlength, maxlength
+          }, [
+            (value ?? specificSchemaObject?.defaultValue ?? '')
+          ]]
     ]];
   }
 };

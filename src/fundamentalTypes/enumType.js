@@ -36,9 +36,9 @@ const enumType = {
     }, [
       ['select', {
         name: `${typeNamespace}-enum`
-      }, /** @type {import('zodex').SzEnum} */ (
+      }, Object.values(/** @type {import('zodex').SzEnum} */ (
         specificSchemaObject
-      )?.values.map((val) => {
+      ).values).map((val) => {
         return ['option', {
           selected: value
             ? value === val

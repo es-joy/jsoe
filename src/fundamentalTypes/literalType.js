@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {jml} from '../vendor-imports.js';
 
 import booleanType from './booleanType.js';
 import numberType from './numberType.js';
@@ -53,27 +54,53 @@ const literalType = {
   editUI (arg) {
     const {specificSchemaObject} = arg;
     const {
-      value: val
-    } = /** @type {import('zodex').SzLiteral<any>} */ (specificSchemaObject);
+      values
+    } = /** @type {import('zodex').SzLiteral<(boolean|number|string)[]>} */ (
+      specificSchemaObject
+    );
 
-    let specificLiteralEditUI;
-    switch (typeof val) {
-    case 'boolean':
-      // arg.specificSchemaObject = {type: 'boolean'};
-      specificLiteralEditUI = booleanType.editUI(arg);
-      break;
-    case 'number':
-      // arg.specificSchemaObject = {type: 'number'};
-      specificLiteralEditUI = numberType.editUI(arg);
-      break;
-    case 'string': default:
-      // arg.specificSchemaObject = {type: 'string'};
-      specificLiteralEditUI = stringType.editUI(arg);
-      break;
-    }
+    return ['div', [
+      ['select', {$on: {
+        click (e) {
+          const val = /** @type {HTMLSelectElement} */ (e.target).value;
+          if (!val) {
+            return;
+          }
 
-    return ['div', {dataset: {type: 'literal'}}, [
-      specificLiteralEditUI
+          let specificLiteralEditUI;
+          switch (typeof val) {
+          // Todo: BigInt, null, undefined
+          case 'boolean':
+            // arg.specificSchemaObject = {type: 'boolean'};
+            specificLiteralEditUI = booleanType.editUI(arg);
+            break;
+          case 'number':
+            // arg.specificSchemaObject = {type: 'number'};
+            specificLiteralEditUI = numberType.editUI(arg);
+            break;
+          case 'string': default:
+            // arg.specificSchemaObject = {type: 'string'};
+            specificLiteralEditUI = stringType.editUI(arg);
+            break;
+          }
+
+          while (this.nextElementSibling?.firstChild) {
+            this.nextElementSibling.firstChild.remove();
+          }
+
+          this.nextElementSibling?.append(jml(...specificLiteralEditUI));
+        }
+      }}, [
+        ['option', {value: ''}, ['(Select a literal type)']],
+        ...(/** @type {([string, [string]])[]} */ ([
+          ['option', ['boolean']],
+          ['option', ['number']],
+          ['option', ['string']]
+        ]).filter(([, [type]]) => {
+          return !values || values.includes(type);
+        }))
+      ]],
+      ['div', {dataset: {type: 'literal'}}]
     ]];
   }
 };

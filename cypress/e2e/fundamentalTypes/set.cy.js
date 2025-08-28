@@ -59,7 +59,6 @@ describe('Set spec', () => {
     // // eslint-disable-next-line promise/catch-or-return -- Cypress
     // cy.get(
     //   sel + 'input[name="demo-keypath-not-expected-true2"][value=true]'
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // // eslint-disable-next-line promise/always-return, promise/prefer-await-to-then
     // ).then(($radio) => {
     //   expect(/** @type {HTMLInputElement} */ (

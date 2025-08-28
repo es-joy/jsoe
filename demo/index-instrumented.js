@@ -66,7 +66,6 @@ setTimeout(async function () {
       $on: {
         async click () {
           const controls =
-            // eslint-disable-next-line @stylistic/max-len -- Long
             (await keyPathNotExpectedTypeChoices.formats.getControlsForFormatAndValue(
               keyPathNotExpectedTypeChoices.types,
               $('#useIndexedDBKey').checked
@@ -355,19 +354,14 @@ setTimeout(async function () {
         setValue: true,
         value: [
           42, 123n, 'test123', new Date('1999-01-01T20:00'), badDate,
-          // eslint-disable-next-line @stylistic/max-len -- Long
           // eslint-disable-next-line require-unicode-regexp, sonarjs/no-empty-after-reluctant -- Testing
           /.*?/,
-          // eslint-disable-next-line @stylistic/max-len -- Long
           // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
           new Boolean(false),
-          // eslint-disable-next-line @stylistic/max-len -- Long
           // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
           new Boolean(true),
-          // eslint-disable-next-line @stylistic/max-len -- Long
           // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
           new Number(42),
-          // eslint-disable-next-line @stylistic/max-len -- Long
           // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
           new String('test123'),
           Number.NaN,
@@ -617,7 +611,6 @@ setTimeout(async function () {
               typeChoices({
                 format: 'indexedDBKey',
                 setValue: true,
-                // eslint-disable-next-line @stylistic/max-len -- Long
                 // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
                 value: [new String('Bad value')],
                 typeNamespace: 'demo-type-choices-only-initial-value'

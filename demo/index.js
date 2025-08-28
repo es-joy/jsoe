@@ -62,7 +62,6 @@ setTimeout(async function () {
       $on: {
         async click () {
           const controls =
-            // eslint-disable-next-line @stylistic/max-len -- Long
             (await keyPathNotExpectedTypeChoices.formats.getControlsForFormatAndValue(
               keyPathNotExpectedTypeChoices.types,
               $('#formatAndTypeChoices .formatChoices').value,

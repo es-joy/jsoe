@@ -79,7 +79,6 @@ const promiseType = {
     const childRoot = /** @type {HTMLDivElement} */ (
       $e(root, 'div[data-type]')
     );
-    // eslint-disable-next-line @stylistic/max-len -- Long
     return /** @type {HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement|HTMLButtonElement} */ (
       this.types?.getFormControlForRoot(childRoot)
     );
@@ -164,9 +163,7 @@ const promiseType = {
         buildTypeChoices
       )({
         // resultType,
-        // eslint-disable-next-line object-shorthand -- TS
         topRoot: /** @type {HTMLDivElement} */ (topRoot),
-        // eslint-disable-next-line object-shorthand -- TS
         format: /** @type {import('../formats.js').AvailableFormat} */ (format),
         schemaOriginal: schemaContent,
         schemaContent: /** @type {import('zodex').SzPromise} */ (

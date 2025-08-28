@@ -346,12 +346,10 @@ describe('file spec', () => {
 
       cy.get(sel + '.visualizer').should('be.visible');
 
-      // eslint-disable-next-line @stylistic/max-len -- Long
       // eslint-disable-next-line cypress/no-unnecessary-waiting -- Needed for stream to load
       cy.wait(1000);
       cy.get(sel + '.recordMedia').click();
 
-      // eslint-disable-next-line @stylistic/max-len -- Long
       // eslint-disable-next-line cypress/no-unnecessary-waiting -- Need some time recorded
       cy.wait(1000);
       cy.get(sel + '.stopRecording').click();
@@ -405,12 +403,10 @@ describe('file spec', () => {
 
       cy.get(sel + '.visualizer').should('not.be.visible');
 
-      // eslint-disable-next-line @stylistic/max-len -- Long
       // eslint-disable-next-line cypress/no-unnecessary-waiting -- Needed for stream to load
       cy.wait(1000);
       cy.get(sel + '.recordMedia').click();
 
-      // eslint-disable-next-line @stylistic/max-len -- Long
       // eslint-disable-next-line cypress/no-unnecessary-waiting -- Need some time recorded
       cy.wait(1000);
       cy.get(sel + '.stopRecording').click();
@@ -463,12 +459,10 @@ describe('file spec', () => {
 
       cy.get(sel + '.visualizer').should('be.visible');
 
-      // eslint-disable-next-line @stylistic/max-len -- Long
       // eslint-disable-next-line cypress/no-unnecessary-waiting -- Needed for stream to load
       cy.wait(1000);
       cy.get(sel + '.recordMedia').click();
 
-      // eslint-disable-next-line @stylistic/max-len -- Long
       // eslint-disable-next-line cypress/no-unnecessary-waiting -- Need some time recorded
       cy.wait(1000);
       cy.get(sel + '.stopRecording').click();

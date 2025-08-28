@@ -14,7 +14,9 @@ import {
 
 import FileList from '../src/utils/FileList.js';
 
-const zodexSchemaJSON = await (await fetch('./schema.zodex.json')).json();
+const zodexSchemaJSON = await (
+  await fetch('../vendor/zodex/dist/schema.zodex.json')
+).json();
 
 /**
  * @param {any[]} values
@@ -72,13 +74,10 @@ setTimeout(function () {
         new Blob(['abc'], {
           type: 'text/plain'
         }),
-        // eslint-disable-next-line @stylistic/max-len -- Long
         // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Deliberate allowance
         new Boolean(true),
-        // eslint-disable-next-line @stylistic/max-len -- Long
         // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Deliberate allowance
         new Number(100),
-        // eslint-disable-next-line @stylistic/max-len -- Long
         // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Deliberate allowance
         new String('abc'),
         -0,

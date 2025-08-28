@@ -6,12 +6,10 @@ import structuredCloning from './structuredCloning.js';
 import {resolveJSONPointer} from '../utils/jsonPointer.js';
 import {copyObject} from '../utils/objects.js';
 
-/* eslint-disable jsdoc/valid-types -- https://github.com/jsdoc-type-pratt-parser/jsdoc-type-pratt-parser/issues/147 */
 /**
  * @typedef {T[keyof T]} ValueOf<T>
  * @template T
  */
-/* eslint-enable jsdoc/valid-types -- https://github.com/jsdoc-type-pratt-parser/jsdoc-type-pratt-parser/issues/147 */
 
 /**
  * @typedef {ValueOf<
@@ -54,10 +52,10 @@ const zodexToStructuredCloningTypeMap = new Map([
   // Todo: Filter out for cloning-only
   ['symbol', 'symbol'],
   ['promise', 'promise'],
-  ['function', 'function'],
+  // ['function', 'function'],
 
-  ['catch', 'catch'],
-  ['nativeEnum', 'nativeEnum']
+  ['catch', 'catch']
+  // ['nativeEnum', 'nativeEnum']
 ]);
 
 /**
@@ -221,6 +219,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
     //   set.add(schemaObject);
     //   set.add(properties.type.defaultValue);
     // }
+    // eslint-disable-next-line unicorn/no-immediate-mutation -- May add above
     set.add(schemaObject);
     return set;
   }
@@ -322,42 +321,6 @@ export function getTypesForSchema (schemaObject, originalJSON) {
       //   }
       // },
       {
-        type: 'nativeEnum',
-        values: {
-          type: 'union',
-          options: [
-            {
-              description: 'Numeric',
-              type: 'record',
-              key: {
-                type: 'number'
-              },
-              value: {
-                type: 'string'
-              }
-            },
-            {
-              description: 'String',
-              type: 'record',
-              key: {
-                type: 'string'
-              },
-              value: {
-                type: 'union',
-                options: [
-                  {
-                    type: 'string'
-                  },
-                  {
-                    type: 'number'
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      },
-      {
         type: 'array',
         element: {
           type: 'any'
@@ -381,176 +344,177 @@ export function getTypesForSchema (schemaObject, originalJSON) {
       {
         type: 'never'
       },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'regexp',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'blob',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'BooleanObject',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'NumberObject',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'StringObject',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'SpecialRealNumber',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'domexception',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'error',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'filelist',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'file',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'resurrectable', // noneditable
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'blobHTML',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'buffersource',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'dommatrix',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'dompoint',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'domrect',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
-      {
-        type: 'effect',
-        effects: [
-          {
-            name: 'errors',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      },
+      // Todo: Need to convert
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'regexp',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'blob',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'BooleanObject',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'NumberObject',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'StringObject',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'SpecialRealNumber',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'domexception',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'error',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'filelist',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'file',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'resurrectable', // noneditable
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'blobHTML',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'buffersource',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'dommatrix',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'dompoint',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'domrect',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
+      // {
+      //   type: 'effect',
+      //   effects: [
+      //     {
+      //       name: 'errors',
+      //       type: 'refinement'
+      //     }
+      //   ],
+      //   inner: {type: 'any'}
+      // },
       // Todo: Adapt into a widget to drag to point back to another object
       {
         description: 'JSON Reference',
@@ -567,7 +531,9 @@ export function getTypesForSchema (schemaObject, originalJSON) {
       // console.log('originalJSON', originalJSON, schemaObject.$ref);
       const refObj = resolveJSONPointer({
         obj: originalJSON,
-        path: /** @type {import('zodex').SzRef} */ (schemaObject).$ref
+        path: /** @type {import('zodex').SzRef} */ (
+          schemaObject
+        ).$ref
       });
       return getTypesForSchema(refObj, originalJSON);
     }
@@ -631,11 +597,12 @@ const schema = {
         parentSchema
       ).value;
       break;
-    case 'effect':
-      currentSchema = /** @type {import('zodex').SzEffect} */ (
-        parentSchema
-      ).inner;
-      break;
+    // Todo: Replace
+    // case 'effect':
+    //   currentSchema = /** @type {import('zodex').SzEffect} */ (
+    //     parentSchema
+    //   ).inner;
+    //   break;
     // eslint-disable-next-line sonarjs/no-duplicated-branches -- Maintenance
     case 'promise':
       currentSchema = /** @type {import('zodex').SzPromise} */ (
@@ -664,7 +631,9 @@ const schema = {
     }
     const schemaObjects = [...getTypesForSchema(
       /** @type {import('zodex').SzType} */ (currentSchema),
-      /** @type {import('zodex').SzType} */ (stateObj.schemaContent)
+      /** @type {import('zodex').SzType} */ (
+        stateObj.schemaContent
+      )
     )];
     // console.log(
     //   'vvv', v, currentSchema,
@@ -690,12 +659,14 @@ const schema = {
       }
       // console.log('parsed', parsed.success, v, schema);
       if (parsed.success) {
-        let type = zodexToStructuredCloningTypeMap.get(schema.type);
-        if (!type && schema.type === 'effect') {
-          type = /** @type {import('../types.js').AvailableType} */ (
-            schema.effects[0].name
-          );
-        }
+        const type = zodexToStructuredCloningTypeMap.get(schema.type);
+
+        // Todo: Replace
+        // if (!type && schema.type === 'effect') {
+        //   type = /** @type {import('../types.js').AvailableType} */ (
+        //     schema.effects[0].name
+        //   );
+        // }
 
         const typeObject =
           /** @type {Required<import('../types.js').TypeObject>} */ (
@@ -752,7 +723,9 @@ const schema = {
     // alert(JSON.stringify(schemaObject));
     const schemaObjects = [...getTypesForSchema(
       schemaObject,
-      /** @type {import('zodex').SzType} */ (schemaOriginal) ?? schemaObject
+      /** @type {import('zodex').SzType} */ (
+        schemaOriginal
+      ) ?? schemaObject
     )];
 
     // Note: Zod does not support array/object references
@@ -767,14 +740,15 @@ const schema = {
 
     return {
       schemaObjects,
-      types: typeArray.map((item, idx) => {
-        if (item === 'effect') {
-          return /** @type {import('../types.js').AvailableType} */ (
-            /** @type {import('zodex').SzEffect} */ (
-              schemaObjects[idx]
-            ).effects[0].name
-          );
-        }
+      types: typeArray.map((item /* , idx */) => {
+        // Todo: Replace
+        // if (item === 'effect') {
+        //   return /** @type {import('../types.js').AvailableType} */ (
+        //     /** @type {import('zodex').SzEffect} */ (
+        //       schemaObjects[idx]
+        //     ).effects[0].name
+        //   );
+        // }
         return /** @type {import('../types.js').AvailableType} */ (
           zodexToStructuredCloningTypeMap.get(item)
         );

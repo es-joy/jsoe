@@ -77,7 +77,6 @@ describe('regexp spec', () => {
     );
 
     cy.get('button#logValue').click();
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line require-unicode-regexp, sonarjs/no-empty-after-reluctant -- Testing
     cy.get('@consoleLog').should('be.calledWith', /.*?/);
   });
@@ -115,7 +114,6 @@ describe('regexp spec', () => {
 
   it('gets value', function () {
     cy.clearTypeAndBlur('#getValueForString', '/.*?/');
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line require-unicode-regexp, sonarjs/no-empty-after-reluctant -- Testing
     cy.get('@consoleLog').should('be.calledWith', /.*?/);
   });

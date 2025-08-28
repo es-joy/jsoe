@@ -2253,7 +2253,6 @@ describe('Record spec (schema)', function () {
         'abc'
       );
 
-      // eslint-disable-next-line @stylistic/max-len -- Long
       // eslint-disable-next-line cypress/no-unnecessary-waiting -- Validates late
       cy.wait(500);
 

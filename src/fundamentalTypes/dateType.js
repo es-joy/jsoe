@@ -21,7 +21,6 @@ const dateType = {
   option: ['Date'],
   // ISO Date string
   dateRegex: /^(?:\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)$/u, // ([+-][0-2]\d:[0-5]\d|Z)
-  // eslint-disable-next-line @stylistic/max-len -- Long
   // /^(?:\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}\.\d{3}Z)?|(?:\+|-)\d{6}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)$/u,
   stringRegex () {
     const regex = this.dateRegex;
@@ -53,11 +52,9 @@ const dateType = {
 
     const dateStr = new Date(Date.parse(value)).toISOString();
     /* istanbul ignore next -- See below */
-    // eslint-disable-next-line @stylistic/max-len -- Long
     /* istanbul ignore next -- 6 digits year not reliable through `Date.parse` */
     this.getInput({root}).value = dateStr.length === 24
       ? dateStr.slice(0, -8)
-      // eslint-disable-next-line @stylistic/max-len -- Long
       /* istanbul ignore next -- 6 digits year not reliable through `Date.parse` */
       : dateStr.slice(3, 13); // Will cut off ten/hundred thousand years
   },

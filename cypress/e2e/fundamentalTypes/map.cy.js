@@ -176,7 +176,6 @@ describe('Map spec', () => {
     // cy.get(
     //   sel +
     //   'fieldset:nth-of-type(2) select.typeChoices-key-type-choices-only'
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // // eslint-disable-next-line promise/always-return, promise/prefer-await-to-then
     // ).then(($select) => {
     //   expect(/** @type {HTMLSelectElement} */ (
@@ -227,7 +226,6 @@ describe('Map spec', () => {
     // cy.get(
     //   sel +
     //   'fieldset:nth-of-type(2) select.typeChoices-key-type-choices-only'
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // // eslint-disable-next-line promise/always-return, promise/prefer-await-to-then
     // ).then(($select) => {
     //   expect(/** @type {HTMLSelectElement} */ (
@@ -269,7 +267,6 @@ describe('Map spec', () => {
     // cy.get(
     //   sel +
     //   'fieldset:nth-of-type(2) select.typeChoices-key-type-choices-only'
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // // eslint-disable-next-line promise/always-return, promise/prefer-await-to-then
     // ).then(($select) => {
     //   expect(/** @type {HTMLSelectElement} */ (

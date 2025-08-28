@@ -60,7 +60,6 @@ describe('StringObject spec', () => {
     );
 
     cy.get('button#logValue').click();
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
     cy.get('@consoleLog').should('be.calledWith', new String('test123'));
   });

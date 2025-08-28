@@ -116,9 +116,7 @@ const catchType = {
           buildTypeChoices
         )({
           // resultType,
-          // eslint-disable-next-line object-shorthand -- TS
           topRoot: /** @type {HTMLDivElement} */ (topRoot),
-          // eslint-disable-next-line object-shorthand -- TS
           format: /** @type {import('../formats.js').AvailableFormat} */ (
             format
           ),

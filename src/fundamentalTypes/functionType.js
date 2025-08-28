@@ -259,7 +259,6 @@ const functionType = {
         buildTypeChoices
       )({
         // resultType,
-        // eslint-disable-next-line object-shorthand -- TS
         topRoot: /** @type {HTMLDivElement} */ (topRoot),
         format: 'schema', // We're always supplying a schema
         // schemaOriginal: schemaContent,
@@ -275,7 +274,6 @@ const functionType = {
         buildTypeChoices
       )({
         // resultType,
-        // eslint-disable-next-line object-shorthand -- TS
         topRoot: /** @type {HTMLDivElement} */ (topRoot),
         format: 'schema', // We're always supplying a schema
         // schemaOriginal: schemaContent,

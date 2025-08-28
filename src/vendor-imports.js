@@ -1,5 +1,5 @@
 export {jml, body, nbsp, $} from 'jamilih';
-// export {jml, body, nbsp, $} from '../node_modules/jamilih/dist/jml-es.js';
+// export {jml, body, nbsp, $} from '../node_modules/jamilih/dist/jml.mjs';
 
 export {
   getJSONType, Typeson, unescapeKeyPathComponent, structuredCloningThrowing,

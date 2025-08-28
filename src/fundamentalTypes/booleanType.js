@@ -33,8 +33,15 @@ const booleanType = {
   editUI ({typeNamespace, specificSchemaObject, value}) {
     this.ct++;
     const isLiteral = specificSchemaObject?.type === 'literal';
-    const val = isLiteral
-      ? specificSchemaObject?.value
+    const booleanVals = /** @type {import('zodex').SzLiteral<boolean[]>} */ (
+      specificSchemaObject)?.values.filter((
+      /** @type {boolean} */ val
+    ) => {
+      return typeof val === 'boolean';
+    });
+    const hasOneValue = isLiteral && booleanVals.length === 1;
+    const val = hasOneValue
+      ? booleanVals[0]
       : (value ?? specificSchemaObject?.defaultValue);
     return ['div', {
       dataset: {type: 'boolean'},
@@ -43,7 +50,7 @@ const booleanType = {
       ['label', [
         'True',
         ['input', {
-          disabled: isLiteral,
+          disabled: hasOneValue,
           type: 'radio', name: `${typeNamespace}-boolean${this.ct}`,
           value: 'true', checked: typeof val === 'boolean' ? val : true
         }]

@@ -568,13 +568,11 @@
         cy.get(sel + 'input').should('have.value', '1999-01-01');
       });
 
-      // eslint-disable-next-line @stylistic/max-len -- Long
       // eslint-disable-next-line mocha/no-pending-tests -- scinstance retrieval not working
       it.skip('Selects a blob HTML', function () {
         const sel = 'section:nth-of-type(3) > .innerItem:nth-of-type(3) ' +
           arraySels;
 
-        // eslint-disable-next-line @stylistic/max-len -- Long
         // eslint-disable-next-line cypress/no-unnecessary-waiting -- Waiting on sceditor
         cy.wait(3500);
 

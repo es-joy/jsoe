@@ -232,7 +232,6 @@ const arrayType = {
       }
       // console.log('vvv', stringVal, beginOnly, v);
       if (assign) {
-        // eslint-disable-next-line @stylistic/max-len -- Long
         /** @type {{[key: string]: import('../formats.js').StructuredCloneValue}} */ (
           retObj
         )[pr] = v;
@@ -441,7 +440,6 @@ const arrayType = {
             ? /** @type {import('zodex').SzObject} */ (
               specificSchemaObject
             )?.properties?.[propName]?.description ?? propName
-            // eslint-disable-next-line @stylistic/max-len -- Long
             /* istanbul ignore next -- Won't reach here as typeson will always give keypath? */
             : itemIndex
         ]]
@@ -713,14 +711,12 @@ const arrayType = {
         swapCountElem.textContent = base;
         baseCountElem.textContent = swap;
       } else {
-        // eslint-disable-next-line @stylistic/max-len -- Long
         const swapCountElem = /** @type {HTMLInputElement & {$parseInt: ParseInt}} */
           (/**
            * @type {HTMLFieldSetElement & {$getPropertyInput: GetPropertyInput}}
            */ (
               group
             ).$getPropertyInput());
-        // eslint-disable-next-line @stylistic/max-len -- Long
         const baseCountElem = /** @type {HTMLInputElement & {$parseInt: ParseInt}} */
           (/**
            * @type {HTMLFieldSetElement & {$getPropertyInput: GetPropertyInput}}
@@ -748,7 +744,6 @@ const arrayType = {
         group.before(swapGroup);
       }
       types.validateAllReferences({
-        // eslint-disable-next-line object-shorthand -- TS
         topRoot: /** @type {HTMLDivElement} */ (topRoot)
       }); // Needed
 
@@ -907,7 +902,7 @@ const arrayType = {
           );
         const highest = /** @type {number} */ (inputsExceedingLength.map(
           (i) => Number.parseInt(i.value)
-        ).sort().at(-1));
+        ).toSorted().at(-1));
         arrLengthInput.value = String(highest + 1);
         arrLengthInput.$oldvalue = String(highest + 1);
         // Does have potential side effects calling `$inputsExceedingLength`
@@ -924,7 +919,6 @@ const arrayType = {
             setValue: propName !== undefined && type === 'record',
             // Needed as false when map value supplied
             autoTrigger: propName === undefined || type === 'record',
-            // eslint-disable-next-line object-shorthand -- TS
             format: /** @type {import('../formats.js').AvailableFormat} */ (
               format
             ),
@@ -981,7 +975,6 @@ const arrayType = {
 
                 // Needed?
                 types.validateAllReferences({
-                  // eslint-disable-next-line object-shorthand -- TS
                   topRoot: /** @type {HTMLDivElement} */ (topRoot)
                 });
               }, true]
@@ -1139,7 +1132,6 @@ const arrayType = {
                   // Todo (low): We could make this more efficient by waiting
                   //   until all added (when pre-populating)
                   types.validateAllReferences({
-                    // eslint-disable-next-line object-shorthand -- TS
                     topRoot: /** @type {HTMLDivElement} */ (topRoot)
                   }); // Needed
                 } catch {}
@@ -1188,7 +1180,6 @@ const arrayType = {
                   el.closest('fieldset')
                 );
                 const thisFieldset = getFieldset(this);
-                // eslint-disable-next-line @stylistic/max-len -- Long
                 const intVal = /** @type {HTMLInputElement & {$parseInt: ParseInt}} */ (
                   this
                 ).$parseInt();
@@ -1444,7 +1435,6 @@ const arrayType = {
      */
     const decrementItemIndex = (arrayItems) => {
       if (sparse) {
-        // eslint-disable-next-line @stylistic/max-len -- Long
         itemIndex = /** @type {(HTMLInputElement & {$parseInt: ParseInt})[]} */ (
           arrayItems.$getPropertyInputs()
         ).reduce(
@@ -1475,9 +1465,7 @@ const arrayType = {
       )({
         autoTrigger,
         // resultType,
-        // eslint-disable-next-line object-shorthand -- TS
         topRoot: /** @type {HTMLDivElement} */ (topRoot),
-        // eslint-disable-next-line object-shorthand -- TS
         format: /** @type {import('../formats.js').AvailableFormat} */ (format),
         schemaOriginal: schemaContent,
         schemaIdx,
@@ -1618,9 +1606,7 @@ const arrayType = {
         } else if (typeof splice === 'number') {
           itemIndex = splice + 1;
         } else if (typeof splice !== 'string') {
-          // eslint-disable-next-line @stylistic/max-len -- Long
           itemIndex = /** @type {(HTMLInputElement & {$parseInt: ParseInt})[]} */ (
-            // eslint-disable-next-line @stylistic/max-len -- Long
             /** @type {HTMLDivElement & {$getPropertyInputs: GetPropertyInputs}} */
             (arrayItems).$getPropertyInputs()
           ).reduce(
@@ -1654,7 +1640,6 @@ const arrayType = {
                     root,
                     stateObj: {
                       types,
-                      // eslint-disable-next-line object-shorthand -- TS
                       formats:
                       /** @type {import('../formats.js').default} */ (
                         formats
@@ -1830,7 +1815,6 @@ const arrayType = {
             // Maybe not needed as addition (without renumbering)
             //   wouldn't yet add type
             types.validateAllReferences({
-              // eslint-disable-next-line object-shorthand -- TS
               topRoot: /** @type {HTMLDivElement} */ (topRoot)
             });
             arrayItems.$redrawMoveArrows();
@@ -1862,7 +1846,6 @@ const arrayType = {
                 }
                 // Maybe not needed as removal would remove circular
                 types.validateAllReferences({
-                  // eslint-disable-next-line object-shorthand -- TS
                   topRoot: /** @type {HTMLDivElement} */ (topRoot)
                 });
 
@@ -1981,7 +1964,6 @@ const arrayType = {
           // Maybe not needed as addition (without renumbering)
           //   wouldn't yet add type
           types.validateAllReferences({
-            // eslint-disable-next-line object-shorthand -- TS
             topRoot: /** @type {HTMLDivElement} */ (topRoot)
           });
         }}
@@ -2055,7 +2037,6 @@ const arrayType = {
                     });
                     // Maybe not needed as removal would remove circular
                     types.validateAllReferences({
-                      // eslint-disable-next-line object-shorthand -- TS
                       topRoot: /** @type {HTMLDivElement} */ (topRoot)
                     });
                   } else {
@@ -2160,7 +2141,6 @@ const arrayType = {
             this.closest('.arrayContents')
           );
           const arrayItems =
-            // eslint-disable-next-line @stylistic/max-len -- Long
             /** @type {HTMLDivElement & {$getPropertyInputs: GetPropertyInputs;}} */ (
               $e(/** @type {HTMLElement} */ (arrayContents), '.arrayItems')
             );
@@ -2168,14 +2148,12 @@ const arrayType = {
           if (lastElement && !lastElement.matches('[data-required]')) {
             lastElement.remove();
             decrementItemIndex(arrayItems);
-            // eslint-disable-next-line @stylistic/max-len -- Long
             /** @type {HTMLDivElement & {$redrawMoveArrows: RedrawMoveArrows}} */ (
               $e(/** @type {HTMLElement} */ (arrayContents), '.arrayItems')
             ).$redrawMoveArrows();
           }
           // Maybe not needed as removal would remove circular
           types.validateAllReferences({
-            // eslint-disable-next-line object-shorthand -- TS
             topRoot: /** @type {HTMLDivElement} */ (topRoot)
           });
         }}}, ['- Last item']],
@@ -2185,7 +2163,6 @@ const arrayType = {
             /** @type {HTMLElement} */ (this).closest('.arrayContents')
           );
           const arrayItems =
-            // eslint-disable-next-line @stylistic/max-len -- Long
             /** @type {HTMLDivElement & {$getPropertyInputs: GetPropertyInputs}} */ ($e(
               arrayContents,
               '.arrayItems'
@@ -2207,7 +2184,6 @@ const arrayType = {
           }
           // Maybe not needed as removal would remove circular
           types.validateAllReferences({
-            // eslint-disable-next-line object-shorthand -- TS
             topRoot: /** @type {HTMLDivElement} */ (topRoot)
           });
         }}}, ['x All']]
@@ -2230,7 +2206,6 @@ const arrayType = {
           dataset: {type},
           // is: 'array-or-object-editor',
           $custom: {
-            // eslint-disable-next-line @stylistic/max-len -- Long
             /** @type {import('../formats/structuredCloning.js').AddAndSetArrayElement} */
             $addAndSetArrayElement ({
               propName, type, value, bringIntoFocus, setAValue,

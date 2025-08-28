@@ -26,7 +26,6 @@ describe('blobHTML spec', () => {
       'blobHTML'
     );
 
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line cypress/no-unnecessary-waiting -- Waiting on sceditor
     cy.wait(1000);
 
@@ -52,7 +51,6 @@ describe('blobHTML spec', () => {
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'blobHTML'
     );
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line cypress/no-unnecessary-waiting -- Waiting on sceditor
     cy.wait(1000);
 
@@ -83,7 +81,6 @@ describe('blobHTML spec', () => {
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'blobHTML'
     );
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line cypress/no-unnecessary-waiting -- Waiting on sceditor
     cy.wait(1000);
 
@@ -109,7 +106,6 @@ describe('blobHTML spec', () => {
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'blobHTML'
     );
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line cypress/no-unnecessary-waiting -- Waiting on sceditor
     cy.wait(1000);
 
@@ -150,7 +146,6 @@ describe('blobHTML spec', () => {
 
   // For the "Type choices with initial value set" control
   it('gets a value set onload', function () {
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line cypress/no-unnecessary-waiting -- Waiting on sceditor
     cy.wait(1500);
 
@@ -181,7 +176,6 @@ describe('blobHTML spec (schemas)', () => {
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'blobHTML'
     );
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line cypress/no-unnecessary-waiting -- Waiting on sceditor
     cy.wait(1000);
 

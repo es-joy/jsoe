@@ -81,7 +81,6 @@ const dialogs = {
           if (cancel) {
             if (
               cancel.call(
-                // eslint-disable-next-line object-shorthand -- Needed for TS
                 this, {e: /** @type {Event} */ (e), dialog}
               ) === false
             ) {
@@ -111,7 +110,6 @@ const dialogs = {
         class: submitClass,
         $on: {
           click (e) {
-            // eslint-disable-next-line object-shorthand -- Needed for TS
             submit.call(this, {e: /** @type {Event} */ (e), dialog});
           }
         }

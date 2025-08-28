@@ -63,7 +63,10 @@ const encapsulateObserver = (stateObj) => {
 
   /**
    * @type {{
-   *   [key: string]: [import('zodex').SzType, number|undefined]|undefined
+   *   [key: string]: [
+   *     import('zodex').SzType,
+   *     number|undefined
+   *   ]|undefined
    * }}
    */
   const schemaParents = {};
@@ -303,13 +306,11 @@ const encapsulateObserver = (stateObj) => {
       if (!readonly) {
         types?.setValue({
           type: newType,
-          // eslint-disable-next-line object-shorthand -- TS
           root: /** @type {HTMLDivElement} */ (root),
           value: newValue
         });
         types?.validate({
           type: newType,
-          // eslint-disable-next-line object-shorthand -- TS
           root: /** @type {HTMLDivElement} */ (root),
           topRoot: /** @type {HTMLDivElement} */ (stateObj.rootUI),
           // We don't want focus when values auto-added
@@ -368,7 +369,10 @@ const replaceTypes = (originTypes, replacements) => {
  * @param {import('../formats.js').StructuredCloneValue} v The value being
  *   checked.
  * @param {string} arrayOrObjectPropertyName
- * @param {[import('zodex').SzType, number|undefined]|undefined} parentSchema
+ * @param {[
+ *   import('zodex').SzType,
+ *   number|undefined
+ * ]|undefined} parentSchema
  * @param {import('../types.js').StateObject} stateObj The schema content
  *   being checked.
  * @throws {Error} May throw if data found to be invalid.

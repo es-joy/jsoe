@@ -1,5 +1,4 @@
 import {DOM, $$e, $e, $$} from '../../../instrumented/utils/templateUtils.js';
-// eslint-disable-next-line @stylistic/max-len -- Long
 // import {DOM, $$e, $e, $$} from '../../../src/utils/templateUtils.js'; // Test Cypress TS
 
 describe('templateUtils (DOM)', function () {

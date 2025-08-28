@@ -263,7 +263,6 @@ export const buildTypeChoices = ({
             // Avoid JSON references by using this by default (or only?)
             (schemaObjs?.[sel.selectedIndex - 1]) ??
 
-            // eslint-disable-next-line @stylistic/max-len -- Long
             /* istanbul ignore next -- Can probably remove as `schemaObjs` will be set */
             (schemaContent?.type === 'union' && schemaIdx !== undefined
               /* istanbul ignore next -- Can probably remove */
@@ -384,7 +383,6 @@ export const buildTypeChoices = ({
           Types.getTypeForRoot(/** @type {HTMLDivElement} */ (
             rootEditUI
           ));
-        // eslint-disable-next-line @stylistic/max-len -- Long
         /** @type {HTMLSelectElement & {$addTypeAndEditUI: AddTypeAndEditUI}} */ (
           sel
         ).$addTypeAndEditUI({

@@ -50,7 +50,6 @@ describe('BooleanObject spec', () => {
     );
 
     cy.get('button#logValue').click();
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
     cy.get('@consoleLog').should('be.calledWith', new Boolean(true));
   });
@@ -65,7 +64,6 @@ describe('BooleanObject spec', () => {
     ).click();
 
     cy.get('button#logValue').click();
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
     cy.get('@consoleLog').should('be.calledWith', new Boolean(false));
   });
@@ -82,7 +80,6 @@ describe('BooleanObject spec', () => {
 
   it('gets value', function () {
     cy.clearTypeAndBlur('#getValueForString', 'Boolean(true)');
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
     cy.get('@consoleLog').should('be.calledWith', new Boolean(true));
   });

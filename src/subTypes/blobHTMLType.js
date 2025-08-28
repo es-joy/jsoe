@@ -95,7 +95,6 @@ const blobHTMLType = {
         }
       }}, ['View source']]
     ]);
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line promise/prefer-await-to-then -- Not an async method
     this.loadBlob(value).then((
       result
@@ -106,7 +105,6 @@ const blobHTMLType = {
         srcdoc: val
       }, div);
       return undefined;
-    // eslint-disable-next-line @stylistic/max-len -- Long
     // eslint-disable-next-line promise/prefer-await-to-then -- Not an async method
     }).catch(
       /* istanbul ignore next -- How to simulate? */

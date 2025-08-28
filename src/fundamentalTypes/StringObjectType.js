@@ -10,10 +10,8 @@ const StringObjectType = {
     return toStringTag(x) === 'String' && typeof x === 'object';
   },
   toValue (s) {
-    // eslint-disable-next-line @stylistic/max-len -- Long
     /* eslint-disable no-new-wrappers, unicorn/new-for-builtins -- Deliberate creation here */
     return {value: new String(s)};
-    // eslint-disable-next-line @stylistic/max-len -- Long
     /* eslint-enable no-new-wrappers, unicorn/new-for-builtins -- Deliberate creation here */
   },
   option: ['StringObject'],

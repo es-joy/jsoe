@@ -66,31 +66,64 @@ const numberType = {
     const epsilon = 150 * Number.EPSILON;
     const maxEpsilon = 300 * Number.EPSILON;
 
+    const isInteger = () => {
+      return 'format' in numberSchemaObject && numberSchemaObject.format && [
+        'int32', 'uint32', 'safeint'
+      ].includes(numberSchemaObject.format);
+    };
+
+    const min = numberSchemaObject?.min ??
+      ('format' in numberSchemaObject && numberSchemaObject.format
+        ? {
+          int32: -2147483648,
+          uint32: 0,
+          safeint: Number.MIN_SAFE_INTEGER,
+          float32: 1.1754943508222875e-38,
+          float64: Number.MIN_VALUE
+        }[numberSchemaObject.format]
+        : undefined);
+
+    const max = numberSchemaObject?.max ??
+      ('format' in numberSchemaObject && numberSchemaObject.format
+        ? {
+          int32: 2147483647,
+          uint32: 4294967295,
+          safeint: Number.MAX_SAFE_INTEGER,
+          float32: 3.4028234663852886e+38,
+          float64: Number.MAX_VALUE
+        }[numberSchemaObject.format]
+        : undefined);
+
     return ['div', {
       dataset: {type: 'number'},
       title: specificSchemaObject?.description ?? 'Number'
     }, [
       ['input', {
-        disabled: isLiteral,
+        // disabled: isLiteral,
         name: `${typeNamespace}-number`,
-        type: 'number',
-        min: numberSchemaObject?.min
+        // Numeric type can't impose `pattern`
+        type: isLiteral ? 'text' : 'number',
+        min: min
           ? numberSchemaObject?.minInclusive
-            ? numberSchemaObject?.min
-            : numberSchemaObject?.min +
-              (numberSchemaObject?.int ? 1 : epsilon)
+            ? min
+            : min + (
+              (isInteger() ? 1 : epsilon)
+            )
           : undefined,
-        max: numberSchemaObject?.max
+        max: max
           ? numberSchemaObject?.maxInclusive
-            ? numberSchemaObject?.max
-            : numberSchemaObject?.max -
-              (numberSchemaObject?.int ? 1 : maxEpsilon)
+            ? max
+            : max -
+              (isInteger() ? 1 : maxEpsilon)
           : undefined,
         step: numberSchemaObject?.multipleOf ??
-          (numberSchemaObject?.int ? '1' : 'any'),
-        value: isLiteral
-          ? specificSchemaObject?.value
-          : (value ?? specificSchemaObject?.defaultValue ?? '')
+          (isInteger() ? '1' : 'any'),
+        pattern: isLiteral && specificSchemaObject?.values
+          ? specificSchemaObject.values.filter((/** @type {number} */ val) => {
+            return typeof val === 'number';
+          }).join('|')
+          : undefined,
+        value: (value ?? specificSchemaObject?.defaultValue ?? '')
       }]
     ]];
   }

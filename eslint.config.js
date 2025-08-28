@@ -40,6 +40,13 @@ export default [
       'no-console': 0,
       'no-shadow': 0,
 
+      // For now
+      'jsdoc/reject-any-type': 0,
+      'jsdoc/reject-function-type': 0,
+
+      // Too cumbersome with @type casts
+      '@stylistic/max-len': 0,
+
       '@stylistic/quotes': ['error', 'single', {
         avoidEscape: true, allowTemplateLiterals: 'always'
       }],
