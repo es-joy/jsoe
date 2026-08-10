@@ -153,10 +153,11 @@ export const getPropertyValueFromLegend = (legend) => {
  * }}
  */
 
+/* eslint-disable jsdoc/valid-types -- readonly reserved */
 /**
 * @typedef {{
 *   typeNamespace?: string,
-*   "readonly"?: boolean,
+*   readonly?: boolean,
 *   format?: import('./formats.js').AvailableFormat,
 *   formats?: import('./formats.js').default,
 *   types?: Types,
@@ -174,6 +175,7 @@ export const getPropertyValueFromLegend = (legend) => {
 *   handlingReference?: boolean
 * }} StateObject
 */
+/* eslint-enable jsdoc/valid-types -- readonly reserved */
 
 /* eslint-disable jsdoc/valid-types -- readonly reserved */
 /**
@@ -412,17 +414,17 @@ export const getPropertyValueFromLegend = (legend) => {
  */
 
 /**
- * @typedef {"null"|"true"|"false"|"number"|"bigint"|"bigintObject"|
- *   "string"|"arrayReference"|
- *   "objectReference"|"array"|"object"|"date"|"userObject"|"undef"|
- *   "SpecialRealNumber"|"SpecialNumber"|"regexp"|"BooleanObject"|
- *   "NumberObject"|"StringObject"|"map"|"set"|"file"|"filelist"|"blobHTML"|
- *   "buffersource"|"dataview"|"imagedata"|"imagebitmap"|
- *   "int8array"|"uint8array"|"uint8clampedarray"|"int16array"|"uint16array"|
- *   "int32array"|"uint32array"|"float32array"|"float64array"|"ValidDate"|
- *   "arrayNonindexKeys"|"error"|"errors"|"blob"|"domexception"|"domrect"|
- *   "dompoint"|"dommatrix"|"resurrectable"|"boolean"|"nan"|"tuple"|
- *   "record"|"void"|"enum"|"literal"|"never"|"catch"
+ * @typedef {"null"|"true"|"false"|"number"|"bigint"|"bigintObject"
+ *   |"string"|"arrayReference"
+ *   |"objectReference"|"array"|"object"|"date"|"userObject"|"undef"
+ *   |"SpecialRealNumber"|"SpecialNumber"|"regexp"|"BooleanObject"
+ *   |"NumberObject"|"StringObject"|"map"|"set"|"file"|"filelist"|"blobHTML"
+ *   |"buffersource"|"dataview"|"imagedata"|"imagebitmap"
+ *   |"int8array"|"uint8array"|"uint8clampedarray"|"int16array"|"uint16array"
+ *   |"int32array"|"uint32array"|"float32array"|"float64array"|"ValidDate"
+ *   |"arrayNonindexKeys"|"error"|"errors"|"blob"|"domexception"|"domrect"
+ *   |"dompoint"|"dommatrix"|"resurrectable"|"boolean"|"nan"|"tuple"
+ *   |"record"|"void"|"enum"|"literal"|"never"|"catch"
  * } AvailableType
  */
 

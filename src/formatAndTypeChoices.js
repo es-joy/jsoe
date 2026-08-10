@@ -30,10 +30,10 @@ import {$e, DOM} from './utils/templateUtils.js';
  */
 /**
  * Sets the desired format and rebuilds the type choices.
- * @callback SetFormat
  * @this {HTMLSelectElement & {
  *   $buildTypeChoices: TypeChoiceBuilder
  * }}
+ * @callback SetFormat
  * @param {{
  *   valueFormat?: import('./formats.js').AvailableFormat,
  *   autoTrigger: boolean,

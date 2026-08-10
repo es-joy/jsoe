@@ -31,8 +31,8 @@ export const getTypeForFormatStateAndValue = ({format, state, value}) => {
 */
 
 /**
- * @typedef {"indexedDBKey"|"json"|"structuredCloning"|
- *   "arbitraryJS"|"schema"} AvailableFormat
+ * @typedef {"indexedDBKey"|"json"|"structuredCloning"
+ *   |"arbitraryJS"|"schema"} AvailableFormat
  */
 
 /**
