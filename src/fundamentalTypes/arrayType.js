@@ -11,6 +11,18 @@ import FileList from '../utils/FileList.js';
 let optionalPropertyId = 0;
 
 /**
+ * @callback AddAndSetArrayElement
+ * @param {{
+ *   propName: string,
+ *   type: import('../types.js').AvailableType,
+ *   value: import('../formats.js').StructuredCloneValue,
+ *   bringIntoFocus: boolean,
+ *   schemaContent: import('../formats/schema.js').ZodexSchema,
+ * }} cfg
+ * @returns {Element}
+ */
+
+/**
  * @typedef {number} Integer
  */
 /**
@@ -190,6 +202,7 @@ const arrayType = {
           : this.map
             ? new Map(/** @type {Array<any>} */ (retObj))
             : this.filelist
+              // @ts-expect-error -- Virtual API
               ? new FileList(retObj)
               : retObj,
         remnant: stringVal
@@ -358,6 +371,7 @@ const arrayType = {
       );
     }
     return this.filelist
+      // @ts-expect-error -- Virtual API
       ? new FileList(ret)
       : this.set && Array.isArray(ret)
         ? new Set(ret)
@@ -445,24 +459,35 @@ const arrayType = {
         ]]
       ]];
     };
+
+    /**
+     * @typedef {HTMLDivElement & {
+     *   $addAndSetArrayElement: AddAndSetArrayElement,
+     *   $addMapElement: () => HTMLFieldSetElement,
+     *   $addArrayElement: (cfg: {propName: string}) => HTMLFieldSetElement,
+     *   $getArrayItems: () => HTMLElement,
+     *   _lastFieldset?: HTMLFieldSetElement|null
+     * }} ArrayHolder
+     */
+
+    /**
+     * @callback AddMapElement
+     * @returns {HTMLFieldSetElement}
+     */
+
     const div = jml('div', /** @type {import('jamilih').JamilihAttributes} */ ({
       class: 'arrayHolder',
       dataset: {type},
       $custom: {
         /**
-         * @param {{
-         *   propName: string,
-         *   type: import('../types.js').AvailableType,
-         *   value: import('../formats.js').StructuredCloneValue,
-         *   bringIntoFocus: boolean,
-         *   schemaContent: import('../formats/schema.js').ZodexSchema,
-         * }} cfg
-         * @returns {Element}
+         * @this {ArrayHolder}
+         * @param {Parameters<AddAndSetArrayElement>[0]} cfg
          */
-        $addAndSetArrayElement ({
-          propName, type, value, bringIntoFocus,
-          schemaContent
-        }) {
+        $addAndSetArrayElement (cfg) {
+          const {
+            propName, type, value, bringIntoFocus,
+            schemaContent
+          } = cfg;
           if (parentType === 'map') {
             const root = types.getUIForModeAndType({
               resultType,
@@ -531,7 +556,8 @@ const arrayType = {
           return root;
         },
         /**
-         * @returns {HTMLFieldSetElement}
+         * @this {ArrayHolder}
+         * @type {AddMapElement}
          */
         $addMapElement () {
           itemIndex++;
@@ -550,10 +576,12 @@ const arrayType = {
           return fieldset;
         },
         /**
+         * @this {ArrayHolder}
          * @param {{propName: string}} cfg
          * @returns {HTMLFieldSetElement}
          */
-        $addArrayElement ({propName}) {
+        $addArrayElement (cfg) {
+          const {propName} = cfg;
           itemIndex++;
           const arrayItems = this.$getArrayItems();
           // const className = `${type}Item`;
@@ -569,8 +597,14 @@ const arrayType = {
           ], arrayItems);
           return fieldset;
         },
+        /**
+         * @this {ArrayHolder}
+         * @returns {HTMLElement}
+         */
         $getArrayItems () {
-          return this.lastElementChild.lastElementChild;
+          return /** @type {HTMLElement} */ (
+            /** @type {Element} */ (this.lastElementChild).lastElementChild
+          );
         }
       }
     }), [
@@ -858,7 +892,7 @@ const arrayType = {
      *   typeNamespace: string|undefined,
      *   arrayItems: ArrayItems,
      *   propName: string|undefined,
-     *   required?: true,
+     *   required?: boolean,
      *   schema?: import('zodex').SzType
      * }} cfg
      * @returns {import('jamilih').JamilihArray}
@@ -1114,11 +1148,11 @@ const arrayType = {
             */
             $custom: {
               /**
-               * @type {Validate}
                * @this {HTMLInputElement & {
                *   $validateLength: ValidateLength,
                *   $validateLegend: ValidateLegend
                * }}
+               * @type {Validate}
                */
               async $validate () {
                 try {
@@ -1151,10 +1185,11 @@ const arrayType = {
               $arrayItems: arrayItems,
               $validateLength,
               /**
-               * @type {Resort}
                * @this {HTMLInputElement}
+               * @param {Parameters<Resort>[0]} cfg
                */
-              $resort ({alwaysFocus}) {
+              $resort (cfg) {
+                const {alwaysFocus} = cfg;
                 const inputs = /**
                 * @type {(HTMLInputElement & {
                 *   $parseInt: ParseInt
@@ -1577,7 +1612,7 @@ const arrayType = {
      *   propName?: string,
      *   splice?: "append"|number,
      *   alwaysFocus?: true
-     *   required?: true
+     *   required?: boolean
      *   autoTrigger?: boolean,
      *   schema?: import('zodex').SzType,
      *   schemaIdx?: number
@@ -2192,25 +2227,44 @@ const arrayType = {
 
     const parentType = type;
 
+    /**
+     * @typedef {() => HTMLElement} GetAddArrayElement
+     */
+
+    /**
+     * @typedef {HTMLDivElement & {
+     *   $addAndSetArrayElement:
+     *     import('../formats/structuredCloning.js').AddAndSetArrayElement,
+     *   $addArrayElement: AddArrayElement,
+     *   $getArrayItems: () => HTMLElement,
+     *   $getAddArrayElement: GetAddArrayElement,
+     *   $getTypeChoices: () => HTMLSelectElement & {
+     *     $setType: import('../typeChoices.js').SetType,
+     *     $getTypeRoot: import('../formatAndTypeChoices.js').TypeRootGetter
+     *   }
+     * }} DivArrayOrObjectHolder
+     */
+
     const div =
       /**
-       * @type {HTMLDivElement & {
-       *   $addAndSetArrayElement:
-       *     import('../formats/structuredCloning.js').AddAndSetArrayElement,
-       *   $addArrayElement: AddArrayElement
-       *   $getArrayItems: GetArrayItems,
-       *   $getMapKeySelects?: GetMapKeySelects
-       * }}
+       * @type {DivArrayOrObjectHolder}
        */ (
+        /** @type {unknown} */ (
         jml('div', /** @type {import('jamilih').JamilihAttributes} */ ({
           dataset: {type},
           // is: 'array-or-object-editor',
           $custom: {
-            /** @type {import('../formats/structuredCloning.js').AddAndSetArrayElement} */
-            $addAndSetArrayElement ({
-              propName, type, value, bringIntoFocus, setAValue,
-              schemaContent: schema, schemaIdx, mustBeOptional
-            }) {
+            /**
+             * @this {DivArrayOrObjectHolder}
+             * @param {Parameters<
+             *   import('../formats/structuredCloning.js').AddAndSetArrayElement
+             * >[0]} cfg
+             */
+            $addAndSetArrayElement (cfg) {
+              const {
+                propName, type, value, bringIntoFocus, setAValue,
+                schemaContent: schema, schemaIdx, mustBeOptional
+              } = cfg;
               if (parentType === 'map') {
                 if (propName === '0') {
                   this.$addArrayElement({
@@ -2274,11 +2328,13 @@ const arrayType = {
                     types.getTypeObject(type)
                   );
                 if (typeObj.setValue) {
-                  typeObj.setValue({root, value});
+                  typeObj.setValue({
+                    root: /** @type {HTMLDivElement} */ (root), value
+                  });
                 }
               }
               types.validate({
-                type, root, topRoot,
+                type, root: /** @type {HTMLDivElement} */ (root), topRoot,
                 // We don't want focus when values auto-added
                 avoidReport: true
               });
@@ -2286,26 +2342,28 @@ const arrayType = {
             },
 
             /**
-             * @typedef {() => Element} GetAddArrayElement
+             * @this {DivArrayOrObjectHolder}
+             * @type {GetAddArrayElement}
              */
-
-            /** @type {GetAddArrayElement} */
             $getAddArrayElement () {
-              const el = this.
-                lastElementChild.firstElementChild.nextElementSibling;
-              return sparse ? el.nextElementSibling : el;
+              const el = /** @type {Element} */ (
+                /** @type {Element} */ (
+                  this.lastElementChild
+                ).firstElementChild
+              ).nextElementSibling;
+              return /** @type {HTMLElement} */ (
+                sparse ? el?.nextElementSibling : el
+              );
             },
             /**
-             * @type {AddArrayElement}
-             * @this {HTMLDivElement & {
-             *   $getAddArrayElement: GetAddArrayElement
-             * }}
+             * @this {DivArrayOrObjectHolder}
+             * @param {Parameters<AddArrayElement>[0]} cfg
              */
-            // @ts-expect-error TS is apparently getting wrong $addArrayElement
-            $addArrayElement ({
-              propName, splice, alwaysFocus, required, schema, schemaIdx,
-              autoTrigger
-            }) {
+            $addArrayElement (cfg) {
+              const {
+                propName, splice, alwaysFocus, required, schema, schemaIdx,
+                autoTrigger
+              } = cfg;
               const addArrayElement = this.$getAddArrayElement();
               /**
                * @type {HTMLButtonElement & {
@@ -2319,16 +2377,36 @@ const arrayType = {
                 autoTrigger
               });
             },
+            /**
+             * @this {DivArrayOrObjectHolder}
+             * @returns {HTMLElement}
+             */
             $getArrayItems () {
-              const addArrayElement = this.$getAddArrayElement();
-              return addArrayElement.previousElementSibling;
+              return /** @type {HTMLElement} */ (
+                this.$getAddArrayElement().previousElementSibling
+              );
             },
+            /**
+             * @this {DivArrayOrObjectHolder}
+             * @returns {HTMLSelectElement & {
+             *   $setType: import('../typeChoices.js').SetType,
+             *   $getTypeRoot: import('../formatAndTypeChoices.js').TypeRootGetter
+             * }}
+             */
             $getTypeChoices () {
               const arrayItems = this.$getArrayItems();
-              return $e(
-                arrayItems.lastElementChild,
-                `fieldset > .typeChoices-${typeNamespace}` // Avoid keys
-              );
+              const typeChoices =
+                /**
+                 * @type {HTMLSelectElement & {
+                 *   $setType: import('../typeChoices.js').SetType,
+                 *   $getTypeRoot: import('../formatAndTypeChoices.js').
+                 *     TypeRootGetter
+                 * }}
+                 */ ($e(
+                  /** @type {Element} */ (arrayItems.lastElementChild),
+                  `fieldset > .typeChoices-${typeNamespace}` // Avoid keys
+                ));
+              return typeChoices;
             }
           },
           $on: {
@@ -2398,6 +2476,7 @@ const arrayType = {
           minusButton,
           arrayContents
         ]))
+        )
       );
     topRoot = topRoot || div;
 

@@ -161,7 +161,7 @@ export const getPropertyValueFromLegend = (legend) => {
 *   formats?: import('./formats.js').default,
 *   types?: Types,
 *   error?: Error,
-*   rootUI?: Element,
+*   rootUI?: HTMLElement,
 *   schema?: string,
 *   schemaParent?: import('./formats/schema.js').ZodexSchema,
 *   schemaContent?: import('./formats/schema.js').ZodexSchema,
@@ -304,6 +304,10 @@ export const getPropertyValueFromLegend = (legend) => {
  */
 
 /**
+ * @typedef {((nonGrouping?: boolean) => RegExp)} StringMatcher
+ */
+
+/**
  * @typedef {object} TypeObject
  * @property {[
  *   string, {value?: AvailableType, title?: string}?
@@ -325,7 +329,7 @@ export const getPropertyValueFromLegend = (legend) => {
  * @property {boolean} [valid] Private context variable. Whether or not
  *   it is a valid date. Do not use in other types.
  * @property {string[]} [regexEndings] Used for string parsing.
- * @property {RegExp|((nonGrouping?: boolean) => RegExp)} [stringRegex] Used
+ * @property {RegExp|StringMatcher} [stringRegex] Used
  *   for string parsing. If not present, use `stringRegexBegin` and
  *   `stringRegexEnd`.
  * @property {RegExp} [stringRegexBegin] Used for string parsing. If not

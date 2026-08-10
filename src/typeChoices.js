@@ -20,7 +20,22 @@ import dialogs from './utils/dialogs.js';
 /**
  * @typedef {(info: {
  *   type: string,
- *   editUI: Element,
+ *   specificSchema?: import('zodex').SzType
+ * }) => void} SetTypeNoEditUI
+ */
+/**
+ * @callback Validate
+ * @param {{avoidReport?: boolean}} cfg
+ * @returns {boolean}
+ */
+/**
+ * @typedef {() => false|null|HTMLElement} GetTypeRoot
+ */
+
+/**
+ * @typedef {(info: {
+ *   type: string,
+ *   editUI: HTMLElement,
  *   specificSchema?: import('zodex').SzType
  * }) => void} AddTypeAndEditUI
  */
@@ -39,9 +54,19 @@ import dialogs from './utils/dialogs.js';
  */
 
 /**
- * @typedef {HTMLElement & {
+ * @typedef {(info: {editUI: HTMLElement}) => void} AddEditUI
+ */
+
+/**
+ * @typedef {HTMLSelectElement & {
  *   $addAndValidateEditUI: AddAndValidateEditUI,
- *   $setStyles: SetStyles
+ *   $setStyles: SetStyles,
+ *   $getTypeRoot: GetTypeRoot,
+ *   $getContainer: () => HTMLElement,
+ *   $getTopRoot: () => HTMLDivElement,
+ *   $addEditUI: AddEditUI,
+ *   $validate: Validate,
+ *   $setTypeNoEditUI: SetTypeNoEditUI
  * }} TypeChoicesElementAPI
  */
 
@@ -152,7 +177,7 @@ export const buildTypeChoices = ({
       currentPath
     );
   };
-  const sel = jml('select', {
+  const sel = /** @type {HTMLSelectElement} */ (jml('select', {
     hidden: requireObject || typeOptions.length === 1,
     class: `typeChoices-${typeNamespace}${keySelectClass
       ? ' ' + keySelectClass
@@ -161,10 +186,14 @@ export const buildTypeChoices = ({
     // is: 'type-choices',
     $custom: {
       $getValue,
-      /** @type {SetType} */
-      $setType ({
-        type, baseValue, bringIntoFocus, avoidReport, specificSchema
-      }) {
+      /**
+       * @this {TypeChoicesElementAPI}
+       * @param {Parameters<SetType>[0]} cfg
+       */
+      $setType (cfg) {
+        const {
+          type, baseValue, bringIntoFocus, avoidReport, specificSchema
+        } = cfg;
         if (schemaObjs && specificSchema) {
           const idx = schemaObjs.map((obj) => {
             return JSON.stringify(obj);
@@ -181,12 +210,11 @@ export const buildTypeChoices = ({
         this.$addAndValidateEditUI({baseValue, bringIntoFocus, avoidReport});
       },
       /**
-       * @type {(info: {
-       *   type: string,
-       *   specificSchema?: import('zodex').SzType
-       * }) => void} cfg
+       * @this {TypeChoicesElementAPI}
+       * @param {Parameters<SetTypeNoEditUI>[0]} cfg
        */
-      $setTypeNoEditUI ({type, specificSchema}) {
+      $setTypeNoEditUI (cfg) {
+        const {type, specificSchema} = cfg;
         if (schemaObjs && specificSchema) {
           const idx = schemaObjs.map((obj) => {
             return JSON.stringify(obj);
@@ -198,14 +226,19 @@ export const buildTypeChoices = ({
         this.$setStyles();
       },
 
-      /** @type {SetStyles} */
+      /**
+       * @this {TypeChoicesElementAPI}
+       * @type {SetStyles}
+       */
       $setStyles () {
         const {value: type} = this;
         this.dataset.type = type; // Used for styling
-        let ancestorEl = this.parentElement;
+        let ancestorEl = /** @type {HTMLElement} */ (this.parentElement);
         if (ancestorEl.nodeName.toLowerCase() !== 'fieldset') {
           // Grandparent check added for optional items placeholder
-          ancestorEl = this.parentElement.parentElement;
+          ancestorEl = /** @type {HTMLElement} */ (
+            /** @type {HTMLElement} */ (this.parentElement).parentElement
+          );
         }
         if (ancestorEl.nodeName.toLowerCase() === 'fieldset') {
           ancestorEl.dataset.type = type;
@@ -214,6 +247,10 @@ export const buildTypeChoices = ({
           });
         }
       },
+      /**
+       * @this {TypeChoicesElementAPI}
+       * @type {GetTypeRoot}
+       */
       $getTypeRoot () {
         const container = this.$getContainer();
         /* istanbul ignore if -- How to replicate? */
@@ -223,11 +260,16 @@ export const buildTypeChoices = ({
         return $e(container, 'div[data-type]');
       },
 
-      /** @type {AddAndValidateEditUI} */
-      $addAndValidateEditUI (/* istanbul ignore next -- Backup */ {
-        baseValue, bringIntoFocus, schemaObject, avoidReport
-      /* istanbul ignore next -- Backup */
-      } = {}) {
+      /**
+       * @this {TypeChoicesElementAPI}
+       * @param {Parameters<AddAndValidateEditUI>[0]} [cfg]
+       */
+      $addAndValidateEditUI (
+        /* istanbul ignore next -- Backup */ cfg = {}
+      ) {
+        const {
+          baseValue, bringIntoFocus, schemaObject, avoidReport
+        } = cfg;
         const {value: type} = this;
 
         if (!type) {
@@ -242,7 +284,7 @@ export const buildTypeChoices = ({
         editUI = types.getUIForModeAndType({
           readonly: false,
           typeNamespace,
-          type,
+          type: /** @type {import('./types.js').AvailableArbitraryType} */ (type),
           bringIntoFocus,
           hasValue: type === 'arrayNonindexKeys' && baseValue,
           value: baseValue,
@@ -280,15 +322,21 @@ export const buildTypeChoices = ({
         types.validateAllReferences({topRoot});
       },
 
-      /** @type {AddTypeAndEditUI} */
-      $addTypeAndEditUI ({type, editUI, specificSchema}) {
+      /**
+       * @this {TypeChoicesElementAPI}
+       * @param {Parameters<AddTypeAndEditUI>[0]} cfg
+       */
+      $addTypeAndEditUI (cfg) {
+        const {type, editUI, specificSchema} = cfg;
         this.$setTypeNoEditUI({type, specificSchema});
         this.$addEditUI({editUI});
       },
       /**
-       * @type {(info: {editUI: HTMLElement}) => void}
+       * @this {TypeChoicesElementAPI}
+       * @param {Parameters<AddEditUI>[0]} cfg
        */
-      $addEditUI ({editUI}) {
+      $addEditUI (cfg) {
+        const {editUI} = cfg;
         const container = this.$getContainer();
         DOM.removeChildren(container);
         jml(editUI, container);
@@ -296,22 +344,28 @@ export const buildTypeChoices = ({
       $getContainer () {
         return this.nextElementSibling;
       },
+      /**
+       * @this {TypeChoicesElementAPI}
+       */
       $getTopRoot () {
         return topRoot || this.$getTypeRoot();
       },
       /**
-       * @param {{avoidReport?: boolean}} cfg
-       * @returns {boolean}
+       * @this {TypeChoicesElementAPI}
+       * @param {Parameters<Validate>[0]} [cfg]
        */
-      $validate ({avoidReport} = {}) {
+      $validate (cfg = {}) {
+        const {avoidReport} = cfg;
         const {value: type} = this;
         const container = this.$getContainer();
         if (!container.firstElementChild) {
           return false;
         }
-        const editUI = container.firstElementChild;
+        const editUI = /** @type {HTMLDivElement} */ (container.firstElementChild);
         return types.validate({
-          type, root: editUI, topRoot: this.$getTopRoot(),
+          type: /** @type {import('./types.js').AvailableArbitraryType} */ (type),
+          root: editUI,
+          topRoot: this.$getTopRoot(),
           avoidReport
         });
       }
@@ -348,7 +402,7 @@ export const buildTypeChoices = ({
         ];
       }
     )
-  ]);
+  ]));
   if (autoTrigger && typeOptions.length === 1 && !setValue) {
     setTimeout(() => {
       sel.selectedIndex = 1;
@@ -386,7 +440,8 @@ export const buildTypeChoices = ({
         /** @type {HTMLSelectElement & {$addTypeAndEditUI: AddTypeAndEditUI}} */ (
           sel
         ).$addTypeAndEditUI({
-          type, editUI: rootEditUI,
+          type,
+          editUI: rootEditUI,
           // We do actually want the first one
           specificSchema: specificSchemas?.[0]
         });

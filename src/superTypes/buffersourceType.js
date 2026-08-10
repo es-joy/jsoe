@@ -1411,7 +1411,7 @@ const buffersourceType = {
                         this.parentElement
                       );
                       const dataViewMethod =
-                        /** @type {dataViewMethods[number]} */ (
+                        /** @type {typeof dataViewMethods[number]} */ (
                           /** @type {HTMLSelectElement} */ (
                             ancestor.previousElementSibling
                           )?.value

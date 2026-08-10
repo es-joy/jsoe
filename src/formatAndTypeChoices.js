@@ -5,8 +5,48 @@ import Formats from './formats.js';
 import {$e, DOM} from './utils/templateUtils.js';
 
 /**
+ * @callback TypeSelectGetter
+ * @returns {HTMLSelectElement|null}
+ */
+
+/**
+ * @typedef {HTMLDivElement} TypesHolder
+ * @property {TypeRootGetter} $getTypeRoot
+ * @property {TypeSelectGetter} $getTypeSelect
+ */
+
+/**
  * @callback TypeRootGetter
  * @returns {HTMLDivElement|null}
+ */
+/**
+ * Rebuilds the type choices.
+ * @this {HTMLSelectElement & {
+ *   $buildTypeChoices: TypeChoiceBuilder
+ * }}
+ * @callback TypeChoiceBuilder
+ * @param {boolean} [autoTrigger]
+ * @returns {Promise<void>}
+ */
+/**
+ * Sets the desired format and rebuilds the type choices.
+ * @callback SetFormat
+ * @this {HTMLSelectElement & {
+ *   $buildTypeChoices: TypeChoiceBuilder
+ * }}
+ * @param {{
+ *   valueFormat?: import('./formats.js').AvailableFormat,
+ *   autoTrigger: boolean,
+ *   schema?: string
+ * }} cfg
+ * @returns {Promise<void>}
+ */
+
+/**
+ * @typedef {HTMLSelectElement & {
+ *   $setFormat: SetFormat,
+ *   $buildTypeChoices: TypeChoiceBuilder
+ * }} FormatChoices
  */
 
 /**
@@ -136,37 +176,6 @@ export async function formatAndTypeChoices ({
     // is: 'main-type-choices',
     $custom: {
       /**
-       * Sets the desired format and rebuilds the type choices.
-       * @callback SetFormat
-       * @param {{
-       *   valueFormat?: import('./formats.js').AvailableFormat,
-       *   autoTrigger: boolean,
-       *   schema?: string
-       * }} cfg
-       * @this {HTMLSelectElement & {
-       *   $buildTypeChoices: TypeChoiceBuilder
-       * }}
-       * @returns {Promise<void>}
-       */
-
-      /**
-       * Rebuilds the type choices.
-       * @callback TypeChoiceBuilder
-       * @param {boolean} [autoTrigger]
-       * @this {HTMLSelectElement & {
-       *   $buildTypeChoices: TypeChoiceBuilder
-       * }}
-       * @returns {Promise<void>}
-       */
-
-      /**
-       * @typedef {HTMLSelectElement & {
-       *   $setFormat: SetFormat,
-       *   $buildTypeChoices: TypeChoiceBuilder
-       * }} FormatChoices
-       */
-
-      /**
        * @type {SetFormat}
        */
       async $setFormat ({valueFormat, autoTrigger, schema}) {
@@ -224,17 +233,6 @@ export async function formatAndTypeChoices ({
   }, [getFormatAndSchemaChoices({
     schemas, hasKeyPath, selectedSchema, arbitraryJS, preselectSchema
   })]));
-
-  /**
-   * @callback TypeSelectGetter
-   * @returns {HTMLSelectElement|null}
-   */
-
-  /**
-   * @typedef {HTMLDivElement} TypesHolder
-   * @property {TypeRootGetter} $getTypeRoot
-   * @property {TypeSelectGetter} $getTypeSelect
-   */
 
   const typesHolder = (
     jml('div', {class: 'typesHolder', $custom: {

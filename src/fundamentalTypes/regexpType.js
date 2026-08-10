@@ -23,9 +23,10 @@ const regexpType = {
       throw new TypeError('Guard for TS');
     }
     const [, str, flags] = /** @type {RegExpMatchArray} */ (s.match(
-      /** @type {Required<import('../types.js').TypeObject>} */ (
+      /** @type {import('../types.js').StringMatcher} */
+      (/** @type {Required<import('../types.js').TypeObject>} */ (
         this
-      ).stringRegex()
+      ).stringRegex)()
     ));
     return {value: new RegExp(str, flags)};
   },
