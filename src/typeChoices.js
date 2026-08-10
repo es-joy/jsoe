@@ -152,7 +152,7 @@ export const buildTypeChoices = ({
       currentPath
     );
   };
-  const sel = /** @type {HTMLSelectElement} */ (jml('select', {
+  const sel = jml('select', {
     hidden: requireObject || typeOptions.length === 1,
     class: `typeChoices-${typeNamespace}${keySelectClass
       ? ' ' + keySelectClass
@@ -348,7 +348,7 @@ export const buildTypeChoices = ({
         ];
       }
     )
-  ]));
+  ]);
   if (autoTrigger && typeOptions.length === 1 && !setValue) {
     setTimeout(() => {
       sel.selectedIndex = 1;

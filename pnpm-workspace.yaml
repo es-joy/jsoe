@@ -1,6 +1,15 @@
+allowBuilds:
+  core-js-bundle: true
+  cypress: true
+  es5-ext: true
+  unrs-resolver: true
+
 ignoredBuiltDependencies:
   - core-js-bundle
   - unrs-resolver
+
+minimumReleaseAgeExclude:
+  - jamilih@0.68.0
 
 onlyBuiltDependencies:
   - cypress

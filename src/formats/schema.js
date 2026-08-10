@@ -661,12 +661,11 @@ const schema = {
       if (parsed.success) {
         const type = zodexToStructuredCloningTypeMap.get(schema.type);
 
-        // Todo: Replace
-        // if (!type && schema.type === 'effect') {
-        //   type = /** @type {import('../types.js').AvailableType} */ (
-        //     schema.effects[0].name
-        //   );
-        // }
+        if (!type && schema.type === 'effect') {
+          type = /** @type {import('../types.js').AvailableType} */ (
+            schema.effects[0].name
+          );
+        }
 
         const typeObject =
           /** @type {Required<import('../types.js').TypeObject>} */ (
