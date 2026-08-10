@@ -153,7 +153,6 @@ export const getPropertyValueFromLegend = (legend) => {
  * }}
  */
 
-/* eslint-disable jsdoc/valid-types -- readonly reserved */
 /**
 * @typedef {{
 *   typeNamespace?: string,
@@ -175,9 +174,7 @@ export const getPropertyValueFromLegend = (legend) => {
 *   handlingReference?: boolean
 * }} StateObject
 */
-/* eslint-enable jsdoc/valid-types -- readonly reserved */
 
-/* eslint-disable jsdoc/valid-types -- readonly reserved */
 /**
  * @typedef {(cfg: {
  *   readonly?: boolean,
@@ -196,7 +193,6 @@ export const getPropertyValueFromLegend = (legend) => {
  *   schemaFallingBack?: boolean
  * }) => HTMLElement} GetUIForModeAndType
  */
-/* eslint-enable jsdoc/valid-types -- readonly reserved */
 
 /**
  * @typedef {(cfg: {
