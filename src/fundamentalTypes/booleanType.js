@@ -18,9 +18,9 @@ const booleanType = {
     return /** @type {HTMLInputElement} */ ($e(root, 'input[value=true]'));
   },
   setValue ({root, value}) {
-    const input = value
-      ? /** @type {HTMLInputElement} */ ($e(root, 'input[value=true]'))
-      : /** @type {HTMLInputElement} */ ($e(root, 'input[value=false]'));
+    const input = /** @type {HTMLInputElement} */ (
+      $e(root, value ? 'input[value=true]' : 'input[value=false]')
+    );
     input.checked = true;
   },
   viewUI ({value, specificSchemaObject}) {

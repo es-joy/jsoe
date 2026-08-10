@@ -49,7 +49,7 @@ const literalType = {
     return ['span', {
       dataset: {type: 'literal'},
       title: specificSchemaObject?.description ?? `(a literal ${typeof value})`
-    }, [`${value}`]];
+    }, [String(value)]];
   },
   editUI (arg) {
     const {specificSchemaObject} = arg;

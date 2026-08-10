@@ -49,7 +49,7 @@ const getJSONPointerParts = (path) => {
  * @returns {ArbitraryObject|string}
  */
 const reduceJSONPointerParts = (obj, pathPart) => {
-  if (!(pathPart in obj)) {
+  if (!(Object.hasOwn(obj, pathPart))) {
     throw new TypeError('Path part not found in object');
   }
   obj = obj[pathPart];

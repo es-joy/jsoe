@@ -83,16 +83,18 @@ const errorType = {
     }
 
     setTimeout(() => {
-      if (typeof value.cause === 'object') {
-        /** @type {HTMLElement} */ ($e(root, '.cause')).click();
-        /** @type {import('../types.js').TypeObjectSetValue} */ (
-          this.setValue
-        )({
-          root: /** @type {HTMLDivElement} */ ($e(root, '.causeContents')),
-          value: value.cause
-        });
+      if (typeof value.cause !== 'object') {
+        return;
       }
-    });
+
+      /** @type {HTMLElement} */ ($e(root, '.cause')).click();
+      /** @type {import('../types.js').TypeObjectSetValue} */ (
+        this.setValue
+      )({
+        root: /** @type {HTMLDivElement} */ ($e(root, '.causeContents')),
+        value: value.cause
+      });
+    }, 0);
   },
   getValue ({root}) {
     /**
@@ -259,7 +261,7 @@ const errorType = {
         /** @type {HTMLElement} */ ($e(
           div, '.cause'
         )).click();
-      });
+      }, 0);
     }
 
     const div = jml(

@@ -36,7 +36,7 @@ const NumberObjectType = {
       dataset: {type: 'NumberObject'},
       title: specificSchemaObject?.description ?? '(a Number Object)'
     }, [
-      specificSchemaObject ? `${value}` : `Number(${value})`
+      specificSchemaObject ? String(value) : `Number(${value})`
     ]];
   },
   editUI ({typeNamespace, specificSchemaObject, value}) {

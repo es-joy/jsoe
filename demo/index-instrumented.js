@@ -318,6 +318,7 @@ setTimeout(async function () {
       const badDate = new Date('Bad date');
       const cause = new Error('some cause');
       const error = new Error('msg');
+      /* eslint-disable unicorn/no-error-property-assignment -- Testing */
       error.cause = cause;
 
       // eslint-disable-next-line unicorn/error-message -- Testing empty
@@ -364,7 +365,7 @@ setTimeout(async function () {
           new Number(42),
           // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
           new String('test123'),
-          Number.NaN,
+          NaN,
           -0,
           new Blob(['<b>Testing</b>'], {type: 'text/html'}),
           new Map([
@@ -436,7 +437,7 @@ setTimeout(async function () {
       const typeSelectionIndexedDBKey = typeChoices({
         format: 'indexedDBKey',
         setValue: true,
-        value: [-0, Number.NEGATIVE_INFINITY],
+        value: [-0, -Infinity],
         typeNamespace: 'demo-type-choices-only-initial-value',
         keySelectClass: 'only-initial'
       });
@@ -446,6 +447,8 @@ setTimeout(async function () {
       const agg3 = new Error('some err3');
       const errorAggregate = new AggregateError([agg1, agg2, agg3], 'msg2');
       errorAggregate.stack = undefined; // For coverage
+      /* eslint-enable unicorn/no-error-property-assignment -- Testing */
+
       const typeSelectionTypeErrorWithAggregate = typeChoices({
         format: 'structuredCloning',
         setValue: true,

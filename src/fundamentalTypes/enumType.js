@@ -40,9 +40,7 @@ const enumType = {
         specificSchemaObject
       ).values).map((val) => {
         return ['option', {
-          selected: value
-            ? value === val
-            : specificSchemaObject?.defaultValue === val
+          selected: (value || specificSchemaObject?.defaultValue) === val
         }, [val]];
       })]
     ]];

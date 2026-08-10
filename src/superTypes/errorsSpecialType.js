@@ -41,6 +41,7 @@ if (typeof InternalError !== 'undefined') {
   specialErrorsMap.set('InternalError', InternalError);
 }
 
+// eslint-disable-next-line unicorn/prefer-iterator-to-array -- Map iterator
 const specialErrors = [...specialErrorsMap.keys()];
 
 /**
@@ -175,7 +176,7 @@ const errorsSpecialType = {
         aggregateErrors.$emptyAggregateErrorsContents();
         aggregateErrors.$populateContents(value.errors);
       }
-    });
+    }, 0);
   },
   getValue ({root, stateObj}) {
     const UserErrorType = specialErrorsMap.get(
@@ -199,6 +200,7 @@ const errorsSpecialType = {
      * }}
      */
     let errObj;
+    const UET = /** @type {AggregateErrorConstructor} */ (UserErrorType);
     if (/** @type {HTMLInputElement} */ (
       $e(root, 'input.message[type=checkbox]')
     ).checked) {
@@ -207,7 +209,6 @@ const errorsSpecialType = {
       ).value;
 
       if (getConstructor(UserErrorType) === 'AggregateError') {
-        const UET = /** @type {AggregateErrorConstructor} */ (UserErrorType);
         const errorRoot =
           /** @type {HTMLElement} */ ($e(
             root, '.aggregateErrorsContents'
@@ -219,12 +220,10 @@ const errorsSpecialType = {
         });
         errObj = new UET(errors, message);
       } else {
-        const UET = /** @type {TypeErrorConstructor} */ (UserErrorType);
         errObj = new UET(message);
       }
     } else {
       if (getConstructor(UserErrorType) === 'AggregateError') {
-        const UET = /** @type {AggregateErrorConstructor} */ (UserErrorType);
         const errorRoot =
           /** @type {HTMLElement} */ ($e(
             root, '.aggregateErrorsContents'
@@ -235,7 +234,7 @@ const errorsSpecialType = {
         });
         errObj = new UET(errors);
       } else {
-        const UET = /** @type {TypeErrorConstructor} */ (UserErrorType);
+        // @ts-expect-error -- Deliberately allowing
         errObj = new UET();
       }
       errObj.message = undefined; // Force (at least needed for Chrome)
@@ -451,7 +450,7 @@ const errorsSpecialType = {
         /** @type {HTMLElement} */ ($e(
           div, '.cause'
         )).click();
-      });
+      }, 0);
     }
 
     if (Array.isArray(value.errors)) {
@@ -459,7 +458,7 @@ const errorsSpecialType = {
         /** @type {HTMLElement} */ ($e(
           div, 'input.aggregateErrors'
         )).click();
-      });
+      }, 0);
     }
 
     const div = jml(

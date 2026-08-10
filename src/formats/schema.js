@@ -89,12 +89,13 @@ function mergeSchema (leftItem, rightItem) {
     if (prop !== 'type' && prop !== 'properties') {
       if (prop === 'description') {
         if (val !== 'Modifiers') { // A bit cleaner
-          newLeftObj[prop] = newLeftObj[prop]
-            ? newLeftObj[prop] + ' and ' + val
+          const existingDescription = newLeftObj[prop];
+          newLeftObj[prop] = existingDescription
+            ? existingDescription + ' and ' + val
             : val;
         }
       } else { // catchall, unknownKeys
-        if (prop in newLeftObj) {
+        if (Object.hasOwn(newLeftObj, prop)) {
           throw new Error(
             'Duplicate property ' + prop + ' of value ' +
             JSON.stringify(val) + ' and ' +
@@ -112,7 +113,7 @@ function mergeSchema (leftItem, rightItem) {
 
   for (const [prop, val] of Object.entries(rightItem.properties)) {
     if (typeof newLeftObj.properties !== 'string' &&
-        prop in newLeftObj.properties) {
+        Object.hasOwn(newLeftObj.properties, prop)) {
       throw new Error(
         'Duplicate property ' + prop + ' of value ' +
         JSON.stringify(val) + ' and ' +
@@ -206,339 +207,343 @@ function addModifiers (schemaObject, set) {
  * @returns {Set<ZodexSchema>}
  */
 export function getTypesForSchema (schemaObject, originalJSON) {
-  switch (schemaObject.type) {
-  case 'never':
-    return new Set();
-  case 'object': {
-    const set = new Set();
-    // const {properties} = schemaObject;
-    // if (
-    //   'type' in properties && properties.type.type === 'enum' &&
-    //   properties.type.values.length === 1
-    // ) {
-    //   set.add(schemaObject);
-    //   set.add(properties.type.defaultValue);
-    // }
-    // eslint-disable-next-line unicorn/no-immediate-mutation -- May add above
-    set.add(schemaObject);
-    return set;
-  }
-  case 'discriminatedUnion':
-  case 'union': {
-    /** @type {(ZodexSchema & {$discriminator?: string})[]} */
-    let set = [];
-    for (const option of schemaObject.options) {
-      set = [...set, ...getTypesForSchema(option, originalJSON)];
+  for (;;) {
+    switch (schemaObject.type) {
+    case 'never':
+      return new Set();
+    case 'object': {
+      const set = new Set();
+      // const {properties} = schemaObject;
+      // if (
+      //   'type' in properties && properties.type.type === 'enum' &&
+      //   properties.type.values.length === 1
+      // ) {
+      //   set.add(schemaObject);
+      //   set.add(properties.type.defaultValue);
+      // }
+      // eslint-disable-next-line unicorn/no-immediate-mutation -- May add above
+      set.add(schemaObject);
+      return set;
     }
-
-    if (schemaObject.type === 'discriminatedUnion') {
-      for (const obj of set) {
-        // Todo: Use to confirm the object has the discriminator
-        obj.$discriminator = schemaObject.discriminator;
+    case 'discriminatedUnion':
+    case 'union': {
+      /** @type {(ZodexSchema & {$discriminator?: string})[]} */
+      let set = [];
+      for (const option of schemaObject.options) {
+        set = [...set, ...getTypesForSchema(option, originalJSON)];
       }
-    }
 
-    addModifiers(schemaObject, set);
-    return new Set(set);
-  } case 'intersection': {
-    const left = getTypesForSchema(schemaObject.left, originalJSON);
-    const right = getTypesForSchema(schemaObject.right, originalJSON);
-
-    const set = flattenIntersection(left, right);
-    addModifiers(schemaObject, set);
-    return new Set(set);
-  } case 'any': case 'unknown':
-    return new Set([
-      {
-        type: 'boolean'
-      },
-      {
-        type: 'number'
-      },
-      {
-        type: 'nan'
-      },
-      {
-        type: 'bigInt'
-      },
-      {
-        type: 'string'
-      },
-      {
-        description: 'Email',
-        type: 'string',
-        kind: 'email'
-      },
-      {
-        description: 'URL',
-        type: 'string',
-        kind: 'url'
-      },
-      {
-        description: 'Date',
-        type: 'string',
-        kind: 'date'
-      },
-      {
-        type: 'date'
-      },
-      // {
-      //   type: 'void'
-      // },
-      {
-        type: 'undefined'
-      },
-      {
-        type: 'null'
-      },
-      {
-        type: 'object',
-        properties: {},
-        unknownKeys: 'passthrough'
-      },
-
-      // Todo: support these types separately
-      // {
-      //   type: 'symbol'
-      // },
-      // {
-      //   type: 'promise',
-      //   value: {
-      //     type: 'any'
-      //   }
-      // },
-      // {
-      //   type: 'function',
-      //   args: {
-      //     type: 'tuple',
-      //     items: [],
-      //     rest: {
-      //       type: 'any'
-      //     }
-      //   },
-      //   returns: {
-      //     type: 'any'
-      //   }
-      // },
-      {
-        type: 'array',
-        element: {
-          type: 'any'
+      if (schemaObject.type === 'discriminatedUnion') {
+        for (const obj of set) {
+          // Todo: Use to confirm the object has the discriminator
+          obj.$discriminator = schemaObject.discriminator;
         }
-      },
-      {
-        type: 'set',
-        value: {
-          type: 'any'
-        }
-      },
-      {
-        type: 'map',
-        key: {
-          type: 'any'
+      }
+
+      addModifiers(schemaObject, set);
+      return new Set(set);
+    } case 'intersection': {
+      const left = getTypesForSchema(schemaObject.left, originalJSON);
+      const right = getTypesForSchema(schemaObject.right, originalJSON);
+
+      const set = flattenIntersection(left, right);
+      addModifiers(schemaObject, set);
+      return new Set(set);
+    } case 'any': case 'unknown':
+      return new Set([
+        {
+          type: 'boolean'
         },
-        value: {
-          type: 'any'
-        }
-      },
-      {
-        type: 'never'
-      },
-      // Todo: Need to convert
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'regexp',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'blob',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'BooleanObject',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'NumberObject',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'StringObject',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'SpecialRealNumber',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'domexception',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'error',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'filelist',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'file',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'resurrectable', // noneditable
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'blobHTML',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'buffersource',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'dommatrix',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'dompoint',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'domrect',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // {
-      //   type: 'effect',
-      //   effects: [
-      //     {
-      //       name: 'errors',
-      //       type: 'refinement'
-      //     }
-      //   ],
-      //   inner: {type: 'any'}
-      // },
-      // Todo: Adapt into a widget to drag to point back to another object
-      {
-        description: 'JSON Reference',
-        type: 'object',
-        properties: {
-          $ref: {
-            type: 'string'
+        {
+          type: 'number'
+        },
+        {
+          type: 'nan'
+        },
+        {
+          type: 'bigInt'
+        },
+        {
+          type: 'string'
+        },
+        {
+          description: 'Email',
+          type: 'string',
+          kind: 'email'
+        },
+        {
+          description: 'URL',
+          type: 'string',
+          kind: 'url'
+        },
+        {
+          description: 'Date',
+          type: 'string',
+          kind: 'date'
+        },
+        {
+          type: 'date'
+        },
+        // {
+        //   type: 'void'
+        // },
+        {
+          type: 'undefined'
+        },
+        {
+          type: 'null'
+        },
+        {
+          type: 'object',
+          properties: {},
+          unknownKeys: 'passthrough'
+        },
+
+        // Todo: support these types separately
+        // {
+        //   type: 'symbol'
+        // },
+        // {
+        //   type: 'promise',
+        //   value: {
+        //     type: 'any'
+        //   }
+        // },
+        // {
+        //   type: 'function',
+        //   args: {
+        //     type: 'tuple',
+        //     items: [],
+        //     rest: {
+        //       type: 'any'
+        //     }
+        //   },
+        //   returns: {
+        //     type: 'any'
+        //   }
+        // },
+        {
+          type: 'array',
+          element: {
+            type: 'any'
+          }
+        },
+        {
+          type: 'set',
+          value: {
+            type: 'any'
+          }
+        },
+        {
+          type: 'map',
+          key: {
+            type: 'any'
+          },
+          value: {
+            type: 'any'
+          }
+        },
+        {
+          type: 'never'
+        },
+        // Todo: Need to convert
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'regexp',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'blob',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'BooleanObject',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'NumberObject',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'StringObject',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'SpecialRealNumber',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'domexception',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'error',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'filelist',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'file',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'resurrectable', // noneditable
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'blobHTML',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'buffersource',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'dommatrix',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'dompoint',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'domrect',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // {
+        //   type: 'effect',
+        //   effects: [
+        //     {
+        //       name: 'errors',
+        //       type: 'refinement'
+        //     }
+        //   ],
+        //   inner: {type: 'any'}
+        // },
+        // Todo: Adapt into a widget to drag to point back to another object
+        {
+          description: 'JSON Reference',
+          type: 'object',
+          properties: {
+            $ref: {
+              type: 'string'
+            }
           }
         }
+      ]);
+    default: {
+      if ('$ref' in schemaObject) {
+        // console.log('originalJSON', originalJSON, schemaObject.$ref);
+        const refObj = resolveJSONPointer({
+          obj: originalJSON,
+          path: /** @type {import('zodex').SzRef} */ (
+            schemaObject
+          ).$ref
+        });
+        schemaObject = refObj;
+        // eslint-disable-next-line unicorn/no-break-in-nested-loop -- Intentional, continues the `for` loop
+        continue;
       }
-    ]);
-  default: {
-    if ('$ref' in schemaObject) {
-      // console.log('originalJSON', originalJSON, schemaObject.$ref);
-      const refObj = resolveJSONPointer({
-        obj: originalJSON,
-        path: /** @type {import('zodex').SzRef} */ (
-          schemaObject
-        ).$ref
-      });
-      return getTypesForSchema(refObj, originalJSON);
+      return new Set([schemaObject]);
     }
-    return new Set([schemaObject]);
-  }
+    }
   }
 }
 

@@ -18,7 +18,7 @@ const exprt = (on, config) => {
 
   // Set here instead of as Cypress environmental variables, for use here.
 
-  config.env = config.env || {};
+  config.env ||= {};
 
   // https://docs.cypress.io/guides/tooling/code-coverage.html#Install-the-plugin
   // @ts-expect-error Why problematic?

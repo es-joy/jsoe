@@ -3,9 +3,7 @@ import {DOM, $$e, $e, $$} from '../../../instrumented/utils/templateUtils.js';
 
 describe('templateUtils (DOM)', function () {
   beforeEach(() => {
-    while (document.body.firstChild) {
-      document.body.firstChild.remove();
-    }
+    document.body.replaceChildren();
   });
   describe('DOM.removeChildren', function () {
     it('converts string selector to DOM and processes', function () {
@@ -44,14 +42,14 @@ describe('templateUtils (DOM)', function () {
       const a = document.createElement('a');
       document.body.append(a);
       DOM.removeIfExists('a');
-      expect(document.querySelector('a')).to.equal(null);
+      expect(document.querySelector('a')).to.be.null;
     });
 
     it('Removes if an element exists (by DOM)', function () {
       const a = document.createElement('a');
       document.body.append(a);
       DOM.removeIfExists(a);
-      expect(document.querySelector('a')).to.equal(null);
+      expect(document.querySelector('a')).to.be.null;
     });
   });
 
@@ -63,7 +61,7 @@ describe('templateUtils (DOM)', function () {
 
   describe('$e', function () {
     it('returns null if parent element not present', function () {
-      expect($e('abc', 'irrelevantSelector')).to.equal(null);
+      expect($e('abc', 'irrelevantSelector')).to.be.null;
     });
   });
 

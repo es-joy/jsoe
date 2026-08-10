@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-barrel-files -- Has own typedefs */
 /**
  * @typedef {import('./formatAndTypeChoices.js').TypeRootGetter} TypeRootGetter
  */

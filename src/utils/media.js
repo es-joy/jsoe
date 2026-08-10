@@ -72,6 +72,7 @@ function visualize (stream, canvas) {
  * @returns {Promise<MediaStream|null>}
  */
 async function getUserMedia (constraints) {
+  // eslint-disable-next-line no-useless-assignment -- ESLint bug
   let stream = null;
   try {
     stream = await navigator.mediaDevices.getUserMedia(constraints);

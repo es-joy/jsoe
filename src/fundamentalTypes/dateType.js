@@ -26,7 +26,7 @@ const dateType = {
     const regex = this.dateRegex;
     if (!this.valid) {
       const {source} = regex;
-      return new RegExp('^' + '(?:InvalidDate)|' + source.slice(1), 'u');
+      return new RegExp('^(?:InvalidDate)|' + source.slice(1), 'u');
     }
     return new RegExp(regex, 'u');
   },

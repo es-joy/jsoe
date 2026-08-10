@@ -14,6 +14,7 @@ describe('dialogs', function () {
       dialog.close();
     });
 
+    // eslint-disable-next-line mocha/handle-done-callback -- Bug
     it('allows true close argument', function (done) {
       const dialog = dialogs.makeDialog({
         // @ts-ignore Sometimes errs
@@ -48,7 +49,7 @@ describe('dialogs', function () {
           setTimeout(() => {
             expect(dialog.open).to.equal(false);
             done();
-          });
+          }, 0);
           return true;
         }
       });
@@ -63,7 +64,7 @@ describe('dialogs', function () {
             setTimeout(() => {
               expect(dialog.open).to.equal(true);
               done();
-            });
+            }, 0);
             return false;
           }
         });
@@ -83,12 +84,16 @@ describe('dialogs', function () {
       });
       setTimeout(() => {
         const dialog = document.querySelector('#confirmDialog');
-        const submit = dialog.querySelector('.submit > button');
+        if (!dialog) {
+          done(new Error('Missing dialog'));
+          return;
+        }
+        const submit = dialog.querySelector(':scope .submit > button');
         console.log('dialog', dialog.outerHTML);
         /** @type {HTMLElement} */ (submit).click();
         expect(dialog.textContent).to.contain('Please confirm');
         done();
-      });
+      }, 0);
     });
   });
 

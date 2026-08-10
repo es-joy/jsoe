@@ -51,7 +51,7 @@ setTimeout(function () {
     ]],
     ['form', [
       ...getTypeChoices([
-        false, 123, Number.NaN, 456n, 'a string'
+        false, 123, NaN, 456n, 'a string'
       ], schemaInstanceJSON),
       ...getTypeChoices([
         undefined, 'ghi', false, 135, 'abcde', {},
@@ -162,16 +162,16 @@ setTimeout(function () {
         0,
         true,
         135,
-        Number.NaN,
+        NaN,
         undefined,
         'ijkl'
       ], schemaInstanceJSON9),
       ...getTypeChoices([
-        Number.NaN,
+        NaN,
         'def'
       ], schemaInstanceJSON10),
       ...getTypeChoices([
-        Number.NaN,
+        NaN,
         'def'
       ], schemaInstanceJSON11),
 
@@ -333,4 +333,4 @@ setTimeout(function () {
       ]]
     ]]
   ], body);
-});
+}, 0);

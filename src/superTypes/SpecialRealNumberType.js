@@ -8,16 +8,16 @@ const SpecialRealNumberSuperType = {
   childTypes: ['infinity', 'negativeInfinity', 'negativeZero'],
   stringRegex: /^(?:-?Infinity|-0)$/u,
   valueMatch (x) {
-    return Object.is(x, -0) || x === Number.POSITIVE_INFINITY ||
-      x === Number.NEGATIVE_INFINITY;
+    return Object.is(x, -0) || x === Infinity ||
+      x === -Infinity;
   },
   toValue (s) {
     return {
       value: s === '-0'
         ? -0
         : s === 'Infinity'
-          ? Number.POSITIVE_INFINITY
-          : Number.NEGATIVE_INFINITY
+          ? Infinity
+          : -Infinity
     };
   },
   getSelect ({root}) {
@@ -53,7 +53,7 @@ const SpecialRealNumberSuperType = {
     return /** @type {HTMLSelectElement} */ ($e(root, 'select'));
   },
   editUI ({
-    typeNamespace, specificSchemaObject, value = Number.POSITIVE_INFINITY
+    typeNamespace, specificSchemaObject, value = Infinity
   }) {
     return ['div', {
       dataset: {type: 'SpecialRealNumber'},
@@ -62,10 +62,10 @@ const SpecialRealNumberSuperType = {
       ['label', [
         ['select', {name: `${typeNamespace}-SpecialRealNumber`}, [
           ['option', {
-            value: 'Infinity', selected: value === Number.POSITIVE_INFINITY
+            value: 'Infinity', selected: value === Infinity
           }, ['Infinity']],
           ['option', {
-            value: '-Infinity', selected: value === Number.NEGATIVE_INFINITY
+            value: '-Infinity', selected: value === -Infinity
           }, ['-Infinity']],
           ['option', {
             value: '-0', selected: Object.is(value, -0)

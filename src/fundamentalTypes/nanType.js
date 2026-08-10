@@ -9,8 +9,8 @@ const nanType = {
   valueMatch (x) {
     return Number.isNaN(x);
   },
-  toValue: () => ({value: Number.NaN}),
-  getValue: () => Number.NaN,
+  toValue: () => ({value: NaN}),
+  getValue: () => NaN,
   /* istanbul ignore next -- No dupe keys, array refs, or validation */
   getInput ({root}) {
     return /** @type {HTMLInputElement} */ ($e(root, 'input'));

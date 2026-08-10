@@ -34,7 +34,7 @@ const blobHTMLType = {
       const pos = dataURI.indexOf(',');
       const mimeInfo = dataURI.slice(0, pos);
       const bytes = dataURI.slice(pos + 1);
-      const [mimeString, encoding] = mimeInfo.split(':')[1].split(';');
+      const [mimeString, encoding] = mimeInfo.split(':', 2)[1].split(';', 2);
       let ab;
       if (encoding === 'base64') {
         const byteString = atob(bytes);
@@ -185,7 +185,7 @@ const blobHTMLType = {
           this
         ).setValue({root, value});
       }
-    });
+    }, 0);
     return [root];
   }
 };

@@ -2,6 +2,13 @@ import {$e, $$e} from '../utils/templateUtils.js';
 import {jml, toStringTag} from '../vendor-imports.js';
 import dialogs from '../utils/dialogs.js';
 
+/**
+ * @param {string} str
+ */
+const toInteger = (str) => {
+  return Math.trunc(Number(str));
+};
+
 const dataViewMethods = /** @type {const} */ ([
   'setInt8',
   'setUint8',
@@ -187,7 +194,7 @@ const buffersourceType = {
     /** @type {DataView|undefined} */
     let view;
     if (bufferSourceClass === 'DataView' || dataViewMethods.some((method) => {
-      return method in o;
+      return Object.hasOwn(o, method);
     })) {
       view = new DataView(buffer, dataViewByteOffset, dataViewByteLength);
       dataViewMethods.forEach((prop) => {
@@ -362,12 +369,13 @@ const buffersourceType = {
                         ...Array.from({
                           length: typedArray.length
                         }, (_v, key) => {
+                          const typedArrayValue = typedArray[key];
                           return jml('span', [
                             ['b', [key]],
                             ' ',
                             ['span', [
-                              typedArray[key]
-                                ? String(typedArray[key])
+                              typedArrayValue
+                                ? String(typedArrayValue)
                                 : '0'
                             ]],
                             ' '
@@ -448,8 +456,8 @@ const buffersourceType = {
                */ (
                 $e(ancestor, '.byteLength')
               );
-            const byteLengthVal = Number.parseInt(byteLength.value);
-            const maxByteLength = Number.parseInt(
+            const byteLengthVal = toInteger(byteLength.value);
+            const maxByteLength = toInteger(
               /** @type {HTMLInputElement} */ (
                 $e(ancestor, '.maxByteLength')
               ).value
@@ -465,7 +473,7 @@ const buffersourceType = {
               '.dataViewByteOffset'
             )).value;
             const dataViewByteOffset = dataViewByteOffsetVal
-              ? Number.parseInt(dataViewByteOffsetVal)
+              ? toInteger(dataViewByteOffsetVal)
               : 0;
 
             const dataViewByteLengthVal = /** @type {HTMLInputElement} */ ($e(
@@ -473,7 +481,7 @@ const buffersourceType = {
               '.dataViewByteLength'
             )).value;
             const dataViewByteLength = dataViewByteLengthVal
-              ? Number.parseInt(dataViewByteLengthVal)
+              ? toInteger(dataViewByteLengthVal)
               : undefined;
 
             const dataView = new DataView(
@@ -493,7 +501,7 @@ const buffersourceType = {
                 '.typedArrayByteOffset'
               )).value;
             const typedArrayByteOffset = typedArrayByteOffsetVal
-              ? Number.parseInt(typedArrayByteOffsetVal)
+              ? toInteger(typedArrayByteOffsetVal)
               : 0;
 
             const typedArrayLengthVal =
@@ -502,7 +510,7 @@ const buffersourceType = {
                 '.typedArrayLength'
               )).value;
             const typedArrayLength = typedArrayLengthVal
-              ? Number.parseInt(typedArrayLengthVal)
+              ? toInteger(typedArrayLengthVal)
               : byteLengthVal;
 
             const typedArray = new TypedArray(
@@ -730,7 +738,7 @@ const buffersourceType = {
                   ));
                   const val = that.value;
 
-                  if (Number.parseInt(val) > Number.MAX_SAFE_INTEGER) {
+                  if (toInteger(val) > Number.MAX_SAFE_INTEGER) {
                     that.setCustomValidity(
                       'The ArrayBuffer length exceeds the maximum ' +
                       'allowable size'
@@ -743,7 +751,7 @@ const buffersourceType = {
                   that.reportValidity();
 
                   if (
-                    Number.parseInt(val) > Number.parseInt(maxByteLength.value)
+                    toInteger(val) > toInteger(maxByteLength.value)
                   ) {
                     maxByteLength.value = val;
                   }
@@ -791,7 +799,7 @@ const buffersourceType = {
                   ));
                   const val = that.value;
                   if (
-                    Number.parseInt(val) < Number.parseInt(byteLength.value)
+                    toInteger(val) < toInteger(byteLength.value)
                   ) {
                     // byteLength.value = val;
                     that.setCustomValidity(
@@ -833,7 +841,7 @@ const buffersourceType = {
                   const greatGrandparent = /** @type {HTMLElement} */
                     (that.parentElement?.parentElement?.parentElement);
 
-                  const byteOffset = Number.parseInt(
+                  const byteOffset = toInteger(
                     /** @type {HTMLInputElement} */ ($e(
                       greatGrandparent,
                       '.dataViewByteOffset'
@@ -846,15 +854,11 @@ const buffersourceType = {
                       '.byteLength'
                     )).value;
                   const bufferByteLength = bufferByteLengthVal
-                    ? Number.parseInt(
-                      bufferByteLengthVal
-                    )
+                    ? toInteger(bufferByteLengthVal)
                     : 0;
 
                   const byteLength = that.value
-                    ? Number.parseInt(
-                      that.value
-                    )
+                    ? toInteger(that.value)
                     : bufferByteLength;
 
                   if (byteOffset + byteLength > bufferByteLength) {
@@ -946,7 +950,7 @@ const buffersourceType = {
                     /** @type {TypedArray} */ (value)
                   );
                   if (
-                    Number.parseInt(that.value) % TypedArray.BYTES_PER_ELEMENT
+                    toInteger(that.value) % TypedArray.BYTES_PER_ELEMENT
                   ) {
                     that.setCustomValidity(
                       'Byte offset must be a multiple of the typed ' +
@@ -1054,7 +1058,7 @@ const buffersourceType = {
                 '.byteLength'
               ));
               const arrayBufferLength = byteLength.value
-                ? Number.parseInt(
+                ? toInteger(
                   byteLength.value
                 )
                 : 0;
@@ -1169,13 +1173,13 @@ const buffersourceType = {
                     '.byteLength'
                   )).value;
                 const bufferByteLength = bufferByteLengthVal
-                  ? Number.parseInt(
+                  ? toInteger(
                     bufferByteLengthVal
                   )
                   : 0;
 
                 const length = that.value
-                  ? Number.parseInt(that.value)
+                  ? toInteger(that.value)
                   : bufferByteLength;
 
                 const {value} = /** @type {HTMLSelectElement} */ (
@@ -1192,7 +1196,7 @@ const buffersourceType = {
                     '.typedArrayByteOffset'
                   )).value;
                 const typedArrayByteOffset = typedArrayByteOffsetVal
-                  ? Number.parseInt(typedArrayByteOffsetVal)
+                  ? toInteger(typedArrayByteOffsetVal)
                   : 0;
 
                 if (
@@ -1226,7 +1230,7 @@ const buffersourceType = {
                 *   $buildTypedArray: BuildTypedArray
                 * }}
                 */ (this);
-                const length = Number.parseInt(that.value);
+                const length = toInteger(that.value);
                 const grandparent = /** @type {HTMLElement} */ (
                   that.parentElement?.parentElement
                 );
@@ -1255,7 +1259,7 @@ const buffersourceType = {
                     input.dataset.bigint === 'true'
                       ? BigInt(input.value)
                       : Number(input.value)
-                  ], Number.parseInt(
+                  ], toInteger(
                     /** @type {string} */ (input.dataset.key)
                   ));
                 });
@@ -1269,6 +1273,7 @@ const buffersourceType = {
                 typedArrayArea.textContent = '';
                 typedArrayArea.append(
                   ...Array.from({length}, (_v, key) => {
+                    const typedArrayValue = bufferByteLength.$typedArray[key];
                     return jml('label', [
                       key,
                       ' ',
@@ -1281,8 +1286,8 @@ const buffersourceType = {
                         pattern: value.startsWith('Float')
                           ? String.raw`\d+(?:\.\d+)?`
                           : String.raw`\d+`,
-                        value: bufferByteLength.$typedArray[key]
-                          ? String(bufferByteLength.$typedArray[key])
+                        value: typedArrayValue
+                          ? String(typedArrayValue)
                           : '0',
                         min, max
                       }],
@@ -1304,19 +1309,20 @@ const buffersourceType = {
                    */ (
                     this
                   );
-                const grandparent = /** @type {HTMLElement} */ (
-                  this.parentElement?.parentElement
-                );
 
                 if (!that.$checkBufferBounds(e)) {
                   return;
                 }
 
+                const grandparent = /** @type {HTMLElement} */ (
+                  this.parentElement?.parentElement
+                );
+
                 const {value} = /** @type {HTMLSelectElement} */ (
                   $e(grandparent, '.buffersource-typedArrays-init')
                 );
 
-                const length = Number.parseInt(that.value);
+                const length = toInteger(that.value);
                 try {
                   const TypedArray = getTypedArray(
                     /** @type {TypedArray} */ (value)
@@ -1418,7 +1424,7 @@ const buffersourceType = {
                         );
 
                       const dataViewSetByteOffset =
-                        Number.parseInt(/** @type {HTMLInputElement} */ ($e(
+                        toInteger(/** @type {HTMLInputElement} */ ($e(
                           ancestor,
                           '.dataViewSetByteOffset'
                         )).value);
@@ -1493,7 +1499,7 @@ const buffersourceType = {
       ]]
     ]);
 
-    if (this.setValue && value) {
+    if (value && this.setValue) {
       this.setValue({root: div, value});
     } else {
       const byteLength =

@@ -35,7 +35,7 @@ const BooleanObjectType = {
     return ['i', {
       dataset: {type: 'BooleanObject'},
       title: specificSchemaObject?.description ?? '(a Boolean Object)'
-    }, [specificSchemaObject ? `${value}` : `Boolean(${value})`]];
+    }, [specificSchemaObject ? String(value) : `Boolean(${value})`]];
   },
   ct: 0,
   editUI ({

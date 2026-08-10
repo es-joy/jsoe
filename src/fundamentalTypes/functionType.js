@@ -68,13 +68,15 @@ const setTooltips = ({root, specificSchemaObject, textareas, textareaBody}) => {
 
   const observer = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
-      if (mutation.type === 'childList') {
-        for (const node of mutation.removedNodes) {
-          addTitles(node);
-        }
-        for (const node of mutation.addedNodes) {
-          addTitles(node);
-        }
+      if (mutation.type !== 'childList') {
+        continue;
+      }
+
+      for (const node of mutation.removedNodes) {
+        addTitles(node);
+      }
+      for (const node of mutation.addedNodes) {
+        addTitles(node);
       }
     }
   });
@@ -93,11 +95,11 @@ const setTooltips = ({root, specificSchemaObject, textareas, textareaBody}) => {
  */
 const getArgsAndBodyOfFunction = (func) => {
   const funcStr = String(func);
-  const funcStrFull = String(`(${
+  const funcStrFull = `(${
     funcStr.trimStart().startsWith('function')
       ? funcStr
       : `function ${funcStr}`
-  })`);
+  })`;
   const body = funcStrFull.slice(
     funcStrFull.indexOf('{') + 1, funcStrFull.lastIndexOf('}')
   ).trim();
@@ -137,7 +139,7 @@ const setValueAndTooltips = ({root, value, specificSchemaObject}) => {
     const textareaBody = /** @type {HTMLTextAreaElement} */ (textareas.pop());
 
     args.forEach((_arg, idx) => {
-      if (!textareas[idx]) {
+      if (!Object.hasOwn(textareas, idx)) {
         $e(root, '.addArrayElement')?.click();
       }
     });
@@ -156,8 +158,8 @@ const setValueAndTooltips = ({root, value, specificSchemaObject}) => {
       if (specificSchemaObject) {
         setTooltips({root, specificSchemaObject, textareas, textareaBody});
       }
-    });
-  });
+    }, 0);
+  }, 0);
 };
 
 /**
@@ -291,7 +293,7 @@ const functionType = {
           value,
           specificSchemaObject
         });
-      });
+      }, 0);
     } else if (specificSchemaObject) {
       setTimeout(() => {
         setTimeout(() => {
@@ -305,8 +307,8 @@ const functionType = {
           setTooltips({
             root: div, specificSchemaObject, textareas, textareaBody
           });
-        });
-      });
+        }, 0);
+      }, 0);
     }
 
     return [div];

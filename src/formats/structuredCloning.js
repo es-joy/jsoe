@@ -107,7 +107,7 @@ const encapsulateObserver = (stateObj) => {
 
     // What other situations is this firing twice, and it
     //   shouldn't reach here?
-    if (observerObj.replacing && type === 'negativeZero') {
+    if (type === 'negativeZero' && observerObj.replacing) {
       return;
     }
 
@@ -338,7 +338,7 @@ const encapsulateObserver = (stateObj) => {
           });
         }
       }
-    });
+    }, 0);
   };
 };
 
@@ -496,13 +496,13 @@ const structuredCloning = {
 
     const structuredCloningFixed = structuredCloningThrowing.filter(
       (typeSpecSet) => {
-        return ![
+        return [
           // Not yet supported within JSOE
           'imagedata',
           'imagebitmap',
           'cryptokey',
           'domquad'
-        ].some((prop) => {
+        ].every((prop) => {
           return Object.hasOwn(typeSpecSet, prop);
         });
       }

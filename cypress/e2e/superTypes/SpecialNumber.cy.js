@@ -57,7 +57,7 @@ describe('SpecialNumber spec', () => {
     ).select('NaN');
 
     cy.get('button#logValue').click();
-    cy.get('@consoleLog').should('be.calledWith', Number.NaN);
+    cy.get('@consoleLog').should('be.calledWith', NaN);
   });
 
   it('views UI', function () {
@@ -94,17 +94,17 @@ describe('SpecialNumber spec', () => {
 
   it('gets value', function () {
     cy.clearTypeAndBlur('#getValueForString', 'NaN');
-    cy.get('@consoleLog').should('be.calledWith', Number.NaN);
+    cy.get('@consoleLog').should('be.calledWith', NaN);
   });
 
   it('gets value (Infinity)', function () {
     cy.clearTypeAndBlur('#getValueForString', 'Infinity');
-    cy.get('@consoleLog').should('be.calledWith', Number.POSITIVE_INFINITY);
+    cy.get('@consoleLog').should('be.calledWith', Infinity);
   });
 
   it('gets value (-Infinity)', function () {
     cy.clearTypeAndBlur('#getValueForString', '-Infinity');
-    cy.get('@consoleLog').should('be.calledWith', Number.NEGATIVE_INFINITY);
+    cy.get('@consoleLog').should('be.calledWith', -Infinity);
   });
 
   // For the "Type choices with initial value set" control

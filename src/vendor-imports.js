@@ -1,3 +1,5 @@
+/* eslint-disable unicorn/no-barrel-files -- Convenient to toggle */
+
 export {jml, body, nbsp, $} from 'jamilih';
 // export {jml, body, nbsp, $} from '../node_modules/jamilih/dist/jml.mjs';
 

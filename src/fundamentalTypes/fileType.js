@@ -82,24 +82,26 @@ function newFileForBinary (viewBinary, value) {
  * @returns {import('jamilih').JamilihArray}
  */
 function binaryButton (value, editable) {
-  // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
-  return ['button', /** @type {import('jamilih').JamilihAttributes} */ ({
+  return ['button', {
     class: 'viewBinary',
     $custom: {
       $value: value
     },
     $on: {
       /**
-       * @this {HTMLButtonElement & {$value: File}}
        * @param {Event} e
        */
       click (e) {
         // eslint-disable-next-line consistent-this -- Clarity
-        const viewBinary = this;
+        const viewBinary = /** @type {HTMLButtonElement & {$value: File}} */ (
+          this
+        );
         e.preventDefault();
         if (
-          !this.$value ||
-          Object.prototype.toString.call(this.$value).slice(8, -1) !== 'File'
+          !viewBinary.$value ||
+          Object.prototype.toString.call(
+            viewBinary.$value
+          ).slice(8, -1) !== 'File'
         ) {
           // Non-editable shouldn't be empty
           // if (!editable) {
@@ -152,10 +154,10 @@ function binaryButton (value, editable) {
             ));
           }
         );
-        reader.readAsBinaryString(this.$value);
+        reader.readAsBinaryString(viewBinary.$value);
       }
     }
-  }), [
+  }, [
     editable
       ? 'Edit binary data'
       : 'View binary data'
@@ -376,17 +378,17 @@ const fileType = {
         })()
         : '',
       value.type.startsWith('image/')
-        // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
-        ? ['img', /** @type {import('jamilih').JamilihAttributes} */ ({
+        ? ['img', {
           class: 'imageView',
           src: URL.createObjectURL(value),
           $on: {
-            /** @this {HTMLImageElement} */
             load () {
-              URL.revokeObjectURL(this.src);
+              URL.revokeObjectURL(
+                /** @type {HTMLImageElement} */ (this).src
+              );
             }
           }
-        })]
+        }]
         : ''
     ]];
   },
@@ -554,18 +556,16 @@ const fileType = {
         ['legend', ['Supply file through upload']],
         ['label', [
           'File ',
-          // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
-          ['input', /** @type {import('jamilih').JamilihAttributes} */ ({
+          ['input', {
             $on: {
-              /**
-               * @this {HTMLInputElement}
-               */
               change () {
+                // eslint-disable-next-line consistent-this -- Clarity
+                const input = /** @type {HTMLInputElement} */ (this);
                 /* istanbul ignore if -- TS */
-                if (!this.files) {
+                if (!input.files) {
                   return;
                 }
-                const file = this.files[0];
+                const file = input.files[0];
 
                 const metadataFieldset =
                   /**
@@ -579,7 +579,7 @@ const fileType = {
               }
             },
             name: `${typeNamespace}-file`, type: 'file'
-          })]
+          }]
         ]]
       ]],
       ['fieldset', [
@@ -819,15 +819,11 @@ const fileType = {
         })(),
         ' ',
         ['div', [
-          // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
-          ['button', /** @type {import('jamilih').JamilihAttributes} */ ({
+          ['button', {
             class: 'recordMedia',
             $on: {
               /**
                * @param {Event} e
-               * @this {HTMLButtonElement & {
-               *   $mediaRecorder: MediaRecorder
-               * }}
                */
               click (e) {
                 e.preventDefault();
@@ -923,13 +919,16 @@ const fileType = {
                   chunks = [];
                 });
 
-                this.$mediaRecorder = mediaRecorder;
+                (
+                  /** @type {HTMLButtonElement & {$mediaRecorder: MediaRecorder}} */
+                  (this)
+                ).$mediaRecorder = mediaRecorder;
 
                 // Todo: Could make option for front/back
                 //         camera ("user"/"environment") and bringIntoFocus
               }
             }
-          }), [
+          }, [
             'Record media'
           ]],
           ['button', {

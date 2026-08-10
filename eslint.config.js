@@ -31,7 +31,13 @@ export default [
     name: 'JSOE/Cypress',
     files: ['cypress/**'],
     rules: {
-      'unicorn/no-empty-file': 'off'
+      'unicorn/no-empty-file': 'off',
+      // Cypress auto-handles
+      'mocha/no-async-in-sync-tests': 0,
+      // Redundant
+      'sonarjs/no-fixed-wait-in-tests': 0,
+      'sonarjs/assertions-in-tests': 0,
+      'sonarjs/no-empty-test-file': 0 // Bug
     }
   },
   {
@@ -43,6 +49,7 @@ export default [
       // For now
       'jsdoc/reject-any-type': 0,
       'jsdoc/reject-function-type': 0,
+      'unicorn/no-this-outside-of-class': 0,
 
       // Too cumbersome with @type casts
       '@stylistic/max-len': 0,
@@ -75,7 +82,11 @@ export default [
       'prefer-named-capture-group': 0,
       // Disable; waiting on https://github.com/mysticatea/eslint-plugin-node/issues/162
       'n/no-unpublished-import': 0,
-      'unicorn/no-this-assignment': 0
+      'unicorn/no-this-assignment': 0,
+
+      // Disable in ash-nazg?
+      'unicorn/no-top-level-assignment-in-function': 0,
+      'unicorn/no-top-level-side-effects': 0
     }
   }
 ];

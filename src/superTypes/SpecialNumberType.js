@@ -12,10 +12,10 @@ const SpecialNumberSuperType = {
       value: s === '-0'
         ? -0
         : s === 'NaN'
-          ? Number.NaN
+          ? NaN
           : s === 'Infinity'
-            ? Number.POSITIVE_INFINITY
-            : Number.NEGATIVE_INFINITY
+            ? Infinity
+            : -Infinity
     };
   },
   getSelect ({root}) {
@@ -42,7 +42,7 @@ const SpecialNumberSuperType = {
       Object.is(value, -0) ? '-0' : String(value)
     ]];
   },
-  editUI ({typeNamespace, value = Number.NaN}) {
+  editUI ({typeNamespace, value = NaN}) {
     return ['div', {dataset: {type: 'SpecialNumber'}}, [
       ['label', [
         'Special number: ',
@@ -53,10 +53,10 @@ const SpecialNumberSuperType = {
             value: 'NaN', selected: Number.isNaN(value)
           }, ['NaN']],
           ['option', {
-            value: 'Infinity', selected: value === Number.POSITIVE_INFINITY
+            value: 'Infinity', selected: value === Infinity
           }, ['Infinity']],
           ['option', {
-            value: '-Infinity', selected: value === Number.NEGATIVE_INFINITY
+            value: '-Infinity', selected: value === -Infinity
           }, ['-Infinity']],
           ['option', {
             value: '-0', selected: Object.is(value, -0)

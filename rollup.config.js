@@ -3,6 +3,7 @@ import {nodeResolve} from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 // import babel from 'rollup-plugin-babel';
 import terser from '@rollup/plugin-terser';
+import json from '@rollup/plugin-json';
 import istanbul from 'rollup-plugin-istanbul';
 
 export default [{
@@ -13,6 +14,7 @@ export default [{
     format: 'es'
   },
   plugins: [
+    json(),
     terser({
       /* eslint-disable camelcase -- API */
       // Needed for Typeson's `Undefined` and other constructor detection
@@ -30,6 +32,7 @@ export default [{
     format: 'es'
   },
   plugins: [
+    json(),
     istanbul(),
     nodeResolve(),
     commonjs()

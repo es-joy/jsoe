@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-error-property-assignment -- Testing */
 describe('error spec', () => {
   beforeEach(() => {
     cy.visit('http://127.0.0.1:8087/demo/index-instrumented.html', {

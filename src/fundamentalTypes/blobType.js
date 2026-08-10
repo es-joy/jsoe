@@ -61,7 +61,6 @@ function newBlobForBinary (viewBinary, value) {
  * @returns {import('jamilih').JamilihArray}
  */
 function binaryButton (value, editable) {
-  // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
   return ['button', /** @type {import('jamilih').JamilihAttributes} */ ({
     class: 'viewBinary',
     $custom: {
@@ -69,16 +68,19 @@ function binaryButton (value, editable) {
     },
     $on: {
       /**
-       * @this {HTMLButtonElement & {$value: Blob}}
        * @param {Event} e
        */
       click (e) {
         // eslint-disable-next-line consistent-this -- Clarity
-        const viewBinary = this;
+        const viewBinary = /** @type {HTMLButtonElement & {$value: Blob}} */ (
+          this
+        );
         e.preventDefault();
         if (
-          !this.$value ||
-          Object.prototype.toString.call(this.$value).slice(8, -1) !== 'Blob'
+          !viewBinary.$value ||
+          Object.prototype.toString.call(
+            viewBinary.$value
+          ).slice(8, -1) !== 'Blob'
         ) {
           // Non-editable shouldn't be empty
           // if (!editable) {
@@ -134,7 +136,7 @@ function binaryButton (value, editable) {
             ));
           }
         );
-        reader.readAsBinaryString(this.$value);
+        reader.readAsBinaryString(viewBinary.$value);
       }
     }
   }), [
@@ -348,14 +350,14 @@ const blobType = {
         })()
         : '',
       value.type.startsWith('image/')
-        // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
         ? ['img', /** @type {import('jamilih').JamilihAttributes} */ ({
           class: 'imageView',
           src: URL.createObjectURL(value),
           $on: {
-            /** @this {HTMLImageElement} */
             load () {
-              URL.revokeObjectURL(this.src);
+              URL.revokeObjectURL(
+                /** @type {HTMLImageElement} */ (this).src
+              );
             }
           }
         })]
@@ -460,18 +462,16 @@ const blobType = {
         ['legend', ['Supply blob through upload']],
         ['label', [
           'Blob ',
-          // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
           ['input', /** @type {import('jamilih').JamilihAttributes} */ ({
             $on: {
-              /**
-               * @this {HTMLInputElement}
-               */
               change () {
+                // eslint-disable-next-line consistent-this -- Clarity
+                const input = /** @type {HTMLInputElement} */ (this);
                 /* istanbul ignore if -- TS */
-                if (!this.files) {
+                if (!input.files) {
                   return;
                 }
-                const file = this.files[0];
+                const file = input.files[0];
 
                 const blob = new Blob([file], {
                   type: file.type
@@ -729,15 +729,11 @@ const blobType = {
         })(),
         ' ',
         ['div', [
-          // @ts-ignore It's bad in VSC but ok on CLI, so ignoring
           ['button', /** @type {import('jamilih').JamilihAttributes} */ ({
             class: 'recordMedia',
             $on: {
               /**
                * @param {Event} e
-               * @this {HTMLButtonElement & {
-               *   $mediaRecorder: MediaRecorder
-               * }}
                */
               click (e) {
                 e.preventDefault();
@@ -831,7 +827,10 @@ const blobType = {
                   chunks = [];
                 });
 
-                this.$mediaRecorder = mediaRecorder;
+                (
+                  /** @type {HTMLButtonElement & {$mediaRecorder: MediaRecorder}} */
+                  (this)
+                ).$mediaRecorder = mediaRecorder;
 
                 // Todo: Could make option for front/back
                 //         camera ("user"/"environment") and bringIntoFocus

@@ -1,6 +1,6 @@
-const nbsp = '\u00A0';
-const upArrow = '\u2191';
-const downArrow = '\u2193';
+const nbsp = '\u{A0}';
+const upArrow = '\u{2191}';
+const downArrow = '\u{2193}';
 const U = {nbsp, upArrow, downArrow};
 
 /**

@@ -280,12 +280,12 @@ const arrayType = {
       ? {}
       : !this.sparse
         ? []
-        : Array.from({length: Number.parseInt(
+        : Array.from({length: Math.trunc(Number(
           /** @type {HTMLInputElement} */ (DOM.filterChildElements(
             root,
             ['div', 'div', 'label', 'input']
           )[0]).value
-        )});
+        ))});
 
     // Todo: Should this be renamed per return arguments to
     //   `getRefOrVal` or is it ok?
@@ -424,7 +424,7 @@ const arrayType = {
         specificSchemaObject
       )?.rest;
       return ['legend', [
-        this.array && type !== 'record'
+        type !== 'record' && this.array
           ? /** @type {import('zodex').SzArray} */ (
             specificSchemaObject
           )?.element?.description ??
@@ -475,7 +475,7 @@ const arrayType = {
      * @returns {HTMLFieldSetElement}
      */
 
-    const div = jml('div', /** @type {import('jamilih').JamilihAttributes} */ ({
+    const div = jml('div', {
       class: 'arrayHolder',
       dataset: {type},
       $custom: {
@@ -607,7 +607,7 @@ const arrayType = {
           );
         }
       }
-    }), [
+    }, [
       ['span', {
         title: specificSchemaObject?.description
       }, [
@@ -632,7 +632,7 @@ const arrayType = {
         ).textContent = arrayContents.hidden ? '+' : '-';
       }}}, ['-']],
       ['div', {class: 'arrayContents'}, [
-        this.array && type !== 'record'
+        type !== 'record' && this.array
           ? ['div', {
             title: specificSchemaObject
               ? (type === 'filelist'
@@ -706,10 +706,12 @@ const arrayType = {
      * @returns {void}
      */
     const bringFocus = (input, alwaysFocus) => {
-      if (bringIntoFocus || alwaysFocus) {
-        input.scrollIntoView();
-        input.focus();
+      if (!(bringIntoFocus || alwaysFocus)) {
+        return;
       }
+
+      input.scrollIntoView();
+      input.focus();
     };
 
     /**
@@ -798,10 +800,11 @@ const arrayType = {
         'fieldset', `.${type}Item-arrowHolder-${typeNamespace}`
       ]).forEach((holder, j, arr) => {
         DOM.removeChildren(holder);
-        let up = true, down = true;
         if (arr.length === 1) { // Nowhere to move
           return;
         }
+
+        let up = true, down = true;
         if (j === 0) {
           up = false;
         } else if (j === arr.length - 1) {
@@ -849,6 +852,8 @@ const arrayType = {
       }
 
       // Others may be ok (or problematic) now too
+
+      // eslint-disable-next-line unicorn/no-unused-array-method-return -- Short-circuiting
       propertyNameInputs.some((input, /* typeNamespace, */ _i, arr) => {
         const invalidStr = arr.some((item) => {
           return input !== item && input.value === item.value;
@@ -901,47 +906,6 @@ const arrayType = {
       className, splice, itemIndex, /* type, */ typeNamespace,
       arrayItems, propName, required, schema
     }) => {
-      /**
-       * @callback ValidateLength
-       * @param {boolean} [avoidDialog]
-       * @returns {Promise<void>}
-       */
-
-      /**
-       * @type {ValidateLength}
-       * @this {HTMLInputElement & {
-       *   $validateLength: ValidateLength
-       * }}
-       */
-      const $validateLength = async function (avoidDialog) {
-        if (!sparse) {
-          return;
-        }
-        const inputsExceedingLength = arrayItems.$inputsExceedingLength();
-        const exceedsLength = inputsExceedingLength.length;
-        if (avoidDialog || !exceedsLength || !(/^\d+$/u).test(this.value)) {
-          return;
-        }
-        await dialogs.confirm({
-          message: 'You are attempting to add an (integer-based) ' +
-            'array item beyond the length. Click "Ok" to allow to ' +
-            'permit and extend the array length or "Cancel" otherwise.'
-        });
-        const arrLengthInput =
-          /** @type {HTMLInputElement & {$oldvalue: string}} */ (
-            $e(
-              /** @type {HTMLElement} */ (arrayItems.previousElementSibling),
-              'input'
-            )
-          );
-        const highest = /** @type {number} */ (inputsExceedingLength.map(
-          (i) => Number.parseInt(i.value)
-        ).toSorted().at(-1));
-        arrLengthInput.value = String(highest + 1);
-        arrLengthInput.$oldvalue = String(highest + 1);
-        // Does have potential side effects calling `$inputsExceedingLength`
-        this.$validateLength(true);
-      };
       if (mapProperties) {
         const keyTypeSelection =
           /** @type {import('../typeChoices.js').BuildTypeChoices} */ (
@@ -1050,12 +1014,55 @@ const arrayType = {
                     `Duplicate ${type === 'map' ? 'Map' : 'Record'} key value`
                   );
                   control.reportValidity();
-                });
+                }, 0);
               }
             }
           }, keyTypeSelection.domArray]
         ]];
       }
+
+      /**
+       * @callback ValidateLength
+       * @param {boolean} [avoidDialog]
+       * @returns {Promise<void>}
+       */
+
+      /**
+       * @type {ValidateLength}
+       * @this {HTMLInputElement & {
+       *   $validateLength: ValidateLength
+       * }}
+       */
+      const $validateLength = async function (avoidDialog) {
+        if (!sparse) {
+          return;
+        }
+        const inputsExceedingLength = arrayItems.$inputsExceedingLength();
+        const exceedsLength = inputsExceedingLength.length;
+        if (avoidDialog || !exceedsLength || !(/^\d+$/u).test(this.value)) {
+          return;
+        }
+        await dialogs.confirm({
+          message: 'You are attempting to add an (integer-based) ' +
+            'array item beyond the length. Click "Ok" to allow to ' +
+            'permit and extend the array length or "Cancel" otherwise.'
+        });
+        const arrLengthInput =
+          /** @type {HTMLInputElement & {$oldvalue: string}} */ (
+            $e(
+              /** @type {HTMLElement} */ (arrayItems.previousElementSibling),
+              'input'
+            )
+          );
+        const highest = Math.max(...inputsExceedingLength.map(
+          (i) => Math.trunc(Number(i.value))
+        ));
+        arrLengthInput.value = String(highest + 1);
+        arrLengthInput.$oldvalue = String(highest + 1);
+        // Does have potential side effects calling `$inputsExceedingLength`
+        this.$validateLength(true);
+      };
+
       if (editableProperties) {
         // console.log('PROPNAME', propName, schema, specificSchemaObject);
         const description = /** @type {import('zodex').SzObject} */ (
@@ -1098,19 +1105,18 @@ const arrayType = {
                   ...(specificSchemaObject && propName) // Optional but has name
                     ? [
                       ['b', [
-                        /** @type {import('zodex').SzObject} */
-                        (specificSchemaObject)?.properties?.[
-                          propName
-                        ]
-                          ? /** @type {import('zodex').SzObject} */ (
-                            specificSchemaObject
-                          )?.properties?.[
-                            propName
-                          ]?.description ?? propName
-                          : /** @type {import('zodex').SzObject} */ (
-                            specificSchemaObject
-                          /* istanbul ignore next -- Guard */
-                          )?.catchall?.description ?? propName
+                        (() => {
+                          const propSchema =
+                            /** @type {import('zodex').SzObject} */ (
+                              specificSchemaObject
+                            )?.properties?.[propName];
+                          return propSchema
+                            ? propSchema.description ?? propName
+                            : /** @type {import('zodex').SzObject} */ (
+                              specificSchemaObject
+                            /* istanbul ignore next -- Guard */
+                            )?.catchall?.description ?? propName;
+                        })()
                       ]]
                     ]
                     : [
@@ -1179,7 +1185,7 @@ const arrayType = {
                 if (!(/^\d+$/u).test(this.value)) {
                   return false;
                 }
-                return Number.parseInt(this.value);
+                return Math.trunc(Number(this.value));
               },
               $validateLegend,
               $arrayItems: arrayItems,
@@ -1220,6 +1226,7 @@ const arrayType = {
                 ).$parseInt();
                 if (intVal === false) {
                   inputs.reverse();
+                  // eslint-disable-next-line unicorn/no-unused-array-method-return -- Short-circuiting
                   inputs.some((input) => {
                     if (input === this) { // No need to search further
                       return true;
@@ -1250,6 +1257,7 @@ const arrayType = {
                    */
                   let nearest;
 
+                  // eslint-disable-next-line unicorn/no-unused-array-method-return -- Short-circuiting
                   inputs.some((input) => {
                     if (input === this) {
                       return false;
@@ -1274,7 +1282,7 @@ const arrayType = {
                     };
                     if (cmp(intVal, intValOlder) &&
                       (!nearest || cmp(
-                        intValOlder, Number.parseInt(nearest.value)
+                        intValOlder, Math.trunc(Number(nearest.value))
                       ))
                     ) {
                       nearest = input;
@@ -1295,7 +1303,7 @@ const arrayType = {
                     getFieldset(nearest)[method](thisFieldset);
                     bringFocus(this, alwaysFocus);
                     arrayItems.$redrawMoveArrows();
-                  });
+                  }, 0);
                   return true;
                 };
                 if (!getNearest()) {
@@ -1317,16 +1325,12 @@ const arrayType = {
                   }`)
                 );
                 DOM.removeChildren(propHolder);
+                const propSchema = /** @type {import('zodex').SzObject} */ (
+                  specificSchemaObject
+                )?.properties?.[this.value];
                 jml('b', [
-                  /** @type {import('zodex').SzObject} */
-                  (specificSchemaObject)?.properties?.[
-                    this.value
-                  ]
-                    ? /** @type {import('zodex').SzObject} */ (
-                      specificSchemaObject
-                    )?.properties?.[
-                      this.value
-                    ]?.description ?? this.value
+                  propSchema
+                    ? propSchema.description ?? this.value
                     : /** @type {import('zodex').SzObject} */ (
                       specificSchemaObject
                     )?.catchall?.description ?? this.value
@@ -1634,7 +1638,7 @@ const arrayType = {
       const arrayItems = this.$getArrayItems();
       if (sparse) {
         if (propName) {
-          const intVal = propName.match(/^\d+$/u) && Number.parseInt(propName);
+          const intVal = propName.match(/^\d+$/u) && Math.trunc(Number(propName));
           if (typeof intVal === 'number') {
             itemIndex = intVal;
           }
@@ -1715,7 +1719,7 @@ const arrayType = {
                   'Duplicate Set value'
                 );
                 control.reportValidity();
-              });
+              }, 10);
             }, true]
           },
           $custom: {
@@ -1949,7 +1953,7 @@ const arrayType = {
         (input) => input.value.match(/^\d+$/u)
       ).filter((input) => {
         // We cycle through all elements to set the proper validity on them
-        const val = Number.parseInt(input.value);
+        const val = Math.trunc(Number(input.value));
         const exceedsLength = val > highestExpectedIndex;
         input.setCustomValidity(
           exceedsLength
@@ -2065,9 +2069,7 @@ const arrayType = {
                            */ (
                             $e(div, '.arrayLength')
                           );
-                        arrayLengthInput.value = String(Number.parseInt(
-                          arrayLengthInput.value
-                        ) + 1);
+                        arrayLengthInput.value = String(Math.trunc(Number(arrayLengthInput.value)) + 1);
                       }
                     });
                     // Maybe not needed as removal would remove circular
@@ -2087,14 +2089,14 @@ const arrayType = {
                         return !['void', 'undefined'].includes(option.type);
                       })
                     )) {
-                      const diff = Number.parseInt(this.value) -
-                        Number.parseInt(this.$oldvalue ?? this.defaultValue);
+                      const diff = Math.trunc(Number(this.value)) -
+                        Math.trunc(Number(this.$oldvalue ?? this.defaultValue));
                       for (let i = 0; i < diff; i++) {
                         // Timeout needed by Cypress at least or will get
                         //   validation triggered which prevents moving forward
                         setTimeout(() => {
                           div.$addArrayElement({});
-                        });
+                        }, 0);
                       }
                     }
                   }
@@ -2249,8 +2251,7 @@ const arrayType = {
       /**
        * @type {DivArrayOrObjectHolder}
        */ (
-        /** @type {unknown} */ (
-        jml('div', /** @type {import('jamilih').JamilihAttributes} */ ({
+        jml('div', {
           dataset: {type},
           // is: 'array-or-object-editor',
           $custom: {
@@ -2312,7 +2313,7 @@ const arrayType = {
               typeChoices.$setType({
                 type, baseValue: value, bringIntoFocus,
                 specificSchema:
-                  schema?.type === 'union' && schemaIdx !== undefined
+                  schemaIdx !== undefined && schema?.type === 'union'
                     ? schema.options[schemaIdx]
                     : schema,
                 avoidReport: true
@@ -2429,7 +2430,7 @@ const arrayType = {
               }
             }
           }
-        }), /** @type {import('jamilih').JamilihChildren} */ ([
+        }, /** @type {import('jamilih').JamilihChildren} */ ([
           [specificSchemaObject ? 'span' : 'b', {
             title: specificSchemaObject?.description ?? (DOM.initialCaps(
               /** @type {import('../types.js').AvailableType} */
@@ -2476,9 +2477,8 @@ const arrayType = {
           minusButton,
           arrayContents
         ]))
-        )
       );
-    topRoot = topRoot || div;
+    topRoot ||= div;
 
     if (!objectValue && specificSchemaObject) {
       switch (type) {
@@ -2486,6 +2486,7 @@ const arrayType = {
         // See comment referencing `arrayType.js` in `typeChoices.js`
         if (!schemaFallingBack) {
           for (const [prop, val] of
+            // eslint-disable-next-line unicorn/no-unreadable-for-of-expression -- Convenient
             Object.entries(
               /** @type {import('zodex').SzObject} */ (
                 specificSchemaObject

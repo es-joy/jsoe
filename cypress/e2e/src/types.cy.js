@@ -7,9 +7,7 @@ import Types, {
 
 describe('`getPropertyValueFromLegend`', function () {
   beforeEach(() => {
-    while (document.body.firstChild) {
-      document.body.firstChild.remove();
-    }
+    document.body.replaceChildren();
   });
   it('throws if no property on supplied element', function () {
     const legend = document.createElement('legend');
@@ -43,7 +41,7 @@ describe('`Types.getFormControlFromRootAncestor`', function () {
     const types = new Types();
     expect(types.getFormControlFromRootAncestor(
       'missing'
-    )).to.equal(null);
+    )).to.be.null;
   });
 });
 
@@ -89,9 +87,7 @@ describe('`Types.getValueForString`', function () {
         state: 'badFormat',
         parent: {},
         parentPath: '',
-        // @ts-ignore Sometimes errs; just testing
         schemaObject: {},
-        // @ts-ignore Sometimes errs; just testing
         schemaOriginal: {}
       });
     }).to.throw('Could not get types for format and state');

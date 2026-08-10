@@ -52,7 +52,7 @@ describe('NaN spec', () => {
     );
 
     cy.get('button#logValue').click();
-    cy.get('@consoleLog').should('be.calledWith', Number.NaN);
+    cy.get('@consoleLog').should('be.calledWith', NaN);
   });
 
   it('views UI', function () {
@@ -85,6 +85,6 @@ describe('NaN spec', () => {
 
   it('gets value', function () {
     cy.clearTypeAndBlur('#getValueForString', 'NaN');
-    cy.get('@consoleLog').should('be.calledWith', Number.NaN);
+    cy.get('@consoleLog').should('be.calledWith', NaN);
   });
 });

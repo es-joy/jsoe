@@ -79,7 +79,7 @@ export const getPropertyValueFromLegend = (legend) => {
     );
   }
   // 1-based to 0-based
-  return String(Number.parseInt(propElem.textContent) - 1);
+  return String(Math.trunc(Number(propElem.textContent) - 1));
 };
 
 /**
@@ -618,12 +618,12 @@ class Types {
         Object.entries(stateDependent).forEach(([
           format, formatStateDependent
         ]) => {
-          if (!this.contexts[format]) {
+          if (!Object.hasOwn(this.contexts, format)) {
             this.contexts[format] = {};
           }
           const {contexts, after} = formatStateDependent;
           contexts.forEach((context) => {
-            if (!this.contexts[format][context]) {
+            if (!Object.hasOwn(this.contexts[format], context)) {
               this.contexts[format][context] = [];
             }
             this.contexts[format][context].push({type, after});
@@ -1007,7 +1007,7 @@ class Types {
             const basicType = getJSONType(val);
             /* istanbul ignore else -- Successful reference always an object/array? */
             if (
-              ['array', 'object'].includes(type) && basicType === type
+              basicType === type && ['array', 'object'].includes(type)
             ) {
               /** @type {{[key: string]: any}} */ (
                 parent

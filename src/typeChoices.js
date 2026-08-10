@@ -237,6 +237,7 @@ export const buildTypeChoices = ({
         if (ancestorEl.nodeName.toLowerCase() !== 'fieldset') {
           // Grandparent check added for optional items placeholder
           ancestorEl = /** @type {HTMLElement} */ (
+            // eslint-disable-next-line unicorn/better-dom-traversing -- More precise
             /** @type {HTMLElement} */ (this.parentElement).parentElement
           );
         }
@@ -292,7 +293,7 @@ export const buildTypeChoices = ({
           format,
           topRoot,
           schemaContent: schemaOriginal ??
-            (schemaContent?.type === 'union' && schemaIdx !== undefined
+            (schemaIdx !== undefined && schemaContent?.type === 'union'
               ? schemaContent.options[schemaIdx]
               : schemaContent),
           // Added `schemaContent` as inner arrays were not getting their
@@ -306,7 +307,7 @@ export const buildTypeChoices = ({
             (schemaObjs?.[sel.selectedIndex - 1]) ??
 
             /* istanbul ignore next -- Can probably remove as `schemaObjs` will be set */
-            (schemaContent?.type === 'union' && schemaIdx !== undefined
+            (schemaIdx !== undefined && schemaContent?.type === 'union'
               /* istanbul ignore next -- Can probably remove */
               ? schemaContent.options[schemaIdx]
               // This is probably just `undefined` by here
@@ -403,11 +404,11 @@ export const buildTypeChoices = ({
       }
     )
   ]));
-  if (autoTrigger && typeOptions.length === 1 && !setValue) {
+  if (autoTrigger && !setValue && typeOptions.length === 1) {
     setTimeout(() => {
       sel.selectedIndex = 1;
       sel.dispatchEvent(new Event('change'));
-    });
+    }, 0);
   } else if (setValue || (requireObject && !objectHasValue)) {
     setTimeout(async () => {
       if (!setValue) { // if (requireObject && !objectHasValue) {
@@ -454,7 +455,7 @@ export const buildTypeChoices = ({
         /* istanbul ignore next -- How to trigger? */
         console.log('err', err);
       }
-    });
+    }, 0);
   }
 
   const typeContainer = jml('div', {class: 'typeContainer'});

@@ -32,12 +32,14 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
     cy.visit('http://127.0.0.1:8087/demo/index-arbitraryJS-instrumented.html', {
       onBeforeLoad (win) {
         cy.stub(win.console, 'log').callsFake((msg) => {
-          if (typeof msg === 'symbol') {
-            called = true;
-            expect(
-              String(msg)
-            ).to.equal('Symbol(abc)');
+          if (typeof msg !== 'symbol') {
+            return;
           }
+
+          called = true;
+          expect(
+            String(msg)
+          ).to.equal('Symbol(abc)');
         });
       }
     });
@@ -221,6 +223,8 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
 
 describe('Arbitrary JavaScript spec (Promises)', () => {
   let called = false;
+
+  /** @type {string|null|undefined} */
   let expectedValue;
   beforeEach(() => {
     called = false;
@@ -419,12 +423,14 @@ describe('Arbitrary JavaScript spec (functions)', () => {
     cy.visit('http://127.0.0.1:8087/demo/index-arbitraryJS-instrumented.html', {
       onBeforeLoad (win) {
         cy.stub(win.console, 'log').callsFake((msg) => {
-          if (typeof msg === 'function') {
-            called = true;
-            expect(
-              String(msg)
-            ).to.equal('function anonymous(abc\n) {\nconsole.log(abc);\n}');
+          if (typeof msg !== 'function') {
+            return;
           }
+
+          called = true;
+          expect(
+            String(msg)
+          ).to.equal('function anonymous(abc\n) {\nconsole.log(abc);\n}');
         });
       }
     });

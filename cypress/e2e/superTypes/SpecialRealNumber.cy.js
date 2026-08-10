@@ -61,7 +61,7 @@ describe('SpecialRealNumber spec', () => {
     ).select('-Infinity');
 
     cy.get('button#logValue').click();
-    cy.get('@consoleLog').should('be.calledWith', Number.NEGATIVE_INFINITY);
+    cy.get('@consoleLog').should('be.calledWith', -Infinity);
   });
 
   it('views UI', function () {
@@ -109,13 +109,13 @@ describe('SpecialRealNumber spec', () => {
   it('gets value (Infinity)', function () {
     cy.get('#useIndexedDBKey').click();
     cy.clearTypeAndBlur('#getValueForString', 'Infinity');
-    cy.get('@consoleLog').should('be.calledWith', Number.POSITIVE_INFINITY);
+    cy.get('@consoleLog').should('be.calledWith', Infinity);
   });
 
   it('gets value (-Infinity)', function () {
     cy.get('#useIndexedDBKey').click();
     cy.clearTypeAndBlur('#getValueForString', '-Infinity');
-    cy.get('@consoleLog').should('be.calledWith', Number.NEGATIVE_INFINITY);
+    cy.get('@consoleLog').should('be.calledWith', -Infinity);
   });
 
   // For the "Type choices with initial value set" control

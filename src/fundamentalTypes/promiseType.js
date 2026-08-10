@@ -12,14 +12,14 @@ import arrayType from './arrayType.js';
 const getTypeson = () => {
   const structuredCloningFixed = structuredCloningThrowing.filter(
     (typeSpecSet) => {
-      return ![
+      return [
         // Not yet supported within JSOE
         'imagedata',
         'imagebitmap',
         'cryptokey',
         'domquad'
-      ].some((prop) => {
-        return Object.hasOwn(typeSpecSet, prop);
+      ].every((prop) => {
+        return !Object.hasOwn(typeSpecSet, prop);
       });
     }
   );
@@ -109,7 +109,7 @@ const promiseType = {
       // Avoid invalid number, etc.
       input?.dispatchEvent(new Event('input'));
       input?.blur();
-    });
+    }, 0);
   },
   getValue ({root}) {
     const childRoot = /** @type {HTMLDivElement} */ (

@@ -21,7 +21,7 @@ const numberType = {
     return typeof x === 'number' &&
       // Avoid special numbers:
       !Number.isNaN(x) &&
-      x !== Number.POSITIVE_INFINITY && x !== Number.NEGATIVE_INFINITY &&
+      x !== Infinity && x !== -Infinity &&
       !Object.is(x, -0);
   },
   toValue (s) {
@@ -41,7 +41,7 @@ const numberType = {
     };
   },
   getValue ({root}) {
-    return Number.parseFloat(this.getInput({root}).value);
+    return Number(this.getInput({root}).value);
   },
   /* schema
   viewSchemaUI () {

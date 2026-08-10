@@ -23,7 +23,7 @@ const catchType = {
     // input/textarea hasn't yet been added, so set timeout
     setTimeout(() => {
       this.getInput({root}).value = value;
-    });
+    }, 0);
   },
   getValue ({root}) {
     return this.getInput({root}).value;
