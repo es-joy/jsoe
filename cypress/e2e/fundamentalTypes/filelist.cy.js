@@ -110,10 +110,14 @@ describe('FileList spec', () => {
       // '"type":"text/plain","lastModified":3213210})' +
       ')'
     );
-    cy.get('@consoleLog').should('be.calledWith', new FileList([
-      // new File([], '', {}),
-      // new File([], '', {})
-    ]));
+    cy.get('@consoleLog').should(
+      'be.calledWith',
+      // @ts-expect-error -- Virtual API
+      new FileList([
+        // new File([], '', {}),
+        // new File([], '', {})
+      ])
+    );
   });
 
   describe('getInput()', function () {

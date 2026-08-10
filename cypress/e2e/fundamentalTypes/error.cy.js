@@ -225,6 +225,7 @@ describe('error spec', () => {
     err.columnNumber = undefined;
     err.fileName = undefined;
     err.lineNumber = undefined;
+    // @ts-expect-error -- Testing
     err.name = undefined;
 
     cy.get('@consoleLog').should('be.calledWith', err);

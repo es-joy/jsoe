@@ -335,6 +335,10 @@ describe('Array reference spec', function () {
     it('converts string of array reference to reference', function () {
       // Note: the following escapes `{` for Cypress as `{{}`
       cy.typeAndBlur('#getValueForString', '{{}aaa: [arrayRef(/aaa)]}');
+      /**
+       * @typedef {SelfReferencingArray[]} SelfReferencingArray
+       */
+      /** @type {SelfReferencingArray} */
       const aaaArray = [];
       aaaArray[0] = aaaArray;
       cy.get('@consoleLog').should('be.calledWith', {aaa: aaaArray});
@@ -345,8 +349,11 @@ describe('Array reference spec', function () {
     it('converts string of object reference to reference', function () {
       // Note: the following escapes `{` for Cypress as `{{}`
       cy.typeAndBlur('#getValueForString', '{{}aaa: {{}bbb: objectRef(/aaa)}}');
+      /**
+       * @typedef {{bbb?: SelfReferencingObject}} SelfReferencingObject
+       */
       const aaaObject = {
-        aaa: {}
+        aaa: /** @type {SelfReferencingObject} */ ({})
       };
       aaaObject.aaa.bbb = aaaObject.aaa;
       cy.get('@consoleLog').should('be.calledWith', aaaObject);
@@ -360,8 +367,11 @@ describe('Array reference spec', function () {
           '#getValueForString', '{{}b~and/: {{}c: objectRef(/b~0and~1)}}'
         );
 
+        /**
+         * @typedef {{c?: SelfReferencingPathObject}} SelfReferencingPathObject
+         */
         const obj = {
-          'b~and/': {}
+          'b~and/': /** @type {SelfReferencingPathObject} */ ({})
         };
         obj['b~and/'].c = obj['b~and/'];
 

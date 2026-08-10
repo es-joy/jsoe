@@ -1,6 +1,7 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
+// @ts-expect-error -- No types
 import codeCoverageTask from '@cypress/code-coverage/task.js';
 
 // Reenable to see logs (also in e2e.ts)
@@ -21,7 +22,6 @@ const exprt = (on, config) => {
   config.env ||= {};
 
   // https://docs.cypress.io/guides/tooling/code-coverage.html#Install-the-plugin
-  // @ts-expect-error Why problematic?
   codeCoverageTask(on, config);
 
   // cypressTerminalReport(on, {

@@ -87,7 +87,9 @@ describe('`Types.getValueForString`', function () {
         state: 'badFormat',
         parent: {},
         parentPath: '',
+        // @ts-expect-error -- Bad argument
         schemaObject: {},
+        // @ts-expect-error -- Bad argument
         schemaOriginal: {}
       });
     }).to.throw('Could not get types for format and state');

@@ -209,6 +209,7 @@ describe('Special Errors spec', () => {
     * }}
     */ (new AggregateError([aggErr]));
     /* eslint-enable unicorn/error-message -- Testing */
+    // @ts-expect-error -- Testing
     err.message = undefined; // Have to force at least in Chrome
     err.columnNumber = undefined;
     err.lineNumber = undefined;
@@ -422,6 +423,7 @@ describe('Special Errors spec', () => {
     err.columnNumber = undefined;
     err.fileName = undefined;
     err.lineNumber = undefined;
+    // @ts-expect-error -- Testing
     err.name = undefined;
 
     cy.get('@consoleLog').should('be.calledWith', err);
