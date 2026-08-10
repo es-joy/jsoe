@@ -92,7 +92,7 @@
     "rollup": "4.53.3",
     "rollup-plugin-istanbul": "^5.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "typeson": "^9.0.4",
     "webappfind-demos-samples": "^0.7.0"
   },
