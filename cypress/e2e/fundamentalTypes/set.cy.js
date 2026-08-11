@@ -117,7 +117,7 @@ describe('Set spec (schema)', function () {
   it(
     'Generates UI for Set with `minSize` and `maxSize`',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Set (A set with mins and maxes)'
@@ -182,7 +182,7 @@ describe('Set spec (schema)', function () {
   it(
     'Generates UI for Set with `never`',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Set (With never)'

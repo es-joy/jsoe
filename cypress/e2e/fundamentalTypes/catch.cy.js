@@ -8,7 +8,7 @@ describe('Catch spec (schemas)', () => {
   });
 
   it('views UI', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 10');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 10');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Catch (A catch)'
@@ -48,7 +48,7 @@ describe('Catch spec (schemas)', () => {
   });
 
   it('views UI (without description)', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 11');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 11');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Catch'

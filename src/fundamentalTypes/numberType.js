@@ -58,7 +58,7 @@ const numberType = {
   },
   editUI ({typeNamespace, specificSchemaObject, value}) {
     const isLiteral = specificSchemaObject?.type === 'literal';
-    const numberSchemaObject = /** @type {import('zodex').SzNumber} */ (
+    const numberSchemaObject = /** @type {import('zodexy').SzNumber} */ (
       specificSchemaObject
     );
     // Seems to need a multiplier of around these sizes to have a noticeable

@@ -160,7 +160,7 @@ describe('Date spec (schemas)', () => {
   });
 
   it('views UI', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 3');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 3');
 
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -182,7 +182,7 @@ describe('Date spec (schemas)', () => {
   });
 
   it('creates form control (with `defaultValue`)', () => {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 6');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 6');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'date'
@@ -194,7 +194,7 @@ describe('Date spec (schemas)', () => {
 
   it('should set mins and maxes', () => {
     cy.get('.formatChoices:first').select(
-      'Schema: Zodex schema instance mins and maxes'
+      'Schema: Zodexy schema instance mins and maxes'
     );
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(

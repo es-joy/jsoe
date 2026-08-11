@@ -1442,7 +1442,7 @@ describe('Object spec (schema)', function () {
   });
 
   it('Generates UI for empty object', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Object (An object)'
@@ -1461,7 +1461,7 @@ describe('Object spec (schema)', function () {
   });
 
   it('Generates UI for object with required properties', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Object (With properties)'
@@ -1521,7 +1521,7 @@ describe('Object spec (schema)', function () {
   it(
     'Generates UI for object with required and optional property',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Object (With optional property)'
@@ -1631,7 +1631,7 @@ describe('Object spec (schema)', function () {
   it(
     'Prevents UI for object with never property',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Object (With never property)'
@@ -1670,7 +1670,7 @@ describe('Object spec (schema)', function () {
   it(
     'Generates UI for object with unknown keys strict',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Object (With unknown keys strict)'
@@ -1725,7 +1725,7 @@ describe('Object spec (schema)', function () {
   it(
     'Generates UI for object with catchall schema',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Object (With catchall schema)'
@@ -1797,7 +1797,7 @@ describe('Array spec (schema)', function () {
   it(
     'Generates UI for array with `minLength` and `maxLength`',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Array (An array with mins and maxes)'
@@ -1872,7 +1872,7 @@ describe('Array spec (schema)', function () {
   it(
     'Generates UI for array with undefined elements',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 9');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 9');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Array (An array with undefined elements)'
@@ -1886,7 +1886,7 @@ describe('Array spec (schema)', function () {
   it(
     'Generates UI for array with `never`',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Array (With never)'
@@ -1921,7 +1921,7 @@ describe('Tuple spec (schema)', function () {
   it(
     'Generates UI for tuple with `items` and `rest`',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Tuple (A tuple)'
@@ -1995,7 +1995,7 @@ describe('Tuple spec (schema)', function () {
   it(
     'Generates UI for tuple with `items` and never `rest`',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Tuple (With never rest)'
@@ -2052,7 +2052,7 @@ describe('Tuple spec (schema)', function () {
   it(
     'Generates UI for tuple with never `items` and no `rest`',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 8');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 8');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Tuple (With never items and no rest)'
@@ -2070,7 +2070,7 @@ describe('Tuple spec (schema)', function () {
   it(
     'Generates UI for tuple with no `items` and never `rest`',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 7');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Tuple (With no items and never rest)'
@@ -2118,7 +2118,7 @@ describe('Tuple spec (schema)', function () {
 
   describe('getInput()', function () {
     it('Shows the record root form control', function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 7');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
       const sel = '#formatAndTypeChoices ';
 
       cy.get(
@@ -2160,7 +2160,7 @@ describe('Record spec (schema)', function () {
   it(
     'Generates UI for record with numeric keys',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 7');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Record (A record)'
@@ -2211,7 +2211,7 @@ describe('Record spec (schema)', function () {
   it(
     'Generates UI for record with string keys',
     function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 7');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
         'Record'
@@ -2350,7 +2350,7 @@ describe('Record spec (schema)', function () {
 
   describe('getInput()', function () {
     it('Shows the record root form control', function () {
-      cy.get('.formatChoices:first').select('Schema: Zodex schema instance 7');
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
       const sel = '#formatAndTypeChoices ';
 
       cy.get(

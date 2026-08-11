@@ -99,7 +99,7 @@ const stringType = {
     }, [value]];
   },
   editUI ({typeNamespace, specificSchemaObject, value}) {
-    const stringSchemaObject = /** @type {import('zodex').SzString} */ (
+    const stringSchemaObject = /** @type {import('zodexy').SzString} */ (
       specificSchemaObject
     );
     const kind = 'kind' in stringSchemaObject ? stringSchemaObject.kind : null;

@@ -171,7 +171,7 @@ describe('blobHTML spec (schemas)', () => {
   });
 
   it('views UI', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 3');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 3');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'blobHTML'

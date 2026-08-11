@@ -50,7 +50,7 @@ const bigintType = {
     ]];
   },
   editUI ({typeNamespace, specificSchemaObject, value}) {
-    const bigintSchemaObject = /** @type {import('zodex').SzBigInt} */ (
+    const bigintSchemaObject = /** @type {import('zodexy').SzBigInt} */ (
       specificSchemaObject
     );
     return ['div', {

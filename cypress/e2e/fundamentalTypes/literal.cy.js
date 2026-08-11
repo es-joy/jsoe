@@ -7,7 +7,7 @@ describe('literal (boolean) spec', () => {
     });
   });
   it('creates form control', () => {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
 
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -19,7 +19,7 @@ describe('literal (boolean) spec', () => {
   });
 
   it('gets type', function (done) {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     cy.on('window:alert', (t) => {
       expect(t).to.eq('literal');
       done();
@@ -37,7 +37,7 @@ describe('literal (boolean) spec', () => {
       expect(t).to.eq(true);
       done();
     });
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Literal (Literal boolean)'
@@ -47,7 +47,7 @@ describe('literal (boolean) spec', () => {
   });
 
   it('logs value', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Literal (Literal boolean)'
@@ -58,7 +58,7 @@ describe('literal (boolean) spec', () => {
   });
 
   it('views UI', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
 
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -104,7 +104,7 @@ describe('literal (number) spec', () => {
     });
   });
   it('creates form control', () => {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
 
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -116,7 +116,7 @@ describe('literal (number) spec', () => {
   });
 
   it('gets type', function (done) {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     cy.on('window:alert', (t) => {
       expect(t).to.eq('literal');
       done();
@@ -134,7 +134,7 @@ describe('literal (number) spec', () => {
       expect(t).to.eq(true);
       done();
     });
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Literal (Literal number)'
@@ -144,7 +144,7 @@ describe('literal (number) spec', () => {
   });
 
   it('logs value', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Literal (Literal number)'
@@ -155,7 +155,7 @@ describe('literal (number) spec', () => {
   });
 
   it('views UI', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
 
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -171,7 +171,7 @@ describe('literal (number) spec', () => {
   });
 
   it('views UI (with no description)', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 9');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 9');
 
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -210,7 +210,7 @@ describe('literal (string) spec', () => {
     });
   });
   it('creates form control', () => {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
 
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -222,7 +222,7 @@ describe('literal (string) spec', () => {
   });
 
   it('gets type', function (done) {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     cy.on('window:alert', (t) => {
       expect(t).to.eq('literal');
       done();
@@ -240,7 +240,7 @@ describe('literal (string) spec', () => {
       expect(t).to.eq(true);
       done();
     });
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Literal (Literal string)'
@@ -250,7 +250,7 @@ describe('literal (string) spec', () => {
   });
 
   it('logs value', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Literal (Literal string)'
@@ -261,7 +261,7 @@ describe('literal (string) spec', () => {
   });
 
   it('views UI', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
 
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(

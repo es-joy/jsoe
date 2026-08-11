@@ -417,21 +417,21 @@ const arrayType = {
       /* className, type, arrayItems, */
       itemIndex, typeNamespace, propName
     }) => {
-      const tupleItem = /** @type {import('zodex').SzTuple} */ (
+      const tupleItem = /** @type {import('zodexy').SzTuple} */ (
         specificSchemaObject
       )?.items?.[itemIndex];
-      const restItem = /** @type {import('zodex').SzTuple} */ (
+      const restItem = /** @type {import('zodexy').SzTuple} */ (
         specificSchemaObject
       )?.rest;
       return ['legend', [
         type !== 'record' && this.array
-          ? /** @type {import('zodex').SzArray} */ (
+          ? /** @type {import('zodexy').SzArray} */ (
             specificSchemaObject
           )?.element?.description ??
-            ((type === 'set' && /** @type {import('zodex').SzSet} */ (
+            ((type === 'set' && /** @type {import('zodexy').SzSet} */ (
               specificSchemaObject
             )?.value?.description)
-              ? /** @type {import('zodex').SzSet} */ (
+              ? /** @type {import('zodexy').SzSet} */ (
                 specificSchemaObject
               )?.value?.description
               : (
@@ -442,16 +442,16 @@ const arrayType = {
         nbsp.repeat(2),
         ['span', {
           class: `propertyName-${typeNamespace}`,
-          title: type === 'record' && /** @type {import('zodex').SzRecord} */ (
+          title: type === 'record' && /** @type {import('zodexy').SzRecord} */ (
             specificSchemaObject
           )?.key?.description
-            ? /** @type {import('zodex').SzRecord} */ (
+            ? /** @type {import('zodexy').SzRecord} */ (
               specificSchemaObject
             )?.key?.description
             : specificSchemaObject ? propName : undefined
         }, [
           propName !== undefined
-            ? /** @type {import('zodex').SzObject} */ (
+            ? /** @type {import('zodexy').SzObject} */ (
               specificSchemaObject
             )?.properties?.[propName]?.description ?? propName
             /* istanbul ignore next -- Won't reach here as typeson will always give keypath? */
@@ -504,13 +504,13 @@ const arrayType = {
               const keyFieldset = jml(
                 'fieldset', [
                   ['legend', {
-                    title: /** @type {import('zodex').SzMap<any, any>} */ (
+                    title: /** @type {import('zodexy').SzMap<any, any>} */ (
                       specificSchemaObject
                     )?.key?.description
                       ? '(map key)'
                       : undefined
                   }, [
-                    /** @type {import('zodex').SzMap<any, any>} */ (
+                    /** @type {import('zodexy').SzMap<any, any>} */ (
                       specificSchemaObject
                     )?.key?.description ?? 'Key'
                   ]]
@@ -521,13 +521,13 @@ const arrayType = {
               const valueFieldset = jml(
                 'fieldset', [
                   ['legend', {
-                    title: /** @type {import('zodex').SzMap<any, any>} */ (
+                    title: /** @type {import('zodexy').SzMap<any, any>} */ (
                       specificSchemaObject
                     )?.value?.description
                       ? '(map value)'
                       : undefined
                   }, [
-                    /** @type {import('zodex').SzMap<any, any>} */ (
+                    /** @type {import('zodexy').SzMap<any, any>} */ (
                       specificSchemaObject
                     )?.value?.description ??
                     'Value'
@@ -692,10 +692,10 @@ const arrayType = {
       type !== 'tuple' && type !== 'record'; // arrayNonindexKeys and object?
     const mapProperties = type === 'map' || type === 'record';
 
-    const elementDesc = /** @type {import('zodex').SzArray} */ (
+    const elementDesc = /** @type {import('zodexy').SzArray} */ (
       specificSchemaObject
     )?.element?.description ?? (type === 'set'
-      ? /** @type {import('zodex').SzSet} */ (
+      ? /** @type {import('zodexy').SzSet} */ (
         specificSchemaObject
       )?.value?.description
       : undefined);
@@ -898,7 +898,7 @@ const arrayType = {
      *   arrayItems: ArrayItems,
      *   propName: string|undefined,
      *   required?: boolean,
-     *   schema?: import('zodex').SzType
+     *   schema?: import('zodexy').SzType
      * }} cfg
      * @returns {import('jamilih').JamilihArray}
      */
@@ -922,7 +922,7 @@ const arrayType = {
             ),
             schemaOriginal: schemaContent,
             // Can also be a `Record`
-            schemaContent: /** @type {import('zodex').SzMap<any, any>} */ (
+            schemaContent: /** @type {import('zodexy').SzMap<any, any>} */ (
               specificSchemaObject
             )?.key,
             typeNamespace: 'key-type-choices-only'
@@ -932,23 +932,23 @@ const arrayType = {
             class: 'mapKey',
             title: (
               type === 'map' &&
-              /** @type {import('zodex').SzMap<any, any>} */ (
+              /** @type {import('zodexy').SzMap<any, any>} */ (
                 specificSchemaObject
               )?.key?.description
             )
               ? '(map key)'
               : type === 'record' &&
-              /** @type {import('zodex').SzRecord} */ (
+              /** @type {import('zodexy').SzRecord} */ (
                 specificSchemaObject
               )?.key?.description
                 ? '(record key)'
                 : undefined
           }, [
             type === 'map'
-              ? /** @type {import('zodex').SzMap<any, any>} */ (
+              ? /** @type {import('zodexy').SzMap<any, any>} */ (
                 specificSchemaObject
               )?.key?.description ?? 'Map key'
-              : /** @type {import('zodex').SzRecord} */ (
+              : /** @type {import('zodexy').SzRecord} */ (
                 specificSchemaObject
               )?.key?.description ?? 'Record key',
             ' '
@@ -1065,11 +1065,11 @@ const arrayType = {
 
       if (editableProperties) {
         // console.log('PROPNAME', propName, schema, specificSchemaObject);
-        const description = /** @type {import('zodex').SzObject} */ (
+        const description = /** @type {import('zodexy').SzObject} */ (
           specificSchemaObject
         )?.properties?.[/** @type {string} */ (propName)]?.description;
         const optionalProperties = Object.entries(
-          /** @type {import('zodex').SzObject} */ (
+          /** @type {import('zodexy').SzObject} */ (
             specificSchemaObject
           )?.properties ?? {}
         ).map(([prop, val]) => {
@@ -1107,12 +1107,12 @@ const arrayType = {
                       ['b', [
                         (() => {
                           const propSchema =
-                            /** @type {import('zodex').SzObject} */ (
+                            /** @type {import('zodexy').SzObject} */ (
                               specificSchemaObject
                             )?.properties?.[propName];
                           return propSchema
                             ? propSchema.description ?? propName
-                            : /** @type {import('zodex').SzObject} */ (
+                            : /** @type {import('zodexy').SzObject} */ (
                               specificSchemaObject
                             /* istanbul ignore next -- Guard */
                             )?.catchall?.description ?? propName;
@@ -1325,13 +1325,13 @@ const arrayType = {
                   }`)
                 );
                 DOM.removeChildren(propHolder);
-                const propSchema = /** @type {import('zodex').SzObject} */ (
+                const propSchema = /** @type {import('zodexy').SzObject} */ (
                   specificSchemaObject
                 )?.properties?.[this.value];
                 jml('b', [
                   propSchema
                     ? propSchema.description ?? this.value
-                    : /** @type {import('zodex').SzObject} */ (
+                    : /** @type {import('zodexy').SzObject} */ (
                       specificSchemaObject
                     )?.catchall?.description ?? this.value
                 ], propHolder);
@@ -1344,7 +1344,7 @@ const arrayType = {
                * }}
                */
               change (e) {
-                const neverProperty = /** @type {import('zodex').SzObject} */ (
+                const neverProperty = /** @type {import('zodexy').SzObject} */ (
                   specificSchemaObject
                 )?.properties?.[
                 /** @type {string} */ (this.value)
@@ -1364,7 +1364,7 @@ const arrayType = {
 
                   if (
                     !dataListValues.includes(this.value) &&
-                    /** @type {import('zodex').SzObject} */ (
+                    /** @type {import('zodexy').SzObject} */ (
                       specificSchemaObject
                     ).unknownKeys === 'strict'
                   ) {
@@ -1400,9 +1400,9 @@ const arrayType = {
                         ...buildTypeChoicesForProperty({
                           propName: this.value,
                           schema:
-                          /** @type {import('zodex').SzObject} */
+                          /** @type {import('zodexy').SzObject} */
                           (specificSchemaObject)?.properties?.[this.value] ??
-                          /** @type {import('zodex').SzObject} */ (
+                          /** @type {import('zodexy').SzObject} */ (
                             specificSchemaObject
                           )?.catchall ??
                           {type: 'any'}
@@ -1435,7 +1435,7 @@ const arrayType = {
         ]]);
       }
 
-      const fileDesc = /** @type {import('zodex').SzEffect} */ (
+      const fileDesc = /** @type {import('zodexy').SzEffect} */ (
         specificSchemaObject
       )?.inner?.description;
 
@@ -1446,10 +1446,10 @@ const arrayType = {
             ? `${fileDesc} `
             : schema?.description
               ? `${schema?.description} `
-              : type === 'tuple' && /** @type {import('zodex').SzTuple} */ (
+              : type === 'tuple' && /** @type {import('zodexy').SzTuple} */ (
                 specificSchemaObject
               )?.rest?.description
-                ? `${/** @type {import('zodex').SzTuple} */ (
+                ? `${/** @type {import('zodexy').SzTuple} */ (
                   specificSchemaObject
                 )?.rest?.description} `
                 : 'Item ',
@@ -1491,7 +1491,7 @@ const arrayType = {
     /**
      * @param {{
      *   propName: string|undefined,
-     *   schema?: import('zodex').SzType,
+     *   schema?: import('zodexy').SzType,
      *   schemaIdx?: number,
      *   autoTrigger?: boolean
      * }} cfg
@@ -1509,27 +1509,27 @@ const arrayType = {
         schemaOriginal: schemaContent,
         schemaIdx,
         schemaContent: schema || type === 'tuple'
-          ? (schema ?? /** @type {import('zodex').SzTuple} */ (
+          ? (schema ?? /** @type {import('zodexy').SzTuple} */ (
             specificSchemaObject
           ).rest)
           : mapProperties
             // Can also be a `Record`
-            ? /** @type {import('zodex').SzMap<any, any>} */ (
+            ? /** @type {import('zodexy').SzMap<any, any>} */ (
               specificSchemaObject
             )?.value
             : type === 'set'
-              ? /** @type {import('zodex').SzSet} */ (
+              ? /** @type {import('zodexy').SzSet} */ (
                 specificSchemaObject
               )?.value
               : type === 'filelist'
-                ? /** @type {import('zodex').SzEffect} */ (
+                ? /** @type {import('zodexy').SzEffect} */ (
                   specificSchemaObject
                 )?.inner
                 : type === 'array' || type === 'arrayNonindexKeys'
-                  ? /** @type {import('zodex').SzArray} */ (
+                  ? /** @type {import('zodexy').SzArray} */ (
                     specificSchemaObject
                   )?.element
-                  : /** @type {import('zodex').SzObject} */ (
+                  : /** @type {import('zodexy').SzObject} */ (
                     specificSchemaObject
                   )?.properties?.[/** @type {string} */ (propName)],
         state: parentTypeObject.filelist
@@ -1547,7 +1547,7 @@ const arrayType = {
     function preventAdding (offset = 0) {
       switch (type) {
       case 'tuple':
-        if (/** @type {import('zodex').SzTuple} */ (
+        if (/** @type {import('zodexy').SzTuple} */ (
           specificSchemaObject
         )?.rest?.type === 'never') {
           dialogs.alert(
@@ -1556,7 +1556,7 @@ const arrayType = {
           return true;
         }
         if (
-          /** @type {import('zodex').SzTuple} */ (
+          /** @type {import('zodexy').SzTuple} */ (
             specificSchemaObject
           )?.items?.[0]?.type === 'never'
         ) {
@@ -1567,14 +1567,14 @@ const arrayType = {
         }
         break;
       case 'set': {
-        if (/** @type {import('zodex').SzSet} */ (
+        if (/** @type {import('zodexy').SzSet} */ (
           specificSchemaObject
         )?.value?.type === 'never') {
           dialogs.alert('Set has type "never", so one cannot add to it.');
           return true;
         }
 
-        const {maxSize} = /** @type {import('zodex').SzSet} */ (
+        const {maxSize} = /** @type {import('zodexy').SzSet} */ (
           specificSchemaObject
         ) ?? {};
         if (maxSize !== undefined &&
@@ -1585,14 +1585,14 @@ const arrayType = {
         }
         break;
       } case 'array': case 'arrayNonindexKeys': {
-        if (/** @type {import('zodex').SzArray} */ (
+        if (/** @type {import('zodexy').SzArray} */ (
           specificSchemaObject
         )?.element?.type === 'never') {
           dialogs.alert('Array has type "never", so one cannot add to it.');
           return true;
         }
 
-        const {maxLength} = /** @type {import('zodex').SzArray} */ (
+        const {maxLength} = /** @type {import('zodexy').SzArray} */ (
           specificSchemaObject
         ) ?? {};
 
@@ -1618,7 +1618,7 @@ const arrayType = {
      *   alwaysFocus?: true
      *   required?: boolean
      *   autoTrigger?: boolean,
-     *   schema?: import('zodex').SzType,
+     *   schema?: import('zodexy').SzType,
      *   schemaIdx?: number
      * }} cfg
      * @returns {void}
@@ -1758,23 +1758,23 @@ const arrayType = {
         ['span', {
           class: 'mapValue',
           title: type === 'map' &&
-          /** @type {import('zodex').SzMap<any, any>} */ (
+          /** @type {import('zodexy').SzMap<any, any>} */ (
             specificSchemaObject
           )?.value?.description
             ? '(map value)'
             : type === 'record' &&
-            /** @type {import('zodex').SzRecord} */ (
+            /** @type {import('zodexy').SzRecord} */ (
               specificSchemaObject
             )?.value?.description
               ? '(record value)'
               : undefined
         }, [
           type === 'map'
-            ? /** @type {import('zodex').SzMap<any, any>} */ (
+            ? /** @type {import('zodexy').SzMap<any, any>} */ (
               specificSchemaObject
             )?.value?.description ?? 'Map value'
             : type === 'record'
-              ? /** @type {import('zodex').SzRecord} */ (
+              ? /** @type {import('zodexy').SzRecord} */ (
                 specificSchemaObject
               )?.value?.description ?? 'Record value'
               : '',
@@ -1793,7 +1793,7 @@ const arrayType = {
           disabled: type === 'tuple' && required &&
             // The last item of a tuple can have content after it, but earlier
             //   items cannot
-            /** @type {import('zodex').SzTuple} */
+            /** @type {import('zodexy').SzTuple} */
             (specificSchemaObject)?.items?.length - 1 > itemIndex,
           $on: {click (/** @type {Event} */ e) {
             e.preventDefault();
@@ -2077,14 +2077,14 @@ const arrayType = {
                       topRoot: /** @type {HTMLDivElement} */ (topRoot)
                     });
                   } else {
-                    const element = /** @type {import('zodex').SzArray} */ (
+                    const element = /** @type {import('zodexy').SzArray} */ (
                       specificSchemaObject
                     )?.element;
                     if (!['void', 'undefined'].includes(
                       element?.type
                     ) && (
                       element?.type !== 'union' ||
-                      /** @type {import('zodex').SzUnion} */
+                      /** @type {import('zodexy').SzUnion} */
                       (element)?.options?.every((option) => {
                         return !['void', 'undefined'].includes(option.type);
                       })
@@ -2488,7 +2488,7 @@ const arrayType = {
           for (const [prop, val] of
             // eslint-disable-next-line unicorn/no-unreadable-for-of-expression -- Convenient
             Object.entries(
-              /** @type {import('zodex').SzObject} */ (
+              /** @type {import('zodexy').SzObject} */ (
                 specificSchemaObject
               /* istanbul ignore next -- Should always have `properties` */
               ).properties ?? {}
@@ -2504,11 +2504,11 @@ const arrayType = {
       case 'tuple': {
         // See comment referencing `arrayType.js` in `typeChoices.js`
         if (!schemaFallingBack) {
-          const specificSchemaObj = /** @type {import('zodex').SzTuple} */ (
+          const specificSchemaObj = /** @type {import('zodexy').SzTuple} */ (
             specificSchemaObject
           );
           if (
-            /** @type {import('zodex').SzTuple} */ (
+            /** @type {import('zodexy').SzTuple} */ (
               specificSchemaObject
             )?.items?.[0]?.type !== 'never'
           ) {
@@ -2521,7 +2521,7 @@ const arrayType = {
       }
       // case 'array': // None with schemas?
       case 'arrayNonindexKeys': {
-        const {minLength = 0} = /** @type {import('zodex').SzArray} */ (
+        const {minLength = 0} = /** @type {import('zodexy').SzArray} */ (
           specificSchemaObject
         );
         const arrayLengthInput =
@@ -2538,7 +2538,7 @@ const arrayType = {
       } case 'set': {
         // See comment referencing `arrayType.js` in `typeChoices.js`
         if (!schemaFallingBack) {
-          const {minSize = 0} = /** @type {import('zodex').SzSet} */ (
+          const {minSize = 0} = /** @type {import('zodexy').SzSet} */ (
             specificSchemaObject
           );
           for (let i = 0; i < minSize; i++) {

@@ -33,9 +33,9 @@
     "copy-jamilih": "cp node_modules/jamilih/dist/jml.mjs vendor/jamilih/dist/jml.mjs",
     "copy-typeson-registry": "cp node_modules/typeson-registry/dist/index.js vendor/typeson-registry/dist/index.js",
     "copy-zod": "cp -R node_modules/zod/v3 vendor/zod && rimraf -g vendor/zod/v3/**/*.cjs && rimraf -g vendor/zod/v3/**/*.cts && rimraf -g vendor/zod/v3/*.cjs && rimraf -g vendor/zod/v3/*.cts",
-    "copy-zodex": "cp -R node_modules/zodex/dist/esm vendor/zodex/dist && cp node_modules/zodex/dist/schema.zodex.json vendor/zodex/dist/schema.zodex.json",
+    "copy-zodexy": "cp -R node_modules/zodexy/dist/esm vendor/zodexy/dist && cp node_modules/zodexy/dist/schema.zodexy.json vendor/zodexy/dist/schema.zodexy.json",
     "copy-acorn": "cp -R node_modules/acorn/dist vendor/acorn",
-    "copy": "run-p copy-jamilih copy-typeson-registry copy-zod copy-zodex copy-acorn",
+    "copy": "run-p copy-jamilih copy-typeson-registry copy-zod copy-zodexy copy-acorn",
     "instrument": "run-s -c instrument-remove instrument-add copy-index rollup",
     "coveradge": "coveradge badges/coverage-badge.svg",
     "cypress:log": "ELECTRON_ENABLE_LOGGING=1 cypress run; npm run report",
@@ -61,7 +61,7 @@
     "sceditor": "3.2.1",
     "typeson-registry": "13.0.0",
     "zod": "^4.4.3",
-    "zodex": "^4.0.1"
+    "zodexy": "^0.21.1"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",

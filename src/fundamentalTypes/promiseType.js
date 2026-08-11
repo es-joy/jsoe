@@ -166,7 +166,7 @@ const promiseType = {
         topRoot: /** @type {HTMLDivElement} */ (topRoot),
         format: /** @type {import('../formats.js').AvailableFormat} */ (format),
         schemaOriginal: schemaContent,
-        schemaContent: /** @type {import('zodex').SzPromise} */ (
+        schemaContent: /** @type {import('zodexy').SzPromise} */ (
           specificSchemaObject
         )?.value ?? {type: 'any'},
         state: type,

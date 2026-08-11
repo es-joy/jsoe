@@ -16,7 +16,7 @@ import {
 } from './schema-data.js';
 
 const zodexSchemaJSON = await (
-  await fetch('../vendor/zodex/dist/schema.zodex.json')
+  await fetch('../vendor/zodexy/dist/schema.zodexy.json')
 ).json();
 
 const anySchemaJSON = {
@@ -286,61 +286,61 @@ const schemaInstanceJSONStrings11 = {
 /**
  * @param {string} schema
  * @throws {Error}
- * @returns {import('zodex').SzType}
+ * @returns {import('zodexy').SzType}
  */
 function getSchemaContent (schema) {
   switch (schema) {
-  case 'Zodex schema':
+  case 'Zodexy schema':
     return zodexSchemaJSON;
-  case 'Zodex schema instance':
+  case 'Zodexy schema instance':
     return schemaInstanceJSON;
-  case 'Zodex schema instance 2':
+  case 'Zodexy schema instance 2':
     return schemaInstanceJSON2;
-  case 'Zodex schema instance 3':
+  case 'Zodexy schema instance 3':
     return schemaInstanceJSON3;
-  case 'Zodex schema instance 4':
+  case 'Zodexy schema instance 4':
     return schemaInstanceJSON4;
-  case 'Zodex schema instance 5':
+  case 'Zodexy schema instance 5':
     return schemaInstanceJSON5;
-  case 'Zodex schema instance 6':
+  case 'Zodexy schema instance 6':
     return schemaInstanceJSON6;
-  case 'Zodex schema instance 7':
+  case 'Zodexy schema instance 7':
     return schemaInstanceJSON7;
-  case 'Zodex schema instance 8':
+  case 'Zodexy schema instance 8':
     return schemaInstanceJSON8;
-  case 'Zodex schema instance 9':
+  case 'Zodexy schema instance 9':
     return schemaInstanceJSON9;
-  case 'Zodex schema instance 10':
+  case 'Zodexy schema instance 10':
     return schemaInstanceJSON10;
-  case 'Zodex schema instance 11':
+  case 'Zodexy schema instance 11':
     return schemaInstanceJSON11;
-  case 'Zodex schema instance mins and maxes':
+  case 'Zodexy schema instance mins and maxes':
     return schemaInstanceJSONMinsMaxes;
-  case 'Zodex schema instance mins and maxes 2':
+  case 'Zodexy schema instance mins and maxes 2':
     return schemaInstanceJSONMinsMaxes2;
-  case 'Zodex schema instance mins and maxes 3':
+  case 'Zodexy schema instance mins and maxes 3':
     return schemaInstanceJSONMinsMaxes3;
-  case 'Zodex schema instance strings 1':
+  case 'Zodexy schema instance strings 1':
     return schemaInstanceJSONStrings1;
-  case 'Zodex schema instance strings 2':
+  case 'Zodexy schema instance strings 2':
     return schemaInstanceJSONStrings2;
-  case 'Zodex schema instance strings 3':
+  case 'Zodexy schema instance strings 3':
     return schemaInstanceJSONStrings3;
-  case 'Zodex schema instance strings 4':
+  case 'Zodexy schema instance strings 4':
     return schemaInstanceJSONStrings4;
-  case 'Zodex schema instance strings 5':
+  case 'Zodexy schema instance strings 5':
     return schemaInstanceJSONStrings5;
-  case 'Zodex schema instance strings 6':
+  case 'Zodexy schema instance strings 6':
     return schemaInstanceJSONStrings6;
-  case 'Zodex schema instance strings 7':
+  case 'Zodexy schema instance strings 7':
     return schemaInstanceJSONStrings7;
-  case 'Zodex schema instance strings 8':
+  case 'Zodexy schema instance strings 8':
     return schemaInstanceJSONStrings8;
-  case 'Zodex schema instance strings 9':
+  case 'Zodexy schema instance strings 9':
     return schemaInstanceJSONStrings9;
-  case 'Zodex schema instance strings 10':
+  case 'Zodexy schema instance strings 10':
     return schemaInstanceJSONStrings10;
-  case 'Zodex schema instance strings 11':
+  case 'Zodexy schema instance strings 11':
     return schemaInstanceJSONStrings11;
   case 'any schema':
     return anySchemaJSON;
@@ -357,27 +357,27 @@ const keyPathNotExpectedTypeChoices = await formatAndTypeChoices({
   hasKeyPath: false,
   typeNamespace: 'demo-keypath-not-expected',
   schemas: [
-    'Zodex schema', 'Zodex schema instance', 'Zodex schema instance 2',
-    'Zodex schema instance 3', 'Zodex schema instance 4',
-    'Zodex schema instance 5', 'Zodex schema instance 6',
-    'Zodex schema instance 7', 'Zodex schema instance 8',
-    'Zodex schema instance 9', 'Zodex schema instance 10',
-    'Zodex schema instance 11',
-    'Zodex schema instance mins and maxes',
-    'Zodex schema instance mins and maxes 2',
-    'Zodex schema instance mins and maxes 3',
-    'Zodex schema instance strings 1',
-    'Zodex schema instance strings 2',
-    'Zodex schema instance strings 3',
-    'Zodex schema instance strings 4',
-    'Zodex schema instance strings 5',
-    'Zodex schema instance strings 6',
-    'Zodex schema instance strings 7',
-    'Zodex schema instance strings 8',
-    'Zodex schema instance strings 9',
+    'Zodexy schema', 'Zodexy schema instance', 'Zodexy schema instance 2',
+    'Zodexy schema instance 3', 'Zodexy schema instance 4',
+    'Zodexy schema instance 5', 'Zodexy schema instance 6',
+    'Zodexy schema instance 7', 'Zodexy schema instance 8',
+    'Zodexy schema instance 9', 'Zodexy schema instance 10',
+    'Zodexy schema instance 11',
+    'Zodexy schema instance mins and maxes',
+    'Zodexy schema instance mins and maxes 2',
+    'Zodexy schema instance mins and maxes 3',
+    'Zodexy schema instance strings 1',
+    'Zodexy schema instance strings 2',
+    'Zodexy schema instance strings 3',
+    'Zodexy schema instance strings 4',
+    'Zodexy schema instance strings 5',
+    'Zodexy schema instance strings 6',
+    'Zodexy schema instance strings 7',
+    'Zodexy schema instance strings 8',
+    'Zodexy schema instance strings 9',
     'any schema', 'unknown schema'
   ],
-  selectedSchema: 'Zodex schema instance 2',
+  selectedSchema: 'Zodexy schema instance 2',
   getSchemaContent
 });
 
@@ -386,7 +386,7 @@ const keyPathNotExpectedTypeChoicesFirstPreselected =
     hasKeyPath: false,
     typeNamespace: 'demo-keypath-not-expected-no-preselected',
     schemas: [
-      'Zodex schema', 'Zodex schema instance'
+      'Zodexy schema', 'Zodexy schema instance'
     ],
     getSchemaContent
   });
@@ -597,7 +597,7 @@ setTimeout(function () {
           e.preventDefault();
           keyPathNotExpectedTypeChoicesFirstPreselected.
             formatChoices.$setFormat({
-              schema: 'Zodex schema instance'
+              schema: 'Zodexy schema instance'
             });
         }
       }}, [

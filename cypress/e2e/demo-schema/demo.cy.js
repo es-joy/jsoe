@@ -21,7 +21,7 @@ describe('Demo spec', () => {
   });
 
   it('Opens schema object boolean option', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Object (Boolean)'
@@ -31,7 +31,7 @@ describe('Demo spec', () => {
   });
 
   it('Opens schema boolean option', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'boolean'
@@ -84,7 +84,7 @@ describe('Demo spec', () => {
   });
 
   it('Initializes a form control with a value', () => {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
     cy.get('#initializeWithValue').click();
     cy.get('#formatAndTypeChoices input[type=number]').should(($input) => {
       expect($input.val()).to.equal('42');
@@ -126,7 +126,7 @@ describe('Demo spec', () => {
 
 describe('`getTypesForSchema`', function () {
   it('errs with duplicate properties', function () {
-    const schema = /** @type {import('zodex').SzIntersection} */ ({
+    const schema = /** @type {import('zodexy').SzIntersection} */ ({
       type: 'intersection',
       left: {
         type: 'object',
@@ -147,7 +147,7 @@ describe('`getTypesForSchema`', function () {
   });
 
   it("errs with duplicate properties' properties", function () {
-    const schema = /** @type {import('zodex').SzIntersection} */ ({
+    const schema = /** @type {import('zodexy').SzIntersection} */ ({
       type: 'intersection',
       left: {
         type: 'object',
@@ -174,7 +174,7 @@ describe('`getTypesForSchema`', function () {
   });
 
   it('copies properties from right', function () {
-    const schema = /** @type {import('zodex').SzIntersection} */ ({
+    const schema = /** @type {import('zodexy').SzIntersection} */ ({
       type: 'intersection',
       left: {
         type: 'object',
@@ -195,7 +195,7 @@ describe('`getTypesForSchema`', function () {
   });
 
   it('copies object properties from right', function () {
-    const schema = /** @type {import('zodex').SzIntersection} */ ({
+    const schema = /** @type {import('zodexy').SzIntersection} */ ({
       type: 'intersection',
       left: {
         type: 'object',
@@ -222,9 +222,9 @@ describe('`getTypesForSchema`', function () {
   it('copies `defaultValue` to group items', function () {
     const schema =
       /**
-       * @type {import('zodex').SzUnion<[
-       *   import('zodex').SzType,
-       *   ...import('zodex').SzType[]
+       * @type {import('zodexy').SzUnion<[
+       *   import('zodexy').SzType,
+       *   ...import('zodexy').SzType[]
        * ]>}
        */ ({
         type: 'union',
@@ -259,9 +259,9 @@ describe('`getTypesForSchema`', function () {
   it('copies `readonly` to group items', function () {
     const schema =
       /**
-       * @type {import('zodex').SzUnion<[
-       *   import('zodex').SzType,
-       *   ...import('zodex').SzType[]
+       * @type {import('zodexy').SzUnion<[
+       *   import('zodexy').SzType,
+       *   ...import('zodexy').SzType[]
        * ]>}
        */ ({
         type: 'union',
@@ -294,9 +294,9 @@ describe('`getTypesForSchema`', function () {
   it('copies `description` to group items', function () {
     const schema =
       /**
-       * @type {import('zodex').SzUnion<[
-       *   import('zodex').SzType,
-       *   ...import('zodex').SzType[]
+       * @type {import('zodexy').SzUnion<[
+       *   import('zodexy').SzType,
+       *   ...import('zodexy').SzType[]
        * ]>}
        */ ({
         type: 'union',
@@ -330,7 +330,7 @@ describe('`getTypesForSchema`', function () {
   it('copies `discriminator` to group items', function () {
     const schema =
       /**
-       * @type {import('zodex').SzDiscriminatedUnion<'a', any>}
+       * @type {import('zodexy').SzDiscriminatedUnion<'a', any>}
        */ ({
         type: 'discriminatedUnion',
         discriminator: 'a',
@@ -388,9 +388,9 @@ describe('`getTypesForSchema`', function () {
   it('adds `null` type for `isNullable` group items', function () {
     const schema =
       /**
-       * @type {import('zodex').SzUnion<[
-       *   import('zodex').SzType,
-       *   ...import('zodex').SzType[]
+       * @type {import('zodexy').SzUnion<[
+       *   import('zodexy').SzType,
+       *   ...import('zodexy').SzType[]
        * ]>}
        */ ({
         type: 'union',

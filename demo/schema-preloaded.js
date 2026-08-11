@@ -15,12 +15,12 @@ import {
 import FileList from '../src/utils/FileList.js';
 
 const zodexSchemaJSON = await (
-  await fetch('../vendor/zodex/dist/schema.zodex.json')
+  await fetch('../vendor/zodexy/dist/schema.zodexy.json')
 ).json();
 
 /**
  * @param {any[]} values
- * @param {import('zodex').SzType} schema
+ * @param {import('zodexy').SzType} schema
  * @returns {import('jamilih').JamilihChildren}
  */
 function getTypeChoices (values, schema) {

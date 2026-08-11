@@ -111,7 +111,7 @@ const dateType = {
   // Change to default to `new Date()` when can't be `NaN`
   //   value (keys)?
   editUI ({typeNamespace, specificSchemaObject, types, value}) {
-    const dateSchemaObject = /** @type {import('zodex').SzDate} */ (
+    const dateSchemaObject = /** @type {import('zodexy').SzDate} */ (
       specificSchemaObject
     );
     const val = value ?? (specificSchemaObject?.defaultValue

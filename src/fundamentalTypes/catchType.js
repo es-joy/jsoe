@@ -47,14 +47,14 @@ const catchType = {
       }, [
         types.getUIForModeAndType({
           readonly: true,
-          specificSchemaObject: /** @type {import('zodex').SzCatch} */ (
+          specificSchemaObject: /** @type {import('zodexy').SzCatch} */ (
             specificSchemaObject
           )?.innerType,
           hasValue: true,
           value,
           resultType, typeNamespace,
           type: /** @type {import('../types.js').AvailableType} */ (
-            /** @type {import('zodex').SzCatch} */ (
+            /** @type {import('zodexy').SzCatch} */ (
               specificSchemaObject
             )?.innerType?.type
           ),
@@ -72,18 +72,18 @@ const catchType = {
         types.getUIForModeAndType({
           readonly: true,
           specificSchemaObject: {
-            ...(/** @type {import('zodex').SzCatch} */ (
+            ...(/** @type {import('zodexy').SzCatch} */ (
               specificSchemaObject
             )?.innerType),
             description: '(catch value)'
           },
           hasValue: true,
-          value: /** @type {import('zodex').SzCatch} */ (
+          value: /** @type {import('zodexy').SzCatch} */ (
             specificSchemaObject
           ).value,
           resultType, typeNamespace,
           type: /** @type {import('../types.js').AvailableType} */ (
-            /** @type {import('zodex').SzCatch} */ (
+            /** @type {import('zodexy').SzCatch} */ (
               specificSchemaObject
             )?.innerType?.type
           ),
@@ -100,7 +100,7 @@ const catchType = {
     topRoot, schemaContent, typeNamespace, value
   }) {
     const schemaValue =
-      /** @type {import('zodex').SzCatch} */ (
+      /** @type {import('zodexy').SzCatch} */ (
         specificSchemaObject
       )?.value;
     return ['div', {
@@ -123,7 +123,7 @@ const catchType = {
           setValue: true,
           value: value ?? schemaValue,
           schemaOriginal: schemaContent,
-          schemaContent: /** @type {import('zodex').SzCatch} */ (
+          schemaContent: /** @type {import('zodexy').SzCatch} */ (
             specificSchemaObject
           )?.innerType,
           state: type,

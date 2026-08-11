@@ -33,7 +33,7 @@ const booleanType = {
   editUI ({typeNamespace, specificSchemaObject, value}) {
     this.ct++;
     const isLiteral = specificSchemaObject?.type === 'literal';
-    const booleanVals = /** @type {import('zodex').SzLiteral<boolean[]>} */ (
+    const booleanVals = /** @type {import('zodexy').SzLiteral<boolean[]>} */ (
       specificSchemaObject)?.values.filter((
       /** @type {boolean} */ val
     ) => {

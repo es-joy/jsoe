@@ -18,15 +18,15 @@ const idRegex =
  */
 const setTooltips = ({root, specificSchemaObject, textareas, textareaBody}) => {
   // Todo: For these `JSON.stringify` calls, might instead use
-  //    zodex->(zod)->zod-to-json-schema instead
+  //    zodexy->(zod)->zod-to-json-schema instead
   textareaBody.title = `Return type:\n\n${JSON.stringify(
-    /** @type {import('zodex').SzFunction<any, any>} */
+    /** @type {import('zodexy').SzFunction<any, any>} */
     (specificSchemaObject).returns,
     null,
     2
   )}`;
   // eslint-disable-next-line prefer-destructuring -- TS
-  const args = /** @type {import('zodex').SzFunction<any, any>} */
+  const args = /** @type {import('zodexy').SzFunction<any, any>} */
     (specificSchemaObject).args;
   textareas.forEach((textarea, idx) => {
     textarea.title = JSON.stringify(
@@ -230,7 +230,7 @@ const functionType = {
     const specificSchemaObj = specificSchemaObject
       ? copyObject(specificSchemaObject)
       : undefined;
-    const argsTuple = /** @type {import('zodex').SzFunction<any, any>} */ (
+    const argsTuple = /** @type {import('zodexy').SzFunction<any, any>} */ (
       specificSchemaObj
     )?.args ?? {type: 'tuple', items: [], rest: {type: 'any'}};
     argsTuple.description = '';
@@ -240,7 +240,7 @@ const functionType = {
     }
 
     const size = argsTuple.items.length;
-    const args = /** @type {import('zodex').SzType} */ (
+    const args = /** @type {import('zodexy').SzType} */ (
       {
         type: 'set',
         minSize: size,

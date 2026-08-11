@@ -7,7 +7,7 @@ describe('NaN spec', () => {
     });
   });
   it('creates form control', () => {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'nan'
@@ -18,7 +18,7 @@ describe('NaN spec', () => {
   });
 
   it('gets type', function (done) {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
     cy.on('window:alert', (t) => {
       expect(t).to.eq('nan');
       done();
@@ -32,7 +32,7 @@ describe('NaN spec', () => {
   });
 
   it('is valid', function (done) {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
     cy.on('window:alert', (t) => {
       expect(t).to.eq(true);
       done();
@@ -45,7 +45,7 @@ describe('NaN spec', () => {
   });
 
   it('logs value', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'nan'
@@ -56,7 +56,7 @@ describe('NaN spec', () => {
   });
 
   it('views UI', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'nan'
@@ -70,7 +70,7 @@ describe('NaN spec', () => {
   });
 
   it('views UI (without description)', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 9');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 9');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'nan'

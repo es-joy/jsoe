@@ -13,14 +13,14 @@ import dialogs from './utils/dialogs.js';
  *   baseValue?: import('./formats.js').StructuredCloneValue,
  *   bringIntoFocus?: boolean,
  *   avoidReport?: boolean,
- *   specificSchema?: import('zodex').SzType
+ *   specificSchema?: import('zodexy').SzType
  * }) => void} SetType
  */
 
 /**
  * @typedef {(info: {
  *   type: string,
- *   specificSchema?: import('zodex').SzType
+ *   specificSchema?: import('zodexy').SzType
  * }) => void} SetTypeNoEditUI
  */
 /**
@@ -36,7 +36,7 @@ import dialogs from './utils/dialogs.js';
  * @typedef {(info: {
  *   type: string,
  *   editUI: HTMLElement,
- *   specificSchema?: import('zodex').SzType
+ *   specificSchema?: import('zodexy').SzType
  * }) => void} AddTypeAndEditUI
  */
 

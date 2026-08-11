@@ -8,7 +8,7 @@ describe('nativeEnum spec (schemas)', () => {
   });
 
   it('views UI', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 8');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 8');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Native enum (A native enum)'
@@ -44,7 +44,7 @@ describe('nativeEnum spec (schemas)', () => {
   });
 
   it('views UI (without description)', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 9');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 9');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Native enum'

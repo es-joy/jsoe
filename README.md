@@ -17,7 +17,7 @@ Formats are a collection of allowed types.
 
 Supported formats include:
 
-- Schemas (using [zodex](https://github.com/commonbaseapp/zodex) serialization of [Zod](https://github.com/colinhacks/zod))
+- Schemas (using [zodexy](https://github.com/brettz9/zodexy) serialization of [Zod](https://github.com/colinhacks/zod))
 - Structured Cloning (using [typeson](https://github.com/dfahlander/typeson)) (e.g., IndexedDB values)
 - JSON
 - IndexedDB keys
@@ -56,19 +56,19 @@ Supported types include:
 - `undefined`
 
 There are also the following fundamental (structured-cloning capable
-Zodex) schema types:
+Zodexy) schema types:
 
 - `boolean` (using in place of true/false when schema specifies)
 - `catch`
 - `enum`
 - `literal`
-- `nan` (standalone in Zodex)
+- `nan` (standalone in Zodexy)
 - `nativeEnum`
 - `record`
 - `tuple`
-- `void` (preferred in Zodex when specified as such)
+- `void` (preferred in Zodexy when specified as such)
 
-And there are the following non-structured-cloning Zodex schema types:
+And there are the following non-structured-cloning Zodexy schema types:
 
 - `function`
 - `promise`
@@ -109,7 +109,7 @@ Supported supertypes include:
 - `typeson-registry`'s structured cloning should throw on more objects, so
    bad data doesn't end up stored
 - Currently requires `SpecialRealNumber` for `Infinity`/`-Infinity` despite
-    Zodex number type supporting a `finite` schema property.
+    Zodexy number type supporting a `finite` schema property.
 - Currently doesn't support using `isNullable`; instead just use `null` with
     a `union`.
 - Lacks support for certain Structured Cloning types. See to-dos below.

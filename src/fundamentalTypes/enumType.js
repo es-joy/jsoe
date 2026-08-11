@@ -36,7 +36,7 @@ const enumType = {
     }, [
       ['select', {
         name: `${typeNamespace}-enum`
-      }, Object.values(/** @type {import('zodex').SzEnum} */ (
+      }, Object.values(/** @type {import('zodexy').SzEnum} */ (
         specificSchemaObject
       ).values).map((val) => {
         return ['option', {

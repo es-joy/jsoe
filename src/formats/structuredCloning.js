@@ -64,7 +64,7 @@ const encapsulateObserver = (stateObj) => {
   /**
    * @type {{
    *   [key: string]: [
-   *     import('zodex').SzType,
+   *     import('zodexy').SzType,
    *     number|undefined
    *   ]|undefined
    * }}
@@ -370,7 +370,7 @@ const replaceTypes = (originTypes, replacements) => {
  *   checked.
  * @param {string} arrayOrObjectPropertyName
  * @param {[
- *   import('zodex').SzType,
+ *   import('zodexy').SzType,
  *   number|undefined
  * ]|undefined} parentSchema
  * @param {import('../types.js').StateObject} stateObj The schema content
@@ -378,7 +378,7 @@ const replaceTypes = (originTypes, replacements) => {
  * @throws {Error} May throw if data found to be invalid.
  * @returns {{
  *   newType: import('../types.js').AvailableArbitraryType,
- *   schema?: import('zodex').SzType|undefined,
+ *   schema?: import('zodexy').SzType|undefined,
  *   mustBeOptional?: boolean,
  *   schemaIdx?: number
  * }} Schema and type info.

@@ -16,6 +16,7 @@ minimumReleaseAgeExclude:
   - eslint-config-ash-nazg@42.3.0
   - eslint-plugin-jsdoc@64.1.0
   - jsdoc-type-pratt-parser@9.1.1
+  - zodexy@0.21.1
 
 onlyBuiltDependencies:
   - cypress

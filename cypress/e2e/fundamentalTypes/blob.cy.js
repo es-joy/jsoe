@@ -554,7 +554,7 @@ describe('Blob spec (schemas)', () => {
   });
 
   it('allows selection of local file and shows metadata', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodex schema instance 2');
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'blob'

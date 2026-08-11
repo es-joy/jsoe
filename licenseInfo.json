@@ -1,4 +1,4 @@
 {
-  "bundledRootPackages": ["jamilih", "typeson-registry", "zod", "zodex"],
+  "bundledRootPackages": ["jamilih", "typeson-registry", "zod", "zodexy"],
   "filesByLicense": {}
 }

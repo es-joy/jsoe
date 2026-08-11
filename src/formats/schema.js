@@ -1,5 +1,5 @@
 // import {z} from 'zod';
-import {dezerialize} from 'zodex';
+import {dezerialize} from 'zodexy';
 
 import structuredCloning from './structuredCloning.js';
 
@@ -13,7 +13,7 @@ import {copyObject} from '../utils/objects.js';
 
 /**
  * @typedef {ValueOf<
-*   Pick<import('zodex').SzType, "type">
+*   Pick<import('zodexy').SzType, "type">
 * >} AvailableZodexType
 */
 
@@ -59,7 +59,7 @@ const zodexToStructuredCloningTypeMap = new Map([
 ]);
 
 /**
- * @typedef {import('zodex').SzType} ZodexSchema
+ * @typedef {import('zodexy').SzType} ZodexSchema
  */
 /**
  * @typedef {import('../utils/objects.js').NestedObject} NestedObject
@@ -533,7 +533,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
         // console.log('originalJSON', originalJSON, schemaObject.$ref);
         const refObj = resolveJSONPointer({
           obj: originalJSON,
-          path: /** @type {import('zodex').SzRef} */ (
+          path: /** @type {import('zodexy').SzRef} */ (
             schemaObject
           ).$ref
         });
@@ -580,45 +580,45 @@ const schema = {
 
     switch (parentSchema?.type) {
     case 'object':
-      currentSchema = /** @type {import('zodex').SzObject} */ (
+      currentSchema = /** @type {import('zodexy').SzObject} */ (
         parentSchema
       ).properties[
         /** @type {string} */ (arrayOrObjectPropertyName)
       ];
       if (!currentSchema) {
-        currentSchema = /** @type {import('zodex').SzObject} */ (
+        currentSchema = /** @type {import('zodexy').SzObject} */ (
           parentSchema
         ).catchall;
         mustBeOptional = true;
       }
       break;
     case 'array':
-      currentSchema = /** @type {import('zodex').SzArray} */ (
+      currentSchema = /** @type {import('zodexy').SzArray} */ (
         parentSchema
       ).element;
       break;
     case 'set':
-      currentSchema = /** @type {import('zodex').SzSet} */ (
+      currentSchema = /** @type {import('zodexy').SzSet} */ (
         parentSchema
       ).value;
       break;
     // Todo: Replace
     // case 'effect':
-    //   currentSchema = /** @type {import('zodex').SzEffect} */ (
+    //   currentSchema = /** @type {import('zodexy').SzEffect} */ (
     //     parentSchema
     //   ).inner;
     //   break;
     // eslint-disable-next-line sonarjs/no-duplicated-branches -- Maintenance
     case 'promise':
-      currentSchema = /** @type {import('zodex').SzPromise} */ (
+      currentSchema = /** @type {import('zodexy').SzPromise} */ (
         parentSchema
       ).value;
       break;
     case 'tuple':
-      currentSchema = /** @type {import('zodex').SzTuple} */ (
+      currentSchema = /** @type {import('zodexy').SzTuple} */ (
         parentSchema
       ).items[Number(arrayOrObjectPropertyName)] ??
-      /** @type {import('zodex').SzTuple} */ (
+      /** @type {import('zodexy').SzTuple} */ (
         parentSchema
       ).rest;
       break;
@@ -635,8 +635,8 @@ const schema = {
       return {type: typesonType};
     }
     const schemaObjects = [...getTypesForSchema(
-      /** @type {import('zodex').SzType} */ (currentSchema),
-      /** @type {import('zodex').SzType} */ (
+      /** @type {import('zodexy').SzType} */ (currentSchema),
+      /** @type {import('zodexy').SzType} */ (
         stateObj.schemaContent
       )
     )];
@@ -727,7 +727,7 @@ const schema = {
     // alert(JSON.stringify(schemaObject));
     const schemaObjects = [...getTypesForSchema(
       schemaObject,
-      /** @type {import('zodex').SzType} */ (
+      /** @type {import('zodexy').SzType} */ (
         schemaOriginal
       ) ?? schemaObject
     )];
@@ -748,7 +748,7 @@ const schema = {
         // Todo: Replace
         // if (item === 'effect') {
         //   return /** @type {import('../types.js').AvailableType} */ (
-        //     /** @type {import('zodex').SzEffect} */ (
+        //     /** @type {import('zodexy').SzEffect} */ (
         //       schemaObjects[idx]
         //     ).effects[0].name
         //   );

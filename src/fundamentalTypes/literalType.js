@@ -13,7 +13,7 @@ const literalType = {
   stringRegex: /^Literal\((.*)\)$/u,
   valueMatch (x) {
     // const schema =
-    //   /** @type {import('zodex').SzLiteral<any>} */ (cfg?.schema);
+    //   /** @type {import('zodexy').SzLiteral<any>} */ (cfg?.schema);
     return (typeof x === 'boolean' || typeof x === 'number' ||
       typeof x === 'string'); // && (!schema || schema.value === x);
   },
@@ -55,7 +55,7 @@ const literalType = {
     const {specificSchemaObject} = arg;
     const {
       values
-    } = /** @type {import('zodex').SzLiteral<(boolean|number|string)[]>} */ (
+    } = /** @type {import('zodexy').SzLiteral<(boolean|number|string)[]>} */ (
       specificSchemaObject
     );
 

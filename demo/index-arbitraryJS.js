@@ -8,7 +8,7 @@ import {
 
 /**
  * @param {any[]} values
- * @param {import('zodex').SzType} schema
+ * @param {import('zodexy').SzType} schema
  * @returns {import('jamilih').JamilihChildren}
  */
 function getTypeChoices (values, schema) {
@@ -98,13 +98,13 @@ const schemaInstanceJSONArbitraryJS2 = {
 /**
  * @param {string} schema
  * @throws {Error}
- * @returns {import('zodex').SzType}
+ * @returns {import('zodexy').SzType}
  */
 function getSchemaContent (schema) {
   switch (schema) {
-  case 'Zodex arbitrary JS schema':
+  case 'Zodexy arbitrary JS schema':
     return schemaInstanceJSONArbitraryJS;
-  case 'Zodex arbitrary JS schema 2':
+  case 'Zodexy arbitrary JS schema 2':
     return schemaInstanceJSONArbitraryJS2;
   /* istanbul ignore next -- Guard */
   default:
@@ -118,7 +118,7 @@ const keyPathNotExpectedTypeChoices = await formatAndTypeChoices({
   arbitraryJS: true,
   preselectSchema: false,
   typeNamespace: 'demo-keypath-not-expected',
-  schemas: ['Zodex arbitrary JS schema', 'Zodex arbitrary JS schema 2'],
+  schemas: ['Zodexy arbitrary JS schema', 'Zodexy arbitrary JS schema 2'],
   getSchemaContent
 });
 

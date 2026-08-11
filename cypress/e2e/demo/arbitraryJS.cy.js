@@ -160,7 +160,7 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
   it('views UI (Symbol - schema)', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + '.formatChoices').select(
-      'Schema: Zodex arbitrary JS schema'
+      'Schema: Zodexy arbitrary JS schema'
     );
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Symbol (A symbol)'
@@ -336,7 +336,7 @@ describe('Arbitrary JavaScript spec (Promises)', () => {
   it('views UI (Promise - schema)', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + '.formatChoices').select(
-      'Schema: Zodex arbitrary JS schema'
+      'Schema: Zodexy arbitrary JS schema'
     );
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Promise (A Promise)'
@@ -540,7 +540,7 @@ describe('Arbitrary JavaScript spec (functions)', () => {
   it('views UI (function - schema)', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + '.formatChoices').select(
-      'Schema: Zodex arbitrary JS schema'
+      'Schema: Zodexy arbitrary JS schema'
     );
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'function (A function)'
