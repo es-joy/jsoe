@@ -21,13 +21,12 @@ const setTooltips = ({root, specificSchemaObject, textareas, textareaBody}) => {
   //    zodexy->(zod)->zod-to-json-schema instead
   textareaBody.title = `Return type:\n\n${JSON.stringify(
     /** @type {import('zodexy').SzFunction<any, any>} */
-    (specificSchemaObject).returns,
+    (specificSchemaObject).output,
     null,
     2
   )}`;
-  // eslint-disable-next-line prefer-destructuring -- TS
   const args = /** @type {import('zodexy').SzFunction<any, any>} */
-    (specificSchemaObject).args;
+    (specificSchemaObject).input;
   textareas.forEach((textarea, idx) => {
     textarea.title = JSON.stringify(
       args.items[idx] ?? args.rest,
@@ -232,7 +231,7 @@ const functionType = {
       : undefined;
     const argsTuple = /** @type {import('zodexy').SzFunction<any, any>} */ (
       specificSchemaObj
-    )?.args ?? {type: 'tuple', items: [], rest: {type: 'any'}};
+    )?.input ?? {type: 'tuple', items: [], rest: {type: 'any'}};
     argsTuple.description = '';
     // This `description` not in use, but could support
     if (argsTuple.rest) {
