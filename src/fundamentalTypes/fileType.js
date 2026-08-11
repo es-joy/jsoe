@@ -15,6 +15,22 @@ import dialogs from '../utils/dialogs.js';
  */
 
 /**
+ * @param {number} size
+ * @param {number} [min]
+ * @param {number} [max]
+ * @returns {string|null}
+ */
+function checkFileSize (size, min, max) {
+  if (min !== undefined && size < min) {
+    return `File size (${size} bytes) is below the minimum of ${min} bytes`;
+  }
+  if (max !== undefined && size > max) {
+    return `File size (${size} bytes) exceeds the maximum of ${max} bytes`;
+  }
+  return null;
+}
+
+/**
  * @param {number} timestamp
  * @returns {string}
  */
@@ -36,7 +52,7 @@ function getDateString (timestamp) {
  *   type?: string,
  *   lastModified?: number
  * }} value
- * @returns {void}
+ * @returns {File}
  */
 function newFileForBinary (viewBinary, value) {
   const oldFile = /** @type {File|undefined} */ (
@@ -74,14 +90,17 @@ function newFileForBinary (viewBinary, value) {
     }
   );
   viewBinary.$value = file;
+  return file;
 }
 
 /**
  * @param {File} value
  * @param {boolean} [editable]
+ * @param {number} [min]
+ * @param {number} [max]
  * @returns {import('jamilih').JamilihArray}
  */
-function binaryButton (value, editable) {
+function binaryButton (value, editable, min, max) {
   return ['button', {
     class: 'viewBinary',
     $custom: {
@@ -121,6 +140,12 @@ function binaryButton (value, editable) {
               const textarea = /** @type {HTMLTextAreaElement} */ (
                 $e(dialog, '.view-binary')
               );
+              const newSize = textarea.value.length;
+              const message = checkFileSize(newSize, min, max);
+              if (message) {
+                dialogs.alert(message);
+                return;
+              }
               newFileForBinary(viewBinary, {
                 stringContents: textarea.value
               });
@@ -395,6 +420,11 @@ const fileType = {
   editUI ({typeNamespace, specificSchemaObject, value = {}}) {
     // Todo: Could add way to preview file in edit mode (whether
     //         recorded or uploaded)
+    const fileSchemaObject = /** @type {import('zodexy').SzFile} */ (
+      specificSchemaObject
+    );
+    const {min, max} = fileSchemaObject ?? {};
+
     return ['div', {
       dataset: {type: 'file'},
       title: specificSchemaObject?.description ?? 'File'
@@ -467,7 +497,11 @@ const fileType = {
         ]],
         ['br'],
         ['label', [
-          'Size (in bytes) ',
+          `Size (in bytes)${
+            min !== undefined || max !== undefined
+              ? ` (min: ${min ?? 0}${max === undefined ? '' : `, max: ${max}`})`
+              : ''
+          } `,
           ['input', {
             type: 'number', step: '1', disabled: true, class: 'size',
             value: String(value.size)
@@ -532,7 +566,7 @@ const fileType = {
           }]
         ]],
         ['br'],
-        binaryButton(value, true),
+        binaryButton(value, true, min, max),
         ['button', {
           class: 'clearData',
           $on: {
@@ -566,6 +600,13 @@ const fileType = {
                   return;
                 }
                 const file = input.files[0];
+
+                const message = checkFileSize(file.size, min, max);
+                if (message) {
+                  dialogs.alert(message);
+                  input.value = '';
+                  return;
+                }
 
                 const metadataFieldset =
                   /**
@@ -906,6 +947,13 @@ const fileType = {
                   );
                   console.log('file', file);
 
+                  const message = checkFileSize(file.size, min, max);
+                  if (message) {
+                    dialogs.alert(message);
+                    chunks = [];
+                    return;
+                  }
+
                   const root = /** @type {HTMLDivElement} */
                     (this.closest('[data-type="file"]'));
                   /**
@@ -1035,6 +1083,12 @@ const fileType = {
                     {type: blob.type}
                   );
                   console.log('file', file);
+
+                  const message = checkFileSize(file.size, min, max);
+                  if (message) {
+                    dialogs.alert(message);
+                    return;
+                  }
 
                   const root = /** @type {HTMLDivElement} */
                     (this.closest('[data-type="file"]'));
