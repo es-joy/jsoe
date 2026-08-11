@@ -60,6 +60,13 @@ var getError = (shape, opts) => {
 };
 var d = dezerializeRefs;
 var dezerializers = {
+  function: (shape, opts) => {
+    const i = z.function({
+      input: d(shape.input, opts),
+      output: d(shape.output, opts)
+    });
+    return getCustomChecks(i, shape, opts);
+  },
   number: (shape, opts) => {
     const method = shape.format && NUMBER_FORMATS.has(shape.format) ? shape.format === "safeint" ? "int" : shape.format : "number";
     let n = shape.coerce ? z.coerce.number(getError(shape, opts)) : z[method](getError(shape, opts));
@@ -216,7 +223,7 @@ var dezerializers = {
     );
   },
   symbol: (shape, opts) => z.symbol(getError(shape, opts)),
-  tuple: (shape, opts) => {
+  tuple: ((shape, opts) => {
     let i = z.tuple(
       shape.items.map((item, idx) => {
         return checkRef(item, opts) || d(item, {
@@ -235,8 +242,8 @@ var dezerializers = {
     }
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
-  },
-  set: (shape, opts) => {
+  }),
+  set: ((shape, opts) => {
     let i = z.set(
       checkRef(shape.value, opts) || d(shape.value, {
         ...opts,
@@ -252,8 +259,8 @@ var dezerializers = {
     }
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
-  },
-  array: (shape, opts) => {
+  }),
+  array: ((shape, opts) => {
     let i = z.array(
       checkRef(shape.element, opts) || d(shape.element, {
         ...opts,
@@ -269,8 +276,8 @@ var dezerializers = {
     }
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
-  },
-  object: (shape, opts) => {
+  }),
+  object: ((shape, opts) => {
     let i = z.object(
       Object.fromEntries(
         Object.entries(shape.properties).map(([key, value]) => {
@@ -290,8 +297,8 @@ var dezerializers = {
     }
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
-  },
-  record: (shape, opts) => {
+  }),
+  record: ((shape, opts) => {
     const i = z.record(
       checkRef(shape.key, opts) || d(shape.key, {
         ...opts,
@@ -305,9 +312,9 @@ var dezerializers = {
     );
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
-  },
-  map: (shape, opts) => {
-    const i = z.map(
+  }),
+  looseRecord: ((shape, opts) => {
+    const i = z.looseRecord(
       checkRef(shape.key, opts) || d(shape.key, {
         ...opts,
         path: opts.path + "/key"
@@ -320,9 +327,30 @@ var dezerializers = {
     );
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
-  },
-  enum: (shape, opts) => z.enum(shape.values, getError(shape, opts)),
-  union: (shape, opts) => {
+  }),
+  map: ((shape, opts) => {
+    let i = z.map(
+      checkRef(shape.key, opts) || d(shape.key, {
+        ...opts,
+        path: opts.path + "/key"
+      }),
+      checkRef(shape.value, opts) || d(shape.value, {
+        ...opts,
+        path: opts.path + "/value"
+      }),
+      getError(shape, opts)
+    );
+    if ("min" in shape && shape.min !== void 0) {
+      i = i.min(shape.min);
+    }
+    if ("max" in shape && shape.max !== void 0) {
+      i = i.max(shape.max);
+    }
+    opts.pathToSchema.set(opts.path, i);
+    return getCustomChecks(i, shape, opts);
+  }),
+  enum: ((shape, opts) => z.enum(shape.values, getError(shape, opts))),
+  union: ((shape, opts) => {
     const i = z.union(
       shape.options.map(
         (opt, idx) => checkRef(opt, opts) || d(opt, {
@@ -334,8 +362,8 @@ var dezerializers = {
     );
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
-  },
-  discriminatedUnion: (shape, opts) => {
+  }),
+  discriminatedUnion: ((shape, opts) => {
     const i = z.discriminatedUnion(
       shape.discriminator,
       shape.options.map(
@@ -348,8 +376,21 @@ var dezerializers = {
     );
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
-  },
-  intersection: (shape, opts) => {
+  }),
+  xor: ((shape, opts) => {
+    const i = z.xor(
+      shape.options.map(
+        (opt, idx) => checkRef(opt, opts) || d(opt, {
+          ...opts,
+          path: opts.path + "/options/" + idx
+        })
+      ),
+      getError(shape, opts)
+    );
+    opts.pathToSchema.set(opts.path, i);
+    return getCustomChecks(i, shape, opts);
+  }),
+  intersection: ((shape, opts) => {
     const i = z.intersection(
       checkRef(shape.left, opts) || d(shape.left, {
         ...opts,
@@ -362,8 +403,8 @@ var dezerializers = {
     );
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
-  },
-  promise: (shape, opts) => {
+  }),
+  promise: ((shape, opts) => {
     const i = z.promise(
       checkRef(shape.value, opts) || d(shape.value, {
         ...opts,
@@ -372,8 +413,8 @@ var dezerializers = {
     );
     opts.pathToSchema.set(opts.path, i);
     return i;
-  },
-  catch: (shape, opts) => {
+  }),
+  catch: ((shape, opts) => {
     let base = checkRef(shape.innerType, opts) || d(shape.innerType, {
       ...opts,
       path: opts.path + "/innerType"
@@ -381,7 +422,7 @@ var dezerializers = {
     base = base.catch(shape.value);
     opts.pathToSchema.set(opts.path, base);
     return base;
-  },
+  }),
   transform: (shape, opts) => {
     if (!opts.transforms || !(shape.name in opts.transforms)) {
       throw new Error(
@@ -441,7 +482,14 @@ function dezerializeRefs(shape, opts) {
   if ("description" in shape && typeof shape.description === "string") {
     const { description, ...rest } = shape;
     const inner = d(rest, opts);
-    const result = inner.describe(description);
+    const result = inner.meta({ description });
+    opts.pathToSchema.set(opts.path, result);
+    return result;
+  }
+  if ("meta" in shape) {
+    const { meta, ...rest } = shape;
+    const inner = d(rest, opts);
+    const result = meta ? inner.meta(meta) : inner;
     opts.pathToSchema.set(opts.path, result);
     return result;
   }
@@ -538,6 +586,17 @@ var getCustomChecksAndErrors = (def, opts) => {
 };
 var s = zerializeRefs;
 var zerializers = {
+  function: (def, opts) => ({
+    input: s(def.input, {
+      ...opts,
+      currentPath: [...opts.currentPath, "input"]
+    }),
+    output: s(def.output, {
+      ...opts,
+      currentPath: [...opts.currentPath, "output"]
+    }),
+    type: "function"
+  }),
   optional: (def, opts) => ({
     ...s(def.innerType, opts, true),
     isOptional: true
@@ -553,7 +612,6 @@ var zerializers = {
   number: (def, opts) => {
     const checks = def.checks?.reduce((o, check) => {
       const chk = check._zod.def.check;
-      const format = check._zod.def.format;
       return {
         ...o,
         ...chk == "greater_than" ? {
@@ -747,7 +805,7 @@ var zerializers = {
   },
   undefined: () => ({ type: "undefined" }),
   null: () => ({ type: "null" }),
-  any: () => ({ type: "any" }),
+  any: (def, opts) => ({ type: "any", ...getCustomChecksAndErrors(def, opts) }),
   unknown: () => ({ type: "unknown" }),
   never: () => ({ type: "never" }),
   void: () => ({ type: "void" }),
@@ -841,7 +899,7 @@ var zerializers = {
     };
   },
   record: (def, opts) => ({
-    type: "record",
+    type: def.mode === "loose" ? "looseRecord" : "record",
     ...getCustomChecksAndErrors(def, opts),
     key: s(def.keyType, {
       ...opts,
@@ -852,22 +910,42 @@ var zerializers = {
       currentPath: [...opts.currentPath, "value"]
     })
   }),
-  map: (def, opts) => ({
-    type: "map",
-    ...getCustomChecksAndErrors(def, opts),
-    key: s(def.keyType, {
-      ...opts,
-      currentPath: [...opts.currentPath, "key"]
-    }),
-    value: s(def.valueType, {
-      ...opts,
-      currentPath: [...opts.currentPath, "value"]
-    })
-  }),
+  map: (def, opts) => {
+    const checks = def.checks?.reduce((o, check) => {
+      const chk = check._zod.def.check;
+      return {
+        ...o,
+        ...chk === "size_equals" ? {
+          min: check._zod.def.size,
+          max: check._zod.def.size
+        } : chk === "min_size" ? {
+          min: check._zod.def.minimum
+        } : chk === "max_size" ? {
+          max: check._zod.def.maximum
+        } : (
+          /* c8 ignore next -- Guard */
+          {}
+        )
+      };
+    }, {});
+    return {
+      type: "map",
+      ...getCustomChecksAndErrors(def, opts),
+      ...checks,
+      key: s(def.keyType, {
+        ...opts,
+        currentPath: [...opts.currentPath, "key"]
+      }),
+      value: s(def.valueType, {
+        ...opts,
+        currentPath: [...opts.currentPath, "value"]
+      })
+    };
+  },
   enum: (def) => ({ type: "enum", values: def.entries }),
   union: (def, opts) => {
     return {
-      type: "discriminator" in def ? "discriminatedUnion" : "union",
+      type: "discriminator" in def ? "discriminatedUnion" : "inclusive" in def && !def.inclusive ? "xor" : "union",
       ..."discriminator" in def ? {
         discriminator: def.discriminator
       } : {},
@@ -912,7 +990,7 @@ var zerializers = {
   },
   transform: (def, opts) => {
     let name = null;
-    if ("transforms" in opts && opts.transforms) {
+    if (opts.transforms) {
       for (const [transformName, transformItem] of Object.entries(
         opts.transforms
       )) {
@@ -983,6 +1061,10 @@ function zerializeRefs(schema, opts, wrapReferences) {
   const zer = zerializers[def.type](def, opts);
   if (typeof schema.description === "string") {
     zer.description = schema.description;
+  }
+  const meta = schema.meta();
+  if (meta && (Object.keys(meta).length !== 1 || !meta.description)) {
+    zer.meta = meta;
   }
   return zer;
 }

@@ -324,6 +324,7 @@
           "isOptional": true
         },
         "description": { "type": "string", "isOptional": true },
+        "meta": { "type": "object", "isOptional": true, "properties": {} },
         "readonly": { "type": "boolean", "isOptional": true }
       }
     },
@@ -410,13 +411,16 @@
                 "values": ["file"]
               },
               "min": {
-                "type": "number"
+                "type": "number",
+                "isOptional": true
               },
               "max": {
-                "type": "number"
+                "type": "number",
+                "isOptional": true
               },
               "mime": {
                 "type": "array",
+                "isOptional": true,
                 "element": {
                   "type": "string"
                 }
@@ -659,6 +663,22 @@
             }
           },
           {
+            "description": "XOR",
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "literal",
+                "values": ["xor"]
+              },
+              "options": {
+                "type": "array",
+                "element": {
+                  "$ref": "#/$defs/reference-or-type"
+                }
+              }
+            }
+          },
+          {
             "$ref": "#/$defs/tuple"
           },
           {
@@ -668,6 +688,22 @@
               "type": {
                 "type": "literal",
                 "values": ["record"]
+              },
+              "key": {
+                "$ref": "#/$defs/key"
+              },
+              "value": {
+                "$ref": "#/$defs/reference-or-type"
+              }
+            }
+          },
+          {
+            "description": "Loose Record",
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "literal",
+                "values": ["looseRecord"]
               },
               "key": {
                 "$ref": "#/$defs/key"
@@ -690,7 +726,9 @@
               },
               "value": {
                 "$ref": "#/$defs/reference-or-type"
-              }
+              },
+              "min": { "type": "number", "isOptional": true },
+              "max": { "type": "number", "isOptional": true }
             }
           },
           {
@@ -752,6 +790,22 @@
                 "values": ["promise"]
               },
               "value": {
+                "$ref": "#/$defs/reference-or-type"
+              }
+            }
+          },
+          {
+            "description": "Function",
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "literal",
+                "values": ["function"]
+              },
+              "input": {
+                "$ref": "#/$defs/tuple"
+              },
+              "output": {
                 "$ref": "#/$defs/reference-or-type"
               }
             }

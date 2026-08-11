@@ -1,6 +1,7 @@
-/* eslint-disable sonarjs/updated-loop-counter -- Ok */
 /* eslint-disable unicorn/prefer-global-this -- Easier */
+/* eslint-disable unicorn/no-break-in-nested-loop -- Performance to avoid function? */
 /* eslint-disable sonarjs/no-control-regex -- Intentional */
+/* eslint-disable unicorn/no-top-level-assignment-in-function -- Only need module level */
 /*
 Possible todos:
 0. Add XSLT to JML-string stylesheet (or even vice versa)
@@ -23,11 +24,28 @@ Other Todos:
 */
 
 /**
- * @typedef {Window & {DocumentFragment: any}} HTMLWindow
+ * @typedef {Window & {DocumentFragment: typeof DocumentFragment}} HTMLWindow
  */
 
 /**
- * @typedef {any} ArbitraryValue
+ * @typedef {unknown} ArbitraryValue
+ */
+
+/**
+ * @typedef {unknown} StoredValue
+ */
+
+/* eslint-disable jsdoc/reject-any-type -- user-defined callback arguments */
+/**
+ * @typedef {any} UserArg
+ */
+/**
+ * @typedef {any} ElementExpando
+ */
+/* eslint-enable jsdoc/reject-any-type */
+
+/**
+ * @typedef {HTMLElement & {[key: string]: ElementExpando}} ExpandoHTMLElement
  */
 
 /**
@@ -49,7 +67,7 @@ Other Todos:
  */
 
 /**
- * @type {import('jsdom').DOMWindow|HTMLWindow|undefined}
+ * @type {import('jsdom').DOMWindow|HTMLWindow|typeof globalThis|undefined}
  */
 let win;
 
@@ -152,9 +170,10 @@ function _appendNode(parent, child) {
 /**
  * Attach event in a cross-browser fashion.
  * @static
- * @param {HTMLElement} el DOM element to which to attach the event
+ * @template {HTMLElement} T
+ * @param {T} el DOM element to which to attach the event
  * @param {string} type The DOM event (without 'on') to attach to the element
- * @param {(evt: Event & {target: HTMLElement}) => void} handler The event handler to attach to the element
+ * @param {(evt: Event & {target: T}) => void} handler The event handler to attach to the element
  * @param {boolean} [capturing] Whether or not the event should be
  *   capturing (W3C-browsers only); default is false; NOT IN USE
  * @returns {void}
@@ -184,8 +203,9 @@ function _createSafeReference(type, prefix, arg) {
   }
   const elContainer = doc.createElement('div');
   // Todo: No workaround for XML?
-  // // eslint-disable-next-line no-unsanitized/property
+  // eslint-disable-next-line no-unsanitized/property
   elContainer.innerHTML = '&' + prefix + arg + ';';
+  // eslint-disable-next-line unicorn/prefer-dom-node-html-methods -- No Safari support
   return doc.createTextNode(elContainer.innerHTML);
 }
 
@@ -207,6 +227,14 @@ function _isNullish(o) {
   return o === null || o === undefined;
 }
 
+/**
+ * @param {unknown} item
+ * @returns {item is HTMLElement}
+ */
+function _isHTMLElement(item) {
+  return Boolean(item && typeof item === 'object' && 'nodeType' in item && item.nodeType === 1);
+}
+
 // Todo: Make as public utility, but also return types for undefined, boolean, number, document, etc.
 /**
 * @private
@@ -219,12 +247,11 @@ function _isNullish(o) {
 *   "document"|"processing-instruction"|"non-container node"}
 */
 function _getType(item) {
-  const type = typeof item;
-
   // Appease TS
   if (typeof item === 'string' || typeof item === 'undefined') {
     return 'string';
   }
+  const type = typeof item;
   switch (type) {
     case 'object':
       if (item === null) {
@@ -266,6 +293,14 @@ function _fragReducer(frag, node) {
 }
 
 /**
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeReplacer(str) {
+  return str.replaceAll('$', '$$$$');
+}
+
+/**
 * @private
 * @static
 * @param {Object<string, string>} xmlnsObj
@@ -278,10 +313,10 @@ function _replaceDefiner(xmlnsObj) {
    */
   return function (...n) {
     const n0 = n[0];
-    let retStr = xmlnsObj[''] ? ' xmlns="' + xmlnsObj[''] + '"' : n0; // Preserve XHTML
+    let retStr = xmlnsObj[''] ? ' xmlns="' + escapeReplacer(xmlnsObj['']) + '"' : n0; // Preserve XHTML
     for (const [ns, xmlnsVal] of Object.entries(xmlnsObj)) {
       if (ns !== '') {
-        retStr += ' xmlns:' + ns + '="' + xmlnsVal + '"';
+        retStr += ' xmlns:' + ns + '="' + escapeReplacer(xmlnsVal) + '"';
       }
     }
     return retStr;
@@ -429,18 +464,21 @@ function _DOMfromJMLOrString (childNodeJML) {
  */
 
 /**
- * @typedef {(this: HTMLElement, event: Event & {target: HTMLElement}) => void} EventHandler
+ * @template {HTMLElement} [T=HTMLElement]
+ * @typedef {(this: T, event: Event & {target: T}) => void} EventHandler
  */
 
 /**
+ * @template {HTMLElement} [T=HTMLElement]
  * @typedef {{
- *   [key: string]: EventHandler|[EventHandler, boolean]
+ *   [key: string]: EventHandler<T>|[EventHandler<T>, boolean]
  * }} OnAttributeObject
  */
 
 /**
+ * @template {HTMLElement} [T=HTMLElement]
  * @typedef {{
- *   $on?: OnAttributeObject|null
+ *   $on?: OnAttributeObject<T>|null
  * }} OnAttribute
  */
 
@@ -452,7 +490,6 @@ function _DOMfromJMLOrString (childNodeJML) {
  * @typedef {((this: HTMLElement, event?: Event) => void)} HandlerAttributeValue
  */
 
-/* eslint-disable jsdoc/valid-types -- jsdoc-type-pratt-parser Bug */
 /**
  * @typedef {{
  *   [key: string]: HandlerAttributeValue
@@ -476,16 +513,15 @@ function _DOMfromJMLOrString (childNodeJML) {
  */
 
 /**
- * @typedef {{[key: string]: string|number|boolean|((this: DefineMixin, ...args: any[]) => any)}} DefineMixin
+ * @typedef {{[key: string]: string|number|boolean|((this: ElementExpando, ...args: UserArg[]) => UserArg)}} DefineMixin
  */
 
 /**
  * @typedef {{
  *   new (): HTMLElement;
- *   prototype: HTMLElement & {[key: string]: any}
+ *   prototype: HTMLElement
  * }} DefineConstructor
  */
-/* eslint-enable jsdoc/valid-types -- https://github.com/jsdoc-type-pratt-parser/jsdoc-type-pratt-parser/issues/131 */
 
 /**
  * @typedef {(this: HTMLElement) => void} DefineUserConstructor
@@ -500,11 +536,27 @@ function _DOMfromJMLOrString (childNodeJML) {
  */
 
 /**
- * @typedef {{elem?: HTMLElement, [key: string]: any}} SymbolObject
+ * @template [T=ArbitraryValue]
+ * @template {HTMLElement} [U=HTMLElement]
+ * @typedef {T & {elem?: U}} SymbolObject
  */
 
 /**
- * @typedef {[symbol|string, ((this: HTMLElement, ...args: any[]) => any)|SymbolObject]} SymbolArray
+ * @template {HTMLElement} [T=HTMLElement]
+ * @typedef {(this: T, ...args: UserArg[]) => UserArg} SymbolMethod
+ */
+
+/**
+ * @typedef {(...args: UserArg[]) => UserArg} BoundSymbolMethod
+ */
+
+/**
+ * @template {HTMLElement} [T=HTMLElement]
+ * @typedef {[symbol|string, SymbolMethod<T>|SymbolObject<ArbitraryValue, T>]} SymbolArray
+ */
+
+/**
+ * @typedef {BoundSymbolMethod|SymbolObject|ArbitraryValue} SymbolResult
  */
 
 /**
@@ -512,7 +564,7 @@ function _DOMfromJMLOrString (childNodeJML) {
  */
 
 /**
- * @typedef {[string, object]|string|{[key: string]: any}} PluginValue
+ * @typedef {[string, object]|string|object} PluginValue
  */
 
 /**
@@ -527,15 +579,15 @@ function _DOMfromJMLOrString (childNodeJML) {
 
 /**
  * @typedef {{
-*   [key: string]: string|number|((this: HTMLElement, ...args: any[]) => any)
+*   [key: string]: string|number|((this: HTMLElement, ...args: UserArg[]) => UserArg)
 * }} DataAttributeObject
 */
 
 /**
  * @typedef {{
- *   $data?: true|string[]|Map<any, any>|WeakMap<any, any>|DataAttributeObject|
+ *   $data?: true|string[]|Map<HTMLElement, UserArg>|WeakMap<HTMLElement, UserArg>|DataAttributeObject|
  *     [undefined, DataAttributeObject]|
- *     [Map<any, any>|WeakMap<any, any>|undefined, DataAttributeObject]
+ *     [Map<HTMLElement, UserArg>|WeakMap<HTMLElement, UserArg>|undefined, DataAttributeObject]
  * }} DataAttribute
  */
 
@@ -557,18 +609,16 @@ function _DOMfromJMLOrString (childNodeJML) {
  * }} JamilihShadowRootAttribute
  */
 
-/* eslint-disable jsdoc/valid-types -- jsdoc-type-pratt-parser Bug */
 /**
  * @typedef {{
  *   is?: string|null,
  *   $define?: DefineObject
  * }} DefineAttribute
  */
-/* eslint-enable jsdoc/valid-types -- jsdoc-type-pratt-parser Bug */
 
 /**
  * @typedef {{
- *   $custom?: {[key: string]: any}
+ *   $custom?: {[key: string]: unknown}
  * }} CustomAttribute
  */
 
@@ -701,8 +751,8 @@ function _DOMfromJMLOrString (childNodeJML) {
 
 /**
  * @typedef {{
- *   root: [Map<HTMLElement,any>|WeakMap<HTMLElement,any>, any],
- *   [key: string]: [Map<HTMLElement,any>|WeakMap<HTMLElement,any>, any]
+ *   root: [Map<HTMLElement,UserArg>|WeakMap<HTMLElement,UserArg>, UserArg],
+ *   [key: string]: [Map<HTMLElement,UserArg>|WeakMap<HTMLElement,UserArg>, UserArg]
  * }} MapWithRoot
  */
 
@@ -714,7 +764,7 @@ function _DOMfromJMLOrString (childNodeJML) {
  * @typedef {object} JamilihOptions
  * @property {TraversalState} [$state]
  * @property {JamilihPlugin[]} [$plugins]
- * @property {MapWithRoot|[Map<HTMLElement,any>|WeakMap<HTMLElement,any>, any]} [$map]
+ * @property {MapWithRoot|[Map<HTMLElement,UserArg>|WeakMap<HTMLElement,UserArg>, UserArg]} [$map]
  */
 
 /**
@@ -754,27 +804,72 @@ function getMatchingPlugin(opts, pluginName) {
   });
 }
 
-/* eslint-disable jsdoc/valid-types -- pratt parser bug  */
 /**
  * @template T
  * @typedef {T[keyof T]} ValueOf
  */
-/* eslint-enable jsdoc/valid-types -- pratt parser bug  */
 
-/* eslint-disable jsdoc/valid-types -- pratt parser bug  */
+/**
+ * @template {JamilihArray} T
+ * @typedef {Extract<Extract<T[number], {$custom?: {[key: string]: unknown}}>['$custom'], object>} RawCustomFromJamilihArray
+ */
+
+/* eslint-disable jsdoc/valid-types -- Advanced TS conditional/infer syntax in JSDoc */
+/**
+ * @template {JamilihArray} T
+ * @typedef {T extends [infer K, ...ArbitraryValue[]]
+ *   ? (K extends keyof HTMLElementTagNameMap
+ *     ? HTMLElementTagNameMap[K]
+ *     : HTMLElement)
+ *   : HTMLElement} ElementFromJamilihArray
+ */
+
+/**
+ * @template A
+ * @template {HTMLElement} E
+ * @typedef {A extends {$custom: infer C}
+ *   ? (C extends object
+ *     ? Omit<A, '$custom'> & {$custom?: C & ThisType<E & C>}
+ *     : A)
+ *   : A} WithCustomThis
+ */
+
+/**
+ * @template {JamilihArray} T
+ * @template {HTMLElement} E
+ * @typedef {{[K in keyof T]: WithCustomThis<T[K], E>}} JamilihArrayWithCustomThis
+ */
+/* eslint-enable jsdoc/valid-types */
+
+/**
+ * @template {JamilihArray} T
+ * @typedef {(
+ *   RawCustomFromJamilihArray<T> extends never
+ *     ? object
+ *     : RawCustomFromJamilihArray<T>
+ * )} CustomFromJamilihArray
+ */
+
+/**
+ * @template U
+ * @template W
+ * @typedef {U extends void ? (ExpandoHTMLElement & W) : (U & W)} ResolvedElement
+ */
+
 /**
  * Creates an XHTML or HTML element (XHTML is preferred, but only in browsers
  * that support); any element after element can be omitted, and any subsequent
  * type or types added afterwards.
  * @template {JamilihArray} T
- * @param {T} args
- * @returns {T extends [keyof HTMLElementTagNameMap, any?, any?, any?]
- *   ? HTMLElementTagNameMap[T[0]] : JamilihReturn}
+ * @template {T extends [keyof HTMLElementTagNameMap, ArbitraryValue?, ArbitraryValue?, ArbitraryValue?] ? HTMLElementTagNameMap[T[0]] : void} U
+ * @template {ElementFromJamilihArray<T>} E
+ * @template {CustomFromJamilihArray<T>} W
+ * @param {JamilihArrayWithCustomThis<T, E>} args
+ * @returns {U extends void ? JamilihReturn : ResolvedElement<U, W>}
  * The newly created (and possibly already appended)
  *   element or array of elements
  */
 const jml = function jml(...args) {
-  /* eslint-enable jsdoc/valid-types -- pratt parser bug  */
   if (!win) {
     throw new Error('No window object');
   }
@@ -782,7 +877,7 @@ const jml = function jml(...args) {
     throw new Error('No document object');
   }
 
-  /** @type {(Document|DocumentFragment|HTMLElement) & {[key: string]: any}} */
+  /** @type {(Document|DocumentFragment|HTMLElement) & {[key: string]: ElementExpando}} */
   let elem = doc.createDocumentFragment();
   /**
    *
@@ -797,20 +892,15 @@ const jml = function jml(...args) {
     }
     for (let [att, attVal] of Object.entries(atts)) {
       att = ATTR_MAP.has(att) ? String(ATTR_MAP.get(att)) : att;
-
-      /**
-       * @typedef {any} ElementExpando
-       */
-
       if (NULLABLES.has(att)) {
         attVal = checkPluginValue(elem, att, /** @type {string|JamilihArray} */attVal, opts);
         if (!_isNullish(attVal)) {
-          /** @type {ElementExpando} */elem[att] = attVal;
+          elem[att] = attVal;
         }
         continue;
-      } else if (ATTR_DOM.has(att)) {
+      }
+      if (ATTR_DOM.has(att)) {
         attVal = checkPluginValue(elem, att, /** @type {string|JamilihArray} */attVal, opts);
-        /** @type {ElementExpando} */
         elem[att] = attVal;
         continue;
       }
@@ -1004,7 +1094,7 @@ const jml = function jml(...args) {
             }
             if (mixin) {
               Object.entries(mixin).forEach(([methodName, method]) => {
-                /** @type {DefineConstructor} */cnstrctr.prototype[methodName] = method;
+                Reflect.set(/** @type {DefineConstructor} */cnstrctr.prototype, methodName, method);
               });
             }
             // console.log('def', def, '::', typeof options === 'object' ? options : undefined);
@@ -1013,9 +1103,13 @@ const jml = function jml(...args) {
           }
         case '$symbol':
           {
-            const [symbol, func] = /** @type {SymbolArray} */attVal;
+            if (!_isHTMLElement(elem)) {
+              throw new TypeError('Element expected for `$symbol`');
+            }
+            const symbolElem = /** @type {ResolvedElement<U, W>} */elem;
+            const [symbol, func] = /** @type {SymbolArray<ResolvedElement<U, W>>} */attVal;
             if (typeof func === 'function') {
-              const funcBound = func.bind(/** @type {HTMLElement} */elem);
+              const funcBound = func.bind(symbolElem);
               if (typeof symbol === 'string') {
                 // @ts-expect-error
                 elem[Symbol.for(symbol)] = funcBound;
@@ -1025,7 +1119,7 @@ const jml = function jml(...args) {
               }
             } else {
               const obj = func;
-              obj.elem = /** @type {HTMLElement} */elem;
+              obj.elem = symbolElem;
               if (typeof symbol === 'string') {
                 // @ts-expect-error
                 elem[Symbol.for(symbol)] = obj;
@@ -1038,7 +1132,7 @@ const jml = function jml(...args) {
           }
         case '$data':
           {
-            setMap(/** @type {true|string[]|Map<any, any>|WeakMap<any, any>|DataAttributeObject} */
+            setMap(/** @type {true|string[]|Map<HTMLElement, unknown>|WeakMap<HTMLElement, unknown>|DataAttributeObject} */
             attVal);
             break;
           }
@@ -1061,15 +1155,15 @@ const jml = function jml(...args) {
         case '$document':
           {
             // Todo: Conditionally create XML document
-            const docNode = doc.implementation.createHTMLDocument();
             if (!attVal) {
               throw new Error('Bad attribute value');
             }
+            const docNode = doc.implementation.createHTMLDocument();
             const jamlihDoc = /** @type {JamilihDocument} */attVal;
             if (jamlihDoc.childNodes) {
               // Remove any extra nodes created by createHTMLDocument().
               const j = jamlihDoc.childNodes.length;
-              while (docNode.childNodes[j]) {
+              while (Object.hasOwn(docNode.childNodes, j)) {
                 const cn = docNode.childNodes[j];
                 cn.remove();
                 // `j` should stay the same as removing will cause node to be present
@@ -1094,7 +1188,7 @@ const jml = function jml(...args) {
                 if (jamlihDoc.title) {
                   docNode.title = jamlihDoc.title; // Appends after meta
                 }
-                if (jamlihDoc.head && head) {
+                if (head && jamlihDoc.head) {
                   // each child of `head` is:
                   //  (JamilihArray|TextNodeString|HTMLElement|Comment|ProcessingInstruction|
                   //  Text|DocumentFragment|JamilihProcessingInstruction|JamilihDocumentFragment)
@@ -1108,7 +1202,7 @@ const jml = function jml(...args) {
                   jamlihDoc.head.forEach(_appendJML(head));
                 }
               }
-              if (jamlihDoc.body && body) {
+              if (body && jamlihDoc.body) {
                 jamlihDoc.body.forEach(_appendJMLOrText(body));
               }
             }
@@ -1135,16 +1229,17 @@ const jml = function jml(...args) {
         case '$on':
           {
             // Events
+            const onElem = /** @type {ResolvedElement<U, W>} */elem;
             // Allow for no-op by defaulting to `{}`
-            // eslint-disable-next-line prefer-const -- Ok as mixed
-            for (let [p2, val] of Object.entries(/** @type {OnAttributeObject} */attVal || {})) {
+            // eslint-disable-next-line prefer-const, unicorn/no-unreadable-for-of-expression -- Ok as mixed
+            for (let [p2, val] of Object.entries(/** @type {OnAttributeObject<ResolvedElement<U, W>>} */attVal || {})) {
               if (typeof val === 'function') {
                 val = [val, false];
               }
               if (typeof val[0] !== 'function') {
                 throw new TypeError(`Expect a function for \`$on\`; args: ${JSON.stringify(args)}`);
               }
-              _addEvent(/** @type {HTMLElement} */elem, p2, val[0], val[1]); // element, event name, handler, capturing
+              _addEvent(onElem, p2, val[0], val[1]); // element, event name, handler, capturing
             }
             break;
           }
@@ -1168,7 +1263,11 @@ const jml = function jml(...args) {
               const pastInitialProp = startProp !== '';
               Object.keys(atVal).forEach(key => {
                 const value = atVal[key];
-                prop = pastInitialProp ? startProp + key.replaceAll(hyphenForCamelCase, _upperCase).replace(/^([a-z])/u, _upperCase) : startProp + key.replaceAll(hyphenForCamelCase, _upperCase);
+                prop = startProp + (pastInitialProp
+                // eslint-disable-next-line unicorn/no-unsafe-string-replacement -- Function
+                ? key.replaceAll(hyphenForCamelCase, _upperCase).replace(/^([a-z])/u, _upperCase)
+                // eslint-disable-next-line unicorn/no-unsafe-string-replacement -- Function
+                : key.replaceAll(hyphenForCamelCase, _upperCase));
                 if (value === null || typeof value !== 'object') {
                   if (!_isNullish(value)) {
                     elem.dataset[prop] = value;
@@ -1187,7 +1286,7 @@ const jml = function jml(...args) {
         // Don't remove this `if` block (for sake of no-innerHTML build)
         case 'innerHTML':
           if (!_isNullish(attVal)) {
-            // // eslint-disable-next-line no-unsanitized/property
+            // eslint-disable-next-line no-unsanitized/property
             elem.innerHTML = attVal;
           }
           break;
@@ -1229,6 +1328,7 @@ const jml = function jml(...args) {
                       elem.style.cssFloat = styleVal;
                       elem.style.styleFloat = styleVal; // Harmless though we could make conditional on older IE instead
                     } else {
+                      // eslint-disable-next-line unicorn/no-unsafe-string-replacement -- Function
                       elem.style[p2.replaceAll(hyphenForCamelCase, _upperCase)] = styleVal;
                     }
                   }
@@ -1318,12 +1418,12 @@ const jml = function jml(...args) {
   const defaultMap = opts.$map && /** @type {MapWithRoot} */opts.$map.root;
 
   /**
-   * @param {true|string[]|Map<any, any>|WeakMap<any, any>|DataAttributeObject} dataVal
+   * @param {true|string[]|Map<HTMLElement, UserArg>|WeakMap<HTMLElement, UserArg>|DataAttributeObject|[Map<HTMLElement, UserArg>|WeakMap<HTMLElement, UserArg>|undefined, DataAttributeObject|UserArg]} dataVal
    * @returns {void}
    */
   const setMap = dataVal => {
     let map, obj;
-    const defMap = /** @type {[Map<HTMLElement, any> | WeakMap<HTMLElement, any>, any]} */defaultMap;
+    const defMap = /** @type {[Map<HTMLElement, UserArg> | WeakMap<HTMLElement, UserArg>, UserArg]} */defaultMap;
     // Boolean indicating use of default map and object
     if (dataVal === true) {
       [map, obj] = defMap;
@@ -1347,7 +1447,7 @@ const jml = function jml(...args) {
       map = defMap[0];
       obj = dataVal;
     }
-    /** @type {Map<HTMLElement, any> | WeakMap<HTMLElement, any>} */
+    /** @type {Map<HTMLElement, UserArg> | WeakMap<HTMLElement, UserArg>} */
     map.set(/** @type {HTMLElement} */
     elem, obj);
   };
@@ -1359,7 +1459,7 @@ const jml = function jml(...args) {
         // null always indicates a place-holder (only needed for last argument if want array returned)
         if (i === argc - 1) {
           // Casting needing unless changing `jml()` signature with overloads
-          return /** @type {ArbitraryValue} */nodes.length <= 1 ? nodes[0]
+          return /** @type {U extends void ? JamilihReturn : ResolvedElement<U, W>} */nodes.length <= 1 ? nodes[0]
           // eslint-disable-next-line unicorn/no-array-callback-reference
           : nodes.reduce(_fragReducer, doc.createDocumentFragment()); // nodes;
         }
@@ -1378,7 +1478,7 @@ const jml = function jml(...args) {
               if (val && typeof val === 'object') {
                 const procValues = [];
                 for (const [p, procInstVal] of Object.entries(val)) {
-                  procValues.push(p + '=' + '"' +
+                  procValues.push(p + '="' +
                   // https://www.w3.org/TR/xml-stylesheet/#NT-PseudoAttValue
                   procInstVal.replaceAll('"', '&quot;') + '"');
                 }
@@ -1440,13 +1540,12 @@ const jml = function jml(...args) {
                 /* c8 ignore next 4 */
                 elem = doc.createElementNS
                 // Should create separate file for this
-                /* eslint-disable object-shorthand -- Casting */ ? (/** @type {HTMLElement} */doc.createElementNS(NS_HTML, elStr, {
+                ? (/** @type {HTMLElement} */doc.createElementNS(NS_HTML, elStr, {
                   is: (/** @type {string} */is)
                 })
                 /* c8 ignore next 1 */) : doc.createElement(elStr, {
                   is: (/** @type {string} */is)
                 });
-                /* eslint-enable object-shorthand -- Casting */
               } else /* c8 ignore next */if (doc.createElementNS) {
                   elem = doc.createElementNS(NS_HTML, elStr);
                   /* c8 ignore next 3 */
@@ -1474,15 +1573,16 @@ const jml = function jml(...args) {
             // elem.setAttribute('xmlns', atts.xmlns); // Doesn't work
             // Can't set namespaceURI dynamically, renameNode() is not supported, and setAttribute() doesn't work to change the namespace, so we resort to this hack
             const xmlnsObj = /** @type {XmlnsAttributeObject} */atts;
-            const replacer = xmlnsObj.xmlns && typeof xmlnsObj.xmlns === 'object' ? _replaceDefiner(xmlnsObj.xmlns) : ' xmlns="' + xmlnsObj.xmlns + '"';
+            const replacer = xmlnsObj.xmlns && typeof xmlnsObj.xmlns === 'object' ? _replaceDefiner(xmlnsObj.xmlns) : ' xmlns="' + escapeReplacer(xmlnsObj.xmlns) + '"';
             // try {
             // Also fix DOMParser to work with text/html
             elem = nodes[nodes.length - 1] =
             // Why doesn't `HTMLWindow` have `DOMParser`?
             new /** @type {import('jsdom').DOMWindow} */win.DOMParser().parseFromString(new /** @type {import('jsdom').DOMWindow} */win.XMLSerializer().serializeToString(elem).
             // Mozilla adds XHTML namespace
-            replace(' xmlns="' + NS_HTML + '"',
+            replace(' xmlns="' + escapeReplacer(NS_HTML) + '"',
             // Needed to cast here, despite either overload working
+            // eslint-disable-next-line unicorn/no-unsafe-string-replacement -- Escaped
             /** @type {string} */
             replacer), 'application/xml').documentElement;
             // Todo: Report to plugins
@@ -1573,7 +1673,7 @@ const jml = function jml(...args) {
   }
 
   // Casting needing unless changing `jml()` signature with overloads
-  return /** @type {ArbitraryValue} */ret;
+  return /** @type {U extends void ? JamilihReturn : ResolvedElement<U, W>} */ret;
 };
 
 /**
@@ -1660,7 +1760,7 @@ class DOMException extends Error {
 * a Jamilih object, or, if `stringOutput` is true, it will be the stringified
 * version of such an object
 */
-jml.toJML = function (nde, {
+const toJML = function (nde, {
   stringOutput = false,
   reportInvalidState = true,
   stripWhitespace = false
@@ -1675,7 +1775,7 @@ jml.toJML = function (nde, {
 
   /**
    * @todo Find more specific type than `any`
-   * @typedef {{[key: (number|string)]: any}} IndexableObject
+   * @typedef {{[key: (number|string)]: UserArg}} IndexableObject
    */
 
   const ret = /** @type {IndexableObject} */[];
@@ -1689,12 +1789,14 @@ jml.toJML = function (nde, {
    */
   function invalidStateError(msg) {
     // These are probably only necessary if working with text/html
-    if (reportInvalidState) {
-      // INVALID_STATE_ERR per section 9.3 XHTML 5: http://www.w3.org/TR/html5/the-xhtml-syntax.html
-      const e = new DOMException(msg, 'INVALID_STATE_ERR');
-      e.code = 11;
-      throw e;
+    if (!reportInvalidState) {
+      return;
     }
+
+    // INVALID_STATE_ERR per section 9.3 XHTML 5: https://www.w3.org/TR/html5/the-xhtml-syntax.html
+    const e = new DOMException(msg, 'INVALID_STATE_ERR');
+    e.code = 11;
+    throw e;
   }
 
   /**
@@ -1781,8 +1883,13 @@ jml.toJML = function (nde, {
     namespaces = {
       ...namespaces
     };
-    const xmlChars = /^([\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD]|[\uD800-\uDBFF][\uDC00-\uDFFF])*$/u; // eslint-disable-line no-control-regex
-    if ([2, 3, 4, 7, 8].includes(type) && /** @type {Node} */nodeOrEntity.nodeValue && !xmlChars.test(/** @type {Node} */nodeOrEntity.nodeValue)) {
+    const xmlChars = /^([\u{9}\u{A}\u{D}\u{20}-\u{D7FF}\u{E000}-\u{FFFD}]|[\uD800-\uDBFF][\uDC00-\uDFFF])*$/u; // eslint-disable-line no-control-regex
+
+    // eslint-disable-next-line prefer-destructuring -- TS
+    const nodeValue = /** @type {Node} */nodeOrEntity.nodeValue;
+    if ([2, 3, 4, 7, 8].includes(type) &&
+    // eslint-disable-next-line unicorn/prefer-simple-condition-first -- Safer
+    nodeValue && !xmlChars.test(nodeValue)) {
       invalidStateError('Node has bad XML character value');
     }
 
@@ -1886,6 +1993,7 @@ jml.toJML = function (nde, {
         {
           // CDATA
           const node = /** @type {CDATASection} */nodeOrEntity;
+          // eslint-disable-next-line unicorn/no-useless-concat -- Safer if pasting
           if (node.nodeValue?.includes(']]' + '>')) {
             invalidStateError('CDATA cannot end with closing ]]>');
           }
@@ -1969,7 +2077,7 @@ jml.toJML = function (nde, {
               name: /** @type {DocumentType} */node.name
             }
           };
-          const pubIdChar = /^(\u0020|\u000D|\u000A|[a-zA-Z0-9]|[-'()+,./:=?;!*#@$_%])*$/u; // eslint-disable-line no-control-regex
+          const pubIdChar = /^(\u{20}|\u{D}|\u{A}|[a-zA-Z0-9]|[-'()+,./:=?;!*#@$_%])*$/u; // eslint-disable-line no-control-regex
           if (!pubIdChar.test(/** @type {DocumentType} */node.publicId)) {
             invalidStateError('A publicId must have valid characters.');
           }
@@ -2011,34 +2119,37 @@ jml.toJML = function (nde, {
   }
   return ret[0];
 };
+jml.toJML = toJML;
 
 /**
  * @param {string|HTMLElement} dom
  * @param {ToJmlConfig} [config]
  * @returns {string}
  */
-jml.toJMLString = function (dom, config) {
-  return /** @type {string} */jml.toJML(dom, Object.assign(config || {}, {
+const toJMLString = function (dom, config) {
+  return /** @type {string} */toJML(dom, Object.assign(config || {}, {
     stringOutput: true
   }));
 };
+jml.toJMLString = toJMLString;
 
 /**
  *
  * @param {JamilihArray} args
  * @returns {JamilihReturn}
  */
-jml.toDOM = function (...args) {
+const toDOM = function (...args) {
   // Alias for jml()
   return jml(...args);
 };
+jml.toDOM = toDOM;
 
 /**
  *
  * @param {JamilihArray} args
  * @returns {string}
  */
-jml.toHTML = function (...args) {
+const toHTML = function (...args) {
   // Todo: Replace this with version of jml() that directly builds a string
   const ret = jml(...args);
   switch (ret.nodeType) {
@@ -2053,18 +2164,20 @@ jml.toHTML = function (...args) {
     case 2:
       {
         // ATTR
-        return `${/** @type {Attr} */ret.name}="${/** @type {Attr} */ret.value.replaceAll('"', '&quot;')}"`;
+        return `${ /** @type {Attr} */ret.name}="${ /** @type {Attr} */ret.value.replaceAll('"', '&quot;')}"`;
       }
     case 3:
       {
         // TEXT
         // Fallthrough
         // } case 4: { // CDATA
+        // eslint-disable-next-line prefer-destructuring -- TS
+        const nodeValue = /** @type {Text|CDATASection} */ret.nodeValue;
         /* c8 ignore next 3 */
-        if (!ret.nodeValue) {
+        if (!nodeValue) {
           throw new TypeError('Unexpected null Text node');
         }
-        return /** @type {Text|CDATASection} */ret.nodeValue;
+        return nodeValue;
         // case 5: // Entity Reference Node
         //  No 6: Entity Node
         //  No 12: Notation Node
@@ -2076,7 +2189,6 @@ jml.toHTML = function (...args) {
         return `<?${node.target} ${node.data}?>`;
         // } case 8: { // Comment
         //   return `<!--${ret.nodeValue}-->`;
-        // eslint-disable-next-line sonarjs/no-fallthrough
       }
     case 9:
     case 11:
@@ -2084,7 +2196,7 @@ jml.toHTML = function (...args) {
         // DOCUMENT FRAGMENT
         const node = /** @type {DocumentFragment} */ret;
         return [...node.childNodes].map(childNode => {
-          return jml.toHTML(/** @type {JamilihFirstArgument} */childNode);
+          return toHTML(/** @type {JamilihFirstArgument} */childNode);
         }).join('');
       }
     case 10:
@@ -2098,47 +2210,52 @@ jml.toHTML = function (...args) {
       throw new Error('Unexpected node type');
   }
 };
+jml.toHTML = toHTML;
 
 /**
  *
  * @param {JamilihArray} args
  * @returns {string}
  */
-jml.toDOMString = function (...args) {
+const toDOMString = function (...args) {
   // Alias for jml.toHTML for parity with jml.toJMLString
-  return jml.toHTML(...args);
+  return toHTML(...args);
 };
+jml.toDOMString = toDOMString;
 
 /**
  *
  * @param {JamilihArray} args
  * @returns {string}
  */
-jml.toXML = function (...args) {
+const toXML = function (...args) {
   if (!win) {
     throw new Error('No window object set');
   }
   const ret = jml(...args);
   return new /** @type {import('jsdom').DOMWindow} */win.XMLSerializer().serializeToString(ret);
 };
+jml.toXML = toXML;
 
 /**
  *
  * @param {JamilihArray} args
  * @returns {string}
  */
-jml.toXMLDOMString = function (...args) {
+const toXMLDOMString = function (...args) {
   // Alias for jml.toXML for parity with jml.toJMLString
-  return jml.toXML(...args);
+  return toXML(...args);
 };
+jml.toXMLDOMString = toXMLDOMString;
 
 /**
  * Element-aware wrapper for `Map`.
+ * @template V
  */
 class JamilihMap extends Map {
   /**
    * @param {?(string|HTMLElement)} element
-   * @returns {ArbitraryValue}
+   * @returns {V}
    */
   get(element) {
     const elem = typeof element === 'string' ? $(element) : element;
@@ -2146,78 +2263,82 @@ class JamilihMap extends Map {
   }
   /**
    * @param {string|HTMLElement} element
-   * @param {ArbitraryValue} value
-   * @returns {ArbitraryValue}
+   * @param {V} value
+   * @returns {this}
    */
   set(element, value) {
     const elem = typeof element === 'string' ? $(element) : element;
-    return super.set.call(this, elem, value);
+    super.set.call(this, elem, value);
+    return this;
   }
   /**
    * @param {string|HTMLElement} element
    * @param {string} methodName
-   * @param {...ArbitraryValue} args
-   * @returns {ArbitraryValue}
+   * @param {...UserArg} args
+   * @returns {StoredValue}
    */
   invoke(element, methodName, ...args) {
     const elem = typeof element === 'string' ? $(element) : element;
-    return this.get(elem)[methodName](elem, ...args);
+    return /** @type {UserArg} */this.get(elem)[methodName](elem, ...args);
   }
 }
 
 /**
  * Element-aware wrapper for `WeakMap`.
- * @extends {WeakMap<any>}
+ * @template V
  */
 class JamilihWeakMap extends WeakMap {
   /**
-   * @param {HTMLElement} element
-   * @returns {ArbitraryValue}
+   * @param {?(string|object|symbol)} element
+   * @returns {V}
    */
   get(element) {
     const elem = typeof element === 'string' ? $(element) : element;
     if (!elem) {
       throw new Error("Can't find the element");
     }
-    return super.get.call(this, elem);
+    return super.get.call(this, /** @type {object} */elem);
   }
   /**
-   * @param {HTMLElement} element
-   * @param {ArbitraryValue} value
-   * @returns {ArbitraryValue}
+   * @param {?(string|object|symbol)} element
+   * @param {V} value
+   * @returns {this}
    */
   set(element, value) {
     const elem = typeof element === 'string' ? $(element) : element;
     if (!elem) {
       throw new Error("Can't find the element");
     }
-    return super.set.call(this, elem, value);
+    super.set.call(this, /** @type {object} */elem, value);
+    return this;
   }
   /**
    * @param {string|HTMLElement} element
    * @param {string} methodName
-   * @param {...ArbitraryValue} args
-   * @returns {ArbitraryValue}
+   * @param {...UserArg} args
+   * @returns {StoredValue}
    */
   invoke(element, methodName, ...args) {
     const elem = typeof element === 'string' ? $(element) : element;
     if (!elem) {
       throw new Error("Can't find the element");
     }
-    return this.get(elem)[methodName](elem, ...args);
+    return /** @type {UserArg} */this.get(elem)[methodName](elem, ...args);
   }
 }
 jml.Map = JamilihMap;
 jml.WeakMap = JamilihWeakMap;
 
 /**
- * @typedef {[JamilihWeakMap|JamilihMap, HTMLElement]} MapAndElementArray
+ * @template V
+ * @typedef {[JamilihWeakMap<V>|JamilihMap<V>, HTMLElement]} MapAndElementArray
  */
 
 /**
- * @param {{[key: string]: any}} obj
+ * @template V
+ * @param {V} obj
  * @param {JamilihArrayPostOptions} args
- * @returns {MapAndElementArray}
+ * @returns {MapAndElementArray<V>}
  */
 jml.weak = function (obj, ...args) {
   const map = new JamilihWeakMap();
@@ -2228,9 +2349,10 @@ jml.weak = function (obj, ...args) {
 };
 
 /**
- * @param {ArbitraryValue} obj
+ * @template V
+ * @param {V} obj
  * @param {JamilihArrayPostOptions} args
- * @returns {MapAndElementArray}
+ * @returns {MapAndElementArray<V>}
  */
 jml.strong = function (obj, ...args) {
   const map = new JamilihMap();
@@ -2243,7 +2365,7 @@ jml.strong = function (obj, ...args) {
 /**
  * @param {string|HTMLElement} element If a string, will be interpreted as a selector
  * @param {symbol|string} sym If a string, will be used with `Symbol.for`
- * @returns {ArbitraryValue} The value associated with the symbol
+ * @returns {SymbolResult} The value associated with the symbol
  */
 jml.symbol = jml.sym = jml.for = function (element, sym) {
   const elem = typeof element === 'string' ? $(element) : element;
@@ -2253,16 +2375,16 @@ jml.symbol = jml.sym = jml.for = function (element, sym) {
 };
 
 /**
- * @typedef {((elem: HTMLElement, ...args: any[]) => void)|{[key: string]: (elem: HTMLElement, ...args: any[]) => void}} MapCommand
+ * @typedef {((elem: HTMLElement, ...args: UserArg[]) => void)|{[key: string]: (elem: HTMLElement, ...args: UserArg[]) => void}} MapCommand
  */
 
 /**
  * @param {?(string|HTMLElement)} elem If a string, will be interpreted as a selector
  * @param {symbol|string|Map<HTMLElement, MapCommand>|WeakMap<HTMLElement, MapCommand>} symOrMap If a string, will be used with `Symbol.for`
- * @param {string|any} methodName Can be `any` if the symbol or map directly
+ * @param {string|UserArg} methodName Can be `UserArg` if the symbol or map directly
  *   points to a function (it is then used as the first argument).
- * @param {ArbitraryValue[]} args
- * @returns {ArbitraryValue}
+ * @param {UserArg[]} args
+ * @returns {StoredValue}
  */
 jml.command = function (elem, symOrMap, methodName, ...args) {
   elem = typeof elem === 'string' ? $(elem) : elem;
@@ -2275,7 +2397,7 @@ jml.command = function (elem, symOrMap, methodName, ...args) {
     if (typeof func === 'function') {
       return func(methodName, ...args); // Already has `this` bound to `elem`
     }
-    return func[methodName](...args);
+    return /** @type {UserArg} */func[methodName](...args);
   }
   func = /** @type {Map<HTMLElement, MapCommand>|WeakMap<HTMLElement, MapCommand>} */symOrMap.get(elem);
   if (!func) {
@@ -2291,10 +2413,10 @@ jml.command = function (elem, symOrMap, methodName, ...args) {
 /**
  * Expects properties `document`, `XMLSerializer`, and `DOMParser`.
  * Also updates `body` with `document.body`.
- * @param {import('jsdom').DOMWindow|HTMLWindow|undefined} wind
+ * @param {import('jsdom').DOMWindow|HTMLWindow|typeof globalThis|undefined} wind
  * @returns {void}
  */
-jml.setWindow = wind => {
+const setWindow = wind => {
   win = wind;
   doc = win?.document;
   if (doc && doc.body) {
@@ -2302,28 +2424,31 @@ jml.setWindow = wind => {
     body = /** @type {HTMLBodyElement} */doc.body;
   }
 };
+jml.setWindow = setWindow;
 
 /**
- * @returns {import('jsdom').DOMWindow|HTMLWindow}
+ * @returns {import('jsdom').DOMWindow|HTMLWindow|typeof globalThis}
  */
-jml.getWindow = () => {
+const getWindow = () => {
   if (!win) {
     throw new Error('No window object set');
   }
   return win;
 };
+jml.getWindow = getWindow;
 
 /**
  * Does not run Jamilih so can be further processed.
- * @param {ArbitraryValue[]} array
- * @param {ArbitraryValue} glu
- * @returns {ArbitraryValue[]}
+ * @template T
+ * @param {T[]} array
+ * @param {T} glu
+ * @returns {T[]}
  */
 function glue(array, glu) {
   return [...array].reduce((arr, item) => {
     arr.push(item, glu);
     return arr;
-  }, []).slice(0, -1);
+  }, /** @type {T[]} */[]).slice(0, -1);
 }
 
 /**
@@ -2336,6 +2461,6 @@ if (doc && doc.body) {
   // eslint-disable-next-line prefer-destructuring -- Needed for type
   body = /** @type {HTMLBodyElement} */doc.body;
 }
-const nbsp = '\u00A0'; // Very commonly needed in templates
+const nbsp = '\u{A0}'; // Very commonly needed in templates
 
-export { $, $$, DOMException, body, jml as default, glue, jml, nbsp };
+export { $, $$, DOMException, body, getWindow, glue, jml, nbsp, setWindow, toDOM, toDOMString, toHTML, toJML, toJMLString, toXML, toXMLDOMString };
