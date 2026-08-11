@@ -13,3 +13,8 @@ export {
   parse as parseAcorn
 } from 'acorn';
 // } from '../node_modules/acorn/dist/acorn.mjs';
+
+export {default as mimeStandardTypes} from 'mime/types/standard.js';
+export {default as mimeOtherTypes} from 'mime/types/other.js';
+// } from '../node_modules/mime/dist/types/standard.js';
+// } from '../node_modules/mime/dist/types/other.js';

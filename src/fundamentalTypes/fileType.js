@@ -1,4 +1,6 @@
-import {jml, toStringTag} from '../vendor-imports.js';
+import {
+  jml, toStringTag, mimeStandardTypes, mimeOtherTypes
+} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
 import {visualize, getUserMedia, startScreenCapture} from '../utils/media.js';
 import dialogs from '../utils/dialogs.js';
@@ -14,6 +16,15 @@ import dialogs from '../utils/dialogs.js';
  * @typedef {(file: FileInfo) => void} SetValue
  */
 
+const commonMimeTypes = [...new Set([
+  ...Object.keys(mimeStandardTypes),
+  ...Object.keys(mimeOtherTypes)
+])].toSorted((a, b) => {
+  return a.localeCompare(b);
+});
+
+let fileContentTypeListId = 0;
+
 /**
  * @param {number} size
  * @param {number} [min]
@@ -26,6 +37,19 @@ function checkFileSize (size, min, max) {
   }
   if (max !== undefined && size > max) {
     return `File size (${size} bytes) exceeds the maximum of ${max} bytes`;
+  }
+  return null;
+}
+
+/**
+ * @param {string} type
+ * @param {string[]} [mime]
+ * @returns {string|null}
+ */
+function checkFileMimeType (type, mime) {
+  if (mime && mime.length > 0 && !mime.includes(type)) {
+    return `File type (${type || '(none)'}) is not among the allowed ` +
+      `MIME types: ${mime.join(', ')}`;
   }
   return null;
 }
@@ -423,7 +447,13 @@ const fileType = {
     const fileSchemaObject = /** @type {import('zodexy').SzFile} */ (
       specificSchemaObject
     );
-    const {min, max} = fileSchemaObject ?? {};
+    const {min, max, mime} = fileSchemaObject ?? {};
+
+    fileContentTypeListId++;
+    const contentTypeListId = `fileContentTypes-${fileContentTypeListId}`;
+    const contentTypeOptions = mime && mime.length > 0
+      ? mime
+      : commonMimeTypes;
 
     return ['div', {
       dataset: {type: 'file'},
@@ -509,11 +539,16 @@ const fileType = {
         ]],
         ['br'],
         ['label', [
-          'Content type ',
+          `Content type${
+            mime && mime.length > 0 ? ` (allowed: ${mime.join(', ')})` : ''
+          } `,
           ['input', {
             class: 'contentType', value: value.type ?? '',
+            list: contentTypeListId,
             $on: {
               change () {
+                // eslint-disable-next-line consistent-this -- Clarity
+                const input = /** @type {HTMLInputElement} */ (this);
                 const viewBinary =
                   /**
                    * @type {HTMLButtonElement & {$value: File}}
@@ -525,8 +560,13 @@ const fileType = {
                     )
                   );
 
-                const newContentType =
-                  /** @type {HTMLInputElement} */ (this).value;
+                const newContentType = input.value;
+                const message = checkFileMimeType(newContentType, mime);
+                if (message) {
+                  dialogs.alert(message);
+                  input.value = viewBinary.$value?.type ?? '';
+                  return;
+                }
                 newFileForBinary(viewBinary, {
                   type: newContentType
                 });
@@ -534,6 +574,12 @@ const fileType = {
             }
           }]
         ]],
+        ['datalist', {
+          id: contentTypeListId,
+          class: 'contentTypeOptions'
+        }, contentTypeOptions.map((mimeType) => {
+          return ['option', [mimeType]];
+        })],
         ['br'],
         ['label', [
           'Last modified date ',
@@ -601,7 +647,8 @@ const fileType = {
                 }
                 const file = input.files[0];
 
-                const message = checkFileSize(file.size, min, max);
+                const message = checkFileSize(file.size, min, max) ??
+                  checkFileMimeType(file.type, mime);
                 if (message) {
                   dialogs.alert(message);
                   input.value = '';
@@ -619,6 +666,7 @@ const fileType = {
                 metadataFieldset.$setValue(file);
               }
             },
+            accept: mime?.join(','),
             name: `${typeNamespace}-file`, type: 'file'
           }]
         ]]
@@ -947,7 +995,8 @@ const fileType = {
                   );
                   console.log('file', file);
 
-                  const message = checkFileSize(file.size, min, max);
+                  const message = checkFileSize(file.size, min, max) ??
+                    checkFileMimeType(file.type, mime);
                   if (message) {
                     dialogs.alert(message);
                     chunks = [];
@@ -1084,7 +1133,8 @@ const fileType = {
                   );
                   console.log('file', file);
 
-                  const message = checkFileSize(file.size, min, max);
+                  const message = checkFileSize(file.size, min, max) ??
+                    checkFileMimeType(file.type, mime);
                   if (message) {
                     dialogs.alert(message);
                     return;
