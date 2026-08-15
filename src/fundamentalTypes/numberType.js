@@ -67,13 +67,13 @@ const numberType = {
     const maxEpsilon = 300 * Number.EPSILON;
 
     const isInteger = () => {
-      return 'format' in numberSchemaObject && numberSchemaObject.format && [
+      return numberSchemaObject && 'format' in numberSchemaObject && numberSchemaObject.format && [
         'int32', 'uint32', 'safeint'
       ].includes(numberSchemaObject.format);
     };
 
     const min = numberSchemaObject?.min ??
-      ('format' in numberSchemaObject && numberSchemaObject.format
+      (numberSchemaObject && 'format' in numberSchemaObject && numberSchemaObject.format
         ? {
           int32: -2147483648,
           uint32: 0,
@@ -84,7 +84,7 @@ const numberType = {
         : undefined);
 
     const max = numberSchemaObject?.max ??
-      ('format' in numberSchemaObject && numberSchemaObject.format
+      (numberSchemaObject && 'format' in numberSchemaObject && numberSchemaObject.format
         ? {
           int32: 2147483647,
           uint32: 4294967295,
