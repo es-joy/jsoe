@@ -63,7 +63,6 @@ Zodexy) schema types:
 - `enum`
 - `literal`
 - `nan` (standalone in Zodexy)
-- `nativeEnum`
 - `record`
 - `tuple`
 - `void` (preferred in Zodexy when specified as such)
@@ -108,8 +107,6 @@ Supported supertypes include:
 - Certain cyclical structures may have issues
 - `typeson-registry`'s structured cloning should throw on more objects, so
    bad data doesn't end up stored
-- Currently requires `SpecialRealNumber` for `Infinity`/`-Infinity` despite
-    Zodexy number type supporting a `finite` schema property.
 - Currently doesn't support using `isNullable`; instead just use `null` with
     a `union`.
 - Lacks support for certain Structured Cloning types. See to-dos below.

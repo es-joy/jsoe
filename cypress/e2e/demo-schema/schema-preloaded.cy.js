@@ -827,17 +827,16 @@
         });
       });
 
-      it('Selects native enum', function () {
+      it('Selects enum', function () {
         const sel = 'section:nth-of-type(8) > .innerItem:nth-of-type(2) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="nativeEnum"]').should(($div) => {
-          expect($div.attr('title')).to.equal('A native enum');
+        cy.get(sel + 'div[data-type="enum"]').should(($div) => {
+          expect($div.attr('title')).to.equal('An enum');
         });
 
-        cy.get(sel + 'input.nativeEnumKey').should(
-          'have.value', 'def'
+        cy.get(sel + 'select[name="demo-type-choices-only-initial-value-enum"]').should(
+          'have.value', 'ghi'
         );
-        cy.get(sel + '.enumeratedValue').should('have.text', 'ghi');
       });
     });
 
@@ -850,17 +849,16 @@
         });
       });
 
-      it('Selects native enum', function () {
+      it('Selects enum', function () {
         const sel = 'section:nth-of-type(9) > .innerItem:nth-of-type(2) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="nativeEnum"]').should(($div) => {
-          expect($div.attr('title')).to.equal('Native Enum');
+        cy.get(sel + 'div[data-type="enum"]').should(($div) => {
+          expect($div.attr('title')).to.equal('Enum');
         });
 
-        cy.get(sel + 'input.nativeEnumKey').should(
-          'have.value', 'abc'
+        cy.get(sel + 'select[name="demo-type-choices-only-initial-value-enum"]').should(
+          'have.value', '0'
         );
-        cy.get(sel + '.enumeratedValue').should('have.text', '0');
       });
 
       it('Selects boolean', function () {

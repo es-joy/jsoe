@@ -420,13 +420,9 @@ const schemaInstanceJSON8 = {
       type: 'null'
     },
     {
-      description: 'A native enum',
-      type: 'nativeEnum',
-      values: {
-        0: 'abc',
-        abc: 0,
-        def: 'ghi'
-      }
+      description: 'An enum',
+      type: 'enum',
+      values: {ghi: 'ghi', zero: 0}
     },
     {
       description: 'With never items and no rest',
@@ -448,12 +444,8 @@ const schemaInstanceJSON9 = {
       type: 'null'
     },
     {
-      type: 'nativeEnum',
-      values: {
-        0: 'abc',
-        abc: 0,
-        def: 'ghi'
-      }
+      type: 'enum',
+      values: {ghi: 'ghi', zero: 0}
     },
     {
       type: 'boolean'

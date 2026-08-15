@@ -55,7 +55,6 @@ const zodexToStructuredCloningTypeMap = new Map([
   // ['function', 'function'],
 
   ['catch', 'catch']
-  // ['nativeEnum', 'nativeEnum']
 ]);
 
 /**

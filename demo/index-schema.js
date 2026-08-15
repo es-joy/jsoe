@@ -483,20 +483,6 @@ setTimeout(function () {
     }, ['Initialize with a value']],
 
     ['button', {
-      id: 'initializeWithBadNativeEnumValue',
-      $on: {
-        click () {
-          const types = new Types();
-          types.setValue({
-            type: 'nativeEnum',
-            root: $('div[data-type="nativeEnum"]'),
-            value: 'abcdefghijkl'
-          });
-        }
-      }
-    }, ['Initialize with a bad native enum value']],
-
-    ['button', {
       id: 'showRootFormControl',
       $on: {
         click () {

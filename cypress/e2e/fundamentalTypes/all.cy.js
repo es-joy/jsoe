@@ -17,7 +17,6 @@ import './filelist.cy.js';
 import './literal.cy.js';
 import './map.cy.js';
 import './nan.cy.js';
-import './nativeEnum.cy.js';
 import './noneditable.cy.js';
 import './null.cy.js';
 import './number.cy.js';
