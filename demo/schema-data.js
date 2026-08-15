@@ -40,17 +40,17 @@ const schemaInstanceJSON2 = {
     {
       description: 'Literal boolean',
       type: 'literal',
-      value: false
+      values: [false]
     },
     {
       description: 'Literal number',
       type: 'literal',
-      value: 135
+      values: [135]
     },
     {
       description: 'Literal string',
       type: 'literal',
-      value: 'abcde'
+      values: ['abcde']
     },
     {
       description: 'An object',
@@ -578,7 +578,7 @@ const schemaInstanceJSON9 = {
     },
     {
       type: 'literal',
-      value: 135
+      values: [135]
     },
     {
       type: 'nan'

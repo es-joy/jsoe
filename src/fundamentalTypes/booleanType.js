@@ -34,11 +34,11 @@ const booleanType = {
     this.ct++;
     const isLiteral = specificSchemaObject?.type === 'literal';
     const booleanVals = /** @type {import('zodexy').SzLiteral<boolean[]>} */ (
-      specificSchemaObject)?.values.filter((
+      specificSchemaObject)?.values?.filter((
       /** @type {boolean} */ val
     ) => {
       return typeof val === 'boolean';
-    });
+    }) ?? [];
     const hasOneValue = isLiteral && booleanVals.length === 1;
     const val = hasOneValue
       ? booleanVals[0]
