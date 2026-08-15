@@ -24,8 +24,8 @@ importers:
         specifier: 3.2.1
         version: 3.2.1
       typeson-registry:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.1
+        version: 13.0.1
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -124,8 +124,8 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
       typeson:
-        specifier: ^10.1.0
-        version: 10.1.0
+        specifier: ^10.1.1
+        version: 10.1.1
       webappfind-demos-samples:
         specifier: ^0.7.0
         version: 0.7.0
@@ -5740,12 +5740,12 @@ packages:
     engines: {node: '>=16.20.0'}
     hasBin: true
 
-  typeson-registry@13.0.0:
-    resolution: {integrity: sha512-4pURGKCwg+GHhM/HWtb6bCGrPrSHb9BI0kmrJPpRmGJOjODV8Ul1fCDIetp8FkfKl51V5DclBBnvqkm4xXqtWw==}
+  typeson-registry@13.0.1:
+    resolution: {integrity: sha512-+tYbLndM0RQfRNT40CxhTbpCoGl4diizaNeT2K2jPWsZ/0eQWTwwYcXyMkWP/TBoAzbAtRqM8rSjlFcnKWV1cg==}
     engines: {node: ^22.16.0 || >=24.0.0}
 
-  typeson@10.1.0:
-    resolution: {integrity: sha512-JIaj9D47rNlP7xPMz70CJQP9Dkmwx2IXtmDojtLGTtaKzuWYy21bs3+CXH/70oZRKEBrHPVWRM+GJNqAYEnU8Q==}
+  typeson@10.1.1:
+    resolution: {integrity: sha512-fSN/8l8u6ZmpWqSskWI3dOO6IKsB/+2bVMqT1k7yW0xx9GfhYbNKWWbd77nRRwWFGD3M59VtAQ8Pb4INm+Srgw==}
     engines: {node: '>=22.0.0'}
 
   typical@4.0.0:
@@ -12560,15 +12560,15 @@ snapshots:
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
 
-  typeson-registry@13.0.0:
+  typeson-registry@13.0.1:
     dependencies:
       base64-arraybuffer-es6: 3.1.0
-      typeson: 10.1.0
+      typeson: 10.1.1
       whatwg-url: 17.1.0
     transitivePeerDependencies:
       - '@noble/hashes'
 
-  typeson@10.1.0: {}
+  typeson@10.1.1: {}
 
   typical@4.0.0: {}
 

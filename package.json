@@ -61,7 +61,7 @@
     "jamilih": "0.68.0",
     "mime": "^4.1.0",
     "sceditor": "3.2.1",
-    "typeson-registry": "13.0.0",
+    "typeson-registry": "13.0.1",
     "zod": "^4.4.3",
     "zodexy": "^0.21.2"
   },
@@ -96,7 +96,7 @@
     "rollup-plugin-istanbul": "^5.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "typescript": "^7.0.2",
-    "typeson": "^10.1.0",
+    "typeson": "^10.1.1",
     "webappfind-demos-samples": "^0.7.0"
   },
   "repository": {

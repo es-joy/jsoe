@@ -17,6 +17,8 @@ minimumReleaseAgeExclude:
   - eslint-plugin-jsdoc@64.1.0
   - jsdoc-type-pratt-parser@9.1.1
   - zodexy@0.21.1 || 0.21.2
+  - typeson-registry@13.0.1
+  - typeson@10.1.1
 
 onlyBuiltDependencies:
   - cypress
