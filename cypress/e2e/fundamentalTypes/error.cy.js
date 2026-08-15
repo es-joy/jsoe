@@ -84,12 +84,12 @@ describe('error spec', () => {
 
     cy.get('button#logValue').click();
     const err = /**
-    * @type {Error & {
-    *   columnNumber: undefined,
-    *   lineNumber: undefined,
-    *   fileName: string
-    * }}
-    */ (new Error('message1'));
+                 * @type {Error & {
+                 *   columnNumber: undefined,
+                 *   lineNumber: undefined,
+                 *   fileName: string
+                 * }}
+                 */ (new Error('message1'));
     err.columnNumber = undefined;
     err.lineNumber = undefined;
     err.fileName = ''; // Why defaulting to string?
@@ -213,13 +213,13 @@ describe('error spec', () => {
   it('gets value', function () {
     cy.clearTypeAndBlur('#getValueForString', 'Error({{}"message": "abc1"})');
     const err = /**
-     * @type {Error & {
-     *   cause: undefined,
-     *   columnNumber: undefined,
-     *   fileName: undefined,
-     *   lineNumber: undefined
-     * }}
-     */ (new Error('abc1'));
+                 * @type {Error & {
+                 *   cause: undefined,
+                 *   columnNumber: undefined,
+                 *   fileName: undefined,
+                 *   lineNumber: undefined
+                 * }}
+                 */ (new Error('abc1'));
     err.stack = '';
     err.cause = undefined;
     err.columnNumber = undefined;

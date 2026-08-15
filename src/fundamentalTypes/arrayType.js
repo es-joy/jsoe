@@ -749,14 +749,14 @@ const arrayType = {
       } else {
         const swapCountElem = /** @type {HTMLInputElement & {$parseInt: ParseInt}} */
           (/**
-           * @type {HTMLFieldSetElement & {$getPropertyInput: GetPropertyInput}}
-           */ (
+            * @type {HTMLFieldSetElement & {$getPropertyInput: GetPropertyInput}}
+            */ (
               group
             ).$getPropertyInput());
         const baseCountElem = /** @type {HTMLInputElement & {$parseInt: ParseInt}} */
           (/**
-           * @type {HTMLFieldSetElement & {$getPropertyInput: GetPropertyInput}}
-           */ (
+            * @type {HTMLFieldSetElement & {$getPropertyInput: GetPropertyInput}}
+            */ (
               swapGroup
             ).$getPropertyInput());
         if (typeof swapCountElem.$parseInt() === 'number' ||
@@ -1197,17 +1197,17 @@ const arrayType = {
               $resort (cfg) {
                 const {alwaysFocus} = cfg;
                 const inputs = /**
-                * @type {(HTMLInputElement & {
-                *   $parseInt: ParseInt
-                * })[]}
-                */
+                                * @type {(HTMLInputElement & {
+                                *   $parseInt: ParseInt
+                                * })[]}
+                                */
                   (/**
-                  * @type {HTMLInputElement & {
-                  *   $arrayItems: HTMLDivElement & {
-                  *     $getPropertyInputs: GetPropertyInputs
-                  *   }
-                  * }}
-                  */ (
+                    * @type {HTMLInputElement & {
+                    *   $arrayItems: HTMLDivElement & {
+                    *     $getPropertyInputs: GetPropertyInputs
+                    *   }
+                    * }}
+                    */ (
                       this
                     ).$arrayItems.$getPropertyInputs());
                 if (inputs.length === 1) {
@@ -1976,13 +1976,13 @@ const arrayType = {
            */
           $getArrayItems () {
             const prevSibling = /**
-             * @type {HTMLDivElement & {
-             *   $inputsExceedingLength: InputsExceedingLength,
-             *   $getPropertyInputs: GetPropertyInputs,
-             *   $redrawMoveArrows: RedrawMoveArrows,
-             *   $getMapKeySelects: GetMapKeySelects
-             * }}
-             */ (this.previousElementSibling);
+                                 * @type {HTMLDivElement & {
+                                 *   $inputsExceedingLength: InputsExceedingLength,
+                                 *   $getPropertyInputs: GetPropertyInputs,
+                                 *   $redrawMoveArrows: RedrawMoveArrows,
+                                 *   $getMapKeySelects: GetMapKeySelects
+                                 * }}
+                                 */ (this.previousElementSibling);
             return prevSibling;
           }
         },
@@ -2275,12 +2275,12 @@ const arrayType = {
                   });
                   const arrayItems = this.$getArrayItems();
                   const keyTypeChoices = /**
-                  * @type {HTMLSelectElement & {
-                  *   $setType: import('../typeChoices.js').SetType,
-                  *   $getTypeRoot: import('../formatAndTypeChoices.js').
-                  *     TypeRootGetter
-                  * }}
-                  */ (DOM.filterChildElements(
+                                          * @type {HTMLSelectElement & {
+                                          *   $setType: import('../typeChoices.js').SetType,
+                                          *   $getTypeRoot: import('../formatAndTypeChoices.js').
+                                          *     TypeRootGetter
+                                          * }}
+                                          */ (DOM.filterChildElements(
                       arrayItems,
                       [
                         'fieldset:last-of-type', 'legend',

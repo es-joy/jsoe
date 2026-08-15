@@ -74,8 +74,8 @@ const getMinMaxForTypedArray = (typedArray) => {
 /**
  * @typedef {Int8Array|Uint8Array|Uint8ClampedArray|
  *   Int16Array|Uint16Array|Int32Array|Uint32Array|
-*   Float32Array|Float64Array|BigInt64Array|
-*   BigUint64Array} TypedArrayInstance
+ *   Float32Array|Float64Array|BigInt64Array|
+ *   BigUint64Array} TypedArrayInstance
  */
 
 /**
@@ -436,10 +436,10 @@ const buffersourceType = {
           /** @type {BuildInstances} */
           $buildInstances () {
             const that = /**
-            * @type {HTMLFieldSetElement & {
-            *   $buildInstances: BuildInstances
-            * }}
-            */ (this);
+                          * @type {HTMLFieldSetElement & {
+                          *   $buildInstances: BuildInstances
+                          * }}
+                          */ (this);
             const ancestor = /** @type {HTMLDivElement} */ (that.parentElement);
             const {value} = /** @type {HTMLInputElement} */ ($e(
               that, `[name=${typeNamespace}-buffersource-returnType-${idx}]` +
@@ -832,10 +832,10 @@ const buffersourceType = {
                 /** @type {CheckDataViewByteLength} */
                 $checkDataViewByteLength (e) {
                   const that = /**
-                  * @type {HTMLInputElement & {
-                  *   $checkDataViewByteLength: CheckDataViewByteLength
-                  * }}
-                  */ (
+                                * @type {HTMLInputElement & {
+                                *   $checkDataViewByteLength: CheckDataViewByteLength
+                                * }}
+                                */ (
                       this
                     );
                   const greatGrandparent = /** @type {HTMLElement} */
@@ -933,10 +933,10 @@ const buffersourceType = {
                 /** @type {CheckByteOffsetMultiple} */
                 $checkByteOffsetMultiple (e) {
                   const that = /**
-                  * @type {HTMLInputElement & {
-                  *   $checkByteOffsetMultiple: CheckByteOffsetMultiple
-                  * }}
-                  */ (this);
+                                * @type {HTMLInputElement & {
+                                *   $checkByteOffsetMultiple: CheckByteOffsetMultiple
+                                * }}
+                                */ (this);
                   const ancestor = /** @type {HTMLElement} */ (
                     that.
                       parentElement?.parentElement?.parentElement?.parentElement
@@ -1043,11 +1043,11 @@ const buffersourceType = {
             /** @type {CheckTypedArrayByteLength} */
             $checkTypedArrayByteLength (e) {
               const that = /**
-              * @type {HTMLSelectElement & {
-              *   $setMinsAndMaxes: SetMinsAndMaxes,
-              *   $checkTypedArrayByteLength: CheckTypedArrayByteLength
-              * }}
-              */ (this);
+                            * @type {HTMLSelectElement & {
+                            *   $setMinsAndMaxes: SetMinsAndMaxes,
+                            *   $checkTypedArrayByteLength: CheckTypedArrayByteLength
+                            * }}
+                            */ (this);
               const TypedArray = getTypedArray(
                 /** @type {TypedArray} */ (that.value)
               );
@@ -1078,11 +1078,11 @@ const buffersourceType = {
             change (e) {
               const that =
                 /**
-                * @type {HTMLSelectElement & {
-                *   $setMinsAndMaxes: SetMinsAndMaxes,
-                *   $checkTypedArrayByteLength: CheckTypedArrayByteLength
-                * }}
-                */ (
+                 * @type {HTMLSelectElement & {
+                 *   $setMinsAndMaxes: SetMinsAndMaxes,
+                 *   $checkTypedArrayByteLength: CheckTypedArrayByteLength
+                 * }}
+                 */ (
                   this
                 );
 
@@ -1158,11 +1158,11 @@ const buffersourceType = {
               /** @type {CheckBufferBounds} */
               $checkBufferBounds (e) {
                 const that = /**
-                * @type {HTMLInputElement & {
-                *   $checkBufferBounds: CheckBufferBounds,
-                *   $buildTypedArray: BuildTypedArray
-                * }}
-                */ (this);
+                              * @type {HTMLInputElement & {
+                              *   $checkBufferBounds: CheckBufferBounds,
+                              *   $buildTypedArray: BuildTypedArray
+                              * }}
+                              */ (this);
 
                 const ancestor = /** @type {HTMLElement} */ (
                   that.parentElement?.parentElement?.parentElement
@@ -1225,11 +1225,11 @@ const buffersourceType = {
               /** @type {BuildTypedArray} */
               $buildTypedArray () {
                 const that = /**
-                * @type {HTMLInputElement & {
-                *   $checkBufferBounds: CheckBufferBounds,
-                *   $buildTypedArray: BuildTypedArray
-                * }}
-                */ (this);
+                              * @type {HTMLInputElement & {
+                              *   $checkBufferBounds: CheckBufferBounds,
+                              *   $buildTypedArray: BuildTypedArray
+                              * }}
+                              */ (this);
                 const length = toInteger(that.value);
                 const grandparent = /** @type {HTMLElement} */ (
                   that.parentElement?.parentElement

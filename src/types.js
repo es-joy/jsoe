@@ -154,26 +154,26 @@ export const getPropertyValueFromLegend = (legend) => {
  */
 
 /**
-* @typedef {{
-*   typeNamespace?: string,
-*   readonly?: boolean,
-*   format?: import('./formats.js').AvailableFormat,
-*   formats?: import('./formats.js').default,
-*   types?: Types,
-*   error?: Error,
-*   rootUI?: HTMLElement,
-*   schema?: string,
-*   schemaParent?: import('./formats/schema.js').ZodexSchema,
-*   schemaContent?: import('./formats/schema.js').ZodexSchema,
-*   specificSchema?: import('./formats/schema.js').ZodexSchema,
-*   specificSchemas?: import('./formats/schema.js').ZodexSchema[],
-*   paths?: {[currentPath: string]: {
-*     referentPath: string,
-*     expectArrayReferent: boolean
-*   }},
-*   handlingReference?: boolean
-* }} StateObject
-*/
+ * @typedef {{
+ *   typeNamespace?: string,
+ *   readonly?: boolean,
+ *   format?: import('./formats.js').AvailableFormat,
+ *   formats?: import('./formats.js').default,
+ *   types?: Types,
+ *   error?: Error,
+ *   rootUI?: HTMLElement,
+ *   schema?: string,
+ *   schemaParent?: import('./formats/schema.js').ZodexSchema,
+ *   schemaContent?: import('./formats/schema.js').ZodexSchema,
+ *   specificSchema?: import('./formats/schema.js').ZodexSchema,
+ *   specificSchemas?: import('./formats/schema.js').ZodexSchema[],
+ *   paths?: {[currentPath: string]: {
+ *     referentPath: string,
+ *     expectArrayReferent: boolean
+ *   }},
+ *   handlingReference?: boolean
+ * }} StateObject
+ */
 
 /**
  * @typedef {(cfg: {
@@ -242,12 +242,12 @@ export const getPropertyValueFromLegend = (legend) => {
  *   schemaObject?: import('./formatAndTypeChoices.js').ZodexSchema|undefined
  *   schemaOriginal?: import('./formatAndTypeChoices.js').ZodexSchema|undefined
  * }) => [
-*   value: StructuredCloneValue,
-*   remnant: string,
-*   beginOnly: boolean,
-*   assign: boolean
-* ]} GetValueForString
-*/
+ *   value: StructuredCloneValue,
+ *   remnant: string,
+ *   beginOnly: boolean,
+ *   assign: boolean
+ * ]} GetValueForString
+ */
 
 /**
  * @typedef {(
@@ -430,9 +430,9 @@ export const getPropertyValueFromLegend = (legend) => {
 
 /**
  * @typedef {TypeObject & {
-*   childTypes: string[]
-* }} SuperTypeObject
-*/
+ *   childTypes: string[]
+ * }} SuperTypeObject
+ */
 
 /**
  *

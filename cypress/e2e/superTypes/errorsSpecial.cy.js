@@ -114,12 +114,12 @@ describe('Special Errors spec', () => {
 
     cy.get('button#logValue').click();
     const err = /**
-    * @type {TypeError & {
-    *   columnNumber: undefined,
-    *   lineNumber: undefined,
-    *   fileName: string
-    * }}
-    */ (new TypeError('message1'));
+                 * @type {TypeError & {
+                 *   columnNumber: undefined,
+                 *   lineNumber: undefined,
+                 *   fileName: string
+                 * }}
+                 */ (new TypeError('message1'));
     err.columnNumber = undefined;
     err.lineNumber = undefined;
     err.fileName = ''; // Why defaulting to string?
@@ -158,12 +158,12 @@ describe('Special Errors spec', () => {
     cy.get('button#logValue').click();
     const aggErr = new TypeError('message1');
     const err = /**
-    * @type {AggregateError & {
-    *   columnNumber: undefined,
-    *   lineNumber: undefined,
-    *   fileName: string
-    * }}
-    */ (new AggregateError([aggErr], 'agg msg1'));
+                 * @type {AggregateError & {
+                 *   columnNumber: undefined,
+                 *   lineNumber: undefined,
+                 *   fileName: string
+                 * }}
+                 */ (new AggregateError([aggErr], 'agg msg1'));
     err.columnNumber = undefined;
     err.lineNumber = undefined;
     err.fileName = ''; // Why defaulting to string?
@@ -202,12 +202,12 @@ describe('Special Errors spec', () => {
     const aggErr = new TypeError('message1');
     /* eslint-disable unicorn/error-message -- Testing */
     const err = /**
-    * @type {AggregateError & {
-    *   columnNumber: undefined,
-    *   lineNumber: undefined,
-    *   fileName: string
-    * }}
-    */ (new AggregateError([aggErr]));
+                 * @type {AggregateError & {
+                 *   columnNumber: undefined,
+                 *   lineNumber: undefined,
+                 *   fileName: string
+                 * }}
+                 */ (new AggregateError([aggErr]));
     /* eslint-enable unicorn/error-message -- Testing */
     // @ts-expect-error -- Testing
     err.message = undefined; // Have to force at least in Chrome
@@ -411,13 +411,13 @@ describe('Special Errors spec', () => {
       '#getValueForString', 'TypeError({{}"message": "abc1"})'
     );
     const err = /**
-     * @type {TypeError & {
-     *   cause: undefined,
-     *   columnNumber: undefined,
-     *   fileName: undefined,
-     *   lineNumber: undefined
-     * }}
-     */ (new TypeError('abc1'));
+                 * @type {TypeError & {
+                 *   cause: undefined,
+                 *   columnNumber: undefined,
+                 *   fileName: undefined,
+                 *   lineNumber: undefined
+                 * }}
+                 */ (new TypeError('abc1'));
     err.stack = '';
     err.cause = undefined;
     err.columnNumber = undefined;

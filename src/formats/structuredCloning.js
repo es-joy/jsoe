@@ -225,9 +225,9 @@ const encapsulateObserver = (stateObj) => {
         replaced
       });
       parents[''] = /**
-      * @type {HTMLElement &
-      *   {$addAndSetArrayElement: AddAndSetArrayElement}}
-      */ (stateObj.rootUI);
+                     * @type {HTMLElement &
+                     *   {$addAndSetArrayElement: AddAndSetArrayElement}}
+                     */ (stateObj.rootUI);
 
       if (schema) {
         schemaParents[''] = [schema, schemaIdx];
@@ -239,9 +239,9 @@ const encapsulateObserver = (stateObj) => {
       if (mapType) {
         /** @type {Map<any, any>} */ [...value].forEach((_, i) => {
           parents[i] = /**
-          * @type {HTMLElement &
-          *   {$addAndSetArrayElement: AddAndSetArrayElement}}
-          */ (stateObj.rootUI);
+                        * @type {HTMLElement &
+                        *   {$addAndSetArrayElement: AddAndSetArrayElement}}
+                        */ (stateObj.rootUI);
         });
       }
       return;
@@ -320,9 +320,9 @@ const encapsulateObserver = (stateObj) => {
 
       if (hasChildren) {
         parents[keypath] = /**
-          * @type {HTMLElement &
-          *   {$addAndSetArrayElement: AddAndSetArrayElement}}
-          */ (
+                            * @type {HTMLElement &
+                            *   {$addAndSetArrayElement: AddAndSetArrayElement}}
+                            */ (
             root
           );
 
@@ -332,9 +332,9 @@ const encapsulateObserver = (stateObj) => {
         if (mapType) {
           /** @type {Map<any, any>} */ [...value].forEach((_, i) => {
             parents[`${keypath}.${i}`] = /**
-            * @type {HTMLElement &
-            *   {$addAndSetArrayElement: AddAndSetArrayElement}}
-            */ (root);
+                                          * @type {HTMLElement &
+                                          *   {$addAndSetArrayElement: AddAndSetArrayElement}}
+                                          */ (root);
           });
         }
       }

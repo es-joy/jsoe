@@ -48,9 +48,9 @@ const indexedDBKey = {
 
 /**
  * @type {Map<import('../types.js').AvailableArbitraryType,
-*   import('../types.js').AvailableType>
-* }
-*/
+ *   import('../types.js').AvailableType>
+ * }
+ */
 const typesonToIndexedDBKey = new Map([
   // This shouldn't occur as it is a preset
   ['SpecialNumber', 'SpecialRealNumber'],

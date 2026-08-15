@@ -13,9 +13,9 @@ import {copyObject} from '../utils/objects.js';
 
 /**
  * @typedef {ValueOf<
-*   Pick<import('zodexy').SzType, "type">
-* >} AvailableZodexType
-*/
+ *   Pick<import('zodexy').SzType, "type">
+ * >} AvailableZodexType
+ */
 
 /**
  * @type {Map<

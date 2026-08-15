@@ -743,10 +743,10 @@ const errorsSpecialType = {
                 click.call(/** @type {HTMLInputElement} */ (this), e);
                 const that =
                   /**
-                  * @type {HTMLInputElement & {
-                  *   $populateContents: (errs: unknown[]) => void
-                  * }}
-                  */
+                   * @type {HTMLInputElement & {
+                   *   $populateContents: (errs: unknown[]) => void
+                   * }}
+                   */
                   (this);
                 if (value.errors) {
                   (that).$populateContents(value.errors);

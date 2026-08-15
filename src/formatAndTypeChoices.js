@@ -222,10 +222,10 @@ export async function formatAndTypeChoices ({
     $on: {
       async change () {
         await /**
-         * @type {HTMLSelectElement & {
-         *   $buildTypeChoices: TypeChoiceBuilder
-         * }}
-         */ (
+               * @type {HTMLSelectElement & {
+               *   $buildTypeChoices: TypeChoiceBuilder
+               * }}
+               */ (
           this
         ).$buildTypeChoices();
       }
