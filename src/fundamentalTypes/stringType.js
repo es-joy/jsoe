@@ -1,9 +1,7 @@
-import {core} from 'zod';
+import {regexes} from 'zod';
 import {$e} from '../utils/templateUtils.js';
 
-const datetimeRegex = core.regexes.datetime({
-  precision: 456
-});
+const datetimeRegex = regexes.datetime;
 
 // Adapted from Zod: https://github.com/colinhacks/zod/blob/9257ab78eec366c04331a3c2d59deb344a02d9f6/src/types.ts
 const ipv4Regex =

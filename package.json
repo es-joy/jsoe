@@ -32,7 +32,7 @@
     "copy-index": "echo \"Copy our index.html file too? \"",
     "copy-jamilih": "cp node_modules/jamilih/dist/jml.mjs vendor/jamilih/dist/jml.mjs",
     "copy-typeson-registry": "cp node_modules/typeson-registry/dist/index.js vendor/typeson-registry/dist/index.js",
-    "copy-zod": "cp -R node_modules/zod/v3 vendor/zod && rimraf -g vendor/zod/v3/**/*.cjs && rimraf -g vendor/zod/v3/**/*.cts && rimraf -g vendor/zod/v3/*.cjs && rimraf -g vendor/zod/v3/*.cts",
+    "copy-zod": "rimraf vendor/zod && cp -R node_modules/zod/v4 vendor/zod && rimraf -g vendor/zod/**/*.cjs && rimraf -g vendor/zod/**/*.cts && rimraf -g vendor/zod/*.cjs && rimraf -g vendor/zod/*.cts",
     "copy-zodexy": "cp -R node_modules/zodexy/dist/esm vendor/zodexy/dist && cp node_modules/zodexy/dist/schema.zodexy.json vendor/zodexy/dist/schema.zodexy.json",
     "copy-acorn": "cp -R node_modules/acorn/dist vendor/acorn",
     "copy-mime": "mkdir -p vendor/mime/dist/types && cp node_modules/mime/dist/types/standard.js vendor/mime/dist/types/standard.js && cp node_modules/mime/dist/types/other.js vendor/mime/dist/types/other.js",
