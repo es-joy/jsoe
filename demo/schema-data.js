@@ -194,168 +194,78 @@ const schemaInstanceJSON2 = {
     },
     {
       description: 'A RegExp',
-      type: 'effect',
-      effects: [
-        {
-          name: 'regexp',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'regexp'}]
     },
     {
       description: 'A Blob',
-      type: 'effect',
-      effects: [
-        {
-          name: 'blob',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'blob'}]
     },
     {
       description: 'A Boolean object',
-      type: 'effect',
-      effects: [
-        {
-          name: 'BooleanObject',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'BooleanObject'}]
     },
     {
       description: 'A Number object',
-      type: 'effect',
-      effects: [
-        {
-          name: 'NumberObject',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'NumberObject'}]
     },
     {
       description: 'A String object',
-      type: 'effect',
-      effects: [
-        {
-          name: 'StringObject',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'StringObject'}]
     },
     {
       description: 'A special real number',
-      type: 'effect',
-      effects: [
-        {
-          name: 'SpecialRealNumber',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'SpecialRealNumber'}]
     },
     {
       description: 'A DOMException',
-      type: 'effect',
-      effects: [
-        {
-          name: 'domexception',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'domexception'}]
     },
     {
       description: 'An Error',
-      type: 'effect',
-      effects: [
-        {
-          name: 'error',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'error'}]
     },
     {
       description: 'A File',
-      type: 'effect',
-      effects: [
-        {
-          name: 'file',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'file'}]
     },
     {
       description: 'A BufferSource',
-      type: 'effect',
-      effects: [
-        {
-          name: 'buffersource',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'buffersource'}]
     },
     {
       description: 'A DOMMatrix',
-      type: 'effect',
-      effects: [
-        {
-          name: 'dommatrix',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'dommatrix'}]
     },
     {
       description: 'A DOMPoint',
-      type: 'effect',
-      effects: [
-        {
-          name: 'dompoint',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'dompoint'}]
     },
     {
       description: 'A DOMRect',
-      type: 'effect',
-      effects: [
-        {
-          name: 'domrect',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'domrect'}]
     },
     {
       description: 'A special error',
-      type: 'effect',
-      effects: [
-        {
-          name: 'errors',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'errors'}]
     },
     {
       description: 'A BigInt object',
-      type: 'effect',
-      effects: [
-        {
-          name: 'bigintObject',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'bigintObject'}]
     }
   ]
 };
@@ -373,25 +283,13 @@ const schemaInstanceJSON3 = {
     },
     {
       description: 'An HTML Blob',
-      type: 'effect',
-      effects: [
-        {
-          name: 'blobHTML',
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'blobHTML'}]
     },
     {
       description: 'A Non-editable',
-      type: 'effect',
-      effects: [
-        {
-          name: 'resurrectable', // noneditable
-          type: 'refinement'
-        }
-      ],
-      inner: {type: 'any'}
+      type: 'any',
+      checks: [{name: 'resurrectable'}] // noneditable
     }
   ]
 };
@@ -501,24 +399,8 @@ const schemaInstanceJSON7 = {
     },
     {
       description: 'A FileList',
-      type: 'effect',
-      effects: [
-        {
-          name: 'filelist',
-          type: 'refinement'
-        }
-      ],
-      inner: {
-        type: 'effect',
-        description: 'A File',
-        effects: [
-          {
-            name: 'file',
-            type: 'refinement'
-          }
-        ],
-        inner: {type: 'any'}
-      }
+      type: 'any',
+      checks: [{name: 'filelist'}, {name: 'file'}]
     },
     // `never` could technically be in the following, too, but probably
     //    not meaningful:

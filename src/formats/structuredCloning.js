@@ -175,7 +175,7 @@ const encapsulateObserver = (stateObj) => {
         // console.log('VVVV2',
         //   JSON.stringify(stateObj.schemaContent, null, 2));
       } catch (err) {
-        console.log('err', type, err);
+        console.log('err', type, err, value);
         stateObj.error = /** @type {Error} */ (err);
         return;
       }

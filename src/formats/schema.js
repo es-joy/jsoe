@@ -59,6 +59,39 @@ const zodexToStructuredCloningTypeMap = new Map([
 ]);
 
 /**
+ * @param {ZodexSchema} schemaObject
+ * @returns {import('../types.js').AvailableType|undefined}
+ */
+function getCheckedType (schemaObject) {
+  return /** @type {import('../types.js').AvailableType|undefined} */ (
+    schemaObject.checks?.[0]?.name
+  );
+}
+
+/**
+ * @param {InstanceType<typeof import('../types.js').default>} types
+ * @returns {NonNullable<
+ *   import('zodexy').DezerializerOptions['checks']
+ * >}
+ */
+function getChecks (types) {
+  return Object.fromEntries(Object.entries(types.availableTypes).map(([
+    name, typeObject
+  ]) => {
+    return [name, (payload) => {
+      if (!Array.isArray(typeObject) && typeObject.valueMatch &&
+          !typeObject.valueMatch(payload.value)) {
+        payload.issues.push({
+          code: 'custom',
+          input: payload.value,
+          message: `Value does not match ${name}`
+        });
+      }
+    }];
+  }));
+}
+
+/**
  * @typedef {import('zodexy').SzType} ZodexSchema
  */
 /**
@@ -208,6 +241,9 @@ function addModifiers (schemaObject, set) {
  */
 export function getTypesForSchema (schemaObject, originalJSON) {
   for (;;) {
+    if (getCheckedType(schemaObject)) {
+      return new Set([schemaObject]);
+    }
     switch (schemaObject.type) {
     case 'never':
       return new Set();
@@ -247,6 +283,10 @@ export function getTypesForSchema (schemaObject, originalJSON) {
       const right = getTypesForSchema(schemaObject.right, originalJSON);
 
       const set = flattenIntersection(left, right);
+      addModifiers(schemaObject, set);
+      return new Set(set);
+    } case 'pipe': {
+      const set = [...getTypesForSchema(schemaObject.inner, originalJSON)];
       addModifiers(schemaObject, set);
       return new Set(set);
     } case 'any': case 'unknown':
@@ -646,31 +686,15 @@ const schema = {
     // );
     // console.log('schemaObjects', schemaObjects);
     for (const [schemaIdx, schema] of schemaObjects.entries()) {
-      let unknownKeys;
-      if (schema.type === 'object') {
-        ({unknownKeys} = schema);
-        // We don't want to eagerly match, e.g., if there are other objects
-        //  which include the optional properties; this could cause a problem,
-        //  however, if the tested object has extra non-standard properties
-        schema.unknownKeys = 'strict';
-      }
       const dezSchema = dezerialize(schema, {
+        checks: getChecks(types),
         originalShape: stateObj.schemaContent
       });
       const parsed = dezSchema.safeParse(v);
-
-      if (schema.type === 'object') {
-        schema.unknownKeys = unknownKeys;
-      }
       // console.log('parsed', parsed.success, v, schema);
       if (parsed.success) {
-        const type = zodexToStructuredCloningTypeMap.get(schema.type);
-
-        if (!type && schema.type === 'effect') {
-          type = /** @type {import('../types.js').AvailableType} */ (
-            schema.effects[0].name
-          );
-        }
+        const type = getCheckedType(schema) ??
+          zodexToStructuredCloningTypeMap.get(schema.type);
 
         const typeObject =
           /** @type {Required<import('../types.js').TypeObject>} */ (
@@ -737,24 +761,12 @@ const schema = {
     // Todo: implement schema restrictions like tuple on array, record on object
     // Todo: Fix `iterate` for schemas (e.g., inject a value method in demo)
 
-    /** @type {AvailableZodexType[]} */
-    const typeArray = schemaObjects.map(({type}) => {
-      return type;
-    });
-
     return {
       schemaObjects,
-      types: typeArray.map((item /* , idx */) => {
-        // Todo: Replace
-        // if (item === 'effect') {
-        //   return /** @type {import('../types.js').AvailableType} */ (
-        //     /** @type {import('zodexy').SzEffect} */ (
-        //       schemaObjects[idx]
-        //     ).effects[0].name
-        //   );
-        // }
-        return /** @type {import('../types.js').AvailableType} */ (
-          zodexToStructuredCloningTypeMap.get(item)
+      types: schemaObjects.map((schemaItem) => {
+        return getCheckedType(schemaItem) ??
+        /** @type {import('../types.js').AvailableType} */ (
+          zodexToStructuredCloningTypeMap.get(schemaItem.type)
         );
       })
     };
