@@ -431,6 +431,34 @@ var dezerializers = {
     }
     return z.transform(opts.transforms[shape.name]);
   },
+  codec: (shape, opts) => {
+    const codec = opts.codecs?.[shape.name];
+    if (!codec) {
+      throw new Error(
+        "Must supply a codec for the given codec name, " + shape.name
+      );
+    }
+    return z.codec(
+      d(shape.input, {
+        ...opts,
+        path: opts.path + "/input"
+      }),
+      d(shape.output, {
+        ...opts,
+        path: opts.path + "/output"
+      }),
+      codec
+    );
+  },
+  instanceof: (shape, opts) => {
+    const Constructor = opts.instances?.[shape.name];
+    if (!Constructor) {
+      throw new Error(
+        "Must supply an instance constructor for the given name, " + shape.name
+      );
+    }
+    return z.instanceof(Constructor);
+  },
   pipe: (shape, opts) => {
     const base = checkRef(shape.inner, opts) || d(shape.inner, {
       ...opts,
@@ -1010,6 +1038,27 @@ var zerializers = {
     };
   },
   pipe: (def, opts) => {
+    if (def.transform && def.reverseTransform) {
+      const name = Object.entries(opts.codecs ?? {}).find(
+        ([, codec]) => codec.decode === def.transform && codec.encode === def.reverseTransform
+      )?.[0];
+      if (!name) {
+        throw new Error("Codec must be registered before it can be serialized");
+      }
+      return {
+        type: "codec",
+        name,
+        ...getCustomChecksAndErrors(def, opts),
+        input: s(def.in, {
+          ...opts,
+          currentPath: [...opts.currentPath, "input"]
+        }),
+        output: s(def.out, {
+          ...opts,
+          currentPath: [...opts.currentPath, "output"]
+        })
+      };
+    }
     if (!("transforms" in opts)) {
       return s(def.out, opts);
     }
@@ -1041,7 +1090,22 @@ var zerializers = {
   readonly: (def, opts) => ({
     ...s(def.innerType, opts, true),
     readonly: true
-  })
+  }),
+  custom: (_def, opts, schema) => {
+    const Constructor = schema._zod.bag.Class;
+    if (!Constructor) {
+      throw new Error("Only instanceof custom schemas can be serialized");
+    }
+    const name = Object.entries(opts.instances ?? {}).find(
+      ([, instance]) => instance === Constructor
+    )?.[0];
+    if (!name) {
+      throw new Error(
+        "Instance constructor must be registered before it can be serialized"
+      );
+    }
+    return { type: "instanceof", name };
+  }
 };
 function zerializeRefs(schema, opts, wrapReferences) {
   if (opts.seenObjects.has(schema)) {
@@ -1058,7 +1122,11 @@ function zerializeRefs(schema, opts, wrapReferences) {
   } = schema;
   const objectPath = "#" + (opts.currentPath.length ? "/" + opts.currentPath.join("/") : "");
   opts.seenObjects.set(schema, objectPath);
-  const zer = zerializers[def.type](def, opts);
+  const zer = zerializers[def.type](
+    def,
+    opts,
+    schema
+  );
   if (typeof schema.description === "string") {
     zer.description = schema.description;
   }

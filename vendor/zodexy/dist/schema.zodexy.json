@@ -840,6 +840,38 @@
             }
           },
           {
+            "description": "Named bidirectional codec",
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "literal",
+                "values": ["codec"]
+              },
+              "name": {
+                "type": "string"
+              },
+              "input": {
+                "$ref": "#/$defs/reference-or-type"
+              },
+              "output": {
+                "$ref": "#/$defs/reference-or-type"
+              }
+            }
+          },
+          {
+            "description": "Instance of a registered constructor",
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "literal",
+                "values": ["instanceof"]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          {
             "description": "Catch",
             "type": "object",
             "properties": {
