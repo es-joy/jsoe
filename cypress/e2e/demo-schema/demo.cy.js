@@ -131,12 +131,16 @@ describe('`getTypesForSchema`', function () {
       left: {
         type: 'object',
         properties: {},
-        unknownKeys: 'passthrough'
+        catchall: {
+          type: 'unknown'
+        }
       },
       right: {
         type: 'object',
         properties: {},
-        unknownKeys: 'strict'
+        catchall: {
+          type: 'never'
+        }
       }
     });
 
@@ -183,14 +187,18 @@ describe('`getTypesForSchema`', function () {
       right: {
         type: 'object',
         properties: {},
-        unknownKeys: 'strict'
+        catchall: {
+          type: 'never'
+        }
       }
     });
 
     expect([...getTypesForSchema(schema, schema)]).to.deep.equal([{
       type: 'object',
       properties: {},
-      unknownKeys: 'strict'
+      catchall: {
+        type: 'never'
+      }
     }]);
   });
 
@@ -237,7 +245,9 @@ describe('`getTypesForSchema`', function () {
           {
             type: 'object',
             properties: {},
-            unknownKeys: 'strict'
+            catchall: {
+              type: 'never'
+            }
           }
         ]
       });
@@ -250,7 +260,9 @@ describe('`getTypesForSchema`', function () {
     }, {
       type: 'object',
       properties: {},
-      unknownKeys: 'strict',
+      catchall: {
+        type: 'never'
+      },
       $defaultValue: {},
       $unionGroupID: 1
     }]);
@@ -274,7 +286,9 @@ describe('`getTypesForSchema`', function () {
           {
             type: 'object',
             properties: {},
-            unknownKeys: 'strict'
+            catchall: {
+              type: 'never'
+            }
           }
         ]
       });
@@ -286,7 +300,9 @@ describe('`getTypesForSchema`', function () {
     }, {
       type: 'object',
       properties: {},
-      unknownKeys: 'strict',
+      catchall: {
+        type: 'never'
+      },
       $readonlyParent: true
     }]);
   });
@@ -310,7 +326,9 @@ describe('`getTypesForSchema`', function () {
           {
             type: 'object',
             properties: {},
-            unknownKeys: 'strict'
+            catchall: {
+              type: 'never'
+            }
           }
         ]
       });
@@ -322,7 +340,9 @@ describe('`getTypesForSchema`', function () {
     }, {
       type: 'object',
       properties: {},
-      unknownKeys: 'strict',
+      catchall: {
+        type: 'never'
+      },
       description: 'Union'
     }]);
   });
@@ -403,7 +423,9 @@ describe('`getTypesForSchema`', function () {
           {
             type: 'object',
             properties: {},
-            unknownKeys: 'strict'
+            catchall: {
+              type: 'never'
+            }
           }
         ]
       });
@@ -414,7 +436,9 @@ describe('`getTypesForSchema`', function () {
     }, {
       type: 'object',
       properties: {},
-      unknownKeys: 'strict'
+      catchall: {
+        type: 'never'
+      }
     }, {
       type: 'null'
     }]);

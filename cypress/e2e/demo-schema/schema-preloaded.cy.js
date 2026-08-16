@@ -187,13 +187,13 @@
         ).should('not.exist');
       });
 
-      it('Selects object with unknown keys strict', function () {
+      it('Selects object with never catchall', function () {
         const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(10) ' +
           arraySels;
         cy.get(
           sel + '[data-type="object"] span'
         ).should(($span) => {
-          expect($span.attr('title')).to.equal('With unknown keys strict');
+          expect($span.attr('title')).to.equal('With never catchall');
         });
 
         cy.get(

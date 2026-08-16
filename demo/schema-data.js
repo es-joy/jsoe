@@ -99,9 +99,11 @@ const schemaInstanceJSON2 = {
       }
     },
     {
-      description: 'With unknown keys strict',
+      description: 'With never catchall',
       type: 'object',
-      unknownKeys: 'strict',
+      catchall: {
+        type: 'never'
+      },
       properties: {
         okProperty: {
           description: 'OK property',

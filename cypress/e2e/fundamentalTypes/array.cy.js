@@ -1668,12 +1668,12 @@ describe('Object spec (schema)', function () {
   );
 
   it(
-    'Generates UI for object with unknown keys strict',
+    'Generates UI for object with never catchall',
     function () {
       cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-        'Object (With unknown keys strict)'
+        'Object (With never catchall)'
       );
 
       cy.get(sel + 'button.addArrayElement').click();

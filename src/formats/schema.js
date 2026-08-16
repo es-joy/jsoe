@@ -125,7 +125,7 @@ function mergeSchema (leftItem, rightItem) {
             ? existingDescription + ' and ' + val
             : val;
         }
-      } else { // catchall, unknownKeys
+      } else { // catchall
         if (Object.hasOwn(newLeftObj, prop)) {
           throw new Error(
             'Duplicate property ' + prop + ' of value ' +
@@ -334,7 +334,9 @@ export function getTypesForSchema (schemaObject, originalJSON) {
         {
           type: 'object',
           properties: {},
-          unknownKeys: 'passthrough'
+          catchall: {
+            type: 'unknown'
+          }
         },
 
         // Todo: support these types separately

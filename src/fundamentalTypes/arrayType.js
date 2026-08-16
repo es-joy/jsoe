@@ -1366,7 +1366,7 @@ const arrayType = {
                     !dataListValues.includes(this.value) &&
                     /** @type {import('zodexy').SzObject} */ (
                       specificSchemaObject
-                    ).unknownKeys === 'strict'
+                    ).catchall?.type === 'never'
                   ) {
                     this.setCustomValidity('Bad value');
                     this.reportValidity();
