@@ -1,8 +1,7 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-// @ts-expect-error -- No types
-import codeCoverageTask from '@cypress/code-coverage/task.js';
+import codeCoverageTask from '@cypress/code-coverage/task';
 
 // Reenable to see logs (also in e2e.ts)
 // import cypressTerminalReport from

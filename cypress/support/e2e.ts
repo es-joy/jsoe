@@ -20,8 +20,7 @@ import './commands.js';
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-// @ts-expect-error -- No types
-import '@cypress/code-coverage/support.js';
+import '@cypress/code-coverage/support';
 
 /**
  * ACCESSIBILITY.

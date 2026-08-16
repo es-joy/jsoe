@@ -74,6 +74,9 @@ const encapsulateObserver = (stateObj) => {
   /** @type {string[]} */
   const mapPaths = [];
 
+  /** @type {string[]} */
+  const symbolPaths = [];
+
   return (observerObj) => {
     const {
       type,
@@ -87,6 +90,13 @@ const encapsulateObserver = (stateObj) => {
       endIterateUnsetNumeric,
       clone
     } = observerObj;
+    if (symbolPaths.some((symbolPath) => {
+      return symbolPath === ''
+        ? keypath !== ''
+        : keypath.startsWith(`${symbolPath}.`);
+    })) {
+      return;
+    }
     if ('replaced' in observerObj) {
       return;
     }
@@ -186,6 +196,9 @@ const encapsulateObserver = (stateObj) => {
       // 'sparseArrays',
       'arrayNonindexKeys'
     ].includes(newType);
+    if (type === 'symbol') {
+      symbolPaths.push(keypath);
+    }
 
     // Maps are followed up by arrays which we don't want as such;
     //  we track the paths to avoid reporting these child arrays

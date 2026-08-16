@@ -157,7 +157,7 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
     cy.get('#viewUIResults span[data-type="symbol"]').should('contain', 'abc');
   });
 
-  it('views UI (Symbol - schema)', function () {
+  it('views UI (Symbol - schema check)', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + '.formatChoices').select(
       'Schema: Zodexy arbitrary JS schema'
@@ -169,11 +169,16 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
       'input[name="demo-keypath-not-expected-symbol"]',
       'abc'
     );
-    cy.get(sel + 'input[value="Symbol"]').click();
 
     cy.get('button#viewUI').click();
     cy.get('#viewUIResults span[data-type="symbol"]').should('exist');
     cy.get('#viewUIResults span[data-type="symbol"]').should('contain', 'abc');
+
+    cy.get(sel + 'input[value="Symbol.for"]').click();
+    cy.get('button#viewUI').click();
+    cy.get(
+      '#viewUIResults span[data-type="symbol"] b'
+    ).should('contain', 'Global');
   });
 
   it('gets value (Symbol)', function () {
@@ -192,17 +197,6 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
 
   // For the "Type choices with initial value set" control
   it('gets a value set onload', function () {
-    cy.get(
-      'input[name="demo-type-choices-only-initial-value1-symbol"]'
-    ).should(($input) => {
-      expect(/** @type {HTMLInputElement} */ (
-        $input[0]
-      ).value).to.equal('abcdefg');
-      expect(/** @type {HTMLInputElement} */ (
-        $input[1]
-      ).value).to.equal('abcdefgh');
-    });
-
     cy.get(
       'input[name="demo-type-choices-only-initial-value2-symbol"]'
     ).should(($input) => {

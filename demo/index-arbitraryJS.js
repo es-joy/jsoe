@@ -33,11 +33,8 @@ const schemaInstanceJSONArbitraryJS = {
   options: [
     {
       description: 'A symbol',
-      type: 'symbol'
-    },
-    {
-      description: 'A symbol (global)',
-      type: 'symbol'
+      type: 'any',
+      checks: [{name: 'symbol'}]
     },
     {
       description: 'A Promise',
@@ -50,7 +47,7 @@ const schemaInstanceJSONArbitraryJS = {
     {
       description: 'A function',
       type: 'function',
-      args: {
+      input: {
         type: 'tuple',
         items: [
           {
@@ -61,7 +58,7 @@ const schemaInstanceJSONArbitraryJS = {
           type: 'string'
         }
       },
-      returns: {
+      output: {
         type: 'boolean'
       }
     }
@@ -77,7 +74,7 @@ const schemaInstanceJSONArbitraryJS2 = {
     {
       type: 'function',
       description: 'With never',
-      args: {
+      input: {
         type: 'tuple',
         items: [
           {
@@ -88,7 +85,7 @@ const schemaInstanceJSONArbitraryJS2 = {
           type: 'never'
         }
       },
-      returns: {
+      output: {
         type: 'never'
       }
     }
@@ -244,8 +241,6 @@ jml('section', {role: 'main'}, [
       format: 'arbitraryJS',
       setValue: true,
       value: [
-        Symbol('abcdefg'),
-        Symbol.for('abcdefgh'),
         Promise.resolve('aaa'),
         function (a, b, c) {
           console.log(a, b, c);
@@ -300,7 +295,6 @@ jml('section', {role: 'main'}, [
     ['form', [
       ...getTypeChoices([
         Symbol('abcd'),
-        Symbol.for('abcde'),
         Promise.resolve(135),
         function (a, b, c) {
           console.log(a, b, c);
