@@ -233,15 +233,15 @@ export const buildTypeChoices = ({
       $setStyles () {
         const {value: type} = this;
         this.dataset.type = type; // Used for styling
-        let ancestorEl = /** @type {HTMLElement} */ (this.parentElement);
+        let ancestorEl = this.parentElement;
+        if (!ancestorEl) {
+          return;
+        }
         if (ancestorEl.nodeName.toLowerCase() !== 'fieldset') {
           // Grandparent check added for optional items placeholder
-          ancestorEl = /** @type {HTMLElement} */ (
-            // eslint-disable-next-line unicorn/better-dom-traversing -- More precise
-            /** @type {HTMLElement} */ (this.parentElement).parentElement
-          );
+          ancestorEl = ancestorEl.parentElement;
         }
-        if (ancestorEl.nodeName.toLowerCase() === 'fieldset') {
+        if (ancestorEl?.nodeName.toLowerCase() === 'fieldset') {
           ancestorEl.dataset.type = type;
           DOM.filterChildElements(ancestorEl, 'legend').forEach((legend) => {
             legend.dataset.type = type;

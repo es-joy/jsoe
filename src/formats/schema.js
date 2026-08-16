@@ -684,45 +684,46 @@ const schema = {
     // );
     // console.log('schemaObjects', schemaObjects);
     for (const [schemaIdx, schema] of schemaObjects.entries()) {
+      const type = getCheckedType(schema) ??
+        zodexToStructuredCloningTypeMap.get(schema.type);
+
+      const typeObject =
+        /** @type {Required<import('../types.js').TypeObject>} */ (
+          types.getTypeObject(
+            /** @type {import('../types.js').AvailableType} */ (type)
+          )
+        );
+
+      if (!typeObject.valueMatch?.(v)) {
+        continue;
+      }
+
       const dezSchema = dezerialize(schema, {
         checks: getChecks(types),
         originalShape: stateObj.schemaContent
       });
-      const parsed = dezSchema.safeParse(v);
+      const parsed = type === 'promise'
+        ? {success: true}
+        : dezSchema.safeParse(v);
       // console.log('parsed', parsed.success, v, schema);
       if (parsed.success) {
-        const type = getCheckedType(schema) ??
-          zodexToStructuredCloningTypeMap.get(schema.type);
-
-        const typeObject =
-          /** @type {Required<import('../types.js').TypeObject>} */ (
-            types.getTypeObject(
-              /** @type {import('../types.js').AvailableType} */ (type)
-            )
-          );
-
-        if (typeObject.valueMatch && typeObject.valueMatch(v)) {
-          // console.log(
-          //   'matched', v, v?.length, type, schema, schemaIdx, schemaObjects
-          // );
-          // console.log('ssss', !stateObj.rootUI ||
-          //   (stateObj.readonly || schemaObjects.length === 1),
-          //    schema, schemaObjects);
-          return {
-            type,
-            schemaIdx,
-            // For `readonly`, we just want to show the current type (no
-            //   pull-down)
-            schema: !stateObj.rootUI ||
-              (stateObj.readonly || schemaObjects.length === 1)
-              ? schema
-              : {
-                type: 'union',
-                options: schemaObjects
-              },
-            mustBeOptional
-          };
-        }
+        // console.log(
+        //   'matched', v, v?.length, type, schema, schemaIdx, schemaObjects
+        // );
+        return {
+          type,
+          schemaIdx,
+          // For `readonly`, we just want to show the current type (no
+          //   pull-down)
+          schema: !stateObj.rootUI ||
+            (stateObj.readonly || schemaObjects.length === 1)
+            ? schema
+            : {
+              type: 'union',
+              options: schemaObjects
+            },
+          mustBeOptional
+        };
       }
     }
     return {type: typesonType};

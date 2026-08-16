@@ -409,6 +409,9 @@ const canonicalTypeToAvailableTypeAndSchema = (
   if (!allowableTypes) {
     throw new Error('Unexpected undefined type for state');
   }
+  if (valType === 'array' && allowableTypes.includes('arrayNonindexKeys')) {
+    valType = 'arrayNonindexKeys';
+  }
 
   /**
    * @type {import('../types.js').AvailableArbitraryType|undefined}

@@ -34,7 +34,7 @@ const schemaInstanceJSONMinsMaxes = {
       type: 'number',
       min: 400,
       max: 700,
-      int: true
+      format: 'int32'
     },
     {
       type: 'bigInt',

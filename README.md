@@ -76,6 +76,8 @@ The following is no longer supported as a first class type by Zod and thus Zodex
 
 - `symbol`
 
+Has some support for JSON references, but no UI for them at preent.
+
 ## Subtypes
 
 These map to a subset of JavaScript language structures. Note that false and true were common and limited enough in number to justify their own subtype for the sake of having a quick pull-down entry.
