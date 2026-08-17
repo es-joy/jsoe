@@ -1,63 +1,6 @@
 import {regexes} from 'zod';
 import {$e} from '../utils/templateUtils.js';
 
-const datetimeRegex = regexes.datetime;
-
-// Adapted from Zod: https://github.com/colinhacks/zod/blob/9257ab78eec366c04331a3c2d59deb344a02d9f6/src/types.ts
-const ipv4Regex =
-  /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)$/u;
-const ipv6Regex =
-  /^(([a-f\d]{1,4}:){7}|::([a-f\d]{1,4}:){0,6}|([a-f\d]{1,4}:):([a-f\d]{1,4}:){0,5}|([a-f\d]{1,4}:){2}:([a-f\d]{1,4}:){0,4}|([a-f\d]{1,4}:){3}:([a-f\d]{1,4}:){0,3}|([a-f\d]{1,4}:){4}:([a-f\d]{1,4}:){0,2}|([a-f\d]{1,4}:){5}:([a-f\d]{1,4}:)?)([a-f\d]{1,4}|(((25[0-5])|(2[0-4]\d)|(1\d{2})|(\d{1,2}))\.){3}((25[0-5])|(2[0-4]\d)|(1\d{2})|(\d{1,2})))$/u;
-// https://stackoverflow.com/questions/7860392/determine-if-string-is-in-base64-using-javascript
-const base64Regex =
-  /^([\da-zA-Z+/]{4})*(([\da-zA-Z+/]{2}==)|([\da-zA-Z+/]{3}=))?$/u;
-// from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
-const emojiRegexStr = String.raw`^(\p{Extended_Pictographic}|\p{Emoji_Component})+$`;
-const emojiRegex = new RegExp(emojiRegexStr, 'u');
-const cuidRegex = /^c[^\s-]{8,}$/iu;
-const cuid2Regex = /^[\da-z]+$/u;
-const ulidRegex = /^[\dA-HJKMNP-TV-Z]{26}$/iu;
-const nanoidRegex = /^[a-z\d_-]{21}$/iu;
-const durationRegex =
-  // eslint-disable-next-line sonarjs/no-empty-after-reluctant -- Ok
-  /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/u;
-// https://github.com/colinhacks/zod/blob/5bfc8f269a81d9edc283e7920868161e4129fb23/packages/zod/src/v3/types.ts#L642
-const base64urlRegex = /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/u;
-const ipv4CidrRegex =
-  /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\/(3[0-2]|[12]?\d)$/u;
-const ipv6CidrRegex =
-  /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]+|::(ffff(:0{1,4})?:)?((25[0-5]|(2[0-4]|1?\d)?\d)\.){3}(25[0-5]|(2[0-4]|1?\d)?\d)|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1?\d)?\d)\.){3}(25[0-5]|(2[0-4]|1?\d)?\d))\/(12[0-8]|1[01]\d|[1-9]?\d)$/u;
-
-// End adapted from Zod
-
-/**
- * @param {{precision?: number|null}} args
- * @returns {string}
- */
-function timeRegexSource (args) {
-  // let regex = `\\d{2}:\\d{2}:\\d{2}`;
-  let regex = String.raw`([01]\d|2[0-3]):[0-5]\d:[0-5]\d`;
-
-  if (args.precision) {
-    regex = String.raw`${regex}\.\d{${args.precision}}`;
-  } else if (args.precision === null || args.precision === undefined) {
-    regex = String.raw`${regex}(\.\d+)?`;
-  }
-  return regex;
-}
-
-/**
- * @param {{
- *   offset?: boolean;
- *   local?: boolean;
- *   precision?: number|null;
- * }} args
- * @returns {RegExp}
- */
-function timeRegex (args) {
-  return new RegExp(`^${timeRegexSource(args)}$`, 'u');
-}
-
 /**
  * @type {import('../types.js').TypeObject}
  */
@@ -148,30 +91,30 @@ const stringType = {
           switch ('version' in stringSchemaObject &&
               stringSchemaObject.version) {
           case 'v4':
-            if (!ipv4Regex.test(value)) {
+            if (!regexes.ipv4.test(value)) {
               return `Value doesn't match IP v4 pattern.`;
             }
             break;
           default:
-            if (!ipv6Regex.test(value)) {
+            if (!regexes.ipv6.test(value)) {
               return `Value doesn't match IP v6 pattern.`;
             }
           }
           break;
         case 'time':
           // @ts-expect-error It is present
-          if (!timeRegex(stringSchemaObject).test(value)) {
+          if (!regexes.time(stringSchemaObject).test(value)) {
             return `Value does not match time/precision.`;
           }
           break;
         case 'datetime':
           // @ts-expect-error It is present
-          if (!datetimeRegex(stringSchemaObject).test(value)) {
+          if (!regexes.datetime(stringSchemaObject).test(value)) {
             return `Value does not match datetime/precision/offset/local`;
           }
           break;
         case 'emoji':
-          if (!emojiRegex.test(value)) {
+          if (!regexes.emoji().test(value)) {
             return `Value does not match emoji pattern`;
           }
           break;
@@ -185,37 +128,37 @@ const stringType = {
           }
           break;
         case 'nanoid':
-          if (!nanoidRegex.test(value)) {
+          if (!regexes.nanoid.test(value)) {
             return `Value does not match nanoid pattern`;
           }
           break;
         case 'cuid':
-          if (!cuidRegex.test(value)) {
+          if (!regexes.cuid.test(value)) {
             return `Value does not match cuid pattern`;
           }
           break;
         case 'cuid2':
-          if (!cuid2Regex.test(value)) {
+          if (!regexes.cuid2.test(value)) {
             return `Value does not match cuid2 pattern`;
           }
           break;
         case 'ulid':
-          if (!ulidRegex.test(value)) {
+          if (!regexes.ulid.test(value)) {
             return `Value does not match ulid pattern`;
           }
           break;
         case 'duration':
-          if (!durationRegex.test(value)) {
+          if (!regexes.duration.test(value)) {
             return `Value does not match duration pattern`;
           }
           break;
         case 'base64':
-          if (!base64Regex.test(value)) {
+          if (!regexes.base64.test(value)) {
             return `Value does not match base64 pattern`;
           }
           break;
         case 'base64url':
-          if (!base64urlRegex.test(value)) {
+          if (!regexes.base64url.test(value)) {
             return `Value does not match base64url pattern`;
           }
           break;
@@ -223,12 +166,12 @@ const stringType = {
           switch ('version' in stringSchemaObject &&
             stringSchemaObject.version) {
           case 'v4':
-            if (!ipv4CidrRegex.test(value)) {
+            if (!regexes.cidrv4.test(value)) {
               return `Value doesn't match IP v4 cidr pattern.`;
             }
             break;
           default:
-            if (!ipv6CidrRegex.test(value)) {
+            if (!regexes.cidrv6.test(value)) {
               return `Value doesn't match IP v6 cidr pattern.`;
             }
           }
