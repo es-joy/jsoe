@@ -34,29 +34,47 @@ const zodexToStructuredCloningTypeMap = new Map([
   ['date', 'date'],
   ['file', 'file'],
   ['undefined', 'undef'],
-  ['void', 'void'],
+  ['void', 'undef'],
   ['null', 'null'],
 
   // ['array', 'array'],
   ['array', 'arrayNonindexKeys'],
 
   ['object', 'object'],
-  ['enum', 'enum'],
-  ['literal', 'literal'],
 
   ['tuple', 'tuple'],
   ['record', 'record'],
   ['map', 'map'],
   ['set', 'set'],
 
-  ['never', 'never'],
-
   // Todo: Filter out for cloning-only
   ['promise', 'promise'],
-  ['function', 'function'],
-
-  ['catch', 'catch']
+  ['function', 'function']
 ]);
+
+/**
+ * @param {unknown} value
+ * @returns {import('../types.js').AvailableArbitraryType|undefined}
+ */
+function getValueType (value) {
+  if (value === null) {
+    return 'null';
+  }
+  switch (typeof value) {
+  case 'undefined':
+    return 'undef';
+  case 'bigint':
+    return 'bigint';
+  case 'boolean':
+    return 'boolean';
+  case 'number':
+    return 'number';
+  case 'string':
+    return 'string';
+  default:
+    return undefined;
+  }
+}
 
 /**
  * @param {ZodexSchema} schemaObject
@@ -80,6 +98,15 @@ function getSchemaType (schemaObject) {
     return /** @type {import('../types.js').AvailableArbitraryType} */ (
       schemaObject.name
     );
+  }
+  if (schemaObject.type === 'literal') {
+    return getValueType(schemaObject.values[0]);
+  }
+  if (schemaObject.type === 'enum') {
+    return getValueType(Object.values(schemaObject.values)[0]);
+  }
+  if (schemaObject.type === 'templateLiteral') {
+    return 'string';
   }
   return /** @type {import('../types.js').AvailableArbitraryType|undefined} */ (
     getCheckedType(schemaObject) ??
@@ -286,6 +313,42 @@ export function getTypesForSchema (schemaObject, originalJSON) {
     switch (schemaObject.type) {
     case 'never':
       return new Set();
+    case 'literal':
+    case 'enum': {
+      const values = /** @type {unknown[]} */ (schemaObject.type === 'literal'
+        ? schemaObject.values
+        : Object.values(schemaObject.values));
+      return new Set([...new Set(values.map(getValueType))].flatMap((type) => {
+        if (!type) {
+          return [];
+        }
+        const typeValues = values.filter((value) => {
+          return getValueType(value) === type;
+        });
+        return [{
+          ...schemaObject,
+          values: typeValues,
+          defaultValue: typeValues.includes(schemaObject.defaultValue)
+            ? schemaObject.defaultValue
+            : typeValues[0]
+        }];
+      }));
+    }
+    case 'catch': {
+      const catchSchema = /** @type {import('zodexy').SzCatch<any>} */ (
+        schemaObject
+      );
+      const innerSchemas = [...getTypesForSchema(
+        catchSchema.innerType, originalJSON
+      )].map((innerSchema) => ({...innerSchema}));
+      addModifiers(schemaObject, innerSchemas);
+      const fallbackSchemas = [...getTypesForSchema({
+        type: 'literal',
+        values: [catchSchema.value]
+      }, originalJSON)];
+      addModifiers(schemaObject, fallbackSchemas);
+      return new Set([...innerSchemas, ...fallbackSchemas]);
+    }
     case 'object': {
       const set = new Set();
       // const {properties} = schemaObject;
@@ -423,9 +486,6 @@ export function getTypesForSchema (schemaObject, originalJSON) {
           value: {
             type: 'any'
           }
-        },
-        {
-          type: 'never'
         },
         // Todo: Need to convert
         // {

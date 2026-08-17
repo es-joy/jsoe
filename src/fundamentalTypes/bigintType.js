@@ -69,6 +69,23 @@ const bigintType = {
     ]];
   },
   editUI ({typeNamespace, specificSchemaObject, value}) {
+    if (specificSchemaObject?.type === 'literal') {
+      const selectedValue = value ?? specificSchemaObject.defaultValue;
+      return ['div', {
+        dataset: {type: 'bigint'},
+        title: specificSchemaObject.description ?? 'BigInt'
+      }, [
+        ['select', {
+          name: `${typeNamespace}-bigint`
+        }, specificSchemaObject.values.filter((/** @type {unknown} */ val) => {
+          return typeof val === 'bigint';
+        }).map((/** @type {bigint} */ val) => {
+          return ['option', {
+            selected: val === selectedValue
+          }, [String(val)]];
+        })]
+      ]];
+    }
     const bigintSchemaObject = /** @type {import('zodexy').SzBigInt} */ (
       specificSchemaObject
     );

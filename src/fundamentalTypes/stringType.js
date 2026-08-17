@@ -44,7 +44,8 @@ const stringType = {
       specificSchemaObject ?? {type: 'string'}
     );
     const kind = 'kind' in stringSchemaObject ? stringSchemaObject.kind : null;
-    const isLiteral = specificSchemaObject?.type === 'literal';
+    const isConstrained = specificSchemaObject?.type === 'literal' ||
+      specificSchemaObject?.type === 'enum';
     const minlength = stringSchemaObject?.min ?? stringSchemaObject?.length;
     const maxlength = stringSchemaObject?.max ?? stringSchemaObject?.length;
 
@@ -258,15 +259,19 @@ const stringType = {
           minlength: kind === 'date' ? undefined : minlength,
           maxlength: kind === 'date' ? undefined : maxlength
         }]
-        : isLiteral
-          ? ['select', specificSchemaObject.values.filter((
+        : isConstrained
+          ? ['select', {
+            name: `${typeNamespace}-string`
+          }, Object.values(specificSchemaObject.values).filter((
             /** @type {string} */ val
           ) => {
             return typeof val === 'string';
           }).map((
             /** @type {string} */ val
           ) => {
-            return ['option', [val]];
+            return ['option', {
+              selected: val === (value ?? specificSchemaObject.defaultValue)
+            }, [val]];
           })]
           : ['textarea', {
             $on: {
@@ -283,7 +288,6 @@ const stringType = {
               }
             },
             name: `${typeNamespace}-string`,
-            disabled: isLiteral,
             minlength, maxlength
           }, [
             (value ?? specificSchemaObject?.defaultValue ?? '')

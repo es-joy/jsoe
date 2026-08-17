@@ -57,7 +57,25 @@ const numberType = {
     ]];
   },
   editUI ({typeNamespace, specificSchemaObject, value}) {
-    const isLiteral = specificSchemaObject?.type === 'literal';
+    const isConstrained = specificSchemaObject?.type === 'literal' ||
+      specificSchemaObject?.type === 'enum';
+    if (isConstrained) {
+      const selectedValue = value ?? specificSchemaObject.defaultValue;
+      return ['div', {
+        dataset: {type: 'number'},
+        title: specificSchemaObject.description ?? 'Number'
+      }, [
+        ['select', {
+          name: `${typeNamespace}-number`
+        }, Object.values(specificSchemaObject.values).filter((val) => {
+          return typeof val === 'number';
+        }).map((val) => {
+          return ['option', {
+            selected: val === selectedValue
+          }, [String(val)]];
+        })]
+      ]];
+    }
     const numberSchemaObject = /** @type {import('zodexy').SzNumber} */ (
       specificSchemaObject
     );
@@ -99,10 +117,9 @@ const numberType = {
       title: specificSchemaObject?.description ?? 'Number'
     }, [
       ['input', {
-        // disabled: isLiteral,
         name: `${typeNamespace}-number`,
         // Numeric type can't impose `pattern`
-        type: isLiteral ? 'text' : 'number',
+        type: 'number',
         min: min
           ? numberSchemaObject?.minInclusive
             ? min
@@ -118,11 +135,6 @@ const numberType = {
           : undefined,
         step: numberSchemaObject?.multipleOf ??
           (isInteger() ? '1' : 'any'),
-        pattern: isLiteral && specificSchemaObject?.values
-          ? specificSchemaObject.values.filter((/** @type {number} */ val) => {
-            return typeof val === 'number';
-          }).join('|')
-          : undefined,
         value: (value ?? specificSchemaObject?.defaultValue ?? '')
       }]
     ]];

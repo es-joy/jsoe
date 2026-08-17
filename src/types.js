@@ -26,12 +26,9 @@ import tupleType from './fundamentalTypes/tupleType.js';
 import objectType from './fundamentalTypes/objectType.js';
 import recordType from './fundamentalTypes/recordType.js';
 import dateType from './fundamentalTypes/dateType.js';
-import enumType from './fundamentalTypes/enumType.js';
 import setType from './fundamentalTypes/setType.js';
 import mapType from './fundamentalTypes/mapType.js';
-import literalType from './fundamentalTypes/literalType.js';
 import undefinedType from './fundamentalTypes/undefinedType.js';
-import voidType from './fundamentalTypes/voidType.js';
 import regexpType from './fundamentalTypes/regexpType.js';
 import BooleanObjectType from './fundamentalTypes/BooleanObjectType.js';
 import NumberObjectType from './fundamentalTypes/NumberObjectType.js';
@@ -51,8 +48,6 @@ import dompointType from './superTypes/dompointType.js';
 import dommatrixType from './superTypes/dommatrixType.js';
 import buffersourceType from './superTypes/buffersourceType.js';
 import noneditableType from './fundamentalTypes/noneditableType.js';
-import neverType from './fundamentalTypes/neverType.js';
-import catchType from './fundamentalTypes/catchType.js';
 
 import symbolType from './fundamentalTypes/symbolType.js';
 import promiseType from './fundamentalTypes/promiseType.js';
@@ -420,7 +415,7 @@ export const getPropertyValueFromLegend = (legend) => {
  *   |"int32array"|"uint32array"|"float32array"|"float64array"|"ValidDate"
  *   |"arrayNonindexKeys"|"error"|"errors"|"blob"|"domexception"|"domrect"
  *   |"dompoint"|"dommatrix"|"resurrectable"|"boolean"|"nan"|"tuple"
- *   |"record"|"void"|"enum"|"literal"|"never"|"catch"
+ *   |"record"
  * } AvailableType
  */
 
@@ -482,15 +477,12 @@ class Types {
       object: objectType,
       record: recordType, // Schema type
       date: dateType,
-      enum: enumType,
-
       // This type is only for throwing upon cloning errors:
       // 'checkDataCloneException'
       // This type might be supported by evaluable JS or config
       //   passed in:
       userObject: ['User objects'],
       undef: undefinedType,
-      void: voidType,
       SpecialRealNumber: SpecialRealNumberSuperType,
       SpecialNumber: SpecialNumberSuperType,
 
@@ -501,8 +493,6 @@ class Types {
       BooleanObject: BooleanObjectType,
       NumberObject: NumberObjectType,
       StringObject: StringObjectType,
-
-      literal: literalType,
 
       map: mapType,
       set: setType,
@@ -518,13 +508,10 @@ class Types {
       dommatrix: dommatrixType,
 
       resurrectable: noneditableType,
-      never: neverType,
 
       symbol: symbolType, // Non-cloning type
       promise: promiseType,
       function: functionType,
-
-      catch: catchType,
 
       buffersource: buffersourceType,
       dataview: {
