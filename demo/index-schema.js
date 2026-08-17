@@ -111,6 +111,22 @@ const schemaInstanceJSONMinsMaxes3 = {
   ]
 };
 
+const schemaInstanceJSONBigIntFormats = {
+  type: 'union',
+  options: [
+    {
+      description: 'An int64 BigInt',
+      type: 'bigInt',
+      format: 'int64'
+    },
+    {
+      description: 'A uint64 BigInt',
+      type: 'bigInt',
+      format: 'uint64'
+    }
+  ]
+};
+
 const schemaInstanceJSONStrings1 = {
   type: 'union',
   options: [
@@ -326,6 +342,8 @@ function getSchemaContent (schema) {
     return schemaInstanceJSONMinsMaxes2;
   case 'Zodexy schema instance mins and maxes 3':
     return schemaInstanceJSONMinsMaxes3;
+  case 'Zodexy schema instance BigInt formats':
+    return schemaInstanceJSONBigIntFormats;
   case 'Zodexy schema instance strings 1':
     return schemaInstanceJSONStrings1;
   case 'Zodexy schema instance strings 2':
@@ -372,6 +390,7 @@ const keyPathNotExpectedTypeChoices = await formatAndTypeChoices({
     'Zodexy schema instance mins and maxes',
     'Zodexy schema instance mins and maxes 2',
     'Zodexy schema instance mins and maxes 3',
+    'Zodexy schema instance BigInt formats',
     'Zodexy schema instance strings 1',
     'Zodexy schema instance strings 2',
     'Zodexy schema instance strings 3',

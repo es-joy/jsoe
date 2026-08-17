@@ -233,4 +233,34 @@ describe('BigInt spec (schemas)', () => {
       expect(elem[0].validity.stepMismatch).to.equal(true);
     });
   });
+
+  it('validates `int64` and `uint64` formats', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance BigInt formats'
+    );
+    const sel = '#formatAndTypeChoices ';
+    const input = 'input[name="demo-keypath-not-expected-bigint"]';
+
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'bigint (An int64 BigInt)'
+    );
+    cy.get(input).should('have.attr', 'min', '-9223372036854775808');
+    cy.get(input).should('have.attr', 'max', '9223372036854775807');
+    cy.clearTypeAndBlur(input, '9223372036854775808').then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        'BigInt must be at most 9223372036854775807'
+      );
+    });
+
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'bigint (A uint64 BigInt)'
+    );
+    cy.get(input).should('have.attr', 'min', '0');
+    cy.get(input).should('have.attr', 'max', '18446744073709551615');
+    cy.clearTypeAndBlur(input, '-1').then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        'BigInt must be at least 0'
+      );
+    });
+  });
 });
