@@ -271,6 +271,37 @@ const schemaInstanceJSONStrings9 = {
       description: 'Base64 URL',
       type: 'string',
       kind: 'base64url'
+    },
+    {
+      description: 'JWT',
+      type: 'string',
+      kind: 'jwt'
+    },
+    {
+      description: 'JWT HS256',
+      type: 'string',
+      kind: 'jwt',
+      algorithm: 'HS256'
+    },
+    {
+      description: 'E.164',
+      type: 'string',
+      kind: 'e164'
+    },
+    {
+      description: 'XID',
+      type: 'string',
+      kind: 'xid'
+    },
+    {
+      description: 'GUID',
+      type: 'string',
+      kind: 'guid'
+    },
+    {
+      description: 'KSUID',
+      type: 'string',
+      kind: 'ksuid'
     }
   ]
 };

@@ -677,6 +677,61 @@ describe('String spec - Misc. (schemas)', () => {
     });
   });
 
+  it('checks jwt with an optional algorithm', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance strings 9'
+    );
+    const typeChoices =
+      '#formatAndTypeChoices select.typeChoices-demo-keypath-not-expected';
+    const input = 'textarea[name="demo-keypath-not-expected-string"]';
+    const hs256JWT =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ.signature';
+    const rs256JWT =
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ.signature';
+
+    cy.get(typeChoices).select('String (JWT)');
+    cy.clearTypeAndBlur(input, rs256JWT).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.get(typeChoices).select('String (JWT HS256)');
+    cy.clearTypeAndBlur(input, hs256JWT).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+    cy.clearTypeAndBlur(input, rs256JWT).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value does not match jwt pattern`
+      );
+    });
+  });
+
+  it('checks e164, xid, guid, and ksuid', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance strings 9'
+    );
+    const typeChoices =
+      '#formatAndTypeChoices select.typeChoices-demo-keypath-not-expected';
+    const input = 'textarea[name="demo-keypath-not-expected-string"]';
+    const cases = [
+      ['E.164', 'e164', '+14155552671'],
+      ['XID', 'xid', '9m4e2mr0ui3e8a215n4g'],
+      ['GUID', 'guid', 'ffffffff-ffff-ffff-ffff-ffffffffffff'],
+      ['KSUID', 'ksuid', '0ujtsYcgvSTl8PAuAdqWYSMnLOv']
+    ];
+
+    cases.forEach(([description, kind, validValue]) => {
+      cy.get(typeChoices).select(`String (${description})`);
+      cy.clearTypeAndBlur(input, validValue).then((elem) => {
+        expect(elem[0].checkValidity()).to.equal(true);
+      });
+      cy.clearTypeAndBlur(input, 'invalid').then((elem) => {
+        expect(elem[0].validationMessage).to.equal(
+          `Value does not match ${kind} pattern`
+        );
+      });
+    });
+  });
+
   it('checks nanoid', () => {
     cy.get('.formatChoices:first').select(
       'Schema: Zodexy schema instance strings 9'

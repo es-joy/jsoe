@@ -1,5 +1,4 @@
-import {DOM, $$e, $e, $$} from '../../../instrumented/utils/templateUtils.js';
-// import {DOM, $$e, $e, $$} from '../../../src/utils/templateUtils.js'; // Test Cypress TS
+import {DOM, $$e, $e, $$} from '#jsoe/utils/templateUtils.js';
 
 describe('templateUtils (DOM)', function () {
   beforeEach(() => {

@@ -1,5 +1,4 @@
-import dialogs from '../../../instrumented/utils/dialogs.js';
-// import dialogs from '../../../src/utils/dialogs.js'; // Test Cypress TS
+import dialogs from '#jsoe/utils/dialogs.js';
 
 describe('dialogs', function () {
   describe('makeDialog', function () {

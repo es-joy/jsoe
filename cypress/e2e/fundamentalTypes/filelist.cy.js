@@ -194,7 +194,6 @@ describe('FileList spec', () => {
     );
     cy.get('@consoleLog').should(
       'be.calledWith',
-      // @ts-expect-error -- Virtual API
       new FileList([
         // new File([], '', {}),
         // new File([], '', {})

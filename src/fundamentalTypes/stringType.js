@@ -137,6 +137,23 @@ const stringType = {
             return `Value does not match uuid pattern`;
           }
           break;
+        case 'jwt':
+          if (!z.jwt(
+            'algorithm' in stringSchemaObject
+              ? {alg: stringSchemaObject.algorithm}
+              : undefined
+          ).safeParse(value).success) {
+            return `Value does not match jwt pattern`;
+          }
+          break;
+        case 'e164':
+        case 'xid':
+        case 'guid':
+        case 'ksuid':
+          if (!regexes[kind].test(value)) {
+            return `Value does not match ${kind} pattern`;
+          }
+          break;
         case 'nanoid':
           if (!regexes.nanoid.test(value)) {
             return `Value does not match nanoid pattern`;

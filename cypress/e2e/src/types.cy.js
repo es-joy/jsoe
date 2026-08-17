@@ -1,9 +1,6 @@
 import Types, {
   getPropertyValueFromLegend
-} from '../../../instrumented/types.js';
-// import Types, {
-//   getPropertyValueFromLegend
-// } from '../../../src/types.js'; // Test Cypress TS
+} from '#jsoe/types.js';
 
 describe('`getPropertyValueFromLegend`', function () {
   beforeEach(() => {

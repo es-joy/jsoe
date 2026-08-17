@@ -1,9 +1,6 @@
 import {
   makeJSONPointer, reduceJSONPointerParts
-} from '../../../instrumented/utils/jsonPointer.js';
-// import {
-//   makeJSONPointer, reduceJSONPointerParts
-// } from '../../../src/utils/jsonPointer.js'; // Test Cypress TS
+} from '#jsoe/utils/jsonPointer.js';
 
 describe('jsonPointer', function () {
   describe('`makeJSONPointer`', function () {

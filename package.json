@@ -10,6 +10,12 @@
       "import": "./src/index.js"
     }
   },
+  "imports": {
+    "#jsoe/*": {
+      "types": "./src/*",
+      "default": "./instrumented/*"
+    }
+  },
   "description": "Editing of arbitrary JavaScript objects",
   "scripts": {
     "tsc": "tsc",
