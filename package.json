@@ -69,7 +69,7 @@
     "sceditor": "3.2.1",
     "typeson-registry": "13.0.1",
     "zod": "^4.4.3",
-    "zodexy": "^0.24.1"
+    "zodexy": "^0.25.0"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",

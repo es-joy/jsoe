@@ -30,8 +30,8 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
       zodexy:
-        specifier: ^0.24.1
-        version: 0.24.1(zod@4.4.3)
+        specifier: ^0.25.0
+        version: 0.25.0(zod@4.4.3)
     devDependencies:
       '@babel/core':
         specifier: ^8.0.1
@@ -6120,8 +6120,8 @@ packages:
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
-  zodexy@0.24.1:
-    resolution: {integrity: sha512-f4AKAvrIMu/jSHJvR9OgHwLb7PD1CnquFFuqK99SerD0gG7kybIqUeJi9N5nzSj8bqwOvkO5tTI7dyTRfwJ0AQ==}
+  zodexy@0.25.0:
+    resolution: {integrity: sha512-GlzD979fC6foV2u7gas+bxc4i0dqS9C0BPlC79jiDCkGoBRGycAHMo0uollKcXwP3Tv8tP2XYgPWXKoU9ANYdA==}
     peerDependencies:
       zod: ^4.0.x
 
@@ -13014,7 +13014,7 @@ snapshots:
 
   zod@4.4.3: {}
 
-  zodexy@0.24.1(zod@4.4.3):
+  zodexy@0.25.0(zod@4.4.3):
     dependencies:
       type-fest: 4.41.0
       zod: 4.4.3
