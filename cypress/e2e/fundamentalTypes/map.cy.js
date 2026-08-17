@@ -379,4 +379,52 @@ describe('Map spec (schema)', function () {
       });
     }
   );
+
+  it('enforces map `min` and `max` values', function () {
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'Map (A map with mins and maxes)'
+    );
+
+    cy.get(sel + '.arrayItems > fieldset').should('have.length', 2);
+    cy.get(
+      sel + '.arrayItems > fieldset > button:nth-of-type(2)'
+    ).should('be.disabled');
+
+    cy.get(sel + 'button.addArrayElement').click();
+    cy.get(sel + 'button.addArrayElement').click();
+    cy.get(sel + '.arrayItems > fieldset').should('have.length', 4);
+
+    cy.get(sel + 'button.addArrayElement').click();
+    cy.get('dialog[open]').should(
+      'contain', 'You cannot add beyond the `max` of the Map'
+    );
+    cy.get('dialog[open] .submit > button').click();
+
+    cy.get(
+      sel + '.arrayItems > fieldset > button:nth-of-type(1)'
+    ).contains('+').click();
+    cy.get('dialog[open]').should(
+      'contain', 'You cannot add beyond the `max` of the Map'
+    );
+    cy.get('dialog[open] .submit > button').click();
+    cy.get(sel + '.arrayItems > fieldset').should('have.length', 4);
+  });
+
+  it('enforces a map `max` of zero', function () {
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'Map (A map with max zero)'
+    );
+
+    cy.get(sel + '.arrayItems > fieldset').should('have.length', 0);
+    cy.get(sel + 'button.addArrayElement').click();
+    cy.get('dialog[open]').should(
+      'contain', 'You cannot add beyond the `max` of the Map'
+    );
+    cy.get('dialog[open] .submit > button').click();
+    cy.get(sel + '.arrayItems > fieldset').should('have.length', 0);
+  });
 });

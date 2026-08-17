@@ -374,6 +374,31 @@ const schemaInstanceJSON7 = {
       }
     },
     {
+      description: 'A map with mins and maxes',
+      type: 'map',
+      min: 2,
+      max: 4,
+      key: {
+        description: 'A constrained map key',
+        type: 'number'
+      },
+      value: {
+        description: 'A constrained map value',
+        type: 'string'
+      }
+    },
+    {
+      description: 'A map with max zero',
+      type: 'map',
+      max: 0,
+      key: {
+        type: 'number'
+      },
+      value: {
+        type: 'string'
+      }
+    },
+    {
       description: 'A record',
       type: 'record',
       key: {

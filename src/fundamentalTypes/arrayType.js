@@ -1595,6 +1595,17 @@ const arrayType = {
           return true;
         }
         break;
+      } case 'map': {
+        const {max} = /** @type {import('zodexy').SzMap<any, any>} */ (
+          specificSchemaObject
+        ) ?? {};
+        if (max !== undefined &&
+          [...arrayItems.children].length + offset > max
+        ) {
+          dialogs.alert(`You cannot add beyond the \`max\` of the Map`);
+          return true;
+        }
+        break;
       } case 'array': case 'arrayNonindexKeys': {
         if (/** @type {import('zodexy').SzArray} */ (
           specificSchemaObject
@@ -2553,6 +2564,16 @@ const arrayType = {
             specificSchemaObject
           );
           for (let i = 0; i < minSize; i++) {
+            div.$addArrayElement({required: true});
+          }
+        }
+        break;
+      } case 'map': {
+        if (!schemaFallingBack) {
+          const {min = 0} = /** @type {import('zodexy').SzMap<any, any>} */ (
+            specificSchemaObject
+          );
+          for (let i = 0; i < min; i++) {
             div.$addArrayElement({required: true});
           }
         }

@@ -3,6 +3,7 @@
 ## ?
 
 - feat: support schema `type: 'file'` with file type
+- feat: `min` and `max` schema validation for Maps
 - fix: remove dropped `unknownKeys`
 - fix: allow symbol again, but given dropped schema support
 - fix: drop nativeEnum as dropped from Zod/Zodexy
