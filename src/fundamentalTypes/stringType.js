@@ -1,5 +1,7 @@
-import {regexes} from 'zod';
+import {regexes, z} from 'zod';
 import {$e} from '../utils/templateUtils.js';
+
+const cidrv6Schema = z.cidrv6();
 
 /**
  * @type {import('../types.js').TypeObject}
@@ -39,7 +41,7 @@ const stringType = {
   },
   editUI ({typeNamespace, specificSchemaObject, value}) {
     const stringSchemaObject = /** @type {import('zodexy').SzString} */ (
-      specificSchemaObject
+      specificSchemaObject ?? {type: 'string'}
     );
     const kind = 'kind' in stringSchemaObject ? stringSchemaObject.kind : null;
     const isLiteral = specificSchemaObject?.type === 'literal';
@@ -61,6 +63,9 @@ const stringType = {
 
     const regex = 'regex' in stringSchemaObject &&
       stringSchemaObject.regex;
+    const pattern = kind === 'email' && 'pattern' in stringSchemaObject
+      ? stringSchemaObject.pattern
+      : undefined;
     const flags = 'flags' in stringSchemaObject
       ? stringSchemaObject.flags
       : undefined;
@@ -82,6 +87,11 @@ const stringType = {
       }
       if (regex && !(new RegExp(regex, flags ?? '')).test(value)) {
         return `Value doesn't match regular expression: ${regex}${
+          flags ? ` with flags: ${flags}` : ''
+        }`;
+      }
+      if (pattern && !(new RegExp(pattern, flags ?? '')).test(value)) {
+        return `Value doesn't match email pattern: ${pattern}${
           flags ? ` with flags: ${flags}` : ''
         }`;
       }
@@ -171,7 +181,7 @@ const stringType = {
             }
             break;
           default:
-            if (!regexes.cidrv6.test(value)) {
+            if (!cidrv6Schema.safeParse(value).success) {
               return `Value doesn't match IP v6 cidr pattern.`;
             }
           }

@@ -189,6 +189,24 @@ describe('String email spec (schemas)', () => {
       expect(elem.attr('title')).to.equal('(an email string)');
     });
   });
+
+  it('checks pattern and flags', () => {
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 4');
+
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'String'
+    );
+    const input = 'input[name="demo-keypath-not-expected-string"]';
+    cy.clearTypeAndBlur(input, 'BRETTZ9@YAHOO.COM').then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+    cy.clearTypeAndBlur(input, 'other@yahoo.com').then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        String.raw`Value doesn't match email pattern: ^brettz\d@yahoo\.com$ with flags: i`
+      );
+    });
+  });
 });
 
 describe('String URL spec (schemas)', () => {
@@ -554,7 +572,7 @@ describe('String spec - Misc. (schemas)', () => {
       '2001:db8::/64'
     ).then((elem) => {
       expect(elem[0].validationMessage).to.equal(
-        `Value doesn't match IP v4 pattern.`
+        `Value doesn't match IP v4 cidr pattern.`
       );
     });
   });
@@ -576,7 +594,7 @@ describe('String spec - Misc. (schemas)', () => {
       '192.168.1.0/24'
     ).then((elem) => {
       expect(elem[0].validationMessage).to.equal(
-        `Value doesn't match IP v6 pattern.`
+        `Value doesn't match IP v6 cidr pattern.`
       );
     });
   });

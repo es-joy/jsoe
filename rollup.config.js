@@ -14,6 +14,7 @@ export default [{
     format: 'es'
   },
   plugins: [
+    builtins(),
     json(),
     terser({
       /* eslint-disable camelcase -- API */
@@ -22,7 +23,7 @@ export default [{
       keep_classnames: true // Keep in case implementing above as classes
       /* eslint-enable camelcase -- API */
     }),
-    nodeResolve(),
+    nodeResolve({browser: true}),
     commonjs()
   ]
 }, {
@@ -32,9 +33,10 @@ export default [{
     format: 'es'
   },
   plugins: [
+    builtins(),
     json(),
-    istanbul(),
-    nodeResolve(),
+    istanbul({exclude: ['node_modules/**']}),
+    nodeResolve({browser: true}),
     commonjs()
   ]
 }, {
@@ -44,8 +46,9 @@ export default [{
     format: 'es'
   },
   plugins: [
-    istanbul(),
-    nodeResolve(),
+    builtins(),
+    istanbul({exclude: ['node_modules/**']}),
+    nodeResolve({browser: true}),
     commonjs()
   ]
 }, {
@@ -55,8 +58,9 @@ export default [{
     format: 'es'
   },
   plugins: [
-    istanbul(),
-    nodeResolve(),
+    builtins(),
+    istanbul({exclude: ['node_modules/**']}),
+    nodeResolve({browser: true}),
     commonjs()
   ]
 }, {
@@ -66,8 +70,9 @@ export default [{
     format: 'es'
   },
   plugins: [
-    istanbul(),
-    nodeResolve(),
+    builtins(),
+    istanbul({exclude: ['node_modules/**']}),
+    nodeResolve({browser: true}),
     commonjs()
   ]
 }, {
@@ -77,8 +82,9 @@ export default [{
     format: 'es'
   },
   plugins: [
-    istanbul(),
-    nodeResolve(),
+    builtins(),
+    istanbul({exclude: ['node_modules/**']}),
+    nodeResolve({browser: true}),
     commonjs()
   ]
 }, {

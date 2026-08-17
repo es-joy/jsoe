@@ -7,6 +7,7 @@
 - feat: `min` and `max` schema validation for Maps
 - feat: add bigint format validation
 - fix: delegate to Zod 4's regexes for string validation
+- feat: validate email string types using any pattern/flags properties
 - fix: remove dropped `unknownKeys`
 - fix: allow symbol again, but given dropped schema support
 - fix: drop nativeEnum as dropped from Zod/Zodexy

@@ -37,7 +37,7 @@
     "copy-acorn": "cp -R node_modules/acorn/dist vendor/acorn",
     "copy-mime": "mkdir -p vendor/mime/dist/types && cp node_modules/mime/dist/types/standard.js vendor/mime/dist/types/standard.js && cp node_modules/mime/dist/types/other.js vendor/mime/dist/types/other.js",
     "copy": "run-p copy-jamilih copy-typeson-registry copy-zod copy-zodexy copy-acorn copy-mime",
-    "instrument": "run-s -c instrument-remove instrument-add copy-index rollup",
+    "instrument": "NODE_OPTIONS=--max-old-space-size=8192 run-s -c instrument-remove instrument-add copy-index rollup",
     "coveradge": "coveradge badges/coverage-badge.svg",
     "cypress:log": "ELECTRON_ENABLE_LOGGING=1 cypress run; npm run report",
     "cypress": "cypress run --spec cypress/e2e/all.cy.js; npm run report && npm run coveradge",

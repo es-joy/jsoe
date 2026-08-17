@@ -301,7 +301,9 @@ const schemaInstanceJSON4 = {
   options: [
     {
       type: 'string',
-      kind: 'email'
+      kind: 'email',
+      pattern: String.raw`^brettz\d@yahoo\.com$`,
+      flags: 'i'
     },
     {
       description: 'An undefined',

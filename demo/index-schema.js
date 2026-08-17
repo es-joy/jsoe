@@ -400,6 +400,8 @@ const keyPathNotExpectedTypeChoices = await formatAndTypeChoices({
     'Zodexy schema instance strings 7',
     'Zodexy schema instance strings 8',
     'Zodexy schema instance strings 9',
+    'Zodexy schema instance strings 10',
+    'Zodexy schema instance strings 11',
     'any schema', 'unknown schema'
   ],
   selectedSchema: 'Zodexy schema instance 2',
