@@ -216,9 +216,7 @@ describe('literal (string) spec', () => {
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'Literal (Literal string)'
     );
-    cy.get('textarea[name="demo-keypath-not-expected-string"]').should(
-      'exist'
-    );
+    cy.get('[data-type="literal"] select').should('exist');
   });
 
   it('gets type', function (done) {
@@ -291,4 +289,53 @@ describe('literal (string) spec', () => {
   //     expect($input.val()).to.equal('abcde');
   //   });
   // });
+});
+
+describe('literal (additional native types) spec', () => {
+  beforeEach(() => {
+    cy.visit('http://127.0.0.1:8087/demo/index-schema-instrumented.html', {
+      onBeforeLoad (win) {
+        cy.stub(win.console, 'log').as('consoleLog');
+      }
+    });
+  });
+
+  it('edits and gets BigInt, boolean, null, and undefined literals', () => {
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
+    const typeChoices =
+      '#formatAndTypeChoices select.typeChoices-demo-keypath-not-expected';
+    /** @type {[string, string, bigint|boolean|null|undefined][]} */
+    const cases = [
+      ['Literal BigInt', 'input[name="demo-keypath-not-expected-bigint"]', 123n],
+      ['Literal boolean', 'input[name="demo-keypath-not-expected-boolean1"]', false],
+      ['Literal null', 'input[name="demo-keypath-not-expected-null"]', null],
+      [
+        'Literal undefined',
+        'input[name="demo-keypath-not-expected-undef"]',
+        undefined
+      ]
+    ];
+
+    cases.forEach(([description, input, value]) => {
+      cy.get(typeChoices).select(`Literal (${description})`);
+      cy.get(input).should('exist');
+      cy.get('button#logValue').click();
+      cy.get('@consoleLog').should('be.calledWith', value);
+    });
+  });
+
+  it('parses BigInt, boolean, null, and undefined literals', () => {
+    /** @type {[string, bigint|boolean|null|undefined][]} */
+    const cases = [
+      ['Literal(123n)', 123n],
+      ['Literal(true)', true],
+      ['Literal(null)', null],
+      ['Literal(undefined)', undefined]
+    ];
+
+    cases.forEach(([stringValue, value]) => {
+      cy.clearTypeAndBlur('#getValueForString', stringValue);
+      cy.get('@consoleLog').should('be.calledWith', value);
+    });
+  });
 });

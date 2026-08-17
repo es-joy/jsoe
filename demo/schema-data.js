@@ -53,6 +53,21 @@ const schemaInstanceJSON2 = {
       values: ['abcde']
     },
     {
+      description: 'Literal BigInt',
+      type: 'literal',
+      values: [123n]
+    },
+    {
+      description: 'Literal null',
+      type: 'literal',
+      values: [null]
+    },
+    {
+      description: 'Literal undefined',
+      type: 'literal',
+      values: [undefined]
+    },
+    {
       description: 'An object',
       type: 'object',
       properties: {}
