@@ -5,6 +5,7 @@ import structuredCloning from './structuredCloning.js';
 
 import {resolveJSONPointer} from '../utils/jsonPointer.js';
 import {copyObject} from '../utils/objects.js';
+import FileList from '../utils/FileList.js';
 
 /**
  * @typedef {T[keyof T]} ValueOf<T>
@@ -31,6 +32,7 @@ const zodexToStructuredCloningTypeMap = new Map([
   ['bigInt', 'bigint'],
   ['string', 'string'],
   ['date', 'date'],
+  ['file', 'file'],
   ['undefined', 'undef'],
   ['void', 'void'],
   ['null', 'null'],
@@ -65,6 +67,45 @@ function getCheckedType (schemaObject) {
     schemaObject.checks?.[0]?.name
   );
 }
+
+/**
+ * @param {ZodexSchema} schemaObject
+ * @returns {import('../types.js').AvailableArbitraryType|undefined}
+ */
+function getSchemaType (schemaObject) {
+  if (schemaObject.type === 'codec' && schemaObject.name === 'filelist') {
+    return 'filelist';
+  }
+  if (schemaObject.type === 'instanceof') {
+    return /** @type {import('../types.js').AvailableArbitraryType} */ (
+      schemaObject.name
+    );
+  }
+  return /** @type {import('../types.js').AvailableArbitraryType|undefined} */ (
+    getCheckedType(schemaObject) ??
+      zodexToStructuredCloningTypeMap.get(schemaObject.type)
+  );
+}
+
+const dezerializerInstances = {filelist: FileList};
+const dezerializerCodecs = {
+  filelist: {
+    /**
+     * @param {FileList} value
+     * @returns {File[]}
+     */
+    decode (value) {
+      return Array.from({length: value.length}, (_, idx) => value.item(idx));
+    },
+    /**
+     * @param {File[]} value
+     * @returns {FileList}
+     */
+    encode (value) {
+      return new FileList(value);
+    }
+  }
+};
 
 /**
  * @param {InstanceType<typeof import('../types.js').default>} types
@@ -642,6 +683,12 @@ const schema = {
         parentSchema
       ).value;
       break;
+    case 'codec':
+      if (parentSchema.name === 'filelist' &&
+          parentSchema.output.type === 'array') {
+        currentSchema = parentSchema.output.element;
+      }
+      break;
     // Todo: Replace
     // case 'effect':
     //   currentSchema = /** @type {import('zodexy').SzEffect} */ (
@@ -686,8 +733,7 @@ const schema = {
     // );
     // console.log('schemaObjects', schemaObjects);
     for (const [schemaIdx, schema] of schemaObjects.entries()) {
-      const type = getCheckedType(schema) ??
-        zodexToStructuredCloningTypeMap.get(schema.type);
+      const type = getSchemaType(schema);
 
       const typeObject =
         /** @type {Required<import('../types.js').TypeObject>} */ (
@@ -702,6 +748,8 @@ const schema = {
 
       const dezSchema = dezerialize(schema, {
         checks: getChecks(types),
+        codecs: dezerializerCodecs,
+        instances: dezerializerInstances,
         originalShape: stateObj.schemaContent
       });
       const parsed = type === 'promise'
@@ -765,9 +813,8 @@ const schema = {
     return {
       schemaObjects,
       types: schemaObjects.map((schemaItem) => {
-        return getCheckedType(schemaItem) ??
-        /** @type {import('../types.js').AvailableType} */ (
-          zodexToStructuredCloningTypeMap.get(schemaItem.type)
+        return /** @type {import('../types.js').AvailableArbitraryType} */ (
+          getSchemaType(schemaItem)
         );
       })
     };

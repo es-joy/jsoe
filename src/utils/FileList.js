@@ -7,10 +7,10 @@
 class FileList {
   /**
    * Set private properties and length.
+   * @param {File[]} files Files to include.
    */
-  constructor () {
-    // eslint-disable-next-line prefer-rest-params -- Keep API
-    this._files = arguments[0];
+  constructor (files) {
+    this._files = files;
     this.length = this._files.length;
   }
   /**

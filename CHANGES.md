@@ -1,5 +1,14 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## ?
+
+- feat: support schema `type: 'file'` with file type
+- fix: remove dropped `unknownKeys`
+- fix: allow symbol again, but given dropped schema support
+- fix: drop nativeEnum as dropped from Zod/Zodexy
+- fix: update literals per changed API
+- fix: rework function types to work with Zod 4 Zodexy
+
 ## 0.24.3
 
 - chore: update typeson-registry and devDeps.

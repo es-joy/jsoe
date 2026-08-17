@@ -787,7 +787,7 @@
         cy.get(
           sel + 'fieldset[data-type="file"]:nth-of-type(1) > legend'
         ).should(
-          'have.text', 'A File 0'
+          'have.text', 'A text File 1'
         );
         cy.get(
           sel + 'fieldset[data-type="file"]:nth-of-type(1) .fileName'
@@ -803,7 +803,7 @@
         cy.get(
           sel + 'fieldset[data-type="file"]:nth-of-type(2) > legend'
         ).should(
-          'have.text', 'A File 1'
+          'have.text', 'A text File 2'
         );
         cy.get(
           sel + 'fieldset[data-type="file"]:nth-of-type(2) .fileName'

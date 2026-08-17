@@ -92,11 +92,93 @@ describe('FileList spec', () => {
     cy.get(
       sel + 'input[name="demo-keypath-not-expected-filelist"]'
     ).selectFile([
-      'package.json', 'README.md'
+      {
+        contents: Cypress.Buffer.from('abc'),
+        fileName: 'first.txt',
+        mimeType: 'text/plain'
+      },
+      {
+        contents: Cypress.Buffer.from('def'),
+        fileName: 'second.txt',
+        mimeType: 'text/plain'
+      }
     ]);
+
+    cy.get(sel + 'fieldset[data-type="file"]:first').within(() => {
+      cy.get('legend').should('have.text', 'A text File 0');
+      cy.contains('label', 'Size (in bytes) (min: 1, max: 10)');
+      cy.contains('label', 'Content type (allowed: text/plain)');
+    });
 
     cy.get('button#viewUI').click();
     cy.get('#viewUIResults div[data-type="filelist"]').should('exist');
+  });
+
+  it('prevents saving binary data outside the File size limits', function () {
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'FileList (A FileList)'
+    );
+    cy.get(
+      sel + 'input[name="demo-keypath-not-expected-filelist"]'
+    ).selectFile({
+      contents: Cypress.Buffer.from('abc'),
+      fileName: 'first.txt',
+      mimeType: 'text/plain'
+    });
+
+    cy.get(sel + 'fieldset[data-type="file"]:first .viewBinary').click();
+    cy.clearTypeAndBlur('dialog[open] .view-binary', '01234567890');
+    cy.get('dialog[open] button.submit').click();
+
+    cy.get('dialog[open] .view-binary').should('exist');
+    cy.get(sel + 'fieldset[data-type="file"]:first .size').should(
+      'have.value', '3'
+    );
+
+    cy.get('dialog[open]').last().contains('button', 'Ok').click();
+    cy.get('dialog[open] .view-binary').clear();
+    cy.get('dialog[open] button.submit').click();
+
+    cy.get('dialog[open]').last().should(
+      'contain', 'below the minimum of 1 bytes'
+    );
+    cy.get('dialog[open] .view-binary').should('exist');
+    cy.get(sel + 'fieldset[data-type="file"]:first .size').should(
+      'have.value', '3'
+    );
+  });
+
+  it('rejects a non-permitted File MIME type', function () {
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'FileList (A FileList)'
+    );
+    cy.get(
+      sel + 'input[name="demo-keypath-not-expected-filelist"]'
+    ).selectFile({
+      contents: Cypress.Buffer.from('abc'),
+      fileName: 'first.txt',
+      mimeType: 'text/plain'
+    });
+
+    const contentType =
+      sel + 'fieldset[data-type="file"]:first .contentType';
+    cy.clearTypeAndBlur(contentType, 'application/json');
+    cy.get(contentType).should(($input) => {
+      const {validationMessage} = /** @type {HTMLInputElement} */ ($input[0]);
+      expect(validationMessage).to.contain('text/plain');
+    });
+    cy.get(sel + 'fieldset[data-type="file"]:first .viewBinary').then(
+      ($button) => {
+        expect(
+          /** @type {HTMLButtonElement & {$value: File}} */ ($button[0]).
+            $value.type
+        ).to.equal('text/plain');
+      }
+    );
   });
 
   it('gets value', function () {
@@ -185,12 +267,8 @@ describe('FileList spec (schemas)', () => {
     ).should(($elem) => {
       expect($elem.attr('title')).to.equal('(a FileList)');
     });
-
-    // Apparent bug in Cypress not getting full results
-    // cy.get(
-    //   '#viewUIResults div[data-type="file"] > b[title]'
-    // ).then(($elem) => {
-    //   expect($elem.attr('title')).to.equal('(a File)');
-    // });
+    cy.get('#viewUIResults div[data-type="file"] > b').should(
+      'have.text', 'A text File'
+    );
   });
 });

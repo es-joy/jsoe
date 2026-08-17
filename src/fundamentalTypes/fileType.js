@@ -16,6 +16,15 @@ import dialogs from '../utils/dialogs.js';
  * @typedef {(file: FileInfo) => void} SetValue
  */
 
+/**
+ * @typedef {HTMLButtonElement & {
+ *   $value?: File,
+ *   $min?: number,
+ *   $max?: number,
+ *   $mime?: string[]
+ * }} FileButton
+ */
+
 const commonMimeTypes = [...new Set([
   ...Object.keys(mimeStandardTypes),
   ...Object.keys(mimeOtherTypes)
@@ -55,6 +64,21 @@ function checkFileMimeType (type, mime) {
 }
 
 /**
+ * @param {File|undefined} file
+ * @param {number} [min]
+ * @param {number} [max]
+ * @param {string[]} [mime]
+ * @returns {string|null}
+ */
+function checkFile (file, min, max, mime) {
+  if (!file) {
+    return 'File data is required';
+  }
+  return checkFileSize(file.size, min, max) ??
+    checkFileMimeType(file.type, mime);
+}
+
+/**
  * @param {number} timestamp
  * @returns {string}
  */
@@ -78,7 +102,7 @@ function getDateString (timestamp) {
  * }} value
  * @returns {File}
  */
-function newFileForBinary (viewBinary, value) {
+function createFileForBinary (viewBinary, value) {
   const oldFile = /** @type {File|undefined} */ (
     viewBinary.$value
   );
@@ -113,6 +137,16 @@ function newFileForBinary (viewBinary, value) {
         : value.lastModified
     }
   );
+  return file;
+}
+
+/**
+ * @param {HTMLButtonElement & {$value: File}} viewBinary
+ * @param {Parameters<typeof createFileForBinary>[1]} value
+ * @returns {File}
+ */
+function newFileForBinary (viewBinary, value) {
+  const file = createFileForBinary(viewBinary, value);
   viewBinary.$value = file;
   return file;
 }
@@ -122,13 +156,17 @@ function newFileForBinary (viewBinary, value) {
  * @param {boolean} [editable]
  * @param {number} [min]
  * @param {number} [max]
+ * @param {string[]} [mime]
  * @returns {import('jamilih').JamilihArray}
  */
-function binaryButton (value, editable, min, max) {
+function binaryButton (value, editable, min, max, mime) {
   return ['button', {
     class: 'viewBinary',
     $custom: {
-      $value: value
+      $value: value,
+      $min: min,
+      $max: max,
+      $mime: mime
     },
     $on: {
       /**
@@ -164,15 +202,22 @@ function binaryButton (value, editable, min, max) {
               const textarea = /** @type {HTMLTextAreaElement} */ (
                 $e(dialog, '.view-binary')
               );
-              const newSize = textarea.value.length;
-              const message = checkFileSize(newSize, min, max);
+              const file = createFileForBinary(viewBinary, {
+                stringContents: textarea.value
+              });
+              const message = checkFile(file, min, max, mime);
               if (message) {
                 dialogs.alert(message);
                 return;
               }
-              newFileForBinary(viewBinary, {
-                stringContents: textarea.value
-              });
+              /** @type {HTMLFieldSetElement & {$setValue: SetValue}} */ (
+                $e(
+                  /** @type {HTMLDivElement} */ (
+                    viewBinary.closest('[data-type="file"]')
+                  ),
+                  'fieldset.fileMetaData'
+                )
+              ).$setValue(file);
               dialog.close();
             },
             // @ts-expect-error TS bug
@@ -221,6 +266,16 @@ const fileType = {
   stringRegex: /^File\((.*)\)$/u,
   valueMatch (x) {
     return toStringTag(x) === 'File';
+  },
+  validate ({root}) {
+    const viewBinary = /** @type {FileButton} */ (this.getInput({root}));
+    const message = checkFile(
+      viewBinary.$value,
+      viewBinary.$min,
+      viewBinary.$max,
+      viewBinary.$mime
+    );
+    return {valid: !message, message: message ?? undefined};
   },
   toValue (s) {
     const obj = JSON.parse(s);
@@ -479,10 +534,14 @@ const fileType = {
               '.size'
             )).value = String(file.size);
 
-            /** @type {HTMLInputElement} */ ($e(
+            const contentTypeInput = /** @type {HTMLInputElement} */ ($e(
               metadataFieldset,
               '.contentType'
-            )).value = file.type;
+            ));
+            contentTypeInput.value = file.type;
+            contentTypeInput.setCustomValidity(
+              checkFileMimeType(file.type, mime) ?? ''
+            );
 
             /** @type {HTMLInputElement} */ ($e(
               metadataFieldset,
@@ -491,12 +550,20 @@ const fileType = {
               ? getDateString(file.lastModified)
               : '';
 
-            /** @type {HTMLButtonElement & {$value: File|undefined}} */ ($e(
+            const viewBinary = /** @type {FileButton} */ ($e(
               metadataFieldset,
               'button.viewBinary'
-            )).$value = typeof file.lastModified === 'number'
+            ));
+            viewBinary.$value = typeof file.lastModified === 'number'
               ? /** @type {File} */ (file)
               : undefined;
+            const message = checkFile(
+              viewBinary.$value,
+              viewBinary.$min,
+              viewBinary.$max,
+              viewBinary.$mime
+            );
+            viewBinary.setCustomValidity(message ?? '');
           }
         }
       }, [
@@ -561,15 +628,17 @@ const fileType = {
                   );
 
                 const newContentType = input.value;
-                const message = checkFileMimeType(newContentType, mime);
-                if (message) {
-                  dialogs.alert(message);
-                  input.value = viewBinary.$value?.type ?? '';
-                  return;
-                }
-                newFileForBinary(viewBinary, {
+                const file = createFileForBinary(viewBinary, {
                   type: newContentType
                 });
+                const message = checkFile(file, min, max, mime);
+                input.setCustomValidity(message ?? '');
+                if (message) {
+                  dialogs.alert(message);
+                  input.reportValidity();
+                  return;
+                }
+                newFileForBinary(viewBinary, {type: newContentType});
               }
             }
           }]
@@ -612,7 +681,7 @@ const fileType = {
           }]
         ]],
         ['br'],
-        binaryButton(value, true, min, max),
+        binaryButton(value, true, min, max, mime),
         ['button', {
           class: 'clearData',
           $on: {
@@ -647,8 +716,7 @@ const fileType = {
                 }
                 const file = input.files[0];
 
-                const message = checkFileSize(file.size, min, max) ??
-                  checkFileMimeType(file.type, mime);
+                const message = checkFile(file, min, max, mime);
                 if (message) {
                   dialogs.alert(message);
                   input.value = '';
@@ -995,8 +1063,7 @@ const fileType = {
                   );
                   console.log('file', file);
 
-                  const message = checkFileSize(file.size, min, max) ??
-                    checkFileMimeType(file.type, mime);
+                  const message = checkFile(file, min, max, mime);
                   if (message) {
                     dialogs.alert(message);
                     chunks = [];
@@ -1133,8 +1200,7 @@ const fileType = {
                   );
                   console.log('file', file);
 
-                  const message = checkFileSize(file.size, min, max) ??
-                    checkFileMimeType(file.type, mime);
+                  const message = checkFile(file, min, max, mime);
                   if (message) {
                     dialogs.alert(message);
                     return;

@@ -75,7 +75,7 @@ const encapsulateObserver = (stateObj) => {
   const mapPaths = [];
 
   /** @type {string[]} */
-  const symbolPaths = [];
+  const atomicPaths = [];
 
   return (observerObj) => {
     const {
@@ -90,10 +90,10 @@ const encapsulateObserver = (stateObj) => {
       endIterateUnsetNumeric,
       clone
     } = observerObj;
-    if (symbolPaths.some((symbolPath) => {
-      return symbolPath === ''
+    if (atomicPaths.some((atomicPath) => {
+      return atomicPath === ''
         ? keypath !== ''
-        : keypath.startsWith(`${symbolPath}.`);
+        : keypath.startsWith(`${atomicPath}.`);
     })) {
       return;
     }
@@ -196,8 +196,8 @@ const encapsulateObserver = (stateObj) => {
       // 'sparseArrays',
       'arrayNonindexKeys'
     ].includes(newType);
-    if (type === 'symbol') {
-      symbolPaths.push(keypath);
+    if (type === 'symbol' || type === 'file') {
+      atomicPaths.push(keypath);
     }
 
     // Maps are followed up by arrays which we don't want as such;
@@ -519,7 +519,7 @@ const structuredCloning = {
           'cryptokey',
           'domquad'
         ].every((prop) => {
-          return Object.hasOwn(typeSpecSet, prop);
+          return !Object.hasOwn(typeSpecSet, prop);
         });
       }
     );

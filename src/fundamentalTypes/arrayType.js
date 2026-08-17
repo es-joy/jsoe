@@ -698,7 +698,13 @@ const arrayType = {
       ? /** @type {import('zodexy').SzSet} */ (
         specificSchemaObject
       )?.value?.description
-      : undefined);
+      : type === 'filelist'
+        ? /** @type {import('zodexy').SzArray} */ (
+          /** @type {import('zodexy').SzCodec} */ (
+            specificSchemaObject
+          ).output
+        ).element.description
+        : undefined);
 
     /**
      * @param {HTMLInputElement} input
@@ -1525,9 +1531,11 @@ const arrayType = {
               //   the desired solution, see:
               //   https://github.com/colinhacks/zod/issues/6413
               : type === 'filelist'
-                ? /** @type {import('zodexy').SzType} */ (
-                  specificSchemaObject
-                )?.inner
+                ? /** @type {import('zodexy').SzArray} */ (
+                  /** @type {import('zodexy').SzCodec} */ (
+                    specificSchemaObject
+                  ).output
+                ).element
                 : type === 'array' || type === 'arrayNonindexKeys'
                   ? /** @type {import('zodexy').SzArray} */ (
                     specificSchemaObject

@@ -401,8 +401,22 @@ const schemaInstanceJSON7 = {
     },
     {
       description: 'A FileList',
-      type: 'any',
-      checks: [{name: 'filelist'}, {name: 'file'}]
+      type: 'codec',
+      name: 'filelist',
+      input: {
+        type: 'instanceof',
+        name: 'filelist'
+      },
+      output: {
+        type: 'array',
+        element: {
+          description: 'A text File',
+          type: 'file',
+          min: 1,
+          max: 10,
+          mime: ['text/plain']
+        }
+      }
     },
     // `never` could technically be in the following, too, but probably
     //    not meaningful:
