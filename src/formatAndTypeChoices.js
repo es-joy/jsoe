@@ -138,6 +138,10 @@ export const getFormatAndSchemaChoices = ({
  * @param {import('./formats.js').default} [cfg.formats]
  * @param {import('./types.js').default} [cfg.types]
  * @param {boolean} [cfg.preselectSchema]
+ * @param {boolean} [cfg.useZodexyErrorMessages] Use zodexy schema `error`
+ *   strings in place of JSoe's default validation messages.
+ * @param {boolean} [cfg.useZodexyErrorMessagesInTypes] Whether type adapters
+ *   may replace their schema-specific validation messages with zodexy errors.
  * @returns {Promise<{
  *   formatChoices: FormatChoices,
  *   typesHolder: TypesHolder,
@@ -163,7 +167,12 @@ export async function formatAndTypeChoices ({
   typeNamespace,
   selectedSchema,
   formats = new Formats(),
-  types = new Types()
+  useZodexyErrorMessages = false,
+  useZodexyErrorMessagesInTypes = false,
+  types = new Types({
+    useZodexyErrorMessages,
+    useZodexyErrorMessagesInTypes
+  })
 }) {
   const format = preselectSchema && schemas && schemas.length
     ? 'schema'

@@ -157,9 +157,12 @@ function newFileForBinary (viewBinary, value) {
  * @param {number} [min]
  * @param {number} [max]
  * @param {string[]} [mime]
+ * @param {(message: string) => string|null|undefined} [getValidationMessage]
  * @returns {import('jamilih').JamilihArray}
  */
-function binaryButton (value, editable, min, max, mime) {
+function binaryButton (
+  value, editable, min, max, mime, getValidationMessage
+) {
   return ['button', {
     class: 'viewBinary',
     $custom: {
@@ -207,7 +210,7 @@ function binaryButton (value, editable, min, max, mime) {
               });
               const message = checkFile(file, min, max, mime);
               if (message) {
-                dialogs.alert(message);
+                dialogs.alert(getValidationMessage?.(message) ?? message);
                 return;
               }
               /** @type {HTMLFieldSetElement & {$setValue: SetValue}} */ (
@@ -496,13 +499,25 @@ const fileType = {
         : ''
     ]];
   },
-  editUI ({typeNamespace, specificSchemaObject, value = {}}) {
+  editUI ({typeNamespace, specificSchemaObject, types, value = {}}) {
     // Todo: Could add way to preview file in edit mode (whether
     //         recorded or uploaded)
     const fileSchemaObject = /** @type {import('zodexy').SzFile} */ (
       specificSchemaObject
     );
     const {min, max, mime} = fileSchemaObject ?? {};
+
+    /**
+     * @param {string|null|undefined} message
+     * @returns {string|null|undefined}
+     */
+    const getValidationMessage = (message) => {
+      return types.getValidationMessage({
+        message,
+        schema: specificSchemaObject,
+        typeSpecific: true
+      });
+    };
 
     fileContentTypeListId++;
     const contentTypeListId = `fileContentTypes-${fileContentTypeListId}`;
@@ -540,7 +555,7 @@ const fileType = {
             ));
             contentTypeInput.value = file.type;
             contentTypeInput.setCustomValidity(
-              checkFileMimeType(file.type, mime) ?? ''
+              getValidationMessage(checkFileMimeType(file.type, mime)) ?? ''
             );
 
             /** @type {HTMLInputElement} */ ($e(
@@ -563,7 +578,7 @@ const fileType = {
               viewBinary.$max,
               viewBinary.$mime
             );
-            viewBinary.setCustomValidity(message ?? '');
+            viewBinary.setCustomValidity(getValidationMessage(message) ?? '');
           }
         }
       }, [
@@ -632,9 +647,10 @@ const fileType = {
                   type: newContentType
                 });
                 const message = checkFile(file, min, max, mime);
-                input.setCustomValidity(message ?? '');
+                const validationMessage = getValidationMessage(message);
+                input.setCustomValidity(validationMessage ?? '');
                 if (message) {
-                  dialogs.alert(message);
+                  dialogs.alert(validationMessage ?? message);
                   input.reportValidity();
                   return;
                 }
@@ -681,7 +697,7 @@ const fileType = {
           }]
         ]],
         ['br'],
-        binaryButton(value, true, min, max, mime),
+        binaryButton(value, true, min, max, mime, getValidationMessage),
         ['button', {
           class: 'clearData',
           $on: {
@@ -718,7 +734,7 @@ const fileType = {
 
                 const message = checkFile(file, min, max, mime);
                 if (message) {
-                  dialogs.alert(message);
+                  dialogs.alert(getValidationMessage(message) ?? message);
                   input.value = '';
                   return;
                 }
@@ -1065,7 +1081,7 @@ const fileType = {
 
                   const message = checkFile(file, min, max, mime);
                   if (message) {
-                    dialogs.alert(message);
+                    dialogs.alert(getValidationMessage(message) ?? message);
                     chunks = [];
                     return;
                   }
@@ -1202,7 +1218,7 @@ const fileType = {
 
                   const message = checkFile(file, min, max, mime);
                   if (message) {
-                    dialogs.alert(message);
+                    dialogs.alert(getValidationMessage(message) ?? message);
                     return;
                   }
 

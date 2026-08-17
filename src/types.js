@@ -439,10 +439,21 @@ export const getPropertyValueFromLegend = (legend) => {
  */
 class Types {
   /**
-   *
+   * @param {{
+   *   useZodexyErrorMessages?: boolean,
+   *   useZodexyErrorMessagesInTypes?: boolean
+   * }} [cfg]
    */
-  constructor () {
+  constructor ({
+    useZodexyErrorMessages = false,
+    useZodexyErrorMessagesInTypes = false
+  } = {}) {
     this.formats = new Formats(); // Todo: Make customizable and test
+
+    this.useZodexyErrorMessages = useZodexyErrorMessages;
+    this.useZodexyErrorMessagesInTypes = useZodexyErrorMessagesInTypes;
+    /** @type {WeakMap<RootElement, import('./formats/schema.js').ZodexSchema>} */
+    this.schemasForRoots = new WeakMap();
 
     /** @type {CustomValidateAllReferences|undefined} */
     this.customValidateAllReferences = undefined;
@@ -786,6 +797,9 @@ class Types {
         ? typeObj.viewUI(arg)
         : typeObj.editUI(arg))
     ));
+    if (specificSchemaObject) {
+      this.schemasForRoots.set(root, specificSchemaObject);
+    }
     if (!readonly && typeObj.validate) {
       const formControl = typeObj.getInput({root});
       formControl.addEventListener('input', () => {
@@ -817,6 +831,25 @@ class Types {
     }
   }
 
+  /**
+   * @param {{
+   *   message: string|null|undefined,
+   *   schema?: import('./formats/schema.js').ZodexSchema,
+   *   typeSpecific?: boolean
+   * }} cfg
+   * @returns {string|null|undefined}
+   */
+  getValidationMessage ({message, schema, typeSpecific = false}) {
+    if (!message) {
+      return message;
+    }
+    const schemaError = schema?.error;
+    return typeof schemaError === 'string' && this.useZodexyErrorMessages &&
+      (!typeSpecific || this.useZodexyErrorMessagesInTypes)
+      ? schemaError
+      : message;
+  }
+
   /** @type {Validate} */
   validate ({type, root, topRoot, avoidReport}) {
     const typeObj = /** @type {TypeObject} */ (this.availableTypes[type]);
@@ -824,11 +857,15 @@ class Types {
     if (typeObj.validate) {
       const {valid, message} = typeObj.validate({root, topRoot});
       const formControl = typeObj.getInput({root});
+      const validationMessage = this.getValidationMessage({
+        message: message || 'Invalid',
+        schema: this.schemasForRoots.get(root)
+      });
       formControl.setCustomValidity(
         valid
           ? ''
           /* istanbul ignore next -- Should always have a message */
-          : (message || 'Invalid')
+          : (validationMessage || 'Invalid')
       );
 
       // We don't want a focus as `reportValidity` does in at least

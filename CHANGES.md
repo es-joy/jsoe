@@ -9,6 +9,7 @@
 - feat: validate email string types using any pattern/flags properties
 - feat: add string kinds with validation: jwt (along with optional `algorithm` property), e164, xid, guid, ksuid
 - feat: add to literals: bigInt, boolean, null, and undefined types
+- feat: optionally utilizes custom errors
 - fix: delegate to Zod 4's regexes for string validation
 - fix: remove dropped `unknownKeys`
 - fix: allow symbol again, but given dropped schema support

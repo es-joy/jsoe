@@ -42,6 +42,97 @@ describe('`Types.getFormControlFromRootAncestor`', function () {
   });
 });
 
+describe('`Types.validate` zodexy error messages', function () {
+  /**
+   * @param {Types} types
+   * @returns {HTMLInputElement}
+   */
+  function getInvalidNumberInput (types) {
+    const root = /** @type {HTMLDivElement} */ (types.getUIForModeAndType({
+      readonly: false,
+      typeNamespace: 'zodexy-error',
+      type: 'number',
+      format: 'schema',
+      value: undefined,
+      hasValue: false,
+      specificSchemaObject: {
+        type: 'number',
+        error: 'Schema validation message'
+      }
+    }));
+    document.body.append(root);
+    types.validate({type: 'number', root, avoidReport: true});
+    return /** @type {HTMLInputElement} */ (root.querySelector('input'));
+  }
+
+  /**
+   * @param {Types} types
+   * @returns {HTMLTextAreaElement}
+   */
+  function getInvalidStringInput (types) {
+    const root = types.getUIForModeAndType({
+      readonly: false,
+      typeNamespace: 'zodexy-string-error',
+      type: 'string',
+      format: 'schema',
+      value: 'invalid',
+      hasValue: true,
+      specificSchemaObject: {
+        type: 'string',
+        startsWith: 'valid',
+        error: 'Schema string message'
+      }
+    });
+    document.body.append(root);
+    const textarea = /** @type {HTMLTextAreaElement} */ (
+      root.querySelector('textarea')
+    );
+    textarea.dispatchEvent(new Event('change'));
+    return textarea;
+  }
+
+  beforeEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it('uses default validation messages by default', function () {
+    const input = getInvalidNumberInput(new Types());
+    expect(input.validationMessage).to.equal('Not a valid (finite) number');
+  });
+
+  it('uses a zodexy error when enabled', function () {
+    const input = getInvalidNumberInput(new Types({
+      useZodexyErrorMessages: true
+    }));
+    expect(input.validationMessage).to.equal('Schema validation message');
+  });
+
+  it('overrides schema validation messages set within a type', function () {
+    const types = new Types({
+      useZodexyErrorMessages: true,
+      useZodexyErrorMessagesInTypes: true
+    });
+    const textarea = getInvalidStringInput(types);
+    expect(textarea.validationMessage).to.equal('Schema string message');
+
+    textarea.value = 'valid value';
+    textarea.dispatchEvent(new Event('change'));
+    expect(textarea.validationMessage).to.equal('');
+  });
+
+  it('disables zodexy errors set within types by default', function () {
+    const types = new Types({
+      useZodexyErrorMessages: true
+    });
+    expect(getInvalidNumberInput(types).validationMessage).to.equal(
+      'Schema validation message'
+    );
+    expect(getInvalidStringInput(types).validationMessage).to.equal(
+      `Value doesn't start with expected: valid`
+    );
+  });
+});
+
 describe('`Types.getTypeOptionsForFormatAndState`', function () {
   it(
     '`getTypeOptionsForFormatAndState` with bad states for format',

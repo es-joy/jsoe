@@ -692,6 +692,18 @@ const arrayType = {
       type !== 'tuple' && type !== 'record'; // arrayNonindexKeys and object?
     const mapProperties = type === 'map' || type === 'record';
 
+    /**
+     * @param {string} message
+     * @returns {string}
+     */
+    const getSchemaValidationMessage = (message) => {
+      return types.getValidationMessage({
+        message,
+        schema: specificSchemaObject,
+        typeSpecific: true
+      }) ?? message;
+    };
+
     const elementDesc = /** @type {import('zodexy').SzArray} */ (
       specificSchemaObject
     )?.element?.description ?? (type === 'set'
@@ -1562,7 +1574,9 @@ const arrayType = {
           specificSchemaObject
         )?.rest?.type === 'never') {
           dialogs.alert(
-            'Tuple has rest type "never", so one cannot add to it.'
+            getSchemaValidationMessage(
+              'Tuple has rest type "never", so one cannot add to it.'
+            )
           );
           return true;
         }
@@ -1572,7 +1586,9 @@ const arrayType = {
           )?.items?.[0]?.type === 'never'
         ) {
           dialogs.alert(
-            'Tuple has items type "never", so one cannot add to it.'
+            getSchemaValidationMessage(
+              'Tuple has items type "never", so one cannot add to it.'
+            )
           );
           return true;
         }
@@ -1581,7 +1597,9 @@ const arrayType = {
         if (/** @type {import('zodexy').SzSet} */ (
           specificSchemaObject
         )?.value?.type === 'never') {
-          dialogs.alert('Set has type "never", so one cannot add to it.');
+          dialogs.alert(getSchemaValidationMessage(
+            'Set has type "never", so one cannot add to it.'
+          ));
           return true;
         }
 
@@ -1591,7 +1609,9 @@ const arrayType = {
         if (maxSize !== undefined &&
           [...arrayItems.children].length + offset > maxSize
         ) {
-          dialogs.alert(`You cannot add beyond the \`maxSize\` of the Set`);
+          dialogs.alert(getSchemaValidationMessage(
+            `You cannot add beyond the \`maxSize\` of the Set`
+          ));
           return true;
         }
         break;
@@ -1602,7 +1622,9 @@ const arrayType = {
         if (max !== undefined &&
           [...arrayItems.children].length + offset > max
         ) {
-          dialogs.alert(`You cannot add beyond the \`max\` of the Map`);
+          dialogs.alert(getSchemaValidationMessage(
+            `You cannot add beyond the \`max\` of the Map`
+          ));
           return true;
         }
         break;
@@ -1610,7 +1632,9 @@ const arrayType = {
         if (/** @type {import('zodexy').SzArray} */ (
           specificSchemaObject
         )?.element?.type === 'never') {
-          dialogs.alert('Array has type "never", so one cannot add to it.');
+          dialogs.alert(getSchemaValidationMessage(
+            'Array has type "never", so one cannot add to it.'
+          ));
           return true;
         }
 
@@ -1621,7 +1645,9 @@ const arrayType = {
         if (maxLength !== undefined &&
           arrayItems.$getArrayLength() + offset > maxLength
         ) {
-          dialogs.alert(`You cannot add beyond the \`maxLength\` of the array`);
+          dialogs.alert(getSchemaValidationMessage(
+            `You cannot add beyond the \`maxLength\` of the array`
+          ));
           return true;
         }
         break;

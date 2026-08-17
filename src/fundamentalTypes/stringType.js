@@ -39,7 +39,7 @@ const stringType = {
             : '(a string)')
     }, [value]];
   },
-  editUI ({typeNamespace, specificSchemaObject, value}) {
+  editUI ({typeNamespace, specificSchemaObject, types, value}) {
     const stringSchemaObject = /** @type {import('zodexy').SzString} */ (
       specificSchemaObject ?? {type: 'string'}
     );
@@ -242,7 +242,11 @@ const stringType = {
               const that = /** @type {HTMLInputElement} */ (this);
               that.value = transform(that.value);
               const message = checkValue(that.value);
-              that.setCustomValidity(message ?? '');
+              that.setCustomValidity(types.getValidationMessage({
+                message,
+                schema: specificSchemaObject,
+                typeSpecific: true
+              }) ?? '');
               that.reportValidity();
             }
           },
@@ -270,7 +274,11 @@ const stringType = {
                 const that = /** @type {HTMLTextAreaElement} */ (this);
                 that.value = transform(that.value);
                 const message = checkValue(that.value);
-                that.setCustomValidity(message ?? '');
+                that.setCustomValidity(types.getValidationMessage({
+                  message,
+                  schema: specificSchemaObject,
+                  typeSpecific: true
+                }) ?? '');
                 that.reportValidity();
               }
             },
