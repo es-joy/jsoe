@@ -68,12 +68,6 @@ const schemaInstanceJSON2 = {
       values: [undefined]
     },
     {
-      description: 'Template literal',
-      type: 'templateLiteral',
-      parts: ['item-', {type: 'number'}],
-      defaultValue: 'item-42'
-    },
-    {
       description: 'An object',
       type: 'object',
       properties: {}
@@ -289,6 +283,12 @@ const schemaInstanceJSON2 = {
       description: 'A BigInt object',
       type: 'any',
       checks: [{name: 'bigintObject'}]
+    },
+    {
+      description: 'Template literal',
+      type: 'templateLiteral',
+      parts: ['item-', {type: 'number'}],
+      defaultValue: 'item-42'
     }
   ]
 };

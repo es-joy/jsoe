@@ -690,6 +690,17 @@ export function getTypesForSchema (schemaObject, originalJSON) {
 
 /** @type {import('../formats.js').Format} */
 const schema = {
+  validateValue (types, schemaObject, value) {
+    const parsed = dezerialize(schemaObject, {
+      checks: getChecks(types),
+      codecs: dezerializerCodecs,
+      instances: dezerializerInstances,
+      originalShape: schemaObject
+    }).safeParse(value);
+    return parsed.success
+      ? {valid: true}
+      : {valid: false, message: parsed.error.issues[0]?.message};
+  },
   iterate (records, stateObj) {
     // console.log('records', records, stateObj);
     stateObj.format = 'schema';

@@ -28,7 +28,9 @@ const bigintType = {
     return {value: BigInt(s.slice(0, -1))};
   },
   getInput ({root}) {
-    return /** @type {HTMLInputElement} */ ($e(root, 'input'));
+    return /** @type {HTMLInputElement|HTMLSelectElement} */ (
+      $e(root, 'input,select')
+    );
   },
   setValue ({root, value}) {
     this.getInput({root}).value = String(value);

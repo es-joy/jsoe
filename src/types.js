@@ -840,13 +840,29 @@ class Types {
   /** @type {Validate} */
   validate ({type, root, topRoot, avoidReport}) {
     const typeObj = /** @type {TypeObject} */ (this.availableTypes[type]);
-    // Todo (low): We limit for now to input boxes which have `validate`
-    if (typeObj.validate) {
-      const {valid, message} = typeObj.validate({root, topRoot});
-      const formControl = typeObj.getInput({root});
+    const typeValidation = typeObj.validate
+      ? typeObj.validate({root, topRoot})
+      : {valid: true, message: undefined};
+    const schemaObject = this.schemasForRoots.get(root);
+    const schemaValidation = schemaObject
+      ? this.formats.getAvailableFormat('schema').validateValue?.(
+        this,
+        schemaObject,
+        typeObj.getValue?.({
+          root,
+          stateObj: {types: this, formats: this.formats}
+        })
+      ) ?? {valid: true, message: undefined}
+      : {valid: true, message: undefined};
+    const valid = typeValidation.valid && schemaValidation.valid;
+    const message = typeValidation.valid
+      ? schemaValidation.message
+      : typeValidation.message;
+    const formControl = typeObj.getInput?.({root});
+    if (formControl) {
       const validationMessage = this.getValidationMessage({
         message: message || 'Invalid',
-        schema: this.schemasForRoots.get(root)
+        schema: schemaObject
       });
       formControl.setCustomValidity(
         valid
@@ -861,9 +877,8 @@ class Types {
       if (!avoidReport) {
         formControl.reportValidity();
       }
-      return valid;
     }
-    return true;
+    return valid;
   }
 
   /** @type {SetValue} */

@@ -109,7 +109,8 @@ setTimeout(function () {
         // new DOMRectReadOnly(1, 2, 3, 4),
         new TypeError('msg'),
         // makeNoneditableType(),
-        new Object(123n)
+        new Object(123n),
+        'item-42'
       ], schemaInstanceJSON2),
       ...getTypeChoices([
         new Date('1999-01-01'),

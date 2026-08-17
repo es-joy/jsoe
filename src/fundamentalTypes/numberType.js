@@ -28,7 +28,9 @@ const numberType = {
     return {value: Number(s)};
   },
   getInput ({root}) {
-    return /** @type {HTMLInputElement} */ ($e(root, 'input'));
+    return /** @type {HTMLInputElement|HTMLSelectElement} */ (
+      $e(root, 'input,select')
+    );
   },
   setValue ({root, value}) {
     this.getInput({root}).value = String(value);

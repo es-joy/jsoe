@@ -43,7 +43,7 @@ video.recordedMedia {
   background-color: 1px solid pink !important;
 }
 
-[data-type="undef"], [data-type="void"] {
+[data-type="undef"] {
   background-color: green;
 }
 [data-type="null"] {
@@ -74,10 +74,6 @@ video.recordedMedia {
 }
 [data-type="object"], [data-type="record"] {
   background-color: orange;
-}
-
-[data-type="literal"] {
-  background-color: lightblue;
 }
 
 [data-type="symbol"] {
@@ -139,11 +135,10 @@ video.recordedMedia {
 
 [data-type="map"], [data-type="set"],
 [data-type="bigint"], [data-type="bigintObject"],
-[data-type="never"], [data-type="domexception"],
+[data-type="domexception"],
 [data-type="resurrectable"], /* i.e., `noneditable` */
 [data-type="domrect"], [data-type="dompoint"],
-[data-type="dommatrix"],
-[data-type="catch"], [data-type="enum"] {
+[data-type="dommatrix"] {
   background-color: lightgray;
 }
 
