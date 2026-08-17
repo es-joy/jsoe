@@ -1435,9 +1435,9 @@ const arrayType = {
         ]]);
       }
 
-      const fileDesc = /** @type {import('zodexy').SzEffect} */ (
+      const fileDesc = /** @type {import('zodexy').SzType} */ (
         specificSchemaObject
-      )?.inner?.description;
+      )?.description;
 
       return /** @type {import('jamilih').JamilihArray} */ (['legend', [
         elementDesc
@@ -1521,8 +1521,11 @@ const arrayType = {
               ? /** @type {import('zodexy').SzSet} */ (
                 specificSchemaObject
               )?.value
+              // This is a hack specifically for filelist; for
+              //   the desired solution, see:
+              //   https://github.com/colinhacks/zod/issues/6413
               : type === 'filelist'
-                ? /** @type {import('zodexy').SzEffect} */ (
+                ? /** @type {import('zodexy').SzType} */ (
                   specificSchemaObject
                 )?.inner
                 : type === 'array' || type === 'arrayNonindexKeys'
