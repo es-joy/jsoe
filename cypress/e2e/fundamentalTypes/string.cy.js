@@ -633,6 +633,32 @@ describe('String spec - Misc. (schemas)', () => {
     });
   });
 
+  it('checks a versioned uuid', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance strings 9'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'String (UUID v4)'
+    );
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      'e2a32899-c131-4348-91e8-45cc47783718'
+    ).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      'e2a32899-c131-7348-91e8-45cc47783718'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value does not match uuid pattern`
+      );
+    });
+  });
+
   it('checks nanoid', () => {
     cy.get('.formatChoices:first').select(
       'Schema: Zodexy schema instance strings 9'

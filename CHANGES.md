@@ -2,6 +2,7 @@
 
 ## ?
 
+- feat: for string schemas with kind uuid, check for version to determine regex for validation
 - feat: support schema `type: 'file'` with file type
 - feat: `min` and `max` schema validation for Maps
 - fix: remove dropped `unknownKeys`

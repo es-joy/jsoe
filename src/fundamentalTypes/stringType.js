@@ -17,8 +17,6 @@ const emojiRegex = new RegExp(emojiRegexStr, 'u');
 const cuidRegex = /^c[^\s-]{8,}$/iu;
 const cuid2Regex = /^[\da-z]+$/u;
 const ulidRegex = /^[\dA-HJKMNP-TV-Z]{26}$/iu;
-const uuidRegex =
-  /^[\da-f]{8}\b-[\da-f]{4}\b-[\da-f]{4}\b-[\da-f]{4}\b-[\da-f]{12}$/iu;
 const nanoidRegex = /^[a-z\d_-]{21}$/iu;
 const durationRegex =
   // eslint-disable-next-line sonarjs/no-empty-after-reluctant -- Ok
@@ -178,7 +176,11 @@ const stringType = {
           }
           break;
         case 'uuid':
-          if (!uuidRegex.test(value)) {
+          if (!regexes.uuid(
+            'version' in stringSchemaObject && stringSchemaObject.version
+              ? Number(stringSchemaObject.version.slice(1))
+              : undefined
+          ).test(value)) {
             return `Value does not match uuid pattern`;
           }
           break;

@@ -215,6 +215,12 @@ const schemaInstanceJSONStrings9 = {
       kind: 'uuid'
     },
     {
+      description: 'UUID v4',
+      type: 'string',
+      kind: 'uuid',
+      version: 'v4'
+    },
+    {
       description: 'Nanoid',
       type: 'string',
       kind: 'nanoid'
