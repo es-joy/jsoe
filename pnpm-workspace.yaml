@@ -16,7 +16,7 @@ minimumReleaseAgeExclude:
   - eslint-config-ash-nazg@42.3.0
   - eslint-plugin-jsdoc@64.1.0
   - jsdoc-type-pratt-parser@9.1.1
-  - zodexy@0.21.1 || 0.21.2 || 0.22.0 || 0.23.0 || 0.24.0
+  - zodexy@0.21.1 || 0.21.2 || 0.22.0 || 0.23.0 || 0.24.0 || 0.24.1
   - typeson-registry@13.0.1
   - typeson@10.1.1
 
