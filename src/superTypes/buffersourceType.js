@@ -1489,9 +1489,7 @@ const buffersourceType = {
         }, [
           ['option', {value: ''}, ['(Select a data view method)']],
           ...dataViewMethods.map((dataViewMethod) => {
-            return /** @type {import('jamilih').JamilihArray} */ (
-              ['option', [dataViewMethod]]
-            );
+            return ['option', [dataViewMethod]];
           })
         ]],
         ' ',

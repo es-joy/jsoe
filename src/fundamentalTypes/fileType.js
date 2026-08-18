@@ -225,7 +225,7 @@ function binaryButton (
             },
             // @ts-expect-error TS bug
             children: [
-              ['div', /** @type {import('jamilih').JamilihChildren} */ ([
+              ['div', [
                 'Binary source',
                 ['br'],
                 ['textarea', {
@@ -234,7 +234,7 @@ function binaryButton (
                   /* istanbul ignore next */
                   /** @type {string|null} */ (reader.result) ?? ''
                 ]]
-              ])]
+              ]]
             ]
           });
         });
@@ -1252,7 +1252,7 @@ const fileType = {
           [
             'div',
             {class: 'recordedMedia'},
-            /** @type {import('jamilih').JamilihChildren} */ ([
+            [
               ...(() => {
                 const recordedMedia = jml(
                   'video', {class: 'recordedMedia'}
@@ -1297,7 +1297,7 @@ const fileType = {
                   ])
                 ];
               })()
-            ])
+            ]
           ]
         ]]
       ]]

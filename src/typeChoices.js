@@ -390,7 +390,6 @@ export const buildTypeChoices = ({
       '(Choose a type)'
     ]],
 
-    // @ts-expect-error Apparent TS bug
     ...typeOptions.map(
       ([optText, optAtts], idx) => {
         return [

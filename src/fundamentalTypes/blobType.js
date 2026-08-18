@@ -61,7 +61,7 @@ function newBlobForBinary (viewBinary, value) {
  * @returns {import('jamilih').JamilihArray}
  */
 function binaryButton (value, editable) {
-  return ['button', /** @type {import('jamilih').JamilihAttributes} */ ({
+  return ['button', {
     class: 'viewBinary',
     $custom: {
       $value: value
@@ -110,7 +110,7 @@ function binaryButton (value, editable) {
             },
             // @ts-expect-error TS bug
             children: [
-              ['div', /** @type {import('jamilih').JamilihChildren} */ ([
+              ['div', [
                 'Binary source',
                 ['br'],
                 ['textarea', {
@@ -119,7 +119,7 @@ function binaryButton (value, editable) {
                   /* istanbul ignore next */
                   /** @type {string|null} */ (reader.result) ?? ''
                 ]]
-              ])]
+              ]]
             ]
           });
         });
@@ -139,7 +139,7 @@ function binaryButton (value, editable) {
         reader.readAsBinaryString(viewBinary.$value);
       }
     }
-  }), [
+  }, [
     editable
       ? 'Edit binary data'
       : 'View binary data'
@@ -350,7 +350,7 @@ const blobType = {
         })()
         : '',
       value.type.startsWith('image/')
-        ? ['img', /** @type {import('jamilih').JamilihAttributes} */ ({
+        ? ['img', {
           class: 'imageView',
           src: URL.createObjectURL(value),
           $on: {
@@ -360,7 +360,7 @@ const blobType = {
               );
             }
           }
-        })]
+        }]
         : ''
     ]];
   },
@@ -462,7 +462,7 @@ const blobType = {
         ['legend', ['Supply blob through upload']],
         ['label', [
           'Blob ',
-          ['input', /** @type {import('jamilih').JamilihAttributes} */ ({
+          ['input', {
             $on: {
               change () {
                 // eslint-disable-next-line consistent-this -- Clarity
@@ -489,7 +489,7 @@ const blobType = {
               }
             },
             name: `${typeNamespace}-blob`, type: 'file'
-          })]
+          }]
         ]]
       ]],
       ['fieldset', [
@@ -729,7 +729,7 @@ const blobType = {
         })(),
         ' ',
         ['div', [
-          ['button', /** @type {import('jamilih').JamilihAttributes} */ ({
+          ['button', {
             class: 'recordMedia',
             $on: {
               /**
@@ -836,7 +836,7 @@ const blobType = {
                 //         camera ("user"/"environment") and bringIntoFocus
               }
             }
-          }), [
+          }, [
             'Record media'
           ]],
           ['button', {
@@ -967,7 +967,7 @@ const blobType = {
           [
             'div',
             {class: 'recordedMedia'},
-            /** @type {import('jamilih').JamilihChildren} */ ([
+            [
               ...(() => {
                 const recordedMedia = jml(
                   'video', {class: 'recordedMedia'}
@@ -1012,7 +1012,7 @@ const blobType = {
                   ])
                 ];
               })()
-            ])
+            ]
           ]
         ]]
       ]]

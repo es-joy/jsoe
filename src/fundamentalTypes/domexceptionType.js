@@ -56,7 +56,7 @@ const domexceptionType = {
     return ['div', {
       dataset: {type: 'domexception'},
       title: specificSchemaObject?.description ?? 'DOMException'
-    }, /** @type {import('jamilih').JamilihChildren} */ ([
+    }, [
       ['label', [
         'Name: ',
         ['input', {
@@ -115,7 +115,7 @@ const domexceptionType = {
           value: value?.message ?? ''
         }]
       ]]
-    ])];
+    ]];
   }
 };
 

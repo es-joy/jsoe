@@ -109,7 +109,7 @@ const dompointType = {
     return ['div', {
       dataset: {type: 'dompoint'},
       title: specificSchemaObject?.description ?? 'DOMPoint'
-    }, /** @type {import('jamilih').JamilihChildren} */ ([
+    }, [
       ['div', [
         ['label', [
           ['input', {
@@ -172,7 +172,7 @@ const dompointType = {
           name: `${typeNamespace}-dompoint-w`, value: value.w
         }]
       ]]
-    ])];
+    ]];
   }
 };
 

@@ -1907,10 +1907,7 @@ const arrayType = {
             arrayItems.$redrawMoveArrows();
           }}
         }, ['+']],
-        /**
-         * @type {import('jamilih').JamilihArray}
-         */
-        ([
+        [
           'button',
           {
             disabled: required,
@@ -1945,7 +1942,7 @@ const arrayType = {
               }
             }
           }, ['x']
-        ]),
+        ],
         ['span', {
           class: `${type}Item-arrowHolder-${typeNamespace}`
         }, []]

@@ -114,7 +114,7 @@ const domrectType = {
     return ['div', {
       dataset: {type: 'domrect'},
       title: specificSchemaObject?.description ?? 'DOMRect'
-    }, /** @type {import('jamilih').JamilihChildren} */ ([
+    }, [
       ['div', [
         ['label', [
           ['input', {
@@ -177,7 +177,7 @@ const domrectType = {
           name: `${typeNamespace}-domrect-height`, value: value.height
         }]
       ]]
-    ])];
+    ]];
   }
 };
 

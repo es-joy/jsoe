@@ -319,7 +319,7 @@ const dommatrixType = {
     return ['div', {
       dataset: {type: 'dommatrix'},
       title: specificSchemaObject?.description ?? 'DOMMatrix'
-    }, /** @type {import('jamilih').JamilihChildren} */ ([
+    }, [
       ['div', [
         ['label', [
           ['input', {
@@ -422,7 +422,7 @@ const dommatrixType = {
           ]]
         ];
       })).slice(1)]
-    ])];
+    ]];
   }
 };
 

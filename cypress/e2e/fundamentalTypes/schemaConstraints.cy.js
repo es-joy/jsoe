@@ -15,8 +15,8 @@ describe('schema constraints use runtime type editors', () => {
 
   it('uses a fixed boolean editor for a boolean literal', function (done) {
     cy.get(typeChoices).select('Boolean (Literal boolean)');
-    cy.get('#formatAndTypeChoices [data-type="boolean"] input:checked')
-      .should('have.value', 'false');
+    cy.get('#formatAndTypeChoices [data-type="boolean"] input:checked').
+      should('have.value', 'false');
     cy.on('window:alert', (text) => {
       expect(text).to.eq('boolean');
       done();
