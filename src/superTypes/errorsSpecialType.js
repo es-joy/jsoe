@@ -185,7 +185,7 @@ const errorsSpecialType = {
       ).value
     );
     if (!UserErrorType) {
-      throw new Error('Bad error type');
+      throw new Error('Not yet instantiated');
     }
 
     /**

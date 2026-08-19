@@ -109,8 +109,28 @@
         ).should('have.value', 'abcde');
       });
 
+      it('Selects literal BigInt', function () {
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(6) ' +
+          arraySels;
+        cy.get(
+          sel + '[data-type="bigint"] select'
+        ).should('have.value', '123');
+      });
+
+      it('Selects literal null', function () {
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(7) ' +
+          arraySels;
+        cy.get(sel + '[data-type="null"]').should('exist');
+      });
+
+      it('Selects literal undefined', function () {
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(8) ' +
+          arraySels;
+        cy.get(sel + '[data-type="undef"]').should('exist');
+      });
+
       it('Selects template literal', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(33) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(36) ' +
           arraySels;
         cy.get(
           sel + '[data-type="string"] textarea'
@@ -118,7 +138,7 @@
       });
 
       it('Selects empty object', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(6) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(9) ' +
           arraySels;
         cy.get(
           sel + '[data-type="object"] span'
@@ -128,7 +148,7 @@
       });
 
       it('Selects object with property', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(7) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(10) ' +
           arraySels;
         cy.get(
           sel + '[data-type="object"] span'
@@ -146,7 +166,7 @@
       });
 
       it('Selects object with optional property', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(8) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(11) ' +
           arraySels;
         cy.get(
           sel + '[data-type="object"] span'
@@ -175,7 +195,7 @@
       // We add this test to ensure coverage of changing an optional
       //   property (set after load)
       it('Allows modification of optional property', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(8) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(11) ' +
           arraySels;
 
         cy.clearTypeAndBlur(
@@ -189,7 +209,7 @@
       });
 
       it('Selects object with never property', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(9) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(12) ' +
           arraySels;
         cy.get(
           sel + '[data-type="object"] span'
@@ -203,7 +223,7 @@
       });
 
       it('Selects object with never catchall', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(10) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(13) ' +
           arraySels;
         cy.get(
           sel + '[data-type="object"] span'
@@ -224,7 +244,7 @@
       });
 
       it('Selects object with catchall schema', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(11) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(14) ' +
           arraySels;
         cy.get(
           sel + '[data-type="object"] span'
@@ -259,7 +279,7 @@
       });
 
       it('Selects array (with mins and maxes)', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(12) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(15) ' +
           arraySels;
         cy.get(
           sel + '[data-type="arrayNonindexKeys"] span'
@@ -299,7 +319,7 @@
       });
 
       it('Selects array (with never)', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(13) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(16) ' +
           arraySels;
         cy.get(
           sel + '[data-type="arrayNonindexKeys"] span'
@@ -313,7 +333,7 @@
       });
 
       it('Selects a set with mins and maxes', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(14) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(17) ' +
           arraySels;
         cy.get(
           sel + '[data-type="set"] span'
@@ -345,7 +365,7 @@
       });
 
       it('Selects Set (with never)', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(15) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(18) ' +
           arraySels;
         cy.get(
           sel + '[data-type="set"] span'
@@ -359,7 +379,7 @@
       });
 
       it('Selects a tuple', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(16) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(19) ' +
           arraySels;
         cy.get(
           sel + '[data-type="tuple"] span'
@@ -391,7 +411,7 @@
       });
 
       it('Selects a tuple with never rest', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(17) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(20) ' +
           arraySels;
         cy.get(
           sel + '[data-type="tuple"] span'
@@ -412,7 +432,7 @@
       });
 
       it('Selects a RegExp', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(18) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(21) ' +
           arraySels;
         cy.get(
           sel + 'div[data-type="regexp"]'
@@ -430,14 +450,14 @@
       });
 
       it('Selects a Blob', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(19) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(22) ' +
           arraySels;
         cy.get(sel + 'input.size').should('have.value', '3');
         cy.get(sel + 'input.contentType').should('have.value', 'text/plain');
       });
 
       it('Selects a Boolean Object', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(20) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(23) ' +
           arraySels;
         cy.get(sel + 'div[data-type="BooleanObject"]').should(($div) => {
           expect($div.attr('title')).to.equal('A Boolean object');
@@ -446,7 +466,7 @@
       });
 
       it('Selects a Number Object', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(21) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(24) ' +
           arraySels;
         cy.get(sel + 'div[data-type="NumberObject"]').should(($div) => {
           expect($div.attr('title')).to.equal('A Number object');
@@ -455,7 +475,7 @@
       });
 
       it('Selects a String Object', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(22) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(25) ' +
           arraySels;
         cy.get(sel + 'div[data-type="StringObject"]').should(($div) => {
           expect($div.attr('title')).to.equal('A String object');
@@ -464,14 +484,14 @@
       });
 
       it('Selects -0', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(23) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(26) ' +
           arraySels;
 
         cy.get(sel + 'label select option:selected').should('have.value', '-0');
       });
 
       it('Selects a DOMException', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(24) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(27) ' +
           arraySels;
         cy.get(sel + 'div[data-type="domexception"]').should(($div) => {
           expect($div.attr('title')).to.equal('A DOMException');
@@ -481,7 +501,7 @@
       });
 
       it('Selects an Error', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(25) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(28) ' +
           arraySels;
         cy.get(sel + 'div[data-type="error"]').should(($div) => {
           expect($div.attr('title')).to.equal('An Error');
@@ -492,7 +512,7 @@
       });
 
       it('Selects a File', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(26) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(29) ' +
           arraySels;
         cy.get(sel + 'div[data-type="file"]').should(($div) => {
           expect($div.attr('title')).to.equal('A File');
@@ -507,7 +527,7 @@
       });
 
       it('Selects a BufferSource', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(27) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(30) ' +
           arraySels;
         cy.get(sel + 'div[data-type="buffersource"]').should(($div) => {
           expect($div.attr('title')).to.equal('A BufferSource');
@@ -516,7 +536,7 @@
       });
 
       it('Selects a DOMMatrix', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(28) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(31) ' +
           arraySels;
         cy.get(sel + 'input.a').should('have.value', '1');
         cy.get(sel + 'input.b').should('have.value', '2');
@@ -527,7 +547,7 @@
       });
 
       it('Selects a DOMPoint', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(29) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(32) ' +
           arraySels;
         cy.get(sel + 'input.x').should('have.value', '1');
         cy.get(sel + 'input.y').should('have.value', '2');
@@ -536,7 +556,7 @@
       });
 
       it('Selects a DOMRect', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(30) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(33) ' +
           arraySels;
         cy.get(sel + 'input.x').should('have.value', '1');
         cy.get(sel + 'input.y').should('have.value', '2');
@@ -544,7 +564,7 @@
         cy.get(sel + 'input.height').should('have.value', '4');
       });
       it('Selects a TypeError', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(31) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(34) ' +
           arraySels;
         cy.get(
           sel + 'select.errorType option:selected'
@@ -555,7 +575,7 @@
       });
 
       it('Selects a BigInt object', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(32) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(35) ' +
           arraySels;
         cy.get(sel + 'div[data-type="bigintObject"]').should(($div) => {
           expect($div.attr('title')).to.equal('A BigInt object');
@@ -583,23 +603,18 @@
         cy.get(sel + 'input').should('have.value', '1999-01-01');
       });
 
-      // eslint-disable-next-line mocha/no-pending-tests -- scinstance retrieval not working
-      it.skip('Selects a blob HTML', function () {
+      it('Selects a blob HTML', function () {
         const sel = 'section:nth-of-type(3) > .innerItem:nth-of-type(3) ' +
           arraySels;
 
-        // eslint-disable-next-line cypress/no-unnecessary-waiting -- Waiting on sceditor
-        cy.wait(3500);
-
-        cy.window().then((win) => {
-          const textarea = /** @type {HTMLTextAreaElement} */ (
-            win.document.querySelector(
-              sel + 'textarea'
-            )
-          );
-          const sceinstance = win.sceditor.instance(textarea);
-          console.log('sceinstance', sceinstance);
-          expect(sceinstance.val()).to.equal('<b>Testing</b>');
+        cy.get(sel + 'textarea[name$="-blobHTML"]').should(($textarea) => {
+          const textarea =
+            /**
+             * @type {HTMLTextAreaElement & {
+             *   sceditorInstance: {val: () => string}
+             * }}
+             */ ($textarea[0]);
+          expect(textarea.sceditorInstance.val()).to.equal('<b>Testing</b>');
         });
       });
 
@@ -733,7 +748,7 @@
       });
 
       it('Selects numeric-keyed record', function () {
-        const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(3) ' +
+        const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(5) ' +
           arraySels;
         cy.get(sel + 'div[data-type="record"] span').should(($div) => {
           expect($div.attr('title')).to.equal('A record');
@@ -741,7 +756,7 @@
       });
 
       it('Selects string-keyed record', function () {
-        const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(4) ' +
+        const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(6) ' +
           arraySels;
         cy.get(sel + 'div[data-type="record"] span').should(($div) => {
           expect($div.attr('title')).to.equal('Record');
@@ -793,7 +808,7 @@
       });
 
       it('Selects a FileList', function () {
-        const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(5) ' +
+        const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(7) ' +
           arraySels;
         cy.get(sel + 'div[data-type="filelist"] > span').should(($div) => {
           expect($div.attr('title')).to.equal('A FileList');
@@ -871,7 +886,7 @@
           expect($div.attr('title')).to.equal('Number');
         });
 
-        cy.get(sel + 'input[name="demo-type-choices-only-initial-value-number"]').should(
+        cy.get(sel + '[data-type="number"] select').should(
           'have.value', '0'
         );
       });
@@ -895,7 +910,7 @@
           expect($div.attr('title')).to.equal('Number');
         });
 
-        cy.get(sel + 'select').should(
+        cy.get(sel + '[data-type="number"] select').should(
           'have.value', '135'
         );
       });

@@ -50,7 +50,7 @@ setTimeout(function () {
         false, 123, NaN, 456n, 'a string'
       ], schemaInstanceJSON),
       ...getTypeChoices([
-        undefined, 'ghi', false, 135, 'abcde', {},
+        undefined, 'ghi', false, 135, 'abcde', 123n, null, undefined, {},
         {abc: {def: 595}},
         {requiredProperty: 500, okProperty: 'okPropValue'},
         {},
@@ -132,6 +132,8 @@ setTimeout(function () {
       ...getTypeChoices([
         [],
         new Map([[3, 'hello'], [4, 'goodbye']]),
+        new Map([[5, 'first'], [6, 'second']]),
+        new Map(),
         // Adding properties here is problematic as JS won't recognize
         //   indexes as numeric
         {},

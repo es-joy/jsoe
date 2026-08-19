@@ -95,7 +95,11 @@ function splitConstrainedSchema (schema) {
     const {defaultValue} = schema;
     return [{
       ...schema,
-      values: typeValues,
+      values: schema.type === 'literal'
+        ? typeValues
+        : Object.fromEntries(Object.entries(schema.values).filter(([, value]) => {
+          return getValueType(value) === type;
+        })),
       defaultValue: typeValues.includes(defaultValue)
         ? defaultValue
         : typeValues[0]

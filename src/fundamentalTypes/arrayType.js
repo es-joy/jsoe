@@ -1453,9 +1453,9 @@ const arrayType = {
         ]]);
       }
 
-      const fileDesc = /** @type {import('zodexy').SzType} */ (
-        specificSchemaObject
-      )?.description;
+      const fileDesc = type === 'filelist'
+        ? specificSchemaObject?.description
+        : undefined;
 
       return /** @type {import('jamilih').JamilihArray} */ (['legend', [
         elementDesc
