@@ -168,19 +168,46 @@
             },
             {
               "type": "object",
+              "description": "jwt type",
+              "properties": {
+                "kind": {
+                  "type": "literal",
+                  "values": ["jwt"]
+                },
+                "algorithm": {
+                  "type": "string",
+                  "isOptional": true
+                }
+              }
+            },
+            {
+              "type": "object",
+              "description": "nanoid type",
+              "properties": {
+                "kind": {
+                  "type": "literal",
+                  "values": ["nanoid"]
+                },
+                "length": {
+                  "type": "number",
+                  "isOptional": true
+                }
+              }
+            },
+            {
+              "type": "object",
               "description": "Kind",
               "properties": {
                 "kind": {
                   "type": "enum",
                   "values": {
-                    "jwt": "jwt",
                     "xid": "xid",
                     "guid": "guid",
                     "ksuid": "ksuid",
                     "url": "url",
                     "emoji": "emoji",
                     "e164": "e164",
-                    "nanoid": "nanoid",
+                    "credit_card": "credit_card",
                     "cuid": "cuid",
                     "cuid2": "cuid2",
                     "ulid": "ulid",
@@ -324,7 +351,70 @@
           "isOptional": true
         },
         "description": { "type": "string", "isOptional": true },
-        "meta": { "type": "object", "isOptional": true, "properties": {} },
+        "meta": {
+          "type": "intersection",
+          "isOptional": true,
+          "right": {
+            "type": "record",
+            "key": { "type": "string" },
+            "value": {
+              "type": "unknown"
+            }
+          },
+          "left": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "union",
+                "isOptional": true,
+                "options": [
+                  {
+                    "type": "undefined"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "title": {
+                "type": "union",
+                "isOptional": true,
+                "options": [
+                  {
+                    "type": "undefined"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "description": {
+                "type": "union",
+                "isOptional": true,
+                "options": [
+                  {
+                    "type": "undefined"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "deprecated": {
+                "type": "union",
+                "isOptional": true,
+                "options": [
+                  {
+                    "type": "undefined"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              }
+            }
+          }
+        },
         "readonly": { "type": "boolean", "isOptional": true }
       }
     },
@@ -600,6 +690,14 @@
                   "$ref": "#/$defs/reference-or-type"
                 }
               },
+              "symbols": {
+                "type": "record",
+                "key": { "type": "number" },
+                "value": {
+                  "$ref": "#/$defs/reference-or-type"
+                },
+                "isOptional": true
+              },
               "catchall": {
                 "type": "union",
                 "options": [
@@ -836,6 +934,41 @@
               },
               "outer": {
                 "$ref": "#/$defs/reference-or-type"
+              }
+            }
+          },
+          {
+            "description": "Stringbool",
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "literal",
+                "values": ["pipe"]
+              },
+              "inner": {
+                "$ref": "#/$defs/reference-or-type"
+              },
+              "outer": {
+                "$ref": "#/$defs/reference-or-type"
+              },
+              "case": {
+                "type": "enum",
+                "values": {
+                  "sensitive": "sensitive",
+                  "insensitive": "insensitive"
+                }
+              },
+              "truthy": {
+                "type": "array",
+                "element": {
+                  "type": "string"
+                }
+              },
+              "falsy": {
+                "type": "array",
+                "element": {
+                  "type": "string"
+                }
               }
             }
           },

@@ -26,6 +26,7 @@ var STRING_KINDS = /* @__PURE__ */ new Set([
   "json_string",
   "e164",
   "jwt",
+  "credit_card",
   "ipv4",
   "ipv6",
   "cidrv4",
@@ -147,6 +148,10 @@ var dezerializers = {
           pattern: new RegExp(shape.pattern, shape.flags)
           /* c8 ignore next -- Guard */
         }) : z.email();
+      } else if (shape.kind === "nanoid") {
+        s2 = "length" in shape ? z.nanoid({ length: shape.length }) : z.nanoid();
+      } else if (shape.kind === "credit_card") {
+        s2 = z.creditCard();
       } else if (shape.kind !== "json_string") {
         s2 = z[shape.kind]();
       }
@@ -291,17 +296,40 @@ var dezerializers = {
   }),
   object: ((shape, opts) => {
     let i = z.object(
-      Object.fromEntries(
-        Object.entries(shape.properties).map(([key, value]) => {
-          return [
-            key,
-            checkRef(value, opts) || d(value, {
-              ...opts,
-              path: opts.path + "/properties/" + key
-            })
-          ];
-        })
-      ),
+      {
+        ...Object.fromEntries(
+          Object.entries(shape.properties).map(([key, value]) => {
+            return [
+              key,
+              checkRef(value, opts) || d(value, {
+                ...opts,
+                path: opts.path + "/properties/" + key
+              })
+            ];
+          })
+        ),
+        ...Object.fromEntries(
+          Object.entries(shape.symbols ?? {}).map(([key, value]) => {
+            if (!opts.symbols) {
+              throw new Error(
+                "A symbol key was specified, but no `symbols` option was found"
+              );
+            }
+            if (!(key in opts.symbols)) {
+              throw new Error(
+                "A symbol key was specified and a `symbols` option was found, but not at the specified index."
+              );
+            }
+            return [
+              opts.symbols[Number(key)],
+              checkRef(value, opts) || d(value, {
+                ...opts,
+                path: opts.path + "/symbols/" + key
+              })
+            ];
+          })
+        )
+      },
       getError(shape, opts)
     );
     if (shape.catchall) {
@@ -488,6 +516,9 @@ var dezerializers = {
     );
   },
   pipe: (shape, opts) => {
+    if ("truthy" in shape) {
+      return z.stringbool({ truthy: shape.truthy, falsy: shape.falsy });
+    }
     const base = checkRef(shape.inner, opts) || d(shape.inner, {
       ...opts,
       path: opts.path + "/inner"
@@ -590,6 +621,11 @@ function dezerialize(shape, opts = {}) {
 
 // zerialize.ts
 import { z as z2 } from "zod";
+
+// zodexySchema.ts
+var zodexySchema_default = "https://github.com/brettz9/zodexy/releases/tag/v0.30.0";
+
+// zerialize.ts
 var PRIMITIVES = {
   ZodString: "string",
   ZodNumber: "number",
@@ -629,11 +665,13 @@ var getCustomChecksAndErrors = (def, opts) => {
     const key = Object.entries(opts.errors ?? {}).find(([, func]) => {
       return func === def.error;
     })?.[0];
-    customError = typeof key == "string" ? { key } : (
-      // Not supplying an issue should not be a problem for regular
-      //   wrapped string errors
-      def.error()
-    );
+    if (typeof key == "string" || typeof def.error == "function") {
+      customError = typeof key == "string" ? { key } : (
+        // Not supplying an issue should not be a problem for regular
+        //   wrapped string errors
+        def.error()
+      );
+    }
   }
   return Object.assign(
     customChecks ? { checks: customChecks } : {},
@@ -770,6 +808,9 @@ var zerializers = {
           } : {},
           ..."local" in def && def.local ? {
             local: def.local
+          } : {},
+          ..."length" in def ? {
+            length: def.length
           } : {}
         } : {}
       },
@@ -934,6 +975,7 @@ var zerializers = {
     };
   },
   object: (def, opts) => {
+    const ownPropertySymbols = Object.getOwnPropertySymbols(def.shape);
     return {
       type: "object",
       ...getCustomChecksAndErrors(def, opts),
@@ -943,6 +985,30 @@ var zerializers = {
           currentPath: [...opts.currentPath, "catchall"]
         })
       },
+      ...ownPropertySymbols.length ? {
+        symbols: Object.fromEntries(
+          ownPropertySymbols.map((symbol) => {
+            if (!opts.symbols) {
+              throw new Error(
+                "Symbol key present without `symbols` option"
+              );
+            }
+            const index = opts.symbols.indexOf(symbol);
+            if (index === -1) {
+              throw new Error(
+                "Symbol key and `symbols` option both present but not key found"
+              );
+            }
+            return [
+              index,
+              s(def.shape[symbol], {
+                ...opts,
+                currentPath: [...opts.currentPath, "symbols", index]
+              })
+            ];
+          })
+        )
+      } : {},
       properties: Object.fromEntries(
         Object.entries(def.shape).map(([key, schema]) => [
           key,
@@ -1065,7 +1131,19 @@ var zerializers = {
       // }),
     };
   },
-  pipe: (def, opts) => {
+  pipe: (def, opts, schema) => {
+    if ("truthy" in schema._zod.bag) {
+      const { truthy, falsy, case: cse } = schema._zod.bag;
+      return {
+        type: "pipe",
+        ...getCustomChecksAndErrors(def, opts),
+        inner: s(def.in, opts),
+        outer: s(def.out, opts),
+        truthy,
+        falsy,
+        case: cse
+      };
+    }
     if (def.transform && def.reverseTransform) {
       const name = Object.entries(opts.codecs ?? {}).find(
         ([, codec]) => codec.decode === def.transform && codec.encode === def.reverseTransform
@@ -1172,7 +1250,18 @@ function zerialize(schema, opts = {}) {
   if (!opts.seenObjects) {
     opts.seenObjects = /* @__PURE__ */ new WeakMap();
   }
-  return zerializeRefs(schema, opts);
+  const zerialized = zerializeRefs(
+    schema,
+    opts
+  );
+  if (Object.hasOwn(opts, "schema")) {
+    if (opts.schema !== null) {
+      zerialized.$zodexySchema = opts.schema;
+    }
+  } else {
+    zerialized.$zodexySchema = zodexySchema_default;
+  }
+  return zerialized;
 }
 export {
   NUMBER_FORMATS,

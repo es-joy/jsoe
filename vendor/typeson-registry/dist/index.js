@@ -155,6 +155,65 @@ const arraybuffer = {
 
 // See also typed-arrays!
 
+/* globals AudioData -- Polyfills */
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const audiodata = {
+    audiodata: {
+        test (x) {
+            return toStringTag(x) === 'AudioData';
+        },
+        replace (audioData) {
+            const {
+                format, sampleRate, numberOfFrames, numberOfChannels,
+                timestamp
+            } = audioData;
+
+            // 2. Determine plane layout based on audio format
+            const isPlanar = format.endsWith('-planar');
+            const numPlanes = isPlanar ? numberOfChannels : 1;
+
+            // 3. Per the AudioData API, planes are laid out back-to-back
+            //   within a single buffer, so compute their sizes up front
+            const planeSizes = [];
+            let totalSize = 0;
+            for (let i = 0; i < numPlanes; i++) {
+                const size = audioData.allocationSize({planeIndex: i});
+                planeSizes.push(size);
+                totalSize += size;
+            }
+
+            // 4. Copy the raw binary data out of each plane into its slot
+            const data = new ArrayBuffer(totalSize);
+            let offset = 0;
+            for (let i = 0; i < numPlanes; i++) {
+                const planeView = new Uint8Array(data, offset, planeSizes[i]);
+                audioData.copyTo(planeView, {planeIndex: i});
+                offset += planeSizes[i];
+            }
+
+            // 5. Return a clean, serializable manifest
+            return {
+                format, sampleRate, numberOfFrames, numberOfChannels,
+                timestamp,
+                data
+            };
+        },
+        revive ({
+            format, sampleRate, numberOfFrames, numberOfChannels,
+            timestamp, data
+        }) {
+            return new AudioData({
+                format, sampleRate, numberOfFrames, numberOfChannels,
+                timestamp,
+                data: new Uint8Array(data)
+            });
+        }
+    }
+};
+
 /**
  * @type {import('typeson').TypeSpecSet}
  */
@@ -688,6 +747,54 @@ function create$3 (Ctor) {
     };
 }
 
+/* globals EncodedAudioChunk -- Polyfills */
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const encodedaudiochunk = {
+    encodedaudiochunk: {
+        test (x) {
+            return toStringTag(x) === 'EncodedAudioChunk';
+        },
+        replace (chunk) {
+            const {type, timestamp, duration, byteLength} = chunk;
+            const data = new ArrayBuffer(byteLength);
+            chunk.copyTo(data);
+            return {type, timestamp, duration, data};
+        },
+        revive ({type, timestamp, duration, data}) {
+            return new EncodedAudioChunk({
+                type, timestamp, duration, data: new Uint8Array(data)
+            });
+        }
+    }
+};
+
+/* globals EncodedVideoChunk -- Polyfills */
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const encodedvideochunk = {
+    encodedvideochunk: {
+        test (x) {
+            return toStringTag(x) === 'EncodedVideoChunk';
+        },
+        replace (chunk) {
+            const {type, timestamp, duration, byteLength} = chunk;
+            const data = new ArrayBuffer(byteLength);
+            chunk.copyTo(data);
+            return {type, timestamp, duration, data};
+        },
+        revive ({type, timestamp, duration, data}) {
+            return new EncodedVideoChunk({
+                type, timestamp, duration, data: new Uint8Array(data)
+            });
+        }
+    }
+};
+
 /**
  * @type {import('typeson').TypeSpecSet}
  */
@@ -762,10 +869,10 @@ if (typeof InternalError === 'function') {
 
 /**
  * Comprises all built-in errors.
- * @param {TypeErrorConstructor|RangeErrorConstructor|
- *   SyntaxErrorConstructor|ReferenceErrorConstructor|
- *   EvalErrorConstructor|URIErrorConstructor|
- *   AggregateErrorConstructor|InternalErrorConstructor
+ * @param {TypeErrorConstructor|RangeErrorConstructor
+ *   |SyntaxErrorConstructor|ReferenceErrorConstructor
+ *   |EvalErrorConstructor|URIErrorConstructor
+ *   |AggregateErrorConstructor|InternalErrorConstructor
  * } Ctor
  * @returns {void}
  */
@@ -923,6 +1030,8 @@ const filelist = {
                     return 'FileList';
                 }
             }
+
+            // @ts-ignore Override API
             return new FileList(o);
         }
     }
@@ -1203,8 +1312,51 @@ const primitiveObjects = {
         test (x) {
             return toStringTag(x) === 'Number' && typeof x === 'object';
         },
-        replace: Number, // convert to primitive number
-        revive (n) { return new Number(n); } // Revive to an objectified number
+        // `_encapsulate`'s nested-replace guard (`_stateObj.replaced`)
+        //   means a bare `NaN`/`Infinity`/`-Infinity`/`-0` returned here
+        //   would skip the sentinel treatment the bare `nan`/`infinity`/
+        //   `negativeZero` type specs normally give those values (since
+        //   we're already inside this spec's own `replace()`) -- JSON
+        //   can't represent them, so they'd otherwise silently become
+        //   `null` (or lose their sign, for `-0`). Encode them the same
+        //   way those specs do, directly, rather than relying on that
+        //   nested pass.
+        replace (o) {
+            const n = o.valueOf();
+            if (Number.isNaN(n)) {
+                return 'NaN';
+            }
+            if (n === Infinity) {
+                return 'Infinity';
+            }
+            if (n === -Infinity) {
+                return '-Infinity';
+            }
+            if (Object.is(n, -0)) {
+                // A plain `0` here would be indistinguishable from a
+                //   genuine positive `0` once round-tripped through JSON
+                //   (which can't represent the sign), so this needs its
+                //   own sentinel too, same as the others above.
+                return '-0';
+            }
+            return n;
+        },
+        // Revive to an objectified number
+        revive (n) {
+            if (n === 'NaN') {
+                return new Number(NaN);
+            }
+            if (n === 'Infinity') {
+                return new Number(Infinity);
+            }
+            if (n === '-Infinity') {
+                return new Number(-Infinity);
+            }
+            if (n === '-0') {
+                return new Number(-0);
+            }
+            return new Number(n);
+        }
     }
 };
 
@@ -1233,6 +1385,29 @@ const promise = {
             return o.error
                 ? Promise.reject(o.error)
                 : Promise.resolve(o.value);
+        }
+    }
+};
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const quotaexceedederror = {
+    quotaexceedederror: {
+        test (x) { return toStringTag(x) === 'QuotaExceededError'; },
+        replace ({message, quota, requested}) {
+            return {message, quota, requested};
+        },
+        revive ({message, quota, requested}) {
+            /** @type {{quota?: number, requested?: number}} */
+            const options = {};
+            if (quota !== null && quota !== undefined) {
+                options.quota = quota;
+            }
+            if (requested !== null && requested !== undefined) {
+                options.requested = requested;
+            }
+            return new QuotaExceededError(message, options);
         }
     }
 };
@@ -1335,12 +1510,12 @@ const symbol = {
 const typedArraysSocketIO = {};
 
 /**
- * @param {Int8ArrayConstructor|Uint8ArrayConstructor|
- *   Uint8ClampedArrayConstructor|Int16ArrayConstructor|
- *   Uint16ArrayConstructor|Int32ArrayConstructor|
- *   Uint32ArrayConstructor|Float32ArrayConstructor|
- *   Float64ArrayConstructor|
- *   BigInt64ArrayConstructor|BigUint64ArrayConstructor
+ * @param {Int8ArrayConstructor|Uint8ArrayConstructor
+ *   |Uint8ClampedArrayConstructor|Int16ArrayConstructor
+ *   |Uint16ArrayConstructor|Int32ArrayConstructor
+ *   |Uint32ArrayConstructor|Float32ArrayConstructor
+ *   |Float64ArrayConstructor|Float16ArrayConstructor
+ *   |BigInt64ArrayConstructor|BigUint64ArrayConstructor
  * } TypedArray
  * @returns {void}
  */
@@ -1389,6 +1564,10 @@ if (typeof Int8Array === 'function') {
         ...(typeof BigInt64Array === 'function'
             ? [BigInt64Array, BigUint64Array]
             /* c8 ignore next */
+            : []),
+        ...(typeof Float16Array === 'function'
+            ? [Float16Array]
+            /* c8 ignore next */
             : [])
     ].forEach((TypedArray) => create$1(TypedArray));
 }
@@ -1399,13 +1578,14 @@ if (typeof Int8Array === 'function') {
 const typedArrays = {};
 
 /**
- * @typedef {Int8ArrayConstructor|Uint8ArrayConstructor|
- *   Uint8ClampedArrayConstructor|
- *   Int16ArrayConstructor|Uint16ArrayConstructor|
- *   Int32ArrayConstructor|Uint32ArrayConstructor|
- *   Float32ArrayConstructor|
- *   Float64ArrayConstructor|
- *   BigInt64ArrayConstructor|BigUint64ArrayConstructor} TypedArrayConstructor
+ * @typedef {Int8ArrayConstructor|Uint8ArrayConstructor
+ *   |Uint8ClampedArrayConstructor
+ *   |Int16ArrayConstructor|Uint16ArrayConstructor
+ *   |Int32ArrayConstructor|Uint32ArrayConstructor
+ *   |Float32ArrayConstructor
+ *   |Float64ArrayConstructor
+ *   |BigInt64ArrayConstructor|BigUint64ArrayConstructor
+ *   |Float16ArrayConstructor} TypedArrayConstructor
  */
 
 /**
@@ -1492,6 +1672,10 @@ if (typeof Int8Array === 'function') {
         ...(typeof BigInt64Array === 'function'
             ? [BigInt64Array, BigUint64Array]
             /* c8 ignore next */
+            : []),
+        ...(typeof Float16Array === 'function'
+            ? [Float16Array]
+            /* c8 ignore next */
             : [])
     ].forEach((TypedArray) => create(TypedArray));
 }
@@ -1525,6 +1709,85 @@ const userObject = {
         test (x /* , stateObj */) { return isUserObject(x); },
         replace (n) { return {...n}; },
         revive (s) { return s; }
+    }
+};
+
+/* globals VideoFrame -- Polyfills */
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const videoframe = {
+    videoframe: {
+        test (x) {
+            return toStringTag(x) === 'VideoFrame';
+        },
+        replaceAsync (frame) {
+            return new TypesonPromise(async (resolve, reject) => {
+                try {
+                    const {
+                        format, codedWidth, codedHeight, timestamp, duration,
+                        visibleRect, displayWidth, displayHeight, colorSpace
+                    } = frame;
+
+                    const data = new ArrayBuffer(frame.allocationSize());
+                    await frame.copyTo(data);
+
+                    resolve({
+                        format, codedWidth, codedHeight, timestamp, duration,
+                        visibleRect: {
+                            x: visibleRect.x,
+                            y: visibleRect.y,
+                            width: visibleRect.width,
+                            height: visibleRect.height
+                        },
+                        displayWidth, displayHeight,
+                        colorSpace: {
+                            primaries: colorSpace.primaries,
+                            transfer: colorSpace.transfer,
+                            matrix: colorSpace.matrix,
+                            fullRange: colorSpace.fullRange
+                        },
+                        data
+                    });
+                /* c8 ignore next 3 -- How to simulate? */
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        },
+        revive ({
+            format, codedWidth, codedHeight, timestamp, duration,
+            visibleRect, displayWidth, displayHeight, colorSpace, data
+        }) {
+            return new VideoFrame(new Uint8Array(data), {
+                format, codedWidth, codedHeight, timestamp, duration,
+                visibleRect, displayWidth, displayHeight, colorSpace
+            });
+        }
+    }
+};
+
+/* globals WebTransportError -- Newer API */
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const webtransporterror = {
+    webtransporterror: {
+        test (x) { return toStringTag(x) === 'WebTransportError'; },
+        // Note that we can't support the `source` property (defaults
+        //   to `stream` instead of `session`)
+        replace ({message, streamErrorCode}) {
+            return {message, streamErrorCode};
+        },
+        revive ({message, streamErrorCode}) {
+            // TS lib still models the older two-argument
+            //   `(message, options)` form; browsers implement a single
+            //   `init` object (which also carries `message`).
+            // @ts-expect-error - More recent API
+            return new WebTransportError({message, streamErrorCode});
+        }
     }
 };
 
@@ -1656,8 +1919,9 @@ clone algorithm). This algorithm supports all built-in types as well as many
 DOM types. Therefore, only types that are not included in the structured clone
 algorithm need to be registered, which is:
 
-* Error
-* Specific Errors like SyntaxError, TypeError, etc.
+* Error (now included in structured cloning)
+* Specific Errors like SyntaxError, TypeError, etc. (now included in structured
+*   cloning)
 * Any custom type you want to send across window- or worker boundraries
 
 This preset will only include the Error types and you can register your
@@ -1750,14 +2014,54 @@ const expObj = [
     /* c8 ignore next */
     typeof DOMException !== 'undefined' ? domexception : [],
     /* c8 ignore next */
+    typeof QuotaExceededError !== 'undefined' ? quotaexceedederror : [],
+    /* c8 ignore next */
+    typeof WebTransportError !== 'undefined' ? webtransporterror : [],
+    /* c8 ignore next */
     typeof DOMRect !== 'undefined' ? domrect : [],
     /* c8 ignore next */
     typeof DOMPoint !== 'undefined' ? dompoint : [],
     /* c8 ignore next */
     typeof DOMQuad !== 'undefined' ? domquad : [],
     /* c8 ignore next */
-    typeof DOMMatrix !== 'undefined' ? dommatrix : []
+    typeof DOMMatrix !== 'undefined' ? dommatrix : [],
+    /* c8 ignore next */
+    typeof AudioData !== 'undefined' ? audiodata : [],
+    /* c8 ignore next */
+    typeof EncodedAudioChunk !== 'undefined' ? encodedaudiochunk : [],
+    /* c8 ignore next */
+    typeof EncodedVideoChunk !== 'undefined' ? encodedvideochunk : [],
+    /* c8 ignore next */
+    typeof VideoFrame !== 'undefined' ? videoframe : []
 );
+
+/**
+ * @param {BufferSource} buffer
+ * @returns {boolean}
+ */
+function isBufferDetached (buffer) {
+    // Use the standard property if available
+    // @ts-expect-error - More recent API
+    if (typeof buffer.detached === 'boolean') {
+        // @ts-expect-error - More recent API
+        return buffer.detached;
+    }
+    /* c8 ignore next 14 -- Older browsers */
+
+    // Fallback check via byteLength and constructor test
+    if (buffer.byteLength !== 0) {
+        return false;
+    }
+
+    try {
+        // @ts-expect-error Ok
+        // eslint-disable-next-line no-new -- Throwaway
+        new Uint8Array(buffer);
+        return false;
+    } catch {
+        return true;
+    }
+}
 
 /**
  * @type {import('typeson').Preset}
@@ -1766,13 +2070,11 @@ const structuredCloningThrowing = expObj.concat({
     checkDataCloneException: {
         test (val) {
             // Should also throw with:
-            // 1. `IsDetachedBuffer` (a process not called within the
-            //      ECMAScript spec)
-            // 2. `IsCallable` (covered by `typeof === 'function'` or a
+            // 1. `IsCallable` (covered by `typeof === 'function'` or a
             //       function's `toStringTag`)
-            // 3. internal slots besides [[Prototype]] or [[Extensible]] (e.g.,
+            // 2. internal slots besides [[Prototype]] or [[Extensible]] (e.g.,
             //        [[PromiseState]] or [[WeakMapData]])
-            // 4. exotic object (e.g., `Proxy`) (unless an `%ObjectPrototype%`
+            // 3. exotic object (e.g., `Proxy`) (unless an `%ObjectPrototype%`
             //      intrinsic object) (which does not have default
             //      behavior for one or more of the essential internal methods
             //      that are limited to the following for non-function objects
@@ -1812,8 +2114,42 @@ const structuredCloningThrowing = expObj.concat({
                     // HTML-SPECIFIC
                     'Event',
                     // Also in Node `worker_threads` (currently experimental)
-                    'MessageChannel'
+                    'MessageChannel',
+                    'MessagePort'
                 ].includes(stringTag) ||
+                // Node's native `worker_threads` `MessageChannel`/
+                //   `MessagePort` don't set `Symbol.toStringTag` per
+                //      https://github.com/nodejs/node/issues/65527
+                //   (verified directly:
+                //   `{}.toString.call(new MessageChannel())` is
+                //   `"[object Object]"`, and `.port1`'s is
+                //   `"[object EventTarget]"`, its own base class), so the
+                //   `stringTag` check above can't catch them there; a real
+                //   browser's `MessagePort`/`MessageChannel` already match
+                //   via `stringTag` (or, for `MessagePort`, would need its
+                //   own `stringTag` entry if ever seen failing to match) --
+                //   this is purely a fallback for environments (like Node)
+                //   that don't set the tag.
+                (val && val.constructor && [
+                    'MessageChannel', 'MessagePort'
+                ].includes(val.constructor.name)) ||
+                // 1. `IsDetachedBuffer` (a process not called within the
+                //      ECMAScript spec)
+                ([
+                    'ArrayBuffer',
+                    'DataView',
+                    'Int8Array',
+                    'Uint8Array',
+                    'Uint8ClampedArray',
+                    'Int16Array',
+                    'Uint16Array',
+                    'Int32Array',
+                    'Uint32Array',
+                    'Float32Array',
+                    'Float64Array',
+                    'BigInt64Array',
+                    'BigUint64Array'
+                ].includes(stringTag) && isBufferDetached(val)) ||
                 /*
                 // isClosed is no longer documented
                 ((stringTag === 'Blob' || stringTag === 'File') &&
@@ -1825,6 +2161,29 @@ const structuredCloningThrowing = expObj.concat({
                     typeof val.nodeType === 'number' &&
                     typeof val.insertBefore === 'function')
             ) {
+                throw new DOMException(
+                    'The object cannot be cloned.', 'DataCloneError'
+                );
+            }
+            return false;
+        }
+    }
+});
+
+/**
+ * @type {import('typeson').Preset}
+ */
+const structuredCloningForStorage = structuredCloningThrowing.concat({
+    checkSharedArrayBufferException: {
+        test (val) {
+            // Per https://webidl.spec.whatwg.org/#idl-SharedArrayBuffer ,
+            //   `SharedArrayBuffer` is a structured-cloneable *transferable*
+            //   type only for `postMessage`-style contexts (with
+            //   `crossOriginIsolated`); storage-oriented consumers of the
+            //   structured clone algorithm (e.g. IndexedDB) reject it
+            //   outright instead, so this isn't part of the more general
+            //   `structuredCloningThrowing` preset this one builds on.
+            if (({}.toString.call(val).slice(8, -1)) === 'SharedArrayBuffer') {
                 throw new DOMException(
                     'The object cannot be cloned.', 'DataCloneError'
                 );
@@ -1851,5 +2210,5 @@ const universal = [
     //   built-in into ecmasript standard.
 ];
 
-export { i$1 as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, hasConstructorOf, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningThrowing, symbol, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject };
+export { i$1 as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, audiodata, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, encodedaudiochunk, encodedvideochunk, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, hasConstructorOf, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, quotaexceedederror, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningForStorage, structuredCloningThrowing, symbol, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject, videoframe, webtransporterror };
 //# sourceMappingURL=index.js.map
