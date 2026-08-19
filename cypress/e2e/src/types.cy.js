@@ -1,6 +1,7 @@
 import Types, {
   getPropertyValueFromLegend
 } from '#jsoe/types.js';
+import {getTypesForSchema} from '#jsoe/formats/schema.js';
 
 describe('`getPropertyValueFromLegend`', function () {
   beforeEach(() => {
@@ -130,6 +131,53 @@ describe('`Types.validate` zodexy error messages', function () {
     expect(getInvalidStringInput(types).validationMessage).to.equal(
       `Value doesn't start with expected: valid`
     );
+  });
+
+  it('uses the failing intersection branch error', function () {
+    const intersectionSchema =
+      /** @type {import('zodexy').SzIntersection} */ ({
+        type: 'intersection',
+        left: {
+          type: 'string',
+          min: 5,
+          error: 'Minimum length message'
+        },
+        right: {
+          type: 'string',
+          max: 7,
+          error: 'Maximum length message'
+        }
+      });
+    const [stringSchema] = [...getTypesForSchema(
+      intersectionSchema, intersectionSchema
+    )];
+    expect(stringSchema).to.deep.equal({
+      type: 'string',
+      min: 5,
+      max: 7
+    });
+
+    const types = new Types({useZodexyErrorMessages: true});
+    const root = /** @type {HTMLDivElement} */ (types.getUIForModeAndType({
+      readonly: false,
+      typeNamespace: 'zodexy-intersection-error',
+      type: 'string',
+      format: 'schema',
+      value: 'abcdefgh',
+      hasValue: true,
+      specificSchemaObject: stringSchema
+    }));
+    document.body.append(root);
+    const textarea = /** @type {HTMLTextAreaElement} */ (
+      root.querySelector('textarea')
+    );
+
+    types.validate({type: 'string', root, avoidReport: true});
+    expect(textarea.validationMessage).to.equal('Maximum length message');
+
+    textarea.value = 'abc';
+    types.validate({type: 'string', root, avoidReport: true});
+    expect(textarea.validationMessage).to.equal('Minimum length message');
   });
 });
 

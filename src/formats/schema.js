@@ -167,6 +167,44 @@ const dezerializerCodecs = {
 
 /**
  * @param {InstanceType<typeof import('../types.js').default>} types
+ * @param {ZodexSchema} schemaObject
+ * @param {ZodexSchema} originalShape
+ * @param {unknown} value
+ * @returns {ReturnType<ReturnType<typeof dezerialize>['safeParse']>}
+ */
+function parseValue (types, schemaObject, originalShape, value) {
+  return dezerialize(schemaObject, {
+    checks: getChecks(types),
+    codecs: dezerializerCodecs,
+    instances: dezerializerInstances,
+    originalShape
+  }).safeParse(value);
+}
+
+/**
+ * @param {InstanceType<typeof import('../types.js').default>} types
+ * @param {ZodexSchema} schemaObject
+ * @param {ZodexSchema} originalShape
+ * @param {unknown} value
+ * @returns {ZodexSchema|undefined}
+ */
+function getInvalidIntersectionBranch (
+  types, schemaObject, originalShape, value
+) {
+  if (schemaObject.type === 'intersection') {
+    return getInvalidIntersectionBranch(
+      types, schemaObject.left, originalShape, value
+    ) ?? getInvalidIntersectionBranch(
+      types, schemaObject.right, originalShape, value
+    );
+  }
+  return parseValue(types, schemaObject, originalShape, value).success
+    ? undefined
+    : schemaObject;
+}
+
+/**
+ * @param {InstanceType<typeof import('../types.js').default>} types
  * @returns {NonNullable<
  *   import('zodexy').DezerializerOptions['checks']
  * >}
@@ -195,6 +233,26 @@ function getChecks (types) {
  * @typedef {import('../utils/objects.js').NestedObject} NestedObject
  */
 
+/** @type {WeakMap<ZodexSchema, ZodexSchema>} */
+const intersectionSchemas = new WeakMap();
+
+/**
+ * @param {ZodexSchema} schemaObject
+ * @returns {ZodexSchema}
+ */
+export function getValidationSchema (schemaObject) {
+  return intersectionSchemas.get(schemaObject) ?? schemaObject;
+}
+
+/**
+ * @param {ZodexSchema['type']} type
+ * @param {any} value
+ * @returns {any}
+ */
+function getComparableConstraint (type, value) {
+  return type === 'bigInt' ? BigInt(value) : value;
+}
+
 /**
  * @param {ZodexSchema} leftItem
  * @param {ZodexSchema} rightItem
@@ -202,21 +260,17 @@ function getChecks (types) {
  * @returns {ZodexSchema}
  */
 function mergeSchema (leftItem, rightItem) {
-  /* istanbul ignore if -- Guard */
-  if (leftItem.type !== 'object') {
-    console.log('leftItem', leftItem);
-    throw new Error('Unexpected leftItem of type ' + leftItem.type);
-  }
-  /* istanbul ignore if -- Guard */
-  if (rightItem.type !== 'object') {
-    console.log('rightItem', rightItem);
-    throw new Error('Unexpected rightItem of type ' + rightItem.type);
+  if (leftItem.type !== rightItem.type) {
+    throw new Error(
+      'Cannot merge intersection types ' + leftItem.type + ' and ' +
+      rightItem.type
+    );
   }
 
   const newLeftObj = copyObject(leftItem);
 
   for (const [prop, val] of Object.entries(rightItem)) {
-    if (prop !== 'type' && prop !== 'properties') {
+    if (prop !== 'type' && prop !== 'properties' && prop !== 'error') {
       if (prop === 'description') {
         if (val !== 'Modifiers') { // A bit cleaner
           const existingDescription = newLeftObj[prop];
@@ -224,21 +278,49 @@ function mergeSchema (leftItem, rightItem) {
             ? existingDescription + ' and ' + val
             : val;
         }
-      } else { // catchall
-        if (Object.hasOwn(newLeftObj, prop)) {
-          throw new Error(
-            'Duplicate property ' + prop + ' of value ' +
-            JSON.stringify(val) + ' and ' +
-            JSON.stringify(newLeftObj[prop])
-          );
+      } else if (Object.hasOwn(newLeftObj, prop)) {
+        if (newLeftObj[prop] !== val) {
+          if (leftItem.type === 'object') {
+            throw new Error(
+              'Duplicate property ' + prop + ' of value ' +
+              JSON.stringify(val) + ' and ' +
+              JSON.stringify(newLeftObj[prop])
+            );
+          }
+          if (prop === 'min' || prop === 'minLength') {
+            const existingConstraint = getComparableConstraint(
+              leftItem.type, newLeftObj[prop]
+            );
+            const rightConstraint = getComparableConstraint(
+              rightItem.type, val
+            );
+            newLeftObj[prop] = existingConstraint > rightConstraint
+              ? newLeftObj[prop]
+              : val;
+          } else if (prop === 'max' || prop === 'maxLength') {
+            const existingConstraint = getComparableConstraint(
+              leftItem.type, newLeftObj[prop]
+            );
+            const rightConstraint = getComparableConstraint(
+              rightItem.type, val
+            );
+            newLeftObj[prop] = existingConstraint < rightConstraint
+              ? newLeftObj[prop]
+              : val;
+          }
         }
-
+      } else {
         newLeftObj[prop] = val && typeof val === 'object'
           ? copyObject(val)
           /* istanbul ignore next -- Guard */
           : val;
       }
     }
+  }
+
+  if (leftItem.type !== 'object' || rightItem.type !== 'object') {
+    delete newLeftObj.error;
+    return newLeftObj;
   }
 
   for (const [prop, val] of Object.entries(rightItem.properties)) {
@@ -398,6 +480,9 @@ export function getTypesForSchema (schemaObject, originalJSON) {
       const right = getTypesForSchema(schemaObject.right, originalJSON);
 
       const set = flattenIntersection(left, right);
+      for (const item of set) {
+        intersectionSchemas.set(item, schemaObject);
+      }
       addModifiers(schemaObject, set);
       return new Set(set);
     } case 'pipe': {
@@ -703,16 +788,26 @@ export function getTypesForSchema (schemaObject, originalJSON) {
 
 /** @type {import('../formats.js').Format} */
 const schema = {
+  isValueValidationRequired (schemaObject) {
+    return schemaObject.type !== 'object' &&
+      intersectionSchemas.has(schemaObject);
+  },
   validateValue (types, schemaObject, value) {
-    const parsed = dezerialize(schemaObject, {
-      checks: getChecks(types),
-      codecs: dezerializerCodecs,
-      instances: dezerializerInstances,
-      originalShape: schemaObject
-    }).safeParse(value);
+    const validationSchema = getValidationSchema(schemaObject);
+    const parsed = parseValue(
+      types, validationSchema, validationSchema, value
+    );
     return parsed.success
       ? {valid: true}
-      : {valid: false, message: parsed.error.issues[0]?.message};
+      : {
+        valid: false,
+        message: parsed.error.issues[0]?.message,
+        schema: validationSchema.type === 'intersection'
+          ? getInvalidIntersectionBranch(
+            types, validationSchema, validationSchema, value
+          )
+          : validationSchema
+      };
   },
   iterate (records, stateObj) {
     // console.log('records', records, stateObj);

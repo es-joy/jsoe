@@ -864,9 +864,11 @@ class Types {
       }
       valueReady = false;
     }
-    const schemaValidation = valueReady &&
-      schemaObject?.type === 'templateLiteral'
-      ? this.formats.getAvailableFormat('schema').validateValue?.(
+    const schemaFormat = this.formats.getAvailableFormat('schema');
+    const schemaValidation = valueReady && schemaObject &&
+      (schemaObject.type === 'templateLiteral' ||
+        schemaFormat.isValueValidationRequired?.(schemaObject))
+      ? schemaFormat.validateValue?.(
         this, schemaObject, value
       ) ?? {valid: true, message: undefined}
       : {valid: true, message: undefined};
@@ -878,7 +880,9 @@ class Types {
     if (formControl) {
       const validationMessage = this.getValidationMessage({
         message: message || 'Invalid',
-        schema: schemaObject
+        schema: schemaValidation.valid
+          ? schemaObject
+          : schemaValidation.schema ?? schemaObject
       });
       formControl.setCustomValidity(
         valid

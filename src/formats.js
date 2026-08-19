@@ -92,7 +92,11 @@ export const getTypeForFormatStateAndValue = ({format, state, value}) => {
  *   types: import('./types.js').default,
  *   schemaObject: import('./formatAndTypeChoices.js').ZodexSchema,
  *   value: StructuredCloneValue
- * ) => {valid: boolean, message?: string}} [validateValue]
+ * ) => {valid: boolean, message?: string,
+ *   schema?: import('./formats/schema.js').ZodexSchema}} [validateValue]
+ * @property {(
+ *   schemaObject: import('./formats/schema.js').ZodexSchema
+ * ) => boolean} [isValueValidationRequired]
  */
 
 /**

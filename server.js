@@ -1,4 +1,4 @@
-import http from 'http';
+import http from 'node:http';
 import statik from '@brettz9/node-static';
 
 const port = process.argv[2];

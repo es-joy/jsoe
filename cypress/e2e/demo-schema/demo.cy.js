@@ -49,27 +49,12 @@ describe('Demo spec', () => {
     cy.get('#viewUIResults').should('contain', 'true');
   });
 
-  it('Opens any schema (never) option', function () {
+  it('Omits a never option for any schema', function () {
     cy.get('.formatChoices:first').select('Schema: any schema');
     const sel = '#formatAndTypeChoices ';
-    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-      'Never'
-    );
-
-    cy.on('uncaught:exception', (err /* , runnable */) => {
-      if (err?.message.includes('Cannot convert to value')) {
-        // returning false here prevents Cypress from
-        // failing the test
-        return false;
-      }
-      return undefined;
-    });
-
-    cy.get('#viewUI').click();
-
-    cy.get('#viewUIResults').should(
-      'not.contain', 'Never (no value present here)'
-    );
+    cy.get(
+      sel + 'select.typeChoices-demo-keypath-not-expected option'
+    ).should('not.contain', 'Never');
   });
 
   it('Opens unknown schema (boolean) option', function () {
@@ -124,6 +109,48 @@ describe('Demo spec', () => {
 });
 
 describe('`getTypesForSchema`', function () {
+  it('merges compatible non-object intersections', function () {
+    const schemas = [
+      {
+        schema: {
+          type: 'intersection',
+          left: {type: 'bigInt', min: '2'},
+          right: {type: 'bigInt', min: '10'}
+        },
+        expected: {type: 'bigInt', min: '10'}
+      },
+      {
+        schema: {
+          type: 'intersection',
+          left: {
+            type: 'array',
+            element: {type: 'string'},
+            minLength: 2
+          },
+          right: {
+            type: 'array',
+            element: {type: 'string'},
+            minLength: 5,
+            maxLength: 8
+          }
+        },
+        expected: {
+          type: 'array',
+          element: {type: 'string'},
+          minLength: 5,
+          maxLength: 8
+        }
+      }
+    ];
+
+    for (const {schema, expected} of schemas) {
+      expect([...getTypesForSchema(
+        /** @type {import('zodexy').SzType} */ (schema),
+        /** @type {import('zodexy').SzType} */ (schema)
+      )]).to.deep.equal([expected]);
+    }
+  });
+
   it('errs with duplicate properties', function () {
     const schema = /** @type {import('zodexy').SzIntersection} */ ({
       type: 'intersection',
