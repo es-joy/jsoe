@@ -16,6 +16,13 @@
           cy.stub(win.console, 'log').as('consoleLog');
         }
       });
+      const readySel = item
+        ? 'form > .typeContainer:nth-of-type(2) > ' +
+          '[data-type="arrayNonindexKeys"] > .arrayContents > ' +
+          '.arrayItems > fieldset > .typeContainer:nth-of-type(1) ' +
+          '.typeContainer input'
+        : 'form > .typeContainer:nth-of-type(2) .typeContainer input';
+      cy.get(readySel).should('have.value', '3');
     });
     describe('Group 1', function () {
       it('Selects false', function () {
@@ -64,7 +71,7 @@
         const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(1) ' +
           arraySels;
         cy.get(
-          sel + '[data-type="void"]'
+          sel + '[data-type="undef"]'
         ).should('exist');
       });
 
@@ -72,8 +79,8 @@
         const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(2) ' +
           arraySels;
         cy.get(
-          sel + '[data-type="enum"] ' +
-            'select[name="demo-type-choices-only-initial-value-enum"] ' +
+          sel + '[data-type="string"] ' +
+            'select[name="demo-type-choices-only-initial-value-string"] ' +
             'option:selected'
         ).should('have.text', 'ghi');
       });
@@ -82,7 +89,7 @@
         const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(3) ' +
           arraySels;
         cy.get(
-          sel + '[data-type="literal"] input:checked'
+          sel + '[data-type="boolean"] input:checked'
         ).should('have.value', 'false');
       });
 
@@ -90,7 +97,7 @@
         const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(4) ' +
           arraySels;
         cy.get(
-          sel + '[data-type="literal"] input'
+          sel + '[data-type="number"] select'
         ).should('have.value', '135');
       });
 
@@ -98,8 +105,16 @@
         const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(5) ' +
           arraySels;
         cy.get(
-          sel + '[data-type="literal"] textarea'
+          sel + '[data-type="string"] select'
         ).should('have.value', 'abcde');
+      });
+
+      it('Selects template literal', function () {
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(33) ' +
+          arraySels;
+        cy.get(
+          sel + '[data-type="string"] textarea'
+        ).should('have.value', 'item-42');
       });
 
       it('Selects empty object', function () {
@@ -830,11 +845,11 @@
       it('Selects enum', function () {
         const sel = 'section:nth-of-type(8) > .innerItem:nth-of-type(2) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="enum"]').should(($div) => {
+        cy.get(sel + 'div[data-type="string"]').should(($div) => {
           expect($div.attr('title')).to.equal('An enum');
         });
 
-        cy.get(sel + 'select[name="demo-type-choices-only-initial-value-enum"]').should(
+        cy.get(sel + 'select[name="demo-type-choices-only-initial-value-string"]').should(
           'have.value', 'ghi'
         );
       });
@@ -852,11 +867,11 @@
       it('Selects enum', function () {
         const sel = 'section:nth-of-type(9) > .innerItem:nth-of-type(2) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="enum"]').should(($div) => {
-          expect($div.attr('title')).to.equal('Enum');
+        cy.get(sel + 'div[data-type="number"]').should(($div) => {
+          expect($div.attr('title')).to.equal('Number');
         });
 
-        cy.get(sel + 'select[name="demo-type-choices-only-initial-value-enum"]').should(
+        cy.get(sel + 'input[name="demo-type-choices-only-initial-value-number"]').should(
           'have.value', '0'
         );
       });
@@ -876,12 +891,11 @@
       it('Selects literal number', function () {
         const sel = 'section:nth-of-type(9) > .innerItem:nth-of-type(4) ' +
           arraySels;
-        // Todo: Should really state "Literal" on the parent title
-        cy.get(sel + 'div[data-type="literal"] > div').should(($div) => {
+        cy.get(sel + 'div[data-type="number"]').should(($div) => {
           expect($div.attr('title')).to.equal('Number');
         });
 
-        cy.get(sel + 'input').should(
+        cy.get(sel + 'select').should(
           'have.value', '135'
         );
       });
@@ -897,18 +911,18 @@
       it('Selects void', function () {
         const sel = 'section:nth-of-type(9) > .innerItem:nth-of-type(6) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="void"]').should(($div) => {
-          expect($div.attr('title')).to.equal('Void');
+        cy.get(sel + 'div[data-type="undef"]').should(($div) => {
+          expect($div.attr('title')).to.equal('Undefined');
         });
       });
 
       it('Selects an enum', function () {
         const sel = 'section:nth-of-type(9) > .innerItem:nth-of-type(7) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="enum"]').should(($div) => {
-          expect($div.attr('title')).to.equal('Enum');
+        cy.get(sel + 'div[data-type="string"]').should(($div) => {
+          expect($div.attr('title')).to.equal('String');
         });
-        cy.get(sel + 'div[data-type="enum"] select > option:selected').should(
+        cy.get(sel + 'div[data-type="string"] select > option:selected').should(
           'have.value', 'ijkl'
         );
       });
@@ -926,12 +940,10 @@
       it('Selects a catch', function () {
         const sel = 'section:nth-of-type(10) > .innerItem:nth-of-type(2) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="catch"]').should(($div) => {
-          expect($div.attr('title')).to.equal('A catch');
-        });
-
-        cy.get(sel + 'div[data-type="catch"] b').should(($elem) => {
-          expect($elem.attr('title')).to.equal('abc');
+        cy.get(sel + 'div[data-type="string"]').should(($div) => {
+          expect($div.attr('title')).to.equal(
+            'An overpassed string and A catch'
+          );
         });
 
         cy.get(sel + 'textarea').should('have.value', 'def');
@@ -950,12 +962,8 @@
       it('Selects a catch', function () {
         const sel = 'section:nth-of-type(11) > .innerItem:nth-of-type(2) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="catch"]').should(($div) => {
-          expect($div.attr('title')).to.equal('(a `catch`)');
-        });
-
-        cy.get(sel + 'div[data-type="catch"] b').should(($elem) => {
-          expect($elem.attr('title')).to.equal('abc');
+        cy.get(sel + 'div[data-type="string"]').should(($div) => {
+          expect($div.attr('title')).to.equal('String');
         });
 
         cy.get(sel + 'textarea').should('have.value', 'def');

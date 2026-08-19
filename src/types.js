@@ -839,19 +839,35 @@ class Types {
 
   /** @type {Validate} */
   validate ({type, root, topRoot, avoidReport}) {
+    if (Types.getTypeForRoot(root) !== type) {
+      return true;
+    }
     const typeObj = /** @type {TypeObject} */ (this.availableTypes[type]);
     const typeValidation = typeObj.validate
       ? typeObj.validate({root, topRoot})
       : {valid: true, message: undefined};
     const schemaObject = this.schemasForRoots.get(root);
-    const schemaValidation = schemaObject
+    let value;
+    let valueReady = true;
+    try {
+      value = typeObj.getValue?.({
+        root,
+        stateObj: {types: this, formats: this.formats}
+      });
+    } catch (error) {
+      const errorMessage = error && typeof error === 'object' &&
+        'message' in error
+        ? error.message
+        : undefined;
+      if (errorMessage !== 'Not yet instantiated') {
+        throw error;
+      }
+      valueReady = false;
+    }
+    const schemaValidation = valueReady &&
+      schemaObject?.type === 'templateLiteral'
       ? this.formats.getAvailableFormat('schema').validateValue?.(
-        this,
-        schemaObject,
-        typeObj.getValue?.({
-          root,
-          stateObj: {types: this, formats: this.formats}
-        })
+        this, schemaObject, value
       ) ?? {valid: true, message: undefined}
       : {valid: true, message: undefined};
     const valid = typeValidation.valid && schemaValidation.valid;
@@ -883,6 +899,9 @@ class Types {
 
   /** @type {SetValue} */
   setValue ({type, root, value}) {
+    if (Types.getTypeForRoot(root) !== type) {
+      return;
+    }
     const typeObj = /** @type {TypeObject} */ (this.availableTypes[type]);
     if (typeObj.setValue) {
       typeObj.setValue({root, value});

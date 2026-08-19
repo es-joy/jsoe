@@ -4,6 +4,7 @@ import Types from './types.js';
 
 import {$e, DOM} from './utils/templateUtils.js';
 import dialogs from './utils/dialogs.js';
+import deepEqual from 'fast-deep-equal/es6/index.js';
 
 // This is technically just `import('./index.js').SetType`, but our
 //   redirect file causes problems, so we redefine here
@@ -195,9 +196,9 @@ export const buildTypeChoices = ({
           type, baseValue, bringIntoFocus, avoidReport, specificSchema
         } = cfg;
         if (schemaObjs && specificSchema) {
-          const idx = schemaObjs.map((obj) => {
-            return JSON.stringify(obj);
-          }).indexOf(JSON.stringify(specificSchema));
+          const idx = schemaObjs.findIndex((obj) => {
+            return deepEqual(obj, specificSchema);
+          });
           if (idx === -1) {
             this.value = type;
           } else {
@@ -216,9 +217,9 @@ export const buildTypeChoices = ({
       $setTypeNoEditUI (cfg) {
         const {type, specificSchema} = cfg;
         if (schemaObjs && specificSchema) {
-          const idx = schemaObjs.map((obj) => {
-            return JSON.stringify(obj);
-          }).indexOf(JSON.stringify(specificSchema));
+          const idx = schemaObjs.findIndex((obj) => {
+            return deepEqual(obj, specificSchema);
+          });
           this.selectedIndex = idx + 1;
         } else {
           this.value = type;
@@ -405,11 +406,17 @@ export const buildTypeChoices = ({
   ]));
   if (autoTrigger && !setValue && typeOptions.length === 1) {
     setTimeout(() => {
+      if (!sel.isConnected) {
+        return;
+      }
       sel.selectedIndex = 1;
       sel.dispatchEvent(new Event('change'));
     }, 0);
   } else if (setValue || (requireObject && !objectHasValue)) {
     setTimeout(async () => {
+      if (!sel.isConnected) {
+        return;
+      }
       if (!setValue) { // if (requireObject && !objectHasValue) {
         // Todo (low): We could auto-populate keypath if has
         //   keypath (and we probably also only want if

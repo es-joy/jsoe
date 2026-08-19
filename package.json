@@ -69,7 +69,7 @@
     "sceditor": "3.2.1",
     "typeson-registry": "13.1.0",
     "zod": "^4.4.3",
-    "zodexy": "^0.25.0"
+    "zodexy": "^0.26.0"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
@@ -86,7 +86,7 @@
     "@types/node": "^26.2.0",
     "axe-core": "^4.13.0",
     "coveradge": "^0.8.2",
-    "cypress": "^15.20.1",
+    "cypress": "^15.21.0",
     "cypress-axe": "^1.7.0",
     "cypress-terminal-report": "^7.3.3",
     "eslint": "^10.8.1",

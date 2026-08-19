@@ -622,7 +622,7 @@ var getCustomChecksAndErrors = (def, opts) => {
         return { name };
       }
       return null;
-    }).filter(Boolean);
+    }).filter((check) => check !== null);
   }
   let customError;
   if ("error" in def) {

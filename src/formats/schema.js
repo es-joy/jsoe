@@ -77,6 +77,33 @@ function getValueType (value) {
 }
 
 /**
+ * @param {import('zodexy').SzLiteral<any>|import('zodexy').SzEnum<any>} schema
+ * @returns {Set<ZodexSchema>}
+ */
+function splitConstrainedSchema (schema) {
+  const values = /** @type {unknown[]} */ (schema.type === 'literal'
+    ? schema.values
+    : Object.values(schema.values));
+  const valueTypes = new Set(values.map((value) => getValueType(value)));
+  return new Set([...valueTypes].flatMap((type) => {
+    if (!type) {
+      return [];
+    }
+    const typeValues = values.filter((value) => {
+      return getValueType(value) === type;
+    });
+    const {defaultValue} = schema;
+    return [{
+      ...schema,
+      values: typeValues,
+      defaultValue: typeValues.includes(defaultValue)
+        ? defaultValue
+        : typeValues[0]
+    }];
+  }));
+}
+
+/**
  * @param {ZodexSchema} schemaObject
  * @returns {import('../types.js').AvailableType|undefined}
  */
@@ -314,26 +341,8 @@ export function getTypesForSchema (schemaObject, originalJSON) {
     case 'never':
       return new Set();
     case 'literal':
-    case 'enum': {
-      const values = /** @type {unknown[]} */ (schemaObject.type === 'literal'
-        ? schemaObject.values
-        : Object.values(schemaObject.values));
-      return new Set([...new Set(values.map(getValueType))].flatMap((type) => {
-        if (!type) {
-          return [];
-        }
-        const typeValues = values.filter((value) => {
-          return getValueType(value) === type;
-        });
-        return [{
-          ...schemaObject,
-          values: typeValues,
-          defaultValue: typeValues.includes(schemaObject.defaultValue)
-            ? schemaObject.defaultValue
-            : typeValues[0]
-        }];
-      }));
-    }
+    case 'enum':
+      return splitConstrainedSchema(schemaObject);
     case 'catch': {
       const catchSchema = /** @type {import('zodexy').SzCatch<any>} */ (
         schemaObject
