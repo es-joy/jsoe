@@ -1,4 +1,7 @@
 import ashNazg from 'eslint-config-ash-nazg';
+import {
+  parser as typescriptEslintParser,
+} from 'typescript-eslint';
 
 export default [
   {
@@ -12,6 +15,19 @@ export default [
       'typings/**',
       'dist'
     ]
+  },
+  {
+    languageOptions: {
+      parser: typescriptEslintParser,
+      parserOptions: {
+        projectService: {
+          allowDefaultProject: [
+            '*.js',
+          ],
+        },
+        tsconfigRootDir: import.meta.dirname,
+      }
+    }
   },
   ...ashNazg(['sauron', 'browser']),
   {
@@ -86,7 +102,15 @@ export default [
 
       // Disable in ash-nazg?
       'unicorn/no-top-level-assignment-in-function': 0,
-      'unicorn/no-top-level-side-effects': 0
+      'unicorn/no-top-level-side-effects': 0,
+
+      'jsdoc/no-unnecessary-type-assertion': ['error', {
+        checkLiteralConstAssertions: false,
+        treatAnyAsRedundant: false,
+        typesToIgnore: [
+          `import('../types.js').SuperTypeObject`
+        ],
+      }]
     }
   }
 ];
