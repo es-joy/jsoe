@@ -36,7 +36,7 @@ describe('SpecialRealNumber spec', () => {
 
   it('is valid', function (done) {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(true);
+      expect(t).to.eq('true');
       done();
     });
     const sel = '#formatAndTypeChoices ';
@@ -135,7 +135,7 @@ describe('SpecialRealNumber spec', () => {
     'checks that valid values were set (using `keySelectClass`)',
     function (done) {
       cy.on('window:alert', (t) => {
-        expect(t).to.eq(true);
+        expect(t).to.eq('true');
         done();
       });
       cy.get('#validValuesSet').click();

@@ -30,7 +30,7 @@ describe('template literal schema spec', () => {
 
   it('validates against the template', function () {
     cy.on('window:alert', (text) => {
-      expect(text).to.eq(false);
+      expect(text).to.eq('false');
     });
     cy.clearTypeAndBlur(
       '#formatAndTypeChoices ' +

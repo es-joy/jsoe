@@ -74,7 +74,7 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
 
   it('is valid', function (done) {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(true);
+      expect(t).to.eq('true');
       done();
     });
     const sel = '#formatAndTypeChoices ';
@@ -272,7 +272,7 @@ describe('Arbitrary JavaScript spec (Promises)', () => {
 
   it('is valid', function (done) {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(true);
+      expect(t).to.eq('true');
       done();
     });
     const sel = '#formatAndTypeChoices ';
@@ -461,7 +461,7 @@ describe('Arbitrary JavaScript spec (functions)', () => {
 
   it('is valid', function (done) {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(true);
+      expect(t).to.eq('true');
       done();
     });
     const sel = '#formatAndTypeChoices ';

@@ -35,7 +35,7 @@ describe('regexp spec', () => {
 
   it('is valid', function (done) {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(true);
+      expect(t).to.eq('true');
       done();
     });
     const sel = '#formatAndTypeChoices ';
@@ -51,7 +51,7 @@ describe('regexp spec', () => {
 
   it('is invalid', function (done) {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(false);
+      expect(t).to.eq('false');
       done();
     });
     const sel = '#formatAndTypeChoices ';

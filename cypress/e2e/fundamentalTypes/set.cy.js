@@ -31,7 +31,7 @@ describe('Set spec', () => {
 
   it('errs on duplicate set values', (done) => {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(false);
+      expect(t).to.eq('false');
       done();
     });
     const sel = '#formatAndTypeChoices ';

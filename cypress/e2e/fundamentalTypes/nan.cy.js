@@ -34,7 +34,7 @@ describe('NaN spec', () => {
   it('is valid', function (done) {
     cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(true);
+      expect(t).to.eq('true');
       done();
     });
     const sel = '#formatAndTypeChoices ';

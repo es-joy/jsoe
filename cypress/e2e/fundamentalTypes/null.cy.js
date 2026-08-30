@@ -25,7 +25,7 @@ describe('null spec', () => {
 
   it('is valid', function (done) {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(true);
+      expect(t).to.eq('true');
       done();
     });
     const sel = '#formatAndTypeChoices ';

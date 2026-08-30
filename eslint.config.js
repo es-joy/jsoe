@@ -1,6 +1,6 @@
 import ashNazg from 'eslint-config-ash-nazg';
 import {
-  parser as typescriptEslintParser,
+  parser as typescriptEslintParser
 } from 'typescript-eslint';
 
 export default [
@@ -21,11 +21,13 @@ export default [
       parser: typescriptEslintParser,
       parserOptions: {
         projectService: {
+          // eslint-disable-next-line camelcase -- API
+          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 500,
           allowDefaultProject: [
-            '*.js',
-          ],
+            '*.js', '.ncurc.cjs', 'demo/*.js'
+          ]
         },
-        tsconfigRootDir: import.meta.dirname,
+        tsconfigRootDir: import.meta.dirname
       }
     }
   },
@@ -109,7 +111,7 @@ export default [
         treatAnyAsRedundant: false,
         typesToIgnore: [
           `import('../types.js').SuperTypeObject`
-        ],
+        ]
       }]
     }
   }

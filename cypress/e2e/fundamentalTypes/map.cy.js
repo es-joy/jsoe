@@ -149,7 +149,7 @@ describe('Map spec', () => {
 
   it('gets warning for duplicate keys (null and null)', (done) => {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(false);
+      expect(t).to.eq('false');
       done();
     });
     const sel = '#formatAndTypeChoices ';
@@ -190,7 +190,7 @@ describe('Map spec', () => {
 
   it('gets warning for duplicate keys (-0 and 0)', (done) => {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(false);
+      expect(t).to.eq('false');
       done();
     });
     const sel = '#formatAndTypeChoices ';
@@ -240,7 +240,7 @@ describe('Map spec', () => {
 
   it('gets warning for duplicate keys (NaN and NaN)', (done) => {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(false);
+      expect(t).to.eq('false');
       done();
     });
     const sel = '#formatAndTypeChoices ';

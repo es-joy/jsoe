@@ -38,7 +38,7 @@ describe('Non-editable (Resurrectable) spec', () => {
 
   it('is valid (false)', function (done) {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(false);
+      expect(t).to.eq('false');
       done();
     });
     const sel = '#formatAndTypeChoices ';
@@ -51,7 +51,7 @@ describe('Non-editable (Resurrectable) spec', () => {
 
   it('is valid (true)', function (done) {
     cy.on('window:alert', (t) => {
-      expect(t).to.eq(true);
+      expect(t).to.eq('true');
       done();
     });
     const sel = '#formatAndTypeChoices ';
