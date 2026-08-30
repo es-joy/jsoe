@@ -74,7 +74,7 @@ const blobHTMLType = {
     const result = await this.loadBlob(value);
     /** @type {SCEditorTextarea} */ (
       this.getInput({root})
-    ).sceditorInstance.val(/** @type {string} */ (result));
+    ).sceditorInstance.val(result);
     // this.getInput({root}).value = result;
   },
   viewUI ({value, specificSchemaObject}) {
@@ -99,7 +99,7 @@ const blobHTMLType = {
     this.loadBlob(value).then((
       result
     ) => {
-      val = /** @type {string} */ (result);
+      val = result;
       jml('iframe', {
         sandbox: '',
         srcdoc: val

@@ -161,6 +161,7 @@ const stringType = {
           }
           break;
         case 'cuid':
+          // eslint-disable-next-line sonarjs/deprecation -- Keep as available
           if (!regexes.cuid.test(value)) {
             return `Value does not match cuid pattern`;
           }

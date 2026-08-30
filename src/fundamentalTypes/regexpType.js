@@ -87,15 +87,7 @@ const regexpType = {
 
         /** @type {$Set} */
         $set (valArr) { // A useful reusable method for multiple selects
-          [...(
-            /**
-             * @type {HTMLSelectElement & {
-             *   $set: $Set
-             * }}
-             */ (
-              this
-            )
-          ).options].forEach((opt) => {
+          [...this.options].forEach((opt) => {
             opt.selected = valArr.includes(opt.value);
           });
         }

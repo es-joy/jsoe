@@ -139,7 +139,7 @@ function getSchemaType (schemaObject) {
   if (schemaObject.type === 'templateLiteral') {
     return 'string';
   }
-  return /** @type {import('../types.js').AvailableArbitraryType|undefined} */ (
+  return (
     getCheckedType(schemaObject) ??
       zodexToStructuredCloningTypeMap.get(schemaObject.type)
   );
@@ -430,9 +430,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
     case 'enum':
       return splitConstrainedSchema(schemaObject);
     case 'catch': {
-      const catchSchema = /** @type {import('zodexy').SzCatch<any>} */ (
-        schemaObject
-      );
+      const catchSchema = schemaObject;
       const innerSchemas = [...getTypesForSchema(
         catchSchema.innerType, originalJSON
       )].map((innerSchema) => ({...innerSchema}));
@@ -901,7 +899,7 @@ const schema = {
       return {type: typesonType};
     }
     const schemaObjects = [...getTypesForSchema(
-      /** @type {import('zodexy').SzType} */ (currentSchema),
+      currentSchema,
       /** @type {import('zodexy').SzType} */ (
         stateObj.schemaContent
       )

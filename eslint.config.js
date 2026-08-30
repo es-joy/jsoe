@@ -68,6 +68,7 @@ export default [
       'jsdoc/reject-any-type': 0,
       'jsdoc/reject-function-type': 0,
       'unicorn/no-this-outside-of-class': 0,
+      'sonarjs/prefer-regexp-exec': 0,
 
       // Too cumbersome with @type casts
       '@stylistic/max-len': 0,

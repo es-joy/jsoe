@@ -578,11 +578,9 @@ class Types {
     const copyTypeObjs = (replacements) => {
       replacements.forEach(([copyFrom, copyTo]) => {
         Object.assign(this.availableTypes[
-          /** @type {AvailableType} */
-          (copyTo)
+          copyTo
         ], this.availableTypes[
-          /** @type {AvailableType} */
-          (copyFrom)
+          copyFrom
         ]);
       });
     };
@@ -952,9 +950,6 @@ class Types {
       reduced
     ).map((str) => escapeRegex(str)).join('|');
 
-    /**
-     * @type {RegExpMatchArray|boolean|null}
-     */
     let match = null;
     let found = allowedTypeObjs.find(([/* _type */, typObj]) => {
       const typeObj = /** @type {TypeObject} */ (typObj);
@@ -972,6 +967,7 @@ class Types {
         )
         : stringRegex;
       match = Boolean(stringRegex && s) && s.match(
+        // eslint-disable-next-line sonarjs/argument-type -- Ok?
         /** @type {RegExp} */ (stringRegex)
       );
       return match;
@@ -983,6 +979,7 @@ class Types {
         const typeObj = /** @type {TypeObject} */ (typObj);
         const {stringRegexBegin} = typeObj;
         match = Boolean(stringRegexBegin && s) && s.match(
+          // eslint-disable-next-line sonarjs/argument-type -- Ok?
           /** @type {RegExp} */ (stringRegexBegin)
         );
         if (match) {
@@ -1039,6 +1036,7 @@ class Types {
 
       if (beginOnly && endMatchTypeObjs.length) {
         const endMatch = remnant.match(
+          // eslint-disable-next-line sonarjs/argument-type -- Ok?
           /** @type {RegExp} */ (/** @type {TypeObject} */ (
             endMatchTypeObjs.at(-1)
           ).stringRegexEnd)
@@ -1140,7 +1138,7 @@ Types.validValuesSet = ({form, typeNamespace, keySelectClass}) => {
  * @returns {string}
  */
 export function escapeRegex (str) {
-  return String(str).
+  return str.
     replaceAll(/[.\\+*?^[\]$(){}=!<>|:-]/gu, String.raw`\$&`);
 }
 

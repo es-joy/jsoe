@@ -106,11 +106,11 @@ Cypress.Commands.add(
   'visitURLAndCheckAccessibility',
   /**
    * @param {string} url
-   * @param {object|undefined} options
+   * @param {Partial<Cypress.VisitOptions>|undefined} options
    * @returns {void}
    */
   (url, options) => {
-    cy.visit(url, /** @type {Partial<Cypress.VisitOptions>|undefined} */ (options));
+    cy.visit(url, options);
     // eslint-disable-next-line cypress/no-unnecessary-waiting -- Not initially ready
     cy.wait(1000);
     checkAccessibility();

@@ -127,10 +127,7 @@ const arrayType = {
     /** @type {{[key: (string|number)]: any}} */
     const retObj = this.array && !this.record ? [] : {};
     /* istanbul ignore next -- Unreachable? */
-    let stringVal = innerContents !== undefined
-      ? innerContents
-      /* istanbul ignore next -- Unreachable? */
-      : s;
+    let stringVal = innerContents;
 
     /**
      * @param {boolean} beginOnly
@@ -140,6 +137,7 @@ const arrayType = {
       if (beginOnly && endMatchTypeObjs.length) {
         const endMatch = stringVal.match(
           /** @type {RegExp} */ (
+            // eslint-disable-next-line sonarjs/argument-type -- Ok?
             /** @type {import('../types.js').TypeObject} */ (
               endMatchTypeObjs.at(-1)
             ).stringRegexEnd
@@ -225,7 +223,7 @@ const arrayType = {
         return;
       }
       const [, prop, propHadQuotes] = propAndColon;
-      const pr = prop !== undefined ? prop : propHadQuotes;
+      const pr = prop !== '' ? prop : propHadQuotes;
       stringVal = stringVal.slice(propAndColon[0].length);
       let v, beginOnly, assign;
       try {
@@ -1195,11 +1193,13 @@ const arrayType = {
                 } catch {}
               },
 
+              /* eslint-disable sonarjs/function-return-type -- Ok? */
               /**
                * @type {ParseInt}
                * @this {HTMLInputElement}
                */
               $parseInt () {
+                /* eslint-enable sonarjs/function-return-type -- Ok? */
                 if (!(/^\d+$/u).test(this.value)) {
                   return false;
                 }

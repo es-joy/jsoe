@@ -249,11 +249,13 @@ export const buildTypeChoices = ({
           });
         }
       },
+      /* eslint-disable sonarjs/function-return-type -- Ok */
       /**
        * @this {TypeChoicesElementAPI}
        * @type {GetTypeRoot}
        */
       $getTypeRoot () {
+        /* eslint-enable sonarjs/function-return-type -- Ok */
         const container = this.$getContainer();
         /* istanbul ignore if -- How to replicate? */
         if (!container) {

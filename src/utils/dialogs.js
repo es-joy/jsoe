@@ -81,8 +81,8 @@ const dialogs = {
           if (cancel) {
             if (
               cancel.call(
-                this, {e: /** @type {Event} */ (e), dialog}
-              ) === false
+                this, {e, dialog}
+              )
             ) {
               return;
             }
@@ -110,7 +110,7 @@ const dialogs = {
         class: submitClass,
         $on: {
           click (e) {
-            submit.call(this, {e: /** @type {Event} */ (e), dialog});
+            submit.call(this, {e, dialog});
           }
         }
       }, [submitText ?? this.localeStrings.submit]),
@@ -131,7 +131,7 @@ const dialogs = {
     const {message: outputMessage} = message;
     return new Promise((resolve /* , _reject */) => {
       const dialog = jml('dialog', [
-        /** @type {string|import('jamilih').JamilihArray} */ (outputMessage),
+        outputMessage,
         ['br'], ['br'],
         ['div', {class: submitClass}, [
           ['button', {$on: {click () {

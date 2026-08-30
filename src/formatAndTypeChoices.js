@@ -221,9 +221,7 @@ export async function formatAndTypeChoices ({
           objectHasValue: hasValue,
           schema,
           schemaContent: schema
-            ? await getSchemaContent?.(
-              /** @type {string} */ (schema)
-            )
+            ? await getSchemaContent?.(schema)
             : undefined
         }).domArray}, typesHolder);
       }
@@ -280,7 +278,7 @@ export async function formatAndTypeChoices ({
     schema,
     schemaContent: schema === undefined
       ? undefined
-      : await getSchemaContent?.(/** @type {string} */ (schema))
+      : await getSchemaContent?.(schema)
   }).domArray}, typesHolder);
 
   return {

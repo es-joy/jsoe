@@ -251,6 +251,7 @@ function binaryButton (
             ));
           }
         );
+        // eslint-disable-next-line sonarjs/deprecation -- Use readAsArrayBuffer then convert?
         reader.readAsBinaryString(viewBinary.$value);
       }
     }
@@ -358,6 +359,7 @@ const fileType = {
               );
             }
           );
+          // eslint-disable-next-line sonarjs/deprecation -- Use readAsArrayBuffer then convert?
           reader.readAsBinaryString(value);
           return div;
         })()
