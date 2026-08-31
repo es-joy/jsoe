@@ -63,8 +63,6 @@ Zodexy) schema types:
 - `enum`
 - `literal`
 - `nan` (standalone in Zodexy)
-- `record`
-- `tuple`
 - `void` (preferred in Zodexy when specified as such)
 
 And there are the following non-structured-cloning Zodexy schema types:

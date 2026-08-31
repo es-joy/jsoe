@@ -1924,7 +1924,7 @@ describe('Tuple spec (schema)', function () {
       cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-        'Tuple (A tuple)'
+        'Array (A tuple)'
       );
 
       cy.clearTypeAndBlur(
@@ -1939,25 +1939,25 @@ describe('Tuple spec (schema)', function () {
       cy.get('button#viewUI').click();
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] > span'
+        '#viewUIResults div[data-type="array"] > span'
       ).then((elem) => {
         expect(elem.attr('title')).to.equal('A tuple');
       });
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] > .arrayContents > div[title]'
+        '#viewUIResults div[data-type="array"] > .arrayContents > div[title]'
       ).then((elem) => {
         expect(elem.text()).to.equal('A tuple length: 3');
         expect(elem.attr('title')).to.equal('(a tuple)');
       });
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(1) > legend'
       ).should('contain', 'A number');
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(1) > i'
       ).then((elem) => {
         expect(elem.text()).to.equal('1234');
@@ -1965,12 +1965,12 @@ describe('Tuple spec (schema)', function () {
       });
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(2) > legend'
       ).should('contain', 'A string');
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(2) > span'
       ).then((elem) => {
         expect(elem.text()).to.equal('hello');
@@ -1978,12 +1978,12 @@ describe('Tuple spec (schema)', function () {
       });
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(3) > legend'
       ).should('contain', 'A null');
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(3) > i'
       ).then((elem) => {
         expect(elem.text()).to.equal('null');
@@ -1998,7 +1998,7 @@ describe('Tuple spec (schema)', function () {
       cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-        'Tuple (With never rest)'
+        'Array (With never rest)'
       );
 
       cy.clearTypeAndBlur(
@@ -2017,25 +2017,25 @@ describe('Tuple spec (schema)', function () {
       cy.get('button#viewUI').click();
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] > span'
+        '#viewUIResults div[data-type="array"] > span'
       ).then((elem) => {
         expect(elem.attr('title')).to.equal('With never rest');
       });
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] > .arrayContents > div[title]'
+        '#viewUIResults div[data-type="array"] > .arrayContents > div[title]'
       ).then((elem) => {
         expect(elem.text()).to.equal('With never rest length: 1');
         expect(elem.attr('title')).to.equal('(a tuple)');
       });
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(1) > legend'
       ).should('contain', 'Item');
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(1) > span'
       ).then((elem) => {
         expect(elem.text()).to.equal('hello');
@@ -2043,7 +2043,7 @@ describe('Tuple spec (schema)', function () {
       });
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(2)'
       ).should('not.exist');
     }
@@ -2055,7 +2055,7 @@ describe('Tuple spec (schema)', function () {
       cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 8');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-        'Tuple (With never items and no rest)'
+        'Array (With never items and no rest)'
       );
 
       cy.get(sel + 'button.addArrayElement').click();
@@ -2073,7 +2073,7 @@ describe('Tuple spec (schema)', function () {
       cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-        'Tuple (With no items and never rest)'
+        'Array (With no items and never rest)'
       );
 
       cy.get(sel + 'button.addArrayElement').click();
@@ -2088,48 +2088,49 @@ describe('Tuple spec (schema)', function () {
       cy.get('button#viewUI').click();
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] > span'
+        '#viewUIResults div[data-type="array"] > span'
       ).then((elem) => {
         expect(elem.attr('title')).to.equal('With no items and never rest');
       });
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] > .arrayContents > div[title]'
+        '#viewUIResults div[data-type="array"] > .arrayContents > div[title]'
       ).then((elem) => {
         expect(elem.text()).to.equal('With no items and never rest length: 0');
         expect(elem.attr('title')).to.equal('(a tuple)');
       });
 
       cy.get(
-        '#viewUIResults div[data-type="tuple"] .arrayItems > ' +
+        '#viewUIResults div[data-type="array"] .arrayItems > ' +
         'fieldset:nth-of-type(1)'
       ).should('not.exist');
     }
   );
 
   describe('toValue()', function () {
-    it('Converts string to simple object', function () {
-      // Note: this uses a special escape for the initial bracket
-      cy.typeAndBlur('#getValueForString', 'Tuple[3, 4]');
+    it('Converts string to simple array', function () {
+      // A `tuple` schema no longer has its own router-string syntax; the
+      //   value is a plain array.
+      cy.typeAndBlur('#getValueForString', '[3, 4]');
 
       cy.get('@consoleLog').should('be.calledWith', [3, 4]);
     });
   });
 
   describe('getInput()', function () {
-    it('Shows the record root form control', function () {
+    it('Shows the tuple root form control', function () {
       cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
       const sel = '#formatAndTypeChoices ';
 
       cy.get(
         sel + 'select.typeChoices-demo-keypath-not-expected'
-      ).select('tuple');
+      ).select('Array (With no items and never rest)');
 
       cy.get('#showRootFormControl').click();
 
       cy.get(
         '#formatAndTypeChoices > .typesHolder > .typeContainer > ' +
-        'div[data-type="tuple"] > button'
+        'div[data-type="array"] > button'
       ).should(($button) => {
         expect($button[0].style.backgroundColor).to.equal('red');
       });
@@ -2139,7 +2140,7 @@ describe('Tuple spec (schema)', function () {
 
       cy.get(
         '#formatAndTypeChoices > .typesHolder > .typeContainer > ' +
-        'div[data-type="tuple"] > button'
+        'div[data-type="array"] > button'
       ).should(($button) => {
         expect($button[0].style.backgroundColor).to.not.equal('red');
       });
@@ -2163,7 +2164,7 @@ describe('Record spec (schema)', function () {
       cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-        'Record (A record)'
+        'Object (A record)'
       );
 
       cy.get(sel + 'button.addArrayElement').click();
@@ -2214,7 +2215,7 @@ describe('Record spec (schema)', function () {
       cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
       const sel = '#formatAndTypeChoices ';
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-        'Record'
+        'Object'
       );
 
       cy.get(sel + 'button.addArrayElement').click();
@@ -2341,8 +2342,9 @@ describe('Record spec (schema)', function () {
 
   describe('toValue()', function () {
     it('Converts string to simple object', function () {
-      // Note: this uses a special escape for the initial bracket
-      cy.typeAndBlur('#getValueForString', 'Record{{}a: 3}');
+      // A `record` schema no longer has its own router-string syntax; the
+      //   value is a plain object.
+      cy.typeAndBlur('#getValueForString', '{{}a: 3}');
 
       cy.get('@consoleLog').should('be.calledWith', {a: 3});
     });
@@ -2355,13 +2357,13 @@ describe('Record spec (schema)', function () {
 
       cy.get(
         sel + 'select.typeChoices-demo-keypath-not-expected'
-      ).select('Record (A record)');
+      ).select('Object (A record)');
 
       cy.get('#showRootFormControl').click();
 
       cy.get(
         '#formatAndTypeChoices > .typesHolder > .typeContainer > ' +
-        'div[data-type="record"] > button'
+        'div[data-type="object"] > button'
       ).should(($button) => {
         expect($button[0].style.backgroundColor).to.equal('red');
       });
@@ -2371,7 +2373,7 @@ describe('Record spec (schema)', function () {
 
       cy.get(
         '#formatAndTypeChoices > .typesHolder > .typeContainer > ' +
-        'div[data-type="record"] > button'
+        'div[data-type="object"] > button'
       ).should(($button) => {
         expect($button[0].style.backgroundColor).to.not.equal('red');
       });

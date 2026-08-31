@@ -22,9 +22,7 @@ import stringType from './fundamentalTypes/stringType.js';
 import arrayReferenceType from './fundamentalTypes/arrayReferenceType.js';
 import objectReferenceType from './fundamentalTypes/objectReferenceType.js';
 import arrayType from './fundamentalTypes/arrayType.js';
-import tupleType from './fundamentalTypes/tupleType.js';
 import objectType from './fundamentalTypes/objectType.js';
-import recordType from './fundamentalTypes/recordType.js';
 import dateType from './fundamentalTypes/dateType.js';
 import setType from './fundamentalTypes/setType.js';
 import mapType from './fundamentalTypes/mapType.js';
@@ -311,10 +309,6 @@ export const getPropertyValueFromLegend = (legend) => {
  *   it is a `Map`. Do not use in other types.
  * @property {boolean} [set] Private context variable. Whether or not
  *   it is a `Set`. Do not use in other types.
- * @property {boolean} [record] Private context variable. Whether or not
- *   it is a `Record`. Do not use in other types.
- * @property {boolean} [tuple] Private context variable. Whether or not
- *   it is a tuple type. Do not use in other types.
  * @property {boolean} [filelist] Private context variable. Whether or not
  *   it is a `FileList` type. Do not use in other types.
  * @property {boolean} [sparse] Private context variable. Whether or not
@@ -414,8 +408,7 @@ export const getPropertyValueFromLegend = (legend) => {
  *   |"int8array"|"uint8array"|"uint8clampedarray"|"int16array"|"uint16array"
  *   |"int32array"|"uint32array"|"float32array"|"float64array"|"ValidDate"
  *   |"arrayNonindexKeys"|"error"|"errors"|"blob"|"domexception"|"domrect"
- *   |"dompoint"|"dommatrix"|"resurrectable"|"boolean"|"nan"|"tuple"
- *   |"record"
+ *   |"dompoint"|"dommatrix"|"resurrectable"|"boolean"|"nan"
  * } AvailableType
  */
 
@@ -470,12 +463,10 @@ class Types {
       arrayReference: arrayReferenceType,
       objectReference: objectReferenceType,
       array: arrayType,
-      tuple: tupleType, // Schema type
       // Note: We don't do for BooleanObject/NumberObject/StringObject, date,
       //   regexp, as added properties on them are not being cloned (in Chrome
       //   at least)
       object: objectType,
-      record: recordType, // Schema type
       date: dateType,
       // This type is only for throwing upon cloning errors:
       // 'checkDataCloneException'

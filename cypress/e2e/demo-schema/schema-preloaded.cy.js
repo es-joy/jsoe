@@ -382,7 +382,7 @@
         const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(19) ' +
           arraySels;
         cy.get(
-          sel + '[data-type="tuple"] span'
+          sel + '[data-type="array"] span'
         ).should(($span) => {
           expect($span.attr('title')).to.equal('A tuple');
         });
@@ -414,7 +414,7 @@
         const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(20) ' +
           arraySels;
         cy.get(
-          sel + '[data-type="tuple"] span'
+          sel + '[data-type="array"] span'
         ).should(($span) => {
           expect($span.attr('title')).to.equal('With never rest');
         });
@@ -719,7 +719,7 @@
       it('Selects tuple no items and never rest', function () {
         const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(1) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="tuple"] span').should(($div) => {
+        cy.get(sel + 'div[data-type="array"] span').should(($div) => {
           expect($div.attr('title')).to.equal('With no items and never rest');
         });
         cy.get(sel + 'fieldset').should('not.exist');
@@ -750,7 +750,7 @@
       it('Selects numeric-keyed record', function () {
         const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(5) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="record"] span').should(($div) => {
+        cy.get(sel + 'div[data-type="object"] span').should(($div) => {
           expect($div.attr('title')).to.equal('A record');
         });
       });
@@ -758,7 +758,7 @@
       it('Selects string-keyed record', function () {
         const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(6) ' +
           arraySels;
-        cy.get(sel + 'div[data-type="record"] span').should(($div) => {
+        cy.get(sel + 'div[data-type="object"] span').should(($div) => {
           expect($div.attr('title')).to.equal('Record');
         });
 

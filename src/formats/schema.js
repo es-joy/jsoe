@@ -42,8 +42,9 @@ const zodexToStructuredCloningTypeMap = new Map([
 
   ['object', 'object'],
 
-  ['tuple', 'tuple'],
-  ['record', 'record'],
+  ['tuple', 'array'],
+  ['record', 'object'],
+  ['looseRecord', 'object'],
   ['map', 'map'],
   ['set', 'set'],
 
@@ -583,7 +584,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
             type: 'any'
           }
         },
-        // Todo: Need to convert
+        // Todo: Need to convert (to `instanceof`?)
         // {
         //   type: 'effect',
         //   effects: [
@@ -787,6 +788,13 @@ export function getTypesForSchema (schemaObject, originalJSON) {
 /** @type {import('../formats.js').Format} */
 const schema = {
   isValueValidationRequired (schemaObject) {
+    // `record`/`tuple` refine the `object`/`array` UI, whose structure does not
+    //   by itself enforce the key schema, positional item schemas, or `rest`;
+    //   so the assembled value must be parsed to surface those failures on the
+    //   form control.
+    if (['record', 'looseRecord', 'tuple'].includes(schemaObject.type)) {
+      return true;
+    }
     return schemaObject.type !== 'object' &&
       intersectionSchemas.has(schemaObject);
   },
@@ -886,8 +894,18 @@ const schema = {
         parentSchema
       ).rest;
       break;
+    case 'record':
+    case 'looseRecord':
+      // Every own property of a record shares the single `value` schema; the
+      //   `key` schema constrains the property name and is enforced by
+      //   value-level validation (`isValueValidationRequired`). Record keys are
+      //   dynamic, so no individual property is required.
+      currentSchema = /** @type {import('zodexy').SzRecord<any, any>} */ (
+        parentSchema
+      ).value;
+      mustBeOptional = true;
+      break;
     // Todo:
-    // 'record': key, value
     // 'map': key, value
     // 'function': args, returns
     default:
@@ -984,7 +1002,9 @@ const schema = {
 
     // Note: Zod does not support array/object references
 
-    // Todo: implement schema restrictions like tuple on array, record on object
+    // `tuple`/`record` restrictions on `array`/`object` are applied via
+    //   `getSchemaType` (type mapping) plus `arrayType.js` reading
+    //   `specificSchemaObject.type`, and enforced by `isValueValidationRequired`.
     // Todo: Fix `iterate` for schemas (e.g., inject a value method in demo)
 
     return {
