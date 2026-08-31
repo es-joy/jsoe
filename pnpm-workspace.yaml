@@ -17,7 +17,7 @@ minimumReleaseAgeExclude:
   - eslint-plugin-jsdoc@64.1.0 || 64.2.1 || 64.3.0 || 64.3.2 || 64.3.3
   - jsdoc-type-pratt-parser@9.1.1 || 9.1.2
   - zodexy@0.21.1 || 0.21.2 || 0.22.0 || 0.23.0 || 0.24.0 || 0.24.1 || 0.25.0 || 0.26.0 || 0.26.1 || 0.27.0 || 0.30.0
-  - typeson-registry@13.0.1 || 13.1.0
+  - typeson-registry@13.0.1 || 13.1.0 || 14.4.0
   - typeson@10.1.1 || 10.2.0 || 10.3.0
   - '@rollup/rollup-android-arm-eabi@4.63.1'
   - '@rollup/rollup-android-arm64@4.63.1'

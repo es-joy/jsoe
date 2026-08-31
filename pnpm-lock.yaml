@@ -24,8 +24,8 @@ importers:
         specifier: 3.2.1
         version: 3.2.1
       typeson-registry:
-        specifier: 14.3.0
-        version: 14.3.0
+        specifier: 14.4.0
+        version: 14.4.0
       zod:
         specifier: ^4.5.4
         version: 4.5.4
@@ -5687,13 +5687,9 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typeson-registry@14.3.0:
-    resolution: {integrity: sha512-FbweOKaqO3Z1gCUDGLwylw1WXX5KgSTf3uN0ZmFdPRkFOU6fQNHVomKq4krGwG0MUVBVpHs3Wa4B0faM/V4LNA==}
+  typeson-registry@14.4.0:
+    resolution: {integrity: sha512-8ujX5ou1MamSY5I5CarE6fb6u+oJ9A+jdWAjQYZ10A48tZlcn6mcs8aS27h0ynkRPmZDlFXpWoiggzzI7vsKig==}
     engines: {node: ^22.16.0 || >=24.0.0}
-
-  typeson@10.2.0:
-    resolution: {integrity: sha512-4h6nyu0zD9TsMiZEmSMlLvLMuQKuRD8j8SssuKlFmMMLUgpurVe9+s/zyydxFg21wATKz2ZKzDwbwfEOLCrj1A==}
-    engines: {node: '>=22.0.0'}
 
   typeson@10.3.0:
     resolution: {integrity: sha512-V3yTvLWYyRCxooPpFRcj7Wq56CrmF+VrzDVbUg3ubozxFT9VGZ6teObMtk4TzphOU5fk98vshbk0+RIl9KnVlg==}
@@ -12550,15 +12546,13 @@ snapshots:
 
   typescript@6.0.3: {}
 
-  typeson-registry@14.3.0:
+  typeson-registry@14.4.0:
     dependencies:
       base64-arraybuffer-es6: 3.1.0
-      typeson: 10.2.0
+      typeson: 10.3.0
       whatwg-url: 17.1.0
     transitivePeerDependencies:
       - '@noble/hashes'
-
-  typeson@10.2.0: {}
 
   typeson@10.3.0: {}
 

@@ -68,7 +68,7 @@
     "jamilih": "0.69.0",
     "mime": "^4.1.0",
     "sceditor": "3.2.1",
-    "typeson-registry": "14.3.0",
+    "typeson-registry": "14.4.0",
     "zod": "^4.5.4",
     "zodexy": "^0.30.0"
   },
