@@ -967,7 +967,6 @@ class Types {
         )
         : stringRegex;
       match = Boolean(stringRegex && s) && s.match(
-        // eslint-disable-next-line sonarjs/argument-type -- Ok?
         /** @type {RegExp} */ (stringRegex)
       );
       return match;
@@ -979,7 +978,6 @@ class Types {
         const typeObj = /** @type {TypeObject} */ (typObj);
         const {stringRegexBegin} = typeObj;
         match = Boolean(stringRegexBegin && s) && s.match(
-          // eslint-disable-next-line sonarjs/argument-type -- Ok?
           /** @type {RegExp} */ (stringRegexBegin)
         );
         if (match) {
@@ -1036,7 +1034,6 @@ class Types {
 
       if (beginOnly && endMatchTypeObjs.length) {
         const endMatch = remnant.match(
-          // eslint-disable-next-line sonarjs/argument-type -- Ok?
           /** @type {RegExp} */ (/** @type {TypeObject} */ (
             endMatchTypeObjs.at(-1)
           ).stringRegexEnd)

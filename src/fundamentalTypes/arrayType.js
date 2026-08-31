@@ -137,7 +137,6 @@ const arrayType = {
       if (beginOnly && endMatchTypeObjs.length) {
         const endMatch = stringVal.match(
           /** @type {RegExp} */ (
-            // eslint-disable-next-line sonarjs/argument-type -- Ok?
             /** @type {import('../types.js').TypeObject} */ (
               endMatchTypeObjs.at(-1)
             ).stringRegexEnd
@@ -1193,13 +1192,11 @@ const arrayType = {
                 } catch {}
               },
 
-              /* eslint-disable sonarjs/function-return-type -- Ok? */
               /**
                * @type {ParseInt}
                * @this {HTMLInputElement}
                */
               $parseInt () {
-                /* eslint-enable sonarjs/function-return-type -- Ok? */
                 if (!(/^\d+$/u).test(this.value)) {
                   return false;
                 }

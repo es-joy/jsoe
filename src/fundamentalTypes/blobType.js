@@ -136,7 +136,6 @@ function binaryButton (value, editable) {
             ));
           }
         );
-        // eslint-disable-next-line sonarjs/deprecation -- Use readAsArrayBuffer then convert?
         reader.readAsBinaryString(viewBinary.$value);
       }
     }
@@ -223,7 +222,6 @@ const blobType = {
               );
             }
           );
-          // eslint-disable-next-line sonarjs/deprecation -- Use readAsArrayBuffer then convert?
           reader.readAsBinaryString(value);
           return div;
         })()
