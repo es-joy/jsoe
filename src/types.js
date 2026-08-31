@@ -709,6 +709,9 @@ class Types {
       ...availableType.option
     ];
 
+    // `record`/`tuple` are not shown as their own pull-down entries; they render
+    //   as `Object`/`Array` (their schema, incl. child descriptions, informs the
+    //   layout — see `arrayType.js`).
     if (schemaContent && schemaContent.description) {
       optInfo[0] = `${optInfo[0]} (${schemaContent.description})`;
     }

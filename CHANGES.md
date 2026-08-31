@@ -11,11 +11,13 @@
 - feat: add to literals: bigInt, boolean, null, and undefined types
 - feat: optionally utilizes custom errors
 - fix: remove enumType, voidType, and neverType, catchType, literalType as were not really modeling the data; instead have them confine other types
-- fix: remove `record` and `tuple` as first-class types;
-    a `record` schema now refines the `Object` type and a `tuple` schema
-    refines the `Array` type (validation of the key/value and item/rest
-    schemas, plus use of the schema `description` as the label). The
-    `Record{…}` / `Tuple[…]` router-string syntax is dropped.
+- fix: remove `record` and `tuple` as first-class types (and from the type
+    pull-down); a `record` schema now refines the `Object` type and a `tuple`
+    schema refines the `Array` type. All prior record/tuple layout is retained,
+    now driven by the schema: value validation, the parent `description` as the
+    label, and every child `description` (record `key`/`value`, tuple
+    positional `items` and `rest`). The `Record{…}` / `Tuple[…]` router-string
+    syntax is dropped.
 - fix: delegate to Zod 4's regexes for string validation
 - fix: remove dropped `unknownKeys`
 - fix: allow symbol again, but given dropped schema support

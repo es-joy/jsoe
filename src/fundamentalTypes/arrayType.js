@@ -270,10 +270,14 @@ const arrayType = {
        */ ($e(root, '.arrayItems'));
     const fieldsets = [...arrayItems.children];
 
+    // A `record` schema renders through the `object` type but, like a `Map`,
+    //   builds its entries from key-type selectors; it is flagged on the root.
+    const isRecord = root.dataset.record === 'true';
+
     /**
      * @type {({[key: string]: any})|any[]}
      */
-    const ret = root.dataset.type === 'object'
+    const ret = !isRecord && root.dataset.type === 'object'
       ? {}
       : !this.sparse
         ? []
@@ -377,7 +381,17 @@ const arrayType = {
             const key = select.$getValue();
             return [key, /** @type {any[]} */ (ret)[idx]];
           }))
-          : ret;
+          : isRecord
+            ? arrayItems.$getMapKeySelects().reduce((obj, select, idx) => {
+              const key = select.$getValue();
+              obj[key] = /** @type {any[]} */ (ret)[idx];
+              // Todo: Reenable for native enums
+              // if (typeof val === 'number') {
+              //   obj[val] = key;
+              // }
+              return obj;
+            }, /** @type {{[key: string]: any}} */ ({}))
+            : ret;
   },
 
   // Try to keep in sync with basic structure of `editUI`
@@ -468,7 +482,13 @@ const arrayType = {
 
     const div = jml('div', {
       class: 'arrayHolder',
-      dataset: {type},
+      // `record`/`tuple` render through `object`/`array`; flag the refinement
+      //   for `getValue` (which has no schema in scope) and for styling/tests.
+      dataset: {
+        type,
+        ...(recordMode ? {record: 'true'} : {}),
+        ...(tupleMode ? {tuple: 'true'} : {})
+      },
       $custom: {
         /**
          * @this {ArrayHolder}
@@ -678,19 +698,27 @@ const arrayType = {
     const parentTypeObject = this;
 
     // `record`/`tuple` are not distinct types; they are `object`/`array` whose
-    //   associated schema refines them (free-text keys validated against the
-    //   record `key` schema; positional `items`/`rest` for tuples). Detect the
-    //   refinement from the schema.
+    //   associated schema refines them (map-style key/value controls for a
+    //   record, positional `items`/`rest` for a tuple). Detect the refinement
+    //   from the schema.
     const recordMode = specificSchemaObject?.type === 'record' ||
       specificSchemaObject?.type === 'looseRecord';
     const tupleMode = specificSchemaObject?.type === 'tuple';
 
+    // A `record` refines `object` but, for legend numbering/reordering, behaves
+    //   like the array-based types did when it was its own (`array: true`) type.
+    const parentIsArrayLike = parentTypeObject.array || recordMode;
+
+    // Keep the historical per-item CSS class names (`recordItem`, `tupleItem`)
+    //   even though the root type is now `object`/`array`.
+    const itemType = recordMode ? 'record' : tupleMode ? 'tuple' : type;
+
     const itemAdjust = type === 'object' ? 1 : 0;
     let itemIndex = itemAdjust - 1;
     const editableProperties = type !== 'array' &&
-      type !== 'set' && type !== 'map' &&
-      type !== 'filelist'; // arrayNonindexKeys and object (incl. record)?
-    const mapProperties = type === 'map';
+      type !== 'set' && type !== 'map' && type !== 'filelist' &&
+      !tupleMode && !recordMode; // arrayNonindexKeys and object?
+    const mapProperties = type === 'map' || recordMode;
 
     /**
      * @param {string} message
@@ -702,44 +730,6 @@ const arrayType = {
         schema: specificSchemaObject,
         typeSpecific: true
       }) ?? message;
-    };
-
-    /**
-     * Validates a record property name against the record's `key` schema.
-     * Returns an empty string when valid (or not a record) and a message
-     * otherwise. The overall value is still validated separately, but this
-     * gives immediate per-key feedback.
-     * @param {string} key
-     * @returns {string}
-     */
-    const getRecordKeyValidationMessage = (key) => {
-      if (!recordMode) {
-        return '';
-      }
-      const keySchema = /** @type {import('zodexy').SzRecord<any, any>} */ (
-        specificSchemaObject
-      ).key;
-      /* istanbul ignore if -- Guard */
-      if (!keySchema) {
-        return '';
-      }
-      try {
-        const schemaFormat = /** @type {import('../formats.js').default} */ (
-          formats
-        ).getAvailableFormat('schema');
-        const coerced = ['number', 'nan', 'bigInt'].includes(keySchema.type)
-          ? Number(key)
-          : key;
-        const result = schemaFormat.validateValue?.(
-          types, keySchema, coerced
-        );
-        return result && !result.valid
-          ? result.message ?? 'Invalid record key'
-          : '';
-      } catch {
-        /* istanbul ignore next -- Defensive */
-        return '';
-      }
     };
 
     const elementDesc = /** @type {import('zodexy').SzArray} */ (
@@ -790,12 +780,12 @@ const arrayType = {
       if (!swapGroup || swapGroup.nodeName.toLowerCase() !== 'fieldset') {
         return;
       }
-      if (!sparse && (!specificSchemaObject || parentTypeObject.array)) {
+      if (!sparse && (!specificSchemaObject || parentIsArrayLike)) {
         const swapCountElem = DOM.filterChildElements(
-          swapGroup, ['legend', 'span', `.${type}Item`]
+          swapGroup, ['legend', 'span', `.${itemType}Item`]
         )[0];
         const baseCountElem = DOM.filterChildElements(group, [
-          'legend', 'span', `.${type}Item`
+          'legend', 'span', `.${itemType}Item`
         ])[0];
 
         const swap = swapCountElem.textContent;
@@ -853,7 +843,7 @@ const arrayType = {
         return;
       }
       DOM.filterChildElements(this, [
-        'fieldset', `.${type}Item-arrowHolder-${typeNamespace}`
+        'fieldset', `.${itemType}Item-arrowHolder-${typeNamespace}`
       ]).forEach((holder, j, arr) => {
         DOM.removeChildren(holder);
         if (arr.length === 1) { // Nowhere to move
@@ -967,14 +957,17 @@ const arrayType = {
           /** @type {import('../typeChoices.js').BuildTypeChoices} */ (
             buildTypeChoices
           )({
-            value: undefined,
-            setValue: false,
+            value: propName !== undefined && recordMode
+              ? propName
+              : undefined,
+            setValue: propName !== undefined && recordMode,
             // Needed as false when map value supplied
-            autoTrigger: propName === undefined,
+            autoTrigger: propName === undefined || recordMode,
             format: /** @type {import('../formats.js').AvailableFormat} */ (
               format
             ),
             schemaOriginal: schemaContent,
+            // Can also be a `Record`
             schemaContent: /** @type {import('zodexy').SzMap<any, any>} */ (
               specificSchemaObject
             )?.key,
@@ -983,15 +976,27 @@ const arrayType = {
         return ['legend', [
           ['span', {
             class: 'mapKey',
-            title: /** @type {import('zodexy').SzMap<any, any>} */ (
-              specificSchemaObject
-            )?.key?.description
+            title: (
+              type === 'map' &&
+              /** @type {import('zodexy').SzMap<any, any>} */ (
+                specificSchemaObject
+              )?.key?.description
+            )
               ? '(map key)'
-              : undefined
+              : recordMode &&
+              /** @type {import('zodexy').SzRecord} */ (
+                specificSchemaObject
+              )?.key?.description
+                ? '(record key)'
+                : undefined
           }, [
-            /** @type {import('zodexy').SzMap<any, any>} */ (
-              specificSchemaObject
-            )?.key?.description ?? 'Map key',
+            type === 'map'
+              ? /** @type {import('zodexy').SzMap<any, any>} */ (
+                specificSchemaObject
+              )?.key?.description ?? 'Map key'
+              : /** @type {import('zodexy').SzRecord} */ (
+                specificSchemaObject
+              )?.key?.description ?? 'Record key',
             ' '
           ]],
           ['span', {
@@ -1052,7 +1057,7 @@ const arrayType = {
                     : select;
 
                   control.setCustomValidity(
-                    'Duplicate Map key value'
+                    `Duplicate ${type === 'map' ? 'Map' : 'Record'} key value`
                   );
                   control.reportValidity();
                 }, 0);
@@ -1391,10 +1396,6 @@ const arrayType = {
                 /** @type {string} */ (this.value)
                 ]?.type === 'never';
 
-                const recordKeyMessage = getRecordKeyValidationMessage(
-                  this.value
-                );
-
                 let invalid = false;
                 if (neverProperty) {
                   this.setCustomValidity('Never value');
@@ -1402,16 +1403,6 @@ const arrayType = {
                   this.style.backgroundColor = 'pink';
 
                   invalid = true;
-                } else if (recordKeyMessage) {
-                  this.setCustomValidity(recordKeyMessage);
-                  this.reportValidity();
-                  this.style.backgroundColor = 'pink';
-
-                  invalid = true;
-                } else if (recordMode) {
-                  this.style.backgroundColor = 'revert-layer';
-                  this.setCustomValidity('');
-                  this.reportValidity();
                 } else if (this.list && !parentTypeObject.array) {
                   const dataListValues = [
                     ...this.list.options
@@ -1767,7 +1758,7 @@ const arrayType = {
         itemIndex++;
       }
       const thisButton = this; // eslint-disable-line consistent-this -- Clarity
-      const className = `${type}Item`;
+      const className = `${itemType}Item`;
       const fieldset = jml('fieldset',
         {
           dataset: required ? {required: 'required'} : {},
@@ -1869,16 +1860,25 @@ const arrayType = {
             specificSchemaObject
           )?.value?.description
             ? '(map value)'
-            : undefined
+            : recordMode &&
+            /** @type {import('zodexy').SzRecord} */ (
+              specificSchemaObject
+            )?.value?.description
+              ? '(record value)'
+              : undefined
         }, [
           type === 'map'
             ? /** @type {import('zodexy').SzMap<any, any>} */ (
               specificSchemaObject
             )?.value?.description ?? 'Map value'
-            : '',
+            : recordMode
+              ? /** @type {import('zodexy').SzRecord} */ (
+                specificSchemaObject
+              )?.value?.description ?? 'Record value'
+              : '',
           ' '
         ]],
-        ...(specificSchemaObject && !propName && !parentTypeObject.array
+        ...(specificSchemaObject && !propName && !parentIsArrayLike
           ? [jml('span', {
             className: `optionalProperties-placeholder${optionalPropertyId}`
           })]
@@ -1931,8 +1931,8 @@ const arrayType = {
               // Because schemas (with descriptions?) don't use className for
               //   property count (and the else block will rewrite the
               //   property name)
-              (specificSchemaObject || schema) &&
-              !parentTypeObject.array
+              !parentIsArrayLike &&
+              (specificSchemaObject || schema)
             )) {
               const newPrevInput = /** @type {HTMLInputElement} */ (
                 newArrayFieldset.$getPropertyInput()
@@ -1968,7 +1968,7 @@ const arrayType = {
                 fieldset.remove();
                 decrementItemIndex(arrayItems);
                 if (!sparse &&
-                  (!specificSchemaObject || parentTypeObject.array)
+                  (!specificSchemaObject || parentIsArrayLike)
                 ) {
                   DOM.filterChildElements(arrayItems, [
                     'fieldset', 'legend', '.' + className
@@ -1994,7 +1994,7 @@ const arrayType = {
           }, ['x']
         ],
         ['span', {
-          class: `${type}Item-arrowHolder-${typeNamespace}`
+          class: `${itemType}Item-arrowHolder-${typeNamespace}`
         }, []]
       ]}, fieldset);
 
@@ -2347,7 +2347,13 @@ const arrayType = {
        * @type {DivArrayOrObjectHolder}
        */ (
         jml('div', {
-          dataset: {type},
+          // `record`/`tuple` render through `object`/`array`; flag the
+          //   refinement for `getValue` (no schema in scope) and styling/tests.
+          dataset: {
+            type,
+            ...(recordMode ? {record: 'true'} : {}),
+            ...(tupleMode ? {tuple: 'true'} : {})
+          },
           // is: 'array-or-object-editor',
           $custom: {
             /**
@@ -2390,6 +2396,11 @@ const arrayType = {
                   // The key may itself be a map, etc.
                   return keyTypeChoices.$getTypeRoot();
                 }
+              } else if (recordMode) {
+                this.$addArrayElement({
+                  propName, autoTrigger: false,
+                  required: false
+                });
               } else {
                 // console.log('SCHEMA123', schema);
                 this.$addArrayElement({
