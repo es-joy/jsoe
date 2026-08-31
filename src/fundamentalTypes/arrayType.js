@@ -123,9 +123,9 @@ const arrayType = {
     const state = sparse
       ? 'arrayNonindexKeys'
     // ? 'sparseArrays'
-      : (this.array && !this.record ? 'array' : 'object');
+      : (this.array ? 'array' : 'object');
     /** @type {{[key: (string|number)]: any}} */
-    const retObj = this.array && !this.record ? [] : {};
+    const retObj = this.array ? [] : {};
     /* istanbul ignore next -- Unreachable? */
     let stringVal = innerContents;
 
@@ -150,7 +150,7 @@ const arrayType = {
       }
       return false;
     };
-    if (this.array && !this.record) {
+    if (this.array) {
       let idx = 0;
       const parse = () => {
         if (!stringVal) {
@@ -377,19 +377,7 @@ const arrayType = {
             const key = select.$getValue();
             return [key, /** @type {any[]} */ (ret)[idx]];
           }))
-          : this.record
-            ? arrayItems.$getMapKeySelects().reduce((obj, select, idx) => {
-              const key = select.$getValue();
-              const val = /** @type {any[]} */ (ret)[idx];
-              obj[key] = val;
-              // Todo: Reenable for native enums
-              // The nature of native enums
-              // if (typeof val === 'number') {
-              //   obj[val] = key;
-              // }
-              return obj;
-            }, /** @type {{[key: string]: any}} */ ({}))
-            : ret;
+          : ret;
   },
 
   // Try to keep in sync with basic structure of `editUI`
@@ -401,6 +389,12 @@ const arrayType = {
     let itemIndex = -1;
 
     const parentType = type;
+
+    // `record`/`tuple` are not distinct types; they are `object`/`array` whose
+    //   associated schema refines them. Detect the refinement from the schema.
+    const recordMode = specificSchemaObject?.type === 'record' ||
+      specificSchemaObject?.type === 'looseRecord';
+    const tupleMode = specificSchemaObject?.type === 'tuple';
 
     /**
      * @param {{
@@ -421,7 +415,7 @@ const arrayType = {
         specificSchemaObject
       )?.rest;
       return ['legend', [
-        type !== 'record' && this.array
+        !recordMode && this.array
           ? /** @type {import('zodexy').SzArray} */ (
             specificSchemaObject
           )?.element?.description ??
@@ -439,7 +433,7 @@ const arrayType = {
         nbsp.repeat(2),
         ['span', {
           class: `propertyName-${typeNamespace}`,
-          title: type === 'record' && /** @type {import('zodexy').SzRecord} */ (
+          title: recordMode && /** @type {import('zodexy').SzRecord} */ (
             specificSchemaObject
           )?.key?.description
             ? /** @type {import('zodexy').SzRecord} */ (
@@ -629,7 +623,7 @@ const arrayType = {
         ).textContent = arrayContents.hidden ? '+' : '-';
       }}}, ['-']],
       ['div', {class: 'arrayContents'}, [
-        type !== 'record' && this.array
+        !recordMode && this.array
           ? ['div', {
             title: specificSchemaObject
               ? (type === 'filelist'
@@ -638,7 +632,7 @@ const arrayType = {
                   ? '(a Set)'
                   : type === 'map'
                     ? '(a Map)'
-                    : type === 'tuple'
+                    : tupleMode
                       ? '(a tuple)'
                       : '(an Array)')
               : undefined
@@ -657,7 +651,7 @@ const arrayType = {
                 : value.length) || 0
             ]]
           ]]
-          : (type === 'record'
+          : (recordMode
             ? specificSchemaObject?.description ?? 'Record'
             : ''),
         ['div', {
@@ -682,12 +676,21 @@ const arrayType = {
     const {sparse} = this;
     // eslint-disable-next-line consistent-this -- Clearer
     const parentTypeObject = this;
+
+    // `record`/`tuple` are not distinct types; they are `object`/`array` whose
+    //   associated schema refines them (free-text keys validated against the
+    //   record `key` schema; positional `items`/`rest` for tuples). Detect the
+    //   refinement from the schema.
+    const recordMode = specificSchemaObject?.type === 'record' ||
+      specificSchemaObject?.type === 'looseRecord';
+    const tupleMode = specificSchemaObject?.type === 'tuple';
+
     const itemAdjust = type === 'object' ? 1 : 0;
     let itemIndex = itemAdjust - 1;
     const editableProperties = type !== 'array' &&
-      type !== 'set' && type !== 'map' && type !== 'filelist' &&
-      type !== 'tuple' && type !== 'record'; // arrayNonindexKeys and object?
-    const mapProperties = type === 'map' || type === 'record';
+      type !== 'set' && type !== 'map' &&
+      type !== 'filelist'; // arrayNonindexKeys and object (incl. record)?
+    const mapProperties = type === 'map';
 
     /**
      * @param {string} message
@@ -699,6 +702,44 @@ const arrayType = {
         schema: specificSchemaObject,
         typeSpecific: true
       }) ?? message;
+    };
+
+    /**
+     * Validates a record property name against the record's `key` schema.
+     * Returns an empty string when valid (or not a record) and a message
+     * otherwise. The overall value is still validated separately, but this
+     * gives immediate per-key feedback.
+     * @param {string} key
+     * @returns {string}
+     */
+    const getRecordKeyValidationMessage = (key) => {
+      if (!recordMode) {
+        return '';
+      }
+      const keySchema = /** @type {import('zodexy').SzRecord<any, any>} */ (
+        specificSchemaObject
+      ).key;
+      /* istanbul ignore if -- Guard */
+      if (!keySchema) {
+        return '';
+      }
+      try {
+        const schemaFormat = /** @type {import('../formats.js').default} */ (
+          formats
+        ).getAvailableFormat('schema');
+        const coerced = ['number', 'nan', 'bigInt'].includes(keySchema.type)
+          ? Number(key)
+          : key;
+        const result = schemaFormat.validateValue?.(
+          types, keySchema, coerced
+        );
+        return result && !result.valid
+          ? result.message ?? 'Invalid record key'
+          : '';
+      } catch {
+        /* istanbul ignore next -- Defensive */
+        return '';
+      }
     };
 
     const elementDesc = /** @type {import('zodexy').SzArray} */ (
@@ -808,7 +849,7 @@ const arrayType = {
      * @this {HTMLDivElement & {$swapGroup: SwapGroup}}
      */
     const $redrawMoveArrows = function () {
-      if (type === 'tuple') { // Don't want to move non-rest items at least
+      if (tupleMode) { // Don't want to move non-rest items at least
         return;
       }
       DOM.filterChildElements(this, [
@@ -926,17 +967,14 @@ const arrayType = {
           /** @type {import('../typeChoices.js').BuildTypeChoices} */ (
             buildTypeChoices
           )({
-            value: propName !== undefined && type === 'record'
-              ? propName
-              : undefined,
-            setValue: propName !== undefined && type === 'record',
+            value: undefined,
+            setValue: false,
             // Needed as false when map value supplied
-            autoTrigger: propName === undefined || type === 'record',
+            autoTrigger: propName === undefined,
             format: /** @type {import('../formats.js').AvailableFormat} */ (
               format
             ),
             schemaOriginal: schemaContent,
-            // Can also be a `Record`
             schemaContent: /** @type {import('zodexy').SzMap<any, any>} */ (
               specificSchemaObject
             )?.key,
@@ -945,27 +983,15 @@ const arrayType = {
         return ['legend', [
           ['span', {
             class: 'mapKey',
-            title: (
-              type === 'map' &&
-              /** @type {import('zodexy').SzMap<any, any>} */ (
-                specificSchemaObject
-              )?.key?.description
-            )
+            title: /** @type {import('zodexy').SzMap<any, any>} */ (
+              specificSchemaObject
+            )?.key?.description
               ? '(map key)'
-              : type === 'record' &&
-              /** @type {import('zodexy').SzRecord} */ (
-                specificSchemaObject
-              )?.key?.description
-                ? '(record key)'
-                : undefined
+              : undefined
           }, [
-            type === 'map'
-              ? /** @type {import('zodexy').SzMap<any, any>} */ (
-                specificSchemaObject
-              )?.key?.description ?? 'Map key'
-              : /** @type {import('zodexy').SzRecord} */ (
-                specificSchemaObject
-              )?.key?.description ?? 'Record key',
+            /** @type {import('zodexy').SzMap<any, any>} */ (
+              specificSchemaObject
+            )?.key?.description ?? 'Map key',
             ' '
           ]],
           ['span', {
@@ -1026,7 +1052,7 @@ const arrayType = {
                     : select;
 
                   control.setCustomValidity(
-                    `Duplicate ${type === 'map' ? 'Map' : 'Record'} key value`
+                    'Duplicate Map key value'
                   );
                   control.reportValidity();
                 }, 0);
@@ -1365,6 +1391,10 @@ const arrayType = {
                 /** @type {string} */ (this.value)
                 ]?.type === 'never';
 
+                const recordKeyMessage = getRecordKeyValidationMessage(
+                  this.value
+                );
+
                 let invalid = false;
                 if (neverProperty) {
                   this.setCustomValidity('Never value');
@@ -1372,6 +1402,16 @@ const arrayType = {
                   this.style.backgroundColor = 'pink';
 
                   invalid = true;
+                } else if (recordKeyMessage) {
+                  this.setCustomValidity(recordKeyMessage);
+                  this.reportValidity();
+                  this.style.backgroundColor = 'pink';
+
+                  invalid = true;
+                } else if (recordMode) {
+                  this.style.backgroundColor = 'revert-layer';
+                  this.setCustomValidity('');
+                  this.reportValidity();
                 } else if (this.list && !parentTypeObject.array) {
                   const dataListValues = [
                     ...this.list.options
@@ -1461,7 +1501,7 @@ const arrayType = {
             ? `${fileDesc} `
             : schema?.description
               ? `${schema?.description} `
-              : type === 'tuple' && /** @type {import('zodexy').SzTuple} */ (
+              : tupleMode && /** @type {import('zodexy').SzTuple} */ (
                 specificSchemaObject
               )?.rest?.description
                 ? `${/** @type {import('zodexy').SzTuple} */ (
@@ -1504,6 +1544,55 @@ const arrayType = {
     };
 
     /**
+     * Resolves the schema to use for a child (property/item) type-chooser.
+     * @param {string|undefined} propName
+     * @param {import('zodexy').SzType|undefined} schema Per-item schema (tuples)
+     * @returns {import('zodexy').SzType|undefined}
+     */
+    const getChildSchema = (propName, schema) => {
+      if (schema) {
+        return schema;
+      }
+      if (tupleMode) {
+        return /** @type {import('zodexy').SzTuple} */ (
+          specificSchemaObject
+        ).rest;
+      }
+      if (recordMode) {
+        return /** @type {import('zodexy').SzRecord<any, any>} */ (
+          specificSchemaObject
+        )?.value;
+      }
+      if (mapProperties) {
+        return /** @type {import('zodexy').SzMap<any, any>} */ (
+          specificSchemaObject
+        )?.value;
+      }
+      if (type === 'set') {
+        return /** @type {import('zodexy').SzSet} */ (
+          specificSchemaObject
+        )?.value;
+      }
+      // This is a hack specifically for filelist; for the desired solution,
+      //   see: https://github.com/colinhacks/zod/issues/6413
+      if (type === 'filelist') {
+        return /** @type {import('zodexy').SzArray} */ (
+          /** @type {import('zodexy').SzCodec} */ (
+            specificSchemaObject
+          ).output
+        ).element;
+      }
+      if (type === 'array' || type === 'arrayNonindexKeys') {
+        return /** @type {import('zodexy').SzArray} */ (
+          specificSchemaObject
+        )?.element;
+      }
+      return /** @type {import('zodexy').SzObject} */ (
+        specificSchemaObject
+      )?.properties?.[/** @type {string} */ (propName)];
+    };
+
+    /**
      * @param {{
      *   propName: string|undefined,
      *   schema?: import('zodexy').SzType,
@@ -1523,35 +1612,7 @@ const arrayType = {
         format: /** @type {import('../formats.js').AvailableFormat} */ (format),
         schemaOriginal: schemaContent,
         schemaIdx,
-        schemaContent: schema || type === 'tuple'
-          ? (schema ?? /** @type {import('zodexy').SzTuple} */ (
-            specificSchemaObject
-          ).rest)
-          : mapProperties
-            // Can also be a `Record`
-            ? /** @type {import('zodexy').SzMap<any, any>} */ (
-              specificSchemaObject
-            )?.value
-            : type === 'set'
-              ? /** @type {import('zodexy').SzSet} */ (
-                specificSchemaObject
-              )?.value
-              // This is a hack specifically for filelist; for
-              //   the desired solution, see:
-              //   https://github.com/colinhacks/zod/issues/6413
-              : type === 'filelist'
-                ? /** @type {import('zodexy').SzArray} */ (
-                  /** @type {import('zodexy').SzCodec} */ (
-                    specificSchemaObject
-                  ).output
-                ).element
-                : type === 'array' || type === 'arrayNonindexKeys'
-                  ? /** @type {import('zodexy').SzArray} */ (
-                    specificSchemaObject
-                  )?.element
-                  : /** @type {import('zodexy').SzObject} */ (
-                    specificSchemaObject
-                  )?.properties?.[/** @type {string} */ (propName)],
+        schemaContent: getChildSchema(propName, schema),
         state: parentTypeObject.filelist
           ? 'filelistArray'
           : forcedState ?? type,
@@ -1565,8 +1626,7 @@ const arrayType = {
      * @returns {boolean}
      */
     function preventAdding (offset = 0) {
-      switch (type) {
-      case 'tuple':
+      if (tupleMode) {
         if (/** @type {import('zodexy').SzTuple} */ (
           specificSchemaObject
         )?.rest?.type === 'never') {
@@ -1589,7 +1649,9 @@ const arrayType = {
           );
           return true;
         }
-        break;
+        return false;
+      }
+      switch (type) {
       case 'set': {
         if (/** @type {import('zodexy').SzSet} */ (
           specificSchemaObject
@@ -1807,22 +1869,13 @@ const arrayType = {
             specificSchemaObject
           )?.value?.description
             ? '(map value)'
-            : type === 'record' &&
-            /** @type {import('zodexy').SzRecord} */ (
-              specificSchemaObject
-            )?.value?.description
-              ? '(record value)'
-              : undefined
+            : undefined
         }, [
           type === 'map'
             ? /** @type {import('zodexy').SzMap<any, any>} */ (
               specificSchemaObject
             )?.value?.description ?? 'Map value'
-            : type === 'record'
-              ? /** @type {import('zodexy').SzRecord} */ (
-                specificSchemaObject
-              )?.value?.description ?? 'Record value'
-              : '',
+            : '',
           ' '
         ]],
         ...(specificSchemaObject && !propName && !parentTypeObject.array
@@ -1835,7 +1888,7 @@ const arrayType = {
         ['span', {className: 'property-placeholder'}],
         nbsp.repeat(2),
         ['button', {
-          disabled: type === 'tuple' && required &&
+          disabled: tupleMode && required &&
             // The last item of a tuple can have content after it, but earlier
             //   items cannot
             /** @type {import('zodexy').SzTuple} */
@@ -2337,11 +2390,6 @@ const arrayType = {
                   // The key may itself be a map, etc.
                   return keyTypeChoices.$getTypeRoot();
                 }
-              } else if (parentType === 'record') {
-                this.$addArrayElement({
-                  propName, autoTrigger: false,
-                  required: false
-                });
               } else {
                 // console.log('SCHEMA123', schema);
                 this.$addArrayElement({
@@ -2522,7 +2570,19 @@ const arrayType = {
       );
     topRoot ||= div;
 
-    if (!objectValue && specificSchemaObject) {
+    if (!objectValue && specificSchemaObject && tupleMode) {
+      // See comment referencing `arrayType.js` in `typeChoices.js`
+      if (!schemaFallingBack) {
+        const specificSchemaObj = /** @type {import('zodexy').SzTuple} */ (
+          specificSchemaObject
+        );
+        if (specificSchemaObj?.items?.[0]?.type !== 'never') {
+          for (const schema of specificSchemaObj.items) {
+            div.$addArrayElement({schema, required: true});
+          }
+        }
+      }
+    } else if (!objectValue && specificSchemaObject) {
       switch (type) {
       case 'object': {
         // See comment referencing `arrayType.js` in `typeChoices.js`
@@ -2538,24 +2598,6 @@ const arrayType = {
           ) {
             if (!val.isOptional && val.type !== 'never') {
               div.$addArrayElement({propName: prop, required: true});
-            }
-          }
-        }
-        break;
-      }
-      case 'tuple': {
-        // See comment referencing `arrayType.js` in `typeChoices.js`
-        if (!schemaFallingBack) {
-          const specificSchemaObj = /** @type {import('zodexy').SzTuple} */ (
-            specificSchemaObject
-          );
-          if (
-            /** @type {import('zodexy').SzTuple} */ (
-              specificSchemaObject
-            )?.items?.[0]?.type !== 'never'
-          ) {
-            for (const schema of specificSchemaObj.items) {
-              div.$addArrayElement({schema, required: true});
             }
           }
         }

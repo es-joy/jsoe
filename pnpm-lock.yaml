@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@brettz9/node-static':
-        specifier: ^0.1.1
-        version: 0.1.1
+      '@node-static/node-static':
+        specifier: ^0.9.1
+        version: 0.9.1
       acorn:
         specifier: ^8.18.0
         version: 8.18.0
@@ -727,11 +727,6 @@ packages:
     peerDependencies:
       eslint: '>=7.20.0'
 
-  '@brettz9/node-static@0.1.1':
-    resolution: {integrity: sha512-HHD3JKDCTxudQ7btLDykPlzLBFl+RM70vC6Zsvey1cr9m67UBOmwiP0f2Bk7IjjU3G1c4vAJCjysVxPkmHs7Ew==}
-    engines: {node: '>=10.0.0'}
-    hasBin: true
-
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
@@ -960,6 +955,11 @@ packages:
     peerDependencies:
       '@emnapi/core': ^1.7.1 || ^2.0.0-alpha.3
       '@emnapi/runtime': ^1.7.1 || ^2.0.0-alpha.3
+
+  '@node-static/node-static@0.9.1':
+    resolution: {integrity: sha512-DIsY7EiiCpVk1C8LdqZGCmvrshBKDTgCiSiutUn4v1qp2wXogdsxovKhkOfKuBUtb82BI3AAKgIJm+uL7zeysA==}
+    engines: {node: ^22.0.0 || >= 24.0.0}
+    hasBin: true
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1699,10 +1699,6 @@ packages:
   ansi-escapes@7.3.0:
     resolution: {integrity: sha512-BvU8nYgGQBxcmMuEeUEmNTvrMVjJNSH7RgW24vXexN4Ven6qCvy4TntnvlnwnMLTVlcRQQdbRY8NKnaIoeWDNg==}
     engines: {node: '>=18'}
-
-  ansi-regex@2.1.1:
-    resolution: {integrity: sha512-TIGnTpdo+E3+pCyAluZvtED5p5wCqLdezCyhPZzKPcxvFplEt4i+W7OONCKgeZFT3+y5NZZfOOS/Bdcanm1MYA==}
-    engines: {node: '>=0.10.0'}
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -3565,6 +3561,10 @@ packages:
     resolution: {integrity: sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg==}
     engines: {node: '>=0.10.0'}
 
+  is-hidden-file@1.1.2:
+    resolution: {integrity: sha512-WS2Y+gFNWlK8IPAvcvsqa4rwf4kZUqGz3VTpHVhAu4Zvrbk+XPbve/RKacyyVNYxHQulubZshXXlzmfCR7G+WQ==}
+    os: [darwin, linux, win32]
+
   is-identifier@1.1.0:
     resolution: {integrity: sha512-NhOds0mDx9lJu+1lBRO0xbwFo5nobA7GCk/0e5xjr6+6XugX985+0OyGX35BNrTkPAsdLcIKg02HUQJOK8D8kw==}
     engines: {node: '>=18'}
@@ -4292,9 +4292,9 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
-  mime@2.6.0:
-    resolution: {integrity: sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg==}
-    engines: {node: '>=4.0.0'}
+  mime@3.0.0:
+    resolution: {integrity: sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A==}
+    engines: {node: '>=10.0.0'}
     hasBin: true
 
   mime@4.1.0:
@@ -4390,9 +4390,6 @@ packages:
 
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
-
-  neodoc@2.0.2:
-    resolution: {integrity: sha512-NAppJ0YecKWdhSXFYCHbo6RutiX8vOt/Jo3l46mUg6pQlpJNaqc5cGxdrW2jITQm5JIYySbFVPDl3RrREXNyPw==}
 
   next-tick@1.1.0:
     resolution: {integrity: sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==}
@@ -6790,13 +6787,6 @@ snapshots:
     dependencies:
       eslint: 10.9.1(supports-color@8.1.1)
 
-  '@brettz9/node-static@0.1.1':
-    dependencies:
-      colors: 1.4.0
-      mime: 2.6.0
-      minimatch: 3.1.5
-      neodoc: 2.0.2
-
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
@@ -7051,6 +7041,16 @@ snapshots:
       '@emnapi/runtime': 1.10.0
       '@tybys/wasm-util': 0.10.3
     optional: true
+
+  '@node-static/node-static@0.9.1':
+    dependencies:
+      command-line-basics: 3.0.0
+      is-hidden-file: 1.1.2
+      mime: 3.0.0
+      minimatch: 10.2.6
+      picocolors: 1.1.1
+    transitivePeerDependencies:
+      - '@75lb/nature'
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -7790,8 +7790,6 @@ snapshots:
   ansi-escapes@7.3.0:
     dependencies:
       environment: 1.1.0
-
-  ansi-regex@2.1.1: {}
 
   ansi-regex@5.0.1: {}
 
@@ -9984,6 +9982,10 @@ snapshots:
     dependencies:
       is-extglob: 2.1.1
 
+  is-hidden-file@1.1.2:
+    dependencies:
+      cross-spawn: 7.0.6
+
   is-identifier@1.1.0:
     dependencies:
       identifier-regex: 1.1.0
@@ -10971,7 +10973,7 @@ snapshots:
 
   mime@1.6.0: {}
 
-  mime@2.6.0: {}
+  mime@3.0.0: {}
 
   mime@4.1.0: {}
 
@@ -11047,10 +11049,6 @@ snapshots:
   negotiator@1.0.0: {}
 
   neo-async@2.6.2: {}
-
-  neodoc@2.0.2:
-    dependencies:
-      ansi-regex: 2.1.1
 
   next-tick@1.1.0: {}
 

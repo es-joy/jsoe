@@ -332,7 +332,7 @@ const schemaInstanceJSONStrings11 = {
 //         as cause (done?)
 
 // Todo: If Zod starts to do circular data, support with reference types
-// Todo: If Zod starts to allow specific types for our effects, use those
+// Todo: If Zod starts to allow specific types for our instanceof types, use those
 //         instead, not just for more standard semanticness, but for any
 //         additional validations
 

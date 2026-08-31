@@ -584,177 +584,76 @@ export function getTypesForSchema (schemaObject, originalJSON) {
             type: 'any'
           }
         },
-        // Todo: Need to convert (to `instanceof`?)
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'regexp',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'blob',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'BooleanObject',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'NumberObject',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'StringObject',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'SpecialRealNumber',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'domexception',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'error',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'filelist',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'file',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'resurrectable', // noneditable
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'blobHTML',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'buffersource',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'dommatrix',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'dompoint',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'domrect',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
-        // {
-        //   type: 'effect',
-        //   effects: [
-        //     {
-        //       name: 'errors',
-        //       type: 'refinement'
-        //     }
-        //   ],
-        //   inner: {type: 'any'}
-        // },
+
+        {
+          type: 'any',
+          checks: [{name: 'regexp'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'blob'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'BooleanObject'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'NumberObject'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'StringObject'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'SpecialRealNumber'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'domexception'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'error'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'filelist'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'file'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'resurrectable'}] // noneditable
+        },
+        {
+          type: 'any',
+          checks: [{name: 'blobHTML'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'buffersource'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'dommatrix'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'dompoint'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'domrect'}]
+        },
+        {
+          type: 'any',
+          checks: [{name: 'errors'}]
+        },
+
         // Todo: Adapt into a widget to drag to point back to another object
         {
           description: 'JSON Reference',
@@ -874,11 +773,11 @@ const schema = {
         currentSchema = parentSchema.output.element;
       }
       break;
-    // Todo: Replace
-    // case 'effect':
-    //   currentSchema = /** @type {import('zodexy').SzEffect} */ (
+    // No need to handle differently?
+    // case 'instanceof':
+    //   currentSchema = /** @type {import('zodexy').SzInstanceOf} */ (
     //     parentSchema
-    //   ).inner;
+    //   );
     //   break;
     // eslint-disable-next-line sonarjs/no-duplicated-branches -- Maintenance
     case 'promise':

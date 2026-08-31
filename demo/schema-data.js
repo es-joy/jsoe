@@ -469,7 +469,7 @@ const schemaInstanceJSON7 = {
     // `never` could technically be in the following, too, but probably
     //    not meaningful:
     //    catchall, record value, map key/value, promise value
-    //    effect inner, catch innerType
+    //    instanceof name, catch innerType
     {
       description: 'A never',
       type: 'never'

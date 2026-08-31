@@ -152,7 +152,7 @@ Supported supertypes include:
     1. Objects: "Has property &lt;property pull-down>" (avoid listing required)
     1. Arrays, Set, FileList, tuple with rest: "Has length/size of &lt;number>"; arrays: "Is/Is not sparse"
     1. Union/Discriminated Union: "Has type &lt;type pull-down>" (including when union is part of a key to records, maps, discriminator of discriminated union, etc.)
-    1. undefined/void, null, NaN, Effect, Non-editable (no variants to allow for distinct search; if optional, would be in union); non-editable might allow arbitrary JS query against it, but...
+    1. undefined/void, null, NaN, instanceof, Non-editable (no variants to allow for distinct search; if optional, would be in union); non-editable might allow arbitrary JS query against it, but...
     1. boolean, BooleanObject: true or false
     1. number, NumberObject: OR Ranges/Is Not Range, Is/Is Not Integer
     1. bigint, bigint object: OR Ranges/Is Not Range

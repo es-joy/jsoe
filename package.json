@@ -63,7 +63,7 @@
     ]
   },
   "dependencies": {
-    "@brettz9/node-static": "^0.1.1",
+    "@node-static/node-static": "^0.9.1",
     "acorn": "^8.18.0",
     "jamilih": "0.69.0",
     "mime": "^4.1.0",
