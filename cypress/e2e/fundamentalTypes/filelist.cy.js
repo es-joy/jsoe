@@ -167,14 +167,14 @@ describe('FileList spec', () => {
 
 describe('FileList spec (schemas)', () => {
   beforeEach(() => {
-    cy.visit('http://127.0.0.1:8087/demo/index-schema.html', {
+    cy.visit('http://127.0.0.1:8087/demo/index-schema-instrumented.html', {
       onBeforeLoad (win) {
         cy.stub(win.console, 'log').as('consoleLog');
       }
     });
   });
 
-  it.only('views UI', function () {
+  it('views UI', function () {
     cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -246,23 +246,23 @@ describe('FileList spec (schemas)', () => {
       sel + 'input[name="demo-keypath-not-expected-filelist"]'
     ).selectFile({
       contents: Cypress.Buffer.from('abc'),
-      fileName: 'first.txt',
-      mimeType: 'text/plain'
+      fileName: 'first.md',
+      mimeType: 'text/markdown'
     });
 
     const contentType =
       sel + 'fieldset[data-type="file"]:first .contentType';
-    cy.clearTypeAndBlur(contentType, 'application/json');
+    cy.clearTypeAndBlur(contentType, 'application/xml');
     cy.get(contentType).should(($input) => {
       const {validationMessage} = /** @type {HTMLInputElement} */ ($input[0]);
-      expect(validationMessage).to.contain('text/plain');
+      expect(validationMessage).to.contain('text/markdown');
     });
     cy.get(sel + 'fieldset[data-type="file"]:first .viewBinary').then(
       ($button) => {
         expect(
           /** @type {HTMLButtonElement & {$value: File}} */ ($button[0]).
             $value.type
-        ).to.equal('text/plain');
+        ).to.equal('text/markdown');
       }
     );
   });
