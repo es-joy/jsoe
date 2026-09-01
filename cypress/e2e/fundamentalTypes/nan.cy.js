@@ -17,31 +17,25 @@ describe('NaN spec', () => {
     );
   });
 
-  it('gets type', function (done) {
+  it('gets type', function () {
     cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('nan');
-      done();
-    });
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'nan'
     );
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'nan');
   });
 
-  it('is valid', function (done) {
+  it('is valid', function () {
     cy.get('.formatChoices:first').select('Schema: Zodexy schema instance');
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'nan'
     );
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {

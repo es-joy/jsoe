@@ -20,24 +20,19 @@ describe('template literal schema spec', () => {
     ).should('have.value', 'item-42');
   });
 
-  it('gets the runtime type', function (done) {
-    cy.on('window:alert', (text) => {
-      expect(text).to.eq('string');
-      done();
-    });
+  it('gets the runtime type', function () {
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'string');
   });
 
   it('validates against the template', function () {
-    cy.on('window:alert', (text) => {
-      expect(text).to.eq('false');
-    });
     cy.clearTypeAndBlur(
       '#formatAndTypeChoices ' +
       'textarea[name="demo-keypath-not-expected-string"]',
       'wrong'
     );
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
   });
 
   it('logs a matching value', () => {

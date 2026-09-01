@@ -16,11 +16,7 @@ describe('bigintObject spec', () => {
     );
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('bigintObject');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'bigintObject'
@@ -31,13 +27,10 @@ describe('bigintObject spec', () => {
     );
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'bigintObject');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'bigintObject'
@@ -47,6 +40,7 @@ describe('bigintObject spec', () => {
       '12345'
     );
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {

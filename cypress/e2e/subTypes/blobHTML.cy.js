@@ -16,11 +16,7 @@ describe('blobHTML spec', () => {
     );
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('blobHTML');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'blobHTML'
@@ -40,13 +36,10 @@ describe('blobHTML spec', () => {
     });
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'blobHTML');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'blobHTML'
@@ -64,6 +57,7 @@ describe('blobHTML spec', () => {
       sceinstance.val('<b>ggg</b>');
     });
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   // Not triggered

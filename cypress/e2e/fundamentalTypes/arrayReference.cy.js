@@ -6,15 +6,12 @@ describe('Array reference spec', function () {
       }
     });
   });
-  it('checks for custom reference handling', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('customValidateAllReferences set');
-      done();
-    });
+  it('checks for custom reference handling', function () {
     cy.get('#setCustomValidateAllReferences').click();
 
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select('null');
+    cy.get('dialog[open]').should('include.text', 'customValidateAllReferences set');
   });
   it('creates an array reference', function () {
     const sel = '#formatAndTypeChoices ';

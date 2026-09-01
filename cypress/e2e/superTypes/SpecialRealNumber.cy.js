@@ -17,11 +17,7 @@ describe('SpecialRealNumber spec', () => {
     );
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('SpecialRealNumber');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + '.formatChoices').select('indexedDBKey');
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -32,13 +28,10 @@ describe('SpecialRealNumber spec', () => {
     ).select('-Infinity');
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'SpecialRealNumber');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + '.formatChoices').select('indexedDBKey');
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
@@ -48,6 +41,7 @@ describe('SpecialRealNumber spec', () => {
       sel + 'select[name="demo-keypath-not-expected-SpecialRealNumber"]'
     ).select('-Infinity');
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {
@@ -133,12 +127,9 @@ describe('SpecialRealNumber spec', () => {
 
   it(
     'checks that valid values were set (using `keySelectClass`)',
-    function (done) {
-      cy.on('window:alert', (t) => {
-        expect(t).to.eq('true');
-        done();
-      });
+    function () {
       cy.get('#validValuesSet').click();
+      cy.get('dialog[open]').should('include.text', 'true');
     }
   );
 });

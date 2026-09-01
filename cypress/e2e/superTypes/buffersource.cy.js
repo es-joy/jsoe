@@ -310,24 +310,17 @@ describe('Buffersource spec', () => {
     }
   );
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('buffersource');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'buffersource'
     );
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'buffersource');
   });
 
-  it('is valid (false)', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('false');
-      done();
-    });
+  it('is valid (false)', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'buffersource'
@@ -336,19 +329,17 @@ describe('Buffersource spec', () => {
     cy.clearTypeAndBlur(sel + '.maxByteLength', '3');
 
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
   });
 
-  it('is valid (true)', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid (true)', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'buffersource'
     );
 
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {

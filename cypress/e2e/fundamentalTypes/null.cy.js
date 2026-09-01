@@ -12,25 +12,19 @@ describe('null spec', () => {
     cy.get('input[name="demo-keypath-not-expected-null"]').should('be.checked');
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('null');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select('null');
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'null');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select('null');
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {

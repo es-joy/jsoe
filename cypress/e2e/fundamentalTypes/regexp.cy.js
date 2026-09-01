@@ -16,11 +16,7 @@ describe('regexp spec', () => {
     );
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('regexp');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'regexp'
@@ -31,13 +27,10 @@ describe('regexp spec', () => {
     );
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'regexp');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'regexp'
@@ -47,13 +40,10 @@ describe('regexp spec', () => {
       '.*?'
     );
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
-  it('is invalid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('false');
-      done();
-    });
+  it('is invalid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'regexp'
@@ -64,6 +54,7 @@ describe('regexp spec', () => {
       '{'
     );
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
   });
 
   it('logs value', function () {

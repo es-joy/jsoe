@@ -13,15 +13,12 @@ describe('schema constraints use runtime type editors', () => {
     );
   });
 
-  it('uses a fixed boolean editor for a boolean literal', function (done) {
+  it('uses a fixed boolean editor for a boolean literal', function () {
     cy.get(typeChoices).select('Boolean (Literal boolean)');
     cy.get('#formatAndTypeChoices [data-type="boolean"] input:checked').
       should('have.value', 'false');
-    cy.on('window:alert', (text) => {
-      expect(text).to.eq('boolean');
-      done();
-    });
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'boolean');
   });
 
   it('uses a number choice for a number literal', () => {
@@ -74,14 +71,11 @@ describe('schema constraints use runtime type editors', () => {
     cy.get('@consoleLog').should('be.calledWith', 'ghi');
   });
 
-  it('maps void to explicit undefined', function (done) {
+  it('maps void to explicit undefined', function () {
     cy.get(typeChoices).select('Explicit undefined (A void)');
     cy.get('#formatAndTypeChoices [data-type="undef"]').should('exist');
-    cy.on('window:alert', (text) => {
-      expect(text).to.eq('undef');
-      done();
-    });
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'undef');
   });
 });
 

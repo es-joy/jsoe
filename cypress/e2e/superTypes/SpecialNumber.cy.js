@@ -16,11 +16,7 @@ describe('SpecialNumber spec', () => {
     );
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('SpecialNumber');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'SpecialNumber'
@@ -30,13 +26,10 @@ describe('SpecialNumber spec', () => {
     ).select('NaN');
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'SpecialNumber');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'SpecialNumber'
@@ -45,6 +38,7 @@ describe('SpecialNumber spec', () => {
       sel + 'select[name="demo-keypath-not-expected-SpecialNumber"]'
     ).select('NaN');
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {

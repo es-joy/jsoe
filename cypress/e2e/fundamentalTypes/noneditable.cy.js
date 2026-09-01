@@ -23,37 +23,27 @@ describe('Non-editable (Resurrectable) spec', () => {
     cy.get('@consoleLog').should('be.calledWith', undefined);
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('resurrectable');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'resurrectable'
     );
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'resurrectable');
   });
 
-  it('is valid (false)', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('false');
-      done();
-    });
+  it('is valid (false)', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'resurrectable'
     );
 
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
   });
 
-  it('is valid (true)', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid (true)', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'resurrectable'
@@ -62,6 +52,7 @@ describe('Non-editable (Resurrectable) spec', () => {
     cy.get('#initializeWithNoneditableValue').click();
 
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {

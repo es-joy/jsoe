@@ -29,11 +29,7 @@ describe('Set spec', () => {
     );
   });
 
-  it('errs on duplicate set values', (done) => {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('false');
-      done();
-    });
+  it('errs on duplicate set values', () => {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select('set');
     cy.get(sel + '.addArrayElement').click();
@@ -69,6 +65,7 @@ describe('Set spec', () => {
     // });
 
     cy.get('#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
   });
 
   it('converts a string to a Set', function () {

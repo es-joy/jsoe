@@ -16,11 +16,7 @@ describe('NumberObject spec', () => {
     );
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('NumberObject');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'NumberObject'
@@ -31,13 +27,10 @@ describe('NumberObject spec', () => {
     );
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'NumberObject');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'NumberObject'
@@ -47,6 +40,7 @@ describe('NumberObject spec', () => {
       '123.45'
     );
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {

@@ -147,11 +147,7 @@ describe('Map spec', () => {
     ).should('contain', 'null');
   });
 
-  it('gets warning for duplicate keys (null and null)', (done) => {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('false');
-      done();
-    });
+  it('gets warning for duplicate keys (null and null)', () => {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select('map');
     cy.get(sel + '.addArrayElement').click();
@@ -186,13 +182,10 @@ describe('Map spec', () => {
     // });
 
     cy.get('#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
   });
 
-  it('gets warning for duplicate keys (-0 and 0)', (done) => {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('false');
-      done();
-    });
+  it('gets warning for duplicate keys (-0 and 0)', () => {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select('map');
     cy.get(sel + '.addArrayElement').click();
@@ -236,13 +229,10 @@ describe('Map spec', () => {
     // });
 
     cy.get('#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
   });
 
-  it('gets warning for duplicate keys (NaN and NaN)', (done) => {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('false');
-      done();
-    });
+  it('gets warning for duplicate keys (NaN and NaN)', () => {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select('map');
     cy.get(sel + '.addArrayElement').click();
@@ -277,6 +267,7 @@ describe('Map spec', () => {
     // });
 
     cy.get('#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
   });
 
   it('shows form control from root ancestor (for a map)', function () {
