@@ -222,7 +222,12 @@ const arrayType = {
         return;
       }
       const [, prop, propHadQuotes] = propAndColon;
-      const pr = prop !== '' ? prop : propHadQuotes;
+      // `prop` (the unquoted-key alternative) is either a non-empty string or
+      //   `undefined`; when it did not match, the key came in quoted and its
+      //   text (possibly `''`) is in `propHadQuotes`. A `prop !== ''` test
+      //   wrongly lets `undefined` through, so a quoted key like `"c"` becomes
+      //   the string `"undefined"`.
+      const pr = prop ?? propHadQuotes;
       stringVal = stringVal.slice(propAndColon[0].length);
       let v, beginOnly, assign;
       try {
