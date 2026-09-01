@@ -1,4 +1,5 @@
 import {jml, body, $} from '../src/vendor-imports.js';
+import dialogs from '../src/utils/dialogs.js';
 
 import {
   typeChoices,
@@ -32,8 +33,7 @@ setTimeout(async function () {
       id: 'getType',
       $on: {
         click () {
-          // eslint-disable-next-line no-alert -- Simple demo
-          alert(keyPathNotExpectedTypeChoices.getType());
+          dialogs.alert(keyPathNotExpectedTypeChoices.getType());
         }
       }
     }, ['Get type']],
@@ -42,8 +42,7 @@ setTimeout(async function () {
       id: 'isValid',
       $on: {
         click () {
-          // eslint-disable-next-line no-alert -- Simple demo
-          alert(keyPathNotExpectedTypeChoices.validValuesSet());
+          dialogs.alert(keyPathNotExpectedTypeChoices.validValuesSet());
         }
       }
     }, ['Is valid']],
@@ -126,8 +125,7 @@ setTimeout(async function () {
           id: 'typeChoicesOnly-getType',
           $on: {
             click () {
-              // eslint-disable-next-line no-alert -- Simple demo
-              alert(typeSelection.getType());
+              dialogs.alert(typeSelection.getType());
             }
           }
         }, ['Get type']],
@@ -136,8 +134,7 @@ setTimeout(async function () {
           id: 'typeChoicesOnly-isValid',
           $on: {
             click () {
-              // eslint-disable-next-line no-alert -- Simple demo
-              alert(typeSelection.validValuesSet());
+              dialogs.alert(typeSelection.validValuesSet());
             }
           }
         }, ['Is valid']],
@@ -146,8 +143,7 @@ setTimeout(async function () {
           id: 'validateInitialType',
           $on: {
             click () {
-              // eslint-disable-next-line no-alert -- Simple demo
-              alert(typeSelection.domArray[0].$validate());
+              dialogs.alert(typeSelection.domArray[0].$validate());
             }
           }
         }, [

@@ -897,7 +897,7 @@ const schema = {
       );
     }
 
-    // alert(JSON.stringify(schemaObject));
+    // console.log(JSON.stringify(schemaObject));
     const schemaObjects = [...getTypesForSchema(
       schemaObject,
       /** @type {import('zodexy').SzType} */ (
