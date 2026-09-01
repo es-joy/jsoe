@@ -193,9 +193,11 @@ describe('FileList spec (schemas)', () => {
     ).should(($elem) => {
       expect($elem.attr('title')).to.equal('(a FileList)');
     });
-    cy.get('#viewUIResults div[data-type="file"] > b').should(
-      'have.text', 'A text File'
-    );
+    cy.get('#viewUIResults div[data-type="file"] > b.emphasis').
+      should('have.length', 2).
+      each(($b) => {
+        expect($b).to.have.text('A text File');
+      });
   });
 
   it('prevents saving binary data outside the File size limits', function () {
