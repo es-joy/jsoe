@@ -853,7 +853,7 @@ class Types {
         ? error.message
         : undefined;
       if (errorMessage !== 'Not yet instantiated') {
-        throw error;
+        return false;
       }
       valueReady = false;
     }

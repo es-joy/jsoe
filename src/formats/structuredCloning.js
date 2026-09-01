@@ -366,6 +366,7 @@ const encapsulateObserver = (stateObj) => {
           avoidReport: true
         });
       }
+    // eslint-disable-next-line promise/prefer-await-to-then -- Convenient
     })().catch(() => {
       // Auto-population is best-effort: a node whose deferred UI is still
       //   settling (its guard throws `'Not yet instantiated'`) or a transient

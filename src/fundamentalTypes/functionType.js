@@ -157,7 +157,7 @@ const setValueAndTooltips = ({root, value, specificSchemaObject}) => {
         // A slow environment may not have added every arg textarea within the
         //   tick; skip rather than throw (the guard in `getValue` covers a
         //   read that arrives before this settles).
-        if (textareas[idx]) {
+        if (Object.hasOwn(textareas, idx)) {
           textareas[idx].value = arg;
         }
       });
@@ -310,6 +310,7 @@ const functionType = {
           root: div,
           value,
           specificSchemaObject
+        // eslint-disable-next-line promise/prefer-await-to-then -- Convenient
         }).catch(() => { /* best-effort */ });
       }, 0);
     } else if (specificSchemaObject) {
