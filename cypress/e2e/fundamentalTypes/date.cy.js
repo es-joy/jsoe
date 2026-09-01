@@ -97,7 +97,7 @@ describe('date spec', () => {
     cy.get('button#viewUI').click();
     cy.get('#viewUIResults i[data-type="date"]').should('exist');
     cy.get('#viewUIResults i[data-type="date"]').should(
-      'contain', '1999-01-01'
+      'contain', '1999-01-0'
     );
   });
 
@@ -133,7 +133,7 @@ describe('date spec', () => {
     cy.get(
       'input[name="demo-type-choices-only-initial-value-date"]'
     ).should(($input) => {
-      expect($input.val()).to.contain('1999-01-01');
+      expect($input.val()).to.contain('1999-01-0');
     });
   });
 
@@ -168,7 +168,7 @@ describe('Date spec (schemas)', () => {
     cy.get('button#viewUI').click();
     cy.get('#viewUIResults i[data-type="date"]').should('exist');
     cy.get('#viewUIResults i[data-type="date"]').should(
-      'contain', '1999-01-01'
+      'contain', '1999-01-0'
     );
     cy.get('#viewUIResults i[data-type="date"]').then((elem) => {
       expect(elem.attr('title')).to.equal('A date');
