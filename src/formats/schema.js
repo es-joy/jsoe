@@ -1,5 +1,6 @@
 // import {z} from 'zod';
 import {dezerialize} from 'zodexy';
+import deepEqual from 'fast-deep-equal/es6/index.js';
 
 import structuredCloning from './structuredCloning.js';
 
@@ -280,7 +281,7 @@ function mergeSchema (leftItem, rightItem) {
             : val;
         }
       } else if (Object.hasOwn(newLeftObj, prop)) {
-        if (newLeftObj[prop] !== val) {
+        if (newLeftObj[prop] !== val && !deepEqual(newLeftObj[prop], val)) {
           if (leftItem.type === 'object') {
             throw new Error(
               'Duplicate property ' + prop + ' of value ' +
@@ -327,6 +328,11 @@ function mergeSchema (leftItem, rightItem) {
   for (const [prop, val] of Object.entries(rightItem.properties)) {
     if (typeof newLeftObj.properties !== 'string' &&
         Object.hasOwn(newLeftObj.properties, prop)) {
+      if (deepEqual(newLeftObj.properties[prop], val)) {
+        // Identical property schemas from both intersection branches merge to
+        //   themselves; nothing to reconcile
+        continue;
+      }
       throw new Error(
         'Duplicate property ' + prop + ' of value ' +
         JSON.stringify(val) + ' and ' +
