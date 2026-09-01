@@ -857,7 +857,7 @@ const schema = {
       const parsed = type === 'promise'
         ? {success: true}
         : dezSchema.safeParse(v);
-      console.log('parsed', parsed.success, v, schema);
+      // console.log('parsed', parsed.success, v, schema);
       if (parsed.success) {
         // console.log(
         //   'matched', v, v?.length, type, schema, schemaIdx, schemaObjects
