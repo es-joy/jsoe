@@ -461,8 +461,8 @@ const schemaInstanceJSON7 = {
           description: 'A text File',
           type: 'file',
           min: 1,
-          max: 10,
-          mime: ['text/plain']
+          max: 10_000,
+          mime: ['text/markdown', 'application/json']
         }
       }
     },

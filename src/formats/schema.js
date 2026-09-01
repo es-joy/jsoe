@@ -776,7 +776,9 @@ const schema = {
     case 'codec':
       if (parentSchema.name === 'filelist' &&
           parentSchema.output.type === 'array') {
-        currentSchema = parentSchema.output.element;
+        currentSchema = typesonType === 'file'
+          ? parentSchema.output.element
+          : parentSchema;
       }
       break;
     // No need to handle differently?
@@ -855,7 +857,7 @@ const schema = {
       const parsed = type === 'promise'
         ? {success: true}
         : dezSchema.safeParse(v);
-      // console.log('parsed', parsed.success, v, schema);
+      console.log('parsed', parsed.success, v, schema);
       if (parsed.success) {
         // console.log(
         //   'matched', v, v?.length, type, schema, schemaIdx, schemaObjects

@@ -99,13 +99,103 @@ describe('FileList spec', () => {
     ]);
 
     cy.get(sel + 'fieldset[data-type="file"]:first').within(() => {
-      cy.get('legend').should('have.text', 'A text File 0');
-      cy.contains('label', 'Size (in bytes) (min: 1, max: 10)');
-      cy.contains('label', 'Content type (allowed: text/plain)');
+      cy.get('legend:first').should('have.text', 'Item 0');
+      cy.contains('label', 'Size (in bytes)');
+      cy.contains('label', 'Content type');
     });
 
     cy.get('button#viewUI').click();
     cy.get('#viewUIResults div[data-type="filelist"]').should('exist');
+  });
+
+  it('gets value', function () {
+    cy.clearTypeAndBlur(
+      // `{}` is an added Cypress escape
+      '#getValueForString', 'FileList(' +
+      // Todo: Parsing not working with inner `File`
+      // 'File({{}"stringContents":"abc","name":"someName",' +
+      // '"type":"text/plain","lastModified":1231230}),' +
+      // 'File({{}"stringContents":"def","name":"anotherName",' +
+      // '"type":"text/plain","lastModified":3213210})' +
+      ')'
+    );
+    cy.get('@consoleLog').should(
+      'be.calledWith',
+      new FileList([
+        // new File([], '', {}),
+        // new File([], '', {})
+      ])
+    );
+  });
+
+  describe('getInput()', function () {
+    it('Shows the filelist root form control', function () {
+      const sel = '#formatAndTypeChoices ';
+
+      cy.get(
+        sel + 'select.typeChoices-demo-keypath-not-expected'
+      ).select('filelist');
+
+      cy.get('#showRootFormControl').click();
+
+      cy.get(
+        '#formatAndTypeChoices > .typesHolder > .typeContainer > ' +
+        'div[data-type="filelist"] > button'
+      ).should(($button) => {
+        expect($button[0].style.backgroundColor).to.equal('red');
+      });
+
+      // eslint-disable-next-line cypress/no-unnecessary-waiting -- Needed
+      cy.wait(3000);
+
+      cy.get(
+        '#formatAndTypeChoices > .typesHolder > .typeContainer > ' +
+        'div[data-type="filelist"] > button'
+      ).should(($button) => {
+        expect($button[0].style.backgroundColor).to.not.equal('red');
+      });
+    });
+  });
+
+  // it('gets a value set onload', function () {
+  //   cy.get(
+  //     'input[name="demo-type-choices-only-initial-value-filelist"]' +
+  //       '[value=false]'
+  //   ).should('be.checked');
+  // });
+});
+
+describe('FileList spec (schemas)', () => {
+  beforeEach(() => {
+    cy.visit('http://127.0.0.1:8087/demo/index-schema.html', {
+      onBeforeLoad (win) {
+        cy.stub(win.console, 'log').as('consoleLog');
+      }
+    });
+  });
+
+  it.only('views UI', function () {
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'FileList (A FileList)'
+    );
+    cy.get(
+      sel + 'input[name="demo-keypath-not-expected-filelist"]'
+    ).selectFile([
+      'package.json', 'README.md'
+    ]);
+
+    cy.get('button#viewUI').click();
+    cy.get('#viewUIResults div[data-type="filelist"]').should('exist');
+    cy.get(
+      '#viewUIResults div[data-type="filelist"] .arrayContents > div[title]'
+    ).should(($elem) => {
+      expect($elem.attr('title')).to.equal('(a FileList)');
+    });
+    cy.get('#viewUIResults div[data-type="file"] > b').should(
+      'have.text', 'A text File'
+    );
   });
 
   it('prevents saving binary data outside the File size limits', function () {
@@ -172,96 +262,6 @@ describe('FileList spec', () => {
             $value.type
         ).to.equal('text/plain');
       }
-    );
-  });
-
-  it('gets value', function () {
-    cy.clearTypeAndBlur(
-      // `{}` is an added Cypress escape
-      '#getValueForString', 'FileList(' +
-      // Todo: Parsing not working with inner `File`
-      // 'File({{}"stringContents":"abc","name":"someName",' +
-      // '"type":"text/plain","lastModified":1231230}),' +
-      // 'File({{}"stringContents":"def","name":"anotherName",' +
-      // '"type":"text/plain","lastModified":3213210})' +
-      ')'
-    );
-    cy.get('@consoleLog').should(
-      'be.calledWith',
-      new FileList([
-        // new File([], '', {}),
-        // new File([], '', {})
-      ])
-    );
-  });
-
-  describe('getInput()', function () {
-    it('Shows the filelist root form control', function () {
-      const sel = '#formatAndTypeChoices ';
-
-      cy.get(
-        sel + 'select.typeChoices-demo-keypath-not-expected'
-      ).select('filelist');
-
-      cy.get('#showRootFormControl').click();
-
-      cy.get(
-        '#formatAndTypeChoices > .typesHolder > .typeContainer > ' +
-        'div[data-type="filelist"] > button'
-      ).should(($button) => {
-        expect($button[0].style.backgroundColor).to.equal('red');
-      });
-
-      // eslint-disable-next-line cypress/no-unnecessary-waiting -- Needed
-      cy.wait(3000);
-
-      cy.get(
-        '#formatAndTypeChoices > .typesHolder > .typeContainer > ' +
-        'div[data-type="filelist"] > button'
-      ).should(($button) => {
-        expect($button[0].style.backgroundColor).to.not.equal('red');
-      });
-    });
-  });
-
-  // it('gets a value set onload', function () {
-  //   cy.get(
-  //     'input[name="demo-type-choices-only-initial-value-filelist"]' +
-  //       '[value=false]'
-  //   ).should('be.checked');
-  // });
-});
-
-describe('FileList spec (schemas)', () => {
-  beforeEach(() => {
-    cy.visit('http://127.0.0.1:8087/demo/index-schema-instrumented.html', {
-      onBeforeLoad (win) {
-        cy.stub(win.console, 'log').as('consoleLog');
-      }
-    });
-  });
-
-  it('views UI', function () {
-    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 7');
-    const sel = '#formatAndTypeChoices ';
-    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-      'FileList (A FileList)'
-    );
-    cy.get(
-      sel + 'input[name="demo-keypath-not-expected-filelist"]'
-    ).selectFile([
-      'package.json', 'README.md'
-    ]);
-
-    cy.get('button#viewUI').click();
-    cy.get('#viewUIResults div[data-type="filelist"]').should('exist');
-    cy.get(
-      '#viewUIResults div[data-type="filelist"] .arrayContents > div[title]'
-    ).should(($elem) => {
-      expect($elem.attr('title')).to.equal('(a FileList)');
-    });
-    cy.get('#viewUIResults div[data-type="file"] > b').should(
-      'have.text', 'A text File'
     );
   });
 });

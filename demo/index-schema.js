@@ -507,7 +507,7 @@ setTimeout(function () {
                 // schemaContent: anySchemaJSON
                 schemaContent: keyPathNotExpectedTypeChoices.formatChoices.
                   selectedOptions[0].dataset.schema
-                  ? await getSchemaContent(
+                  ? getSchemaContent(
                     keyPathNotExpectedTypeChoices.formatChoices.
                       selectedOptions[0].dataset.schema
                   )

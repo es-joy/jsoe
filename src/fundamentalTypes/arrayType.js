@@ -746,9 +746,11 @@ const arrayType = {
         specificSchemaObject
       )?.value?.description
       : type === 'filelist'
-        ? /** @type {import('zodexy').SzFile} */ (
-          specificSchemaObject
-        )?.description
+        ? /** @type {import('zodexy').SzArray} */ (
+          /** @type {import('zodexy').SzCodec} */ (
+            specificSchemaObject
+          )?.output
+        )?.element.description
         : undefined);
 
     /**
@@ -1572,9 +1574,11 @@ const arrayType = {
       // This is a hack specifically for filelist; the desired solution
       //   was: https://github.com/colinhacks/zod/issues/6413
       if (type === 'filelist') {
-        return /** @type {import('zodexy').SzFile} */ (
-          specificSchemaObject
-        );
+        return /** @type {import('zodexy').SzArray} */ (
+          /** @type {import('zodexy').SzCodec} */ (
+            specificSchemaObject
+          )?.output
+        )?.element;
       }
       if (type === 'array' || type === 'arrayNonindexKeys') {
         return /** @type {import('zodexy').SzArray} */ (
@@ -2571,7 +2575,12 @@ const arrayType = {
                       type: 'file',
                       value: file,
                       bringIntoFocus: false,
-                      setAValue: true
+                      setAValue: true,
+                      schemaContent: /** @type {import('zodexy').SzArray} */ (
+                        /** @type {import('zodexy').SzCodec} */ (
+                          specificSchemaObject
+                        )?.output
+                      )?.element
                     });
                   }
                 }
