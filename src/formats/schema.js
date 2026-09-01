@@ -834,6 +834,14 @@ const schema = {
     //   arrayOrObjectPropertyName, parentSchema, schemaObjects
     // );
     // console.log('schemaObjects', schemaObjects);
+
+    // When several union options accept the value, the first structural match
+    //   is not necessarily the best one: a bare `{type: 'object', properties:
+    //   {}}` option strips unrecognized keys, so it parses successfully (with
+    //   data loss) even when a sibling option describes the value's actual
+    //   shape. Prefer an option that round-trips the value losslessly and fall
+    //   back to the first structural match only if none does.
+    let fallbackMatch;
     for (const [schemaIdx, schema] of schemaObjects.entries()) {
       const type = getSchemaType(schema);
 
@@ -862,7 +870,15 @@ const schema = {
         // console.log(
         //   'matched', v, v?.length, type, schema, schemaIdx, schemaObjects
         // );
-        return {
+        /**
+         * @type {{
+         *   type: import('../types.js').AvailableArbitraryType|undefined,
+         *   schema?: import('zodexy').SzType,
+         *   mustBeOptional?: boolean,
+         *   schemaIdx?: number
+         * }}
+         */
+        const match = {
           type,
           schemaIdx,
           // For `readonly`, we just want to show the current type (no
@@ -876,7 +892,19 @@ const schema = {
             },
           mustBeOptional
         };
+        if (
+          type === 'promise' ||
+          ('data' in parsed && deepEqual(parsed.data, v))
+        ) {
+          return match;
+        }
+        if (!fallbackMatch) {
+          fallbackMatch = match;
+        }
       }
+    }
+    if (fallbackMatch) {
+      return fallbackMatch;
     }
     return {type: typesonType};
   },
