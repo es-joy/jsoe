@@ -356,11 +356,11 @@ describe('file spec', () => {
 
       // Todo: should refactor audio to produce audio name and content type
       cy.get(sel + '.fileName').should(($input) => {
-        expect($input.val()).to.equal('placeholder.webm');
+        expect($input.val()).to.equal('placeholder.mp4');
       });
 
       cy.get(sel + '.contentType').should(($input) => {
-        expect($input.val()).to.equal('video/webm');
+        expect($input.val()).to.equal('video/mp4');
       });
 
       cy.get(sel + 'video.recordedMedia').should(($video) => {
@@ -412,11 +412,11 @@ describe('file spec', () => {
       cy.get(sel + '.stopRecording').click();
 
       cy.get(sel + '.fileName').should(($input) => {
-        expect($input.val()).to.equal('placeholder.webm');
+        expect($input.val()).to.equal('placeholder.mp4');
       });
 
       cy.get(sel + '.contentType').should(($input) => {
-        expect($input.val()).to.equal('video/webm');
+        expect($input.val()).to.equal('video/mp4');
       });
 
       cy.get(sel + 'video.recordedMedia').should(($video) => {
@@ -468,11 +468,11 @@ describe('file spec', () => {
       cy.get(sel + '.stopRecording').click();
 
       cy.get(sel + '.fileName').should(($input) => {
-        expect($input.val()).to.equal('placeholder.webm');
+        expect($input.val()).to.equal('placeholder.mp4');
       });
 
       cy.get(sel + '.contentType').should(($input) => {
-        expect($input.val()).to.equal('video/webm');
+        expect($input.val()).to.equal('video/mp4');
       });
 
       cy.get(sel + 'video.recordedMedia').should(($video) => {

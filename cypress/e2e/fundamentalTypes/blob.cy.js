@@ -313,7 +313,7 @@ describe('Blob spec', () => {
       // Todo: should refactor audio to produce audio content type
 
       cy.get(sel + '.contentType').should(($input) => {
-        expect($input.val()).to.equal('video/webm');
+        expect($input.val()).to.equal('video/mp4');
       });
 
       cy.get(sel + 'video.recordedMedia').should(($video) => {
@@ -365,7 +365,7 @@ describe('Blob spec', () => {
       cy.get(sel + '.stopRecording').click();
 
       cy.get(sel + '.contentType').should(($input) => {
-        expect($input.val()).to.equal('video/webm');
+        expect($input.val()).to.equal('video/mp4');
       });
 
       // Having problems with this with Blobs for some reason
@@ -418,7 +418,7 @@ describe('Blob spec', () => {
       cy.get(sel + '.stopRecording').click();
 
       cy.get(sel + '.contentType').should(($input) => {
-        expect($input.val()).to.equal('video/webm');
+        expect($input.val()).to.equal('video/mp4');
       });
 
       cy.get(sel + 'video.recordedMedia').should(($video) => {
