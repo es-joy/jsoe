@@ -1630,9 +1630,18 @@ const arrayType = {
         schemaOriginal: schemaContent,
         schemaIdx,
         schemaContent: getChildSchema(propName, schema),
+        // A tuple renders through `array` (so `type` is `'array'` here), but
+        //   its children are schema-constrained by the positional `items` and
+        //   `rest` schemas. `schema.js` short-circuits `state === 'array'` and
+        //   discards the child schema (a leftover from when arrays had no
+        //   per-child schema); pass the `arrayNonindexKeys` state real zodexy
+        //   arrays already use so the child schema is honored (and a
+        //   single-type child auto-renders).
         state: parentTypeObject.filelist
           ? 'filelistArray'
-          : forcedState ?? type,
+          : tupleMode
+            ? 'arrayNonindexKeys'
+            : forcedState ?? type,
         // itemIndex,
         typeNamespace
       }).domArray;
