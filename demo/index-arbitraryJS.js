@@ -1,4 +1,5 @@
 import {jml, body, $} from '../src/vendor-imports.js';
+import dialogs from '../src/utils/dialogs.js';
 
 import {
   formatAndTypeChoices,
@@ -136,8 +137,7 @@ jml('section', {role: 'main'}, [
     id: 'getType',
     $on: {
       click () {
-        // eslint-disable-next-line no-alert -- Simple demo
-        alert(keyPathNotExpectedTypeChoices.getType());
+        dialogs.alert(keyPathNotExpectedTypeChoices.getType());
       }
     }
   }, ['Get type']],
@@ -146,8 +146,7 @@ jml('section', {role: 'main'}, [
     id: 'isValid',
     $on: {
       click () {
-        // eslint-disable-next-line no-alert -- Simple demo
-        alert(keyPathNotExpectedTypeChoices.validValuesSet());
+        dialogs.alert(keyPathNotExpectedTypeChoices.validValuesSet());
       }
     }
   }, ['Is valid']],

@@ -277,10 +277,11 @@ const encapsulateObserver = (stateObj) => {
     // Todo (low): Handle `resolvingTypesonPromise` to replace place-holder
     //
     // Each node's UI build is deferred a tick (the parent element is not yet in
-    //   the document when the observer fires) and registered on
-    //   `stateObj.pendingBuilds` so `iterate` can await the whole tree — each
-    //   node's own deferred `setValue` work included — before returning a
-    //   fully-built, validated `rootUI`.
+    //   the document when the observer fires). The build now awaits its own
+    //   `setValue` before `validate` (previously `validate` ran synchronously
+    //   against a half-built DOM and threw). Each build promise is collected on
+    //   `stateObj.pendingBuilds` for a caller that wants to await the fully
+    //   populated tree; `iterate` itself does not await them (see below).
     pendingBuilds.push((async () => {
       await tick();
       const ui = parents[parentPath];
@@ -365,7 +366,12 @@ const encapsulateObserver = (stateObj) => {
           avoidReport: true
         });
       }
-    })());
+    })().catch(() => {
+      // Auto-population is best-effort: a node whose deferred UI is still
+      //   settling (its guard throws `'Not yet instantiated'`) or a transient
+      //   build hiccup must not surface as an unhandled rejection. Genuine
+      //   schema/type errors are still reported via `stateObj.error`.
+    }));
   };
 };
 
@@ -579,22 +585,16 @@ const structuredCloning = {
       throwOnBadSyncType: false
     });
 
-    // Wait for every deferred per-node build (and each node's own deferred
-    //   `setValue` work) to finish, so callers receive a fully-built, validated
-    //   `rootUI` rather than one still assembling itself. A build may enqueue
-    //   further builds, so drain until the queue is empty. `allSettled` so one
-    //   bad node cannot abort the rest (real errors surface via `stateObj.error`
-    //   or the per-type `'Not yet instantiated'` guards).
-    //
-    // Note: `blobHTML`/SCEditor deliberately stays outside this barrier — its
-    //   `editUI` initialises the editor only once the caller has connected
-    //   `rootUI` to its final location (re-parenting an SCEditor iframe would
-    //   reload it), so awaiting it here would deadlock.
-    while (stateObj.pendingBuilds?.length) {
-      const batch = stateObj.pendingBuilds.splice(0);
-      // eslint-disable-next-line no-await-in-loop -- Sequential drain intended
-      await Promise.allSettled(batch);
-    }
+    // The per-node builds run themselves (each is a self-executing async IIFE)
+    //   a tick later, once the caller has connected `rootUI`; the race that
+    //   used to crash — a node's synchronous `validate` running before its
+    //   asynchronous `setValue` had built the DOM — is fixed inside each build,
+    //   which now awaits `setValue` before `validate`. `stateObj.pendingBuilds`
+    //   holds those build promises so a caller that needs the fully-populated
+    //   tree (rather than one still settling) can `await Promise.allSettled(...)`
+    //   them after attaching `rootUI`. We deliberately do not await them here:
+    //   blocking the return re-orders deferred, connection-dependent init (e.g.
+    //   `blobHTML`/SCEditor) ahead of the caller attaching `rootUI`.
 
     if (stateObj.error) {
       throw stateObj.error;

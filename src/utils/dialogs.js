@@ -126,7 +126,7 @@ const dialogs = {
    * @returns {Promise<void>}
    */
   alert (message) {
-    message = typeof message === 'string' ? {message} : message;
+    message = message && typeof message === 'object' ? message : {message};
     const {submitClass = 'submit'} = message;
     const {message: outputMessage} = message;
     return new Promise((resolve /* , _reject */) => {

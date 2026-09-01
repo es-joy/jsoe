@@ -154,9 +154,16 @@ const setValueAndTooltips = ({root, value, specificSchemaObject}) => {
 
     if (value) {
       args.forEach((arg, idx) => {
-        textareas[idx].value = arg;
+        // A slow environment may not have added every arg textarea within the
+        //   tick; skip rather than throw (the guard in `getValue` covers a
+        //   read that arrives before this settles).
+        if (textareas[idx]) {
+          textareas[idx].value = arg;
+        }
       });
-      textareaBody.value = body;
+      if (textareaBody) {
+        textareaBody.value = body;
+      }
     }
     if (specificSchemaObject) {
       setTooltips({root, specificSchemaObject, textareas, textareaBody});
@@ -297,11 +304,13 @@ const functionType = {
 
     if (value) {
       setTimeout(() => {
+        // Fire-and-forget population; swallow rejections from a still-settling
+        //   editor so they cannot surface as an unhandled rejection.
         setValueAndTooltips({
           root: div,
           value,
           specificSchemaObject
-        });
+        }).catch(() => { /* best-effort */ });
       }, 0);
     } else if (specificSchemaObject) {
       setTimeout(() => {

@@ -55,11 +55,7 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
     );
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('symbol');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'symbol'
@@ -70,13 +66,11 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
     );
 
     cy.get('button#getType').click();
+
+    cy.get('dialog[open]').should('include.text', 'symbol');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'symbol'
@@ -86,6 +80,7 @@ describe('Arbitrary JavaScript spec (symbols)', () => {
       'abc'
     );
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {
@@ -252,11 +247,7 @@ describe('Arbitrary JavaScript spec (Promises)', () => {
     );
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('promise');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'promise'
@@ -268,13 +259,10 @@ describe('Arbitrary JavaScript spec (Promises)', () => {
     );
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'promise');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'promise'
@@ -285,6 +273,7 @@ describe('Arbitrary JavaScript spec (Promises)', () => {
       'null'
     );
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {
@@ -441,11 +430,7 @@ describe('Arbitrary JavaScript spec (functions)', () => {
     ).should('exist');
   });
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('function');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'function'
@@ -457,13 +442,10 @@ describe('Arbitrary JavaScript spec (functions)', () => {
     );
 
     cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'function');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#formatAndTypeChoices ';
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
       'function'
@@ -474,6 +456,7 @@ describe('Arbitrary JavaScript spec (functions)', () => {
       'abc'
     );
     cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {
