@@ -87,7 +87,7 @@
     "@types/node": "^26.4.0",
     "axe-core": "^4.13.0",
     "coveradge": "^0.8.2",
-    "cypress": "^15.21.1",
+    "cypress": "^16.0.0",
     "cypress-axe": "^1.7.0",
     "cypress-terminal-report": "^7.3.3",
     "eslint": "^10.9.1",
