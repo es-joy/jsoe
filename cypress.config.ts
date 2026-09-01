@@ -2,6 +2,7 @@ import {defineConfig} from 'cypress';
 import plugins from './cypress/plugins/index.js';
 
 export default defineConfig({
+  allowCypressEnv: false,
   defaultCommandTimeout: 8000,
   video: false,
   experimentalMemoryManagement: true,
