@@ -1,6 +1,7 @@
 import {$e, $$e} from '../utils/templateUtils.js';
 import {jml, parseAcorn} from '../vendor-imports.js';
 import {copyObject} from '../utils/objects.js';
+import {tick} from '../utils/timing.js';
 
 const observerMap = new WeakMap();
 
@@ -129,8 +130,11 @@ const getArgsAndBodyOfFunction = (func) => {
 const setValueAndTooltips = ({root, value, specificSchemaObject}) => {
   const {args, body} = getArgsAndBodyOfFunction(value);
 
-  // Wait for textareas to be available
-  setTimeout(() => {
+  // Wait for textareas to be available; return a promise that settles once the
+  //   argument textareas have been added and populated, so callers can await a
+  //   fully-built function editor.
+  return (async () => {
+    await tick();
     let textareas = /** @type {HTMLTextAreaElement[]} */ (
       $$e(root, 'textarea[name$="-string"]')
     );
@@ -143,22 +147,21 @@ const setValueAndTooltips = ({root, value, specificSchemaObject}) => {
       }
     });
 
-    setTimeout(() => {
-      textareas = /** @type {HTMLTextAreaElement[]} */ (
-        $$e(root, 'textarea[name$="-string"]').slice(0, -1)
-      );
+    await tick();
+    textareas = /** @type {HTMLTextAreaElement[]} */ (
+      $$e(root, 'textarea[name$="-string"]').slice(0, -1)
+    );
 
-      if (value) {
-        args.forEach((arg, idx) => {
-          textareas[idx].value = arg;
-        });
-        textareaBody.value = body;
-      }
-      if (specificSchemaObject) {
-        setTooltips({root, specificSchemaObject, textareas, textareaBody});
-      }
-    }, 0);
-  }, 0);
+    if (value) {
+      args.forEach((arg, idx) => {
+        textareas[idx].value = arg;
+      });
+      textareaBody.value = body;
+    }
+    if (specificSchemaObject) {
+      setTooltips({root, specificSchemaObject, textareas, textareaBody});
+    }
+  })();
 };
 
 /**
@@ -192,13 +195,20 @@ const functionType = {
     return /** @type {HTMLTextAreaElement} */ ($e(root, 'textarea'));
   },
   setValue ({root, value}) {
-    setValueAndTooltips({root, value});
+    return setValueAndTooltips({root, value});
   },
   getValue ({root}) {
     const textareas = /** @type {HTMLTextAreaElement[]} */ (
       $$e(root, 'textarea')
     );
     const textareaBody = /** @type {HTMLTextAreaElement} */ (textareas.pop());
+    /* istanbul ignore if -- Async guard */
+    if (!textareaBody) {
+      // `editUI` builds its textareas asynchronously, so if `getValue` is
+      //   reached first (e.g. a synchronous `validate` while a value is
+      //   being auto-populated), the value is not ready yet.
+      throw new Error('Not yet instantiated');
+    }
     // eslint-disable-next-line no-new-func -- Needed
     return new Function(
       ...textareas.map(({value}) => value.trim()),

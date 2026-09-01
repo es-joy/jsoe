@@ -7,6 +7,7 @@ import {buildTypeChoices} from '../typeChoices.js';
 import {
   typesonPathToJSONPointer
 } from '../utils/jsonPointer.js';
+import {tick} from '../utils/timing.js';
 
 import json from './json.js';
 
@@ -52,6 +53,10 @@ const encapsulateObserver = (stateObj) => {
   } = stateObj;
 
   const format = /** @type {import('../formats.js').AvailableFormat} */ (frmt);
+
+  // Collects each deferred per-node UI build so `iterate` can await them all
+  //   (see the drain loop there) before returning a fully-built `rootUI`.
+  const pendingBuilds = (stateObj.pendingBuilds ||= []);
 
   /**
    * Matches keypaths to the HTML UI Element.
@@ -268,10 +273,16 @@ const encapsulateObserver = (stateObj) => {
     //   schema, schemaParents
     // );
 
-    // Todo (low): If could be async, use async encapsulate method
     // Todo (low): Handle `awaitingTypesonPromise` with place-holder
     // Todo (low): Handle `resolvingTypesonPromise` to replace place-holder
-    setTimeout(() => {
+    //
+    // Each node's UI build is deferred a tick (the parent element is not yet in
+    //   the document when the observer fires) and registered on
+    //   `stateObj.pendingBuilds` so `iterate` can await the whole tree — each
+    //   node's own deferred `setValue` work included — before returning a
+    //   fully-built, validated `rootUI`.
+    pendingBuilds.push((async () => {
+      await tick();
       const ui = parents[parentPath];
       // These errors occur, e.g., if `replacing` not first added and then
       //   a converted object gets treated as the root UI (e.g., for `regexp`
@@ -316,21 +327,9 @@ const encapsulateObserver = (stateObj) => {
         return;
       }
 
-      if (!readonly) {
-        types?.setValue({
-          type: newType,
-          root: /** @type {HTMLDivElement} */ (root),
-          value: newValue
-        });
-        types?.validate({
-          type: newType,
-          root: /** @type {HTMLDivElement} */ (root),
-          topRoot: /** @type {HTMLDivElement} */ (stateObj.rootUI),
-          // We don't want focus when values auto-added
-          avoidReport: true
-        });
-      }
-
+      // Register this node as a parent for its descendants *before* awaiting
+      //   `setValue`, so child builds (already past their own `tick`) can find
+      //   it in `parents`.
       if (hasChildren) {
         parents[keypath] = /**
                             * @type {HTMLElement &
@@ -351,7 +350,22 @@ const encapsulateObserver = (stateObj) => {
           });
         }
       }
-    }, 0);
+
+      if (!readonly) {
+        await types?.setValue({
+          type: newType,
+          root: /** @type {HTMLDivElement} */ (root),
+          value: newValue
+        });
+        types?.validate({
+          type: newType,
+          root: /** @type {HTMLDivElement} */ (root),
+          topRoot: /** @type {HTMLDivElement} */ (stateObj.rootUI),
+          // We don't want focus when values auto-added
+          avoidReport: true
+        });
+      }
+    })());
   };
 };
 
@@ -564,6 +578,23 @@ const structuredCloning = {
     await typeson.encapsulateAsync(records, null, {
       throwOnBadSyncType: false
     });
+
+    // Wait for every deferred per-node build (and each node's own deferred
+    //   `setValue` work) to finish, so callers receive a fully-built, validated
+    //   `rootUI` rather than one still assembling itself. A build may enqueue
+    //   further builds, so drain until the queue is empty. `allSettled` so one
+    //   bad node cannot abort the rest (real errors surface via `stateObj.error`
+    //   or the per-type `'Not yet instantiated'` guards).
+    //
+    // Note: `blobHTML`/SCEditor deliberately stays outside this barrier — its
+    //   `editUI` initialises the editor only once the caller has connected
+    //   `rootUI` to its final location (re-parenting an SCEditor iframe would
+    //   reload it), so awaiting it here would deadlock.
+    while (stateObj.pendingBuilds?.length) {
+      const batch = stateObj.pendingBuilds.splice(0);
+      // eslint-disable-next-line no-await-in-loop -- Sequential drain intended
+      await Promise.allSettled(batch);
+    }
 
     if (stateObj.error) {
       throw stateObj.error;

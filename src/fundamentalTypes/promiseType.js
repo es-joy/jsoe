@@ -4,6 +4,7 @@ import {
   resurrectable as noneditable, symbol, promise
 } from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {tick} from '../utils/timing.js';
 import arrayType from './arrayType.js';
 
 /**
@@ -84,8 +85,10 @@ const promiseType = {
     );
   },
   setValue ({root, value}) {
-    // Need to wait a tick
-    setTimeout(async () => {
+    // Need to wait a tick; return a promise that settles once the resolved
+    //   value's child editor is built and populated.
+    return (async () => {
+      await tick();
       const val = await value;
       const typeson = getTypeson();
       const type = /** @type {import('../types.js').AvailableArbitraryType} */ (
@@ -100,7 +103,7 @@ const promiseType = {
         $e(root, 'div[data-type]')
       );
 
-      this.types?.setValue({
+      await this.types?.setValue({
         type,
         root: childRoot,
         value: val
@@ -109,7 +112,7 @@ const promiseType = {
       // Avoid invalid number, etc.
       input?.dispatchEvent(new Event('input'));
       input?.blur();
-    }, 0);
+    })();
   },
   getValue ({root}) {
     const childRoot = /** @type {HTMLDivElement} */ (

@@ -1,5 +1,6 @@
 import {error as errorTypesonRegistry} from 'typeson-registry';
 import {$e} from '../utils/templateUtils.js';
+import {tick} from '../utils/timing.js';
 import {jml, toStringTag, hasConstructorOf} from '../vendor-imports.js';
 
 /**
@@ -82,19 +83,22 @@ const errorType = {
       ).click();
     }
 
-    setTimeout(() => {
+    // Return a promise that settles once the deferred `.cause` sub-editor is
+    //   built and populated, so callers can await a fully-built subtree.
+    return (async () => {
+      await tick();
       if (typeof value.cause !== 'object') {
         return;
       }
 
       /** @type {HTMLElement} */ ($e(root, '.cause')).click();
-      /** @type {import('../types.js').TypeObjectSetValue} */ (
+      await /** @type {import('../types.js').TypeObjectSetValue} */ (
         this.setValue
       )({
         root: /** @type {HTMLDivElement} */ ($e(root, '.causeContents')),
         value: value.cause
       });
-    }, 0);
+    })();
   },
   getValue ({root}) {
     /**

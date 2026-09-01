@@ -164,7 +164,8 @@ export const getPropertyValueFromLegend = (legend) => {
  *     referentPath: string,
  *     expectArrayReferent: boolean
  *   }},
- *   handlingReference?: boolean
+ *   handlingReference?: boolean,
+ *   pendingBuilds?: Promise<void>[]
  * }} StateObject
  */
 
@@ -215,7 +216,7 @@ export const getPropertyValueFromLegend = (legend) => {
  *   type: AvailableArbitraryType,
  *   root: RootElement,
  *   value: StructuredCloneValue,
- * }) => void} SetValue
+ * }) => void|Promise<void>} SetValue
  */
 
 /**
@@ -281,7 +282,7 @@ export const getPropertyValueFromLegend = (legend) => {
  *     root: HTMLDivElement,
  *     value: StructuredCloneValue
  *   }
- * ) => void} TypeObjectSetValue
+ * ) => void|Promise<void>} TypeObjectSetValue
  */
 
 /**
@@ -896,12 +897,15 @@ class Types {
   /** @type {SetValue} */
   setValue ({type, root, value}) {
     if (Types.getTypeForRoot(root) !== type) {
-      return;
+      return undefined;
     }
     const typeObj = /** @type {TypeObject} */ (this.availableTypes[type]);
     if (typeObj.setValue) {
-      typeObj.setValue({root, value});
+      // May return a promise for types whose UI building is deferred; callers
+      //   that need the built DOM (e.g. a subsequent `validate`) can await it.
+      return typeObj.setValue({root, value});
     }
+    return undefined;
   }
 
   // Todo (low): Should really add real parser

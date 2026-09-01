@@ -141,7 +141,20 @@ const blobHTMLType = {
         textarea
       ]
     );
-    setTimeout(() => {
+    // SCEditor builds a WYSIWYG iframe, which only works once `textarea` is
+    //   connected to the document. The caller attaches `root` after the build
+    //   pipeline returns, and re-parenting an SCEditor iframe reloads it, so we
+    //   wait here for connection rather than initialising eagerly (or letting
+    //   the build pipeline await us, which would deadlock).
+    let connectionTries = 0;
+    const createWhenConnected = () => {
+      if (!textarea.isConnected) {
+        /* istanbul ignore else -- Bounded guard against a never-attached UI */
+        if (connectionTries++ < 250) {
+          setTimeout(createWhenConnected, 20);
+        }
+        return;
+      }
       // Push onto these: https://www.sceditor.com/documentation/formats/xhtml/
       // sceditor.formats.xhtml.converters array
       // sceditor.formats.xhtml.allowedAttribs object
@@ -185,7 +198,8 @@ const blobHTMLType = {
           this
         ).setValue({root, value});
       }
-    }, 0);
+    };
+    setTimeout(createWhenConnected, 0);
     return [root];
   }
 };

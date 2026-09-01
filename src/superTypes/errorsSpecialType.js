@@ -1,6 +1,7 @@
 /* globals InternalError -- Non-standard */
 import {errors as errorsTypesonRegistry} from 'typeson-registry';
 import {$e} from '../utils/templateUtils.js';
+import {tick} from '../utils/timing.js';
 import {jml, hasConstructorOf} from '../vendor-imports.js';
 import arrayType from '../fundamentalTypes/arrayType.js';
 
@@ -151,10 +152,14 @@ const errorsSpecialType = {
       ).click();
     }
 
-    setTimeout(() => {
+    // Return a promise that settles once the deferred `.cause` sub-editor and
+    //   aggregate-errors contents are built and populated, so callers can await
+    //   a fully-built subtree before reading it back.
+    return (async () => {
+      await tick();
       if (typeof value.cause === 'object') {
         /** @type {HTMLElement} */ ($e(root, '.cause')).click();
-        /** @type {import('../types.js').TypeObjectSetValue} */ (
+        await /** @type {import('../types.js').TypeObjectSetValue} */ (
           this.setValue
         )({
           root: /** @type {HTMLDivElement} */ ($e(root, '.causeContents')),
@@ -176,7 +181,7 @@ const errorsSpecialType = {
         aggregateErrors.$emptyAggregateErrorsContents();
         aggregateErrors.$populateContents(value.errors);
       }
-    }, 0);
+    })();
   },
   getValue ({root, stateObj}) {
     const UserErrorType = specialErrorsMap.get(
