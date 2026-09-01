@@ -590,12 +590,13 @@ setTimeout(async function () {
           $on: {
             click () {
               const badDate = new Date('Bad date');
-              typeChoices({
+              const tc = typeChoices({
                 format: 'indexedDBKey',
                 setValue: true,
                 value: [badDate],
                 typeNamespace: 'demo-type-choices-only-initial-value'
               });
+              jml('div', tc.domArray, body);
             }
           }
         }, [
@@ -605,13 +606,14 @@ setTimeout(async function () {
           id: 'attemptBadIndexedDBKeyStringObject',
           $on: {
             click () {
-              typeChoices({
+              const tc = typeChoices({
                 format: 'indexedDBKey',
                 setValue: true,
                 // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- Testing
                 value: [new String('Bad value')],
                 typeNamespace: 'demo-type-choices-only-initial-value'
               });
+              jml('div', tc.domArray, body);
             }
           }
         }, [
@@ -621,13 +623,14 @@ setTimeout(async function () {
           id: 'attemptBadJSON',
           $on: {
             click () {
-              typeChoices({
+              const tc = typeChoices({
                 format: 'json',
                 setValue: true,
                 // eslint-disable-next-line no-sparse-arrays -- Testing
                 value: [,],
                 typeNamespace: 'demo-type-choices-only-initial-value'
               });
+              jml('div', tc.domArray, body);
             }
           }
         }, [

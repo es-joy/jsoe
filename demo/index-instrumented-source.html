@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>JSOE Demo</title>
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
+    <link rel="stylesheet" href="../src/jsoe.css" />
+    <!-- SCEditor (CKEditor was appealing for features but won't support unrecognized tags:
+        https://github.com/ckeditor/ckeditor5/issues/592 )
+        Filed https://github.com/samclarke/SCEditor/issues/584 to be able to import as ES6 module
+    -->
+    <link rel="stylesheet" href="../node_modules/sceditor/minified/themes/default.min.css" />
+
+    <script src="../node_modules/sceditor/minified/sceditor.min.js"></script>
+    <script src="../node_modules/sceditor/minified/formats/bbcode.js"></script>
+    <script src="../node_modules/sceditor/minified/formats/xhtml.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "jamilih": "../vendor/jamilih/dist/jml.mjs",
+          "typeson-registry": "../vendor/typeson-registry/dist/index.js",
+          "zod": "../vendor/zod/index.js",
+          "zodexy": "../vendor/zodexy/dist/esm/index.js",
+          "react": "./react-dummy.js",
+          "acorn": "../vendor/acorn/dist/acorn.mjs",
+          "fast-deep-equal/es6/index.js": "../src/deepEqual.js",
+          "mime/": "../vendor/mime/dist/"
+        }
+      }
+    </script>
+    <script type="module" src="./index-instrumented.js"></script>
+  </head>
+  <body>
+  </body>
+</html>
