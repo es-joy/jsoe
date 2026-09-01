@@ -11,6 +11,18 @@ import {tick} from '../utils/timing.js';
 
 import json from './json.js';
 
+/**
+ * A deferred child build registers its own element in `parents` only once its
+ *   own build has run. A deeper node's build can wake on the same tick and find
+ *   its parent not yet registered (async-replaced parents such as `file`,
+ *   `promise` or `blob` also push their builds out of depth order). Rather than
+ *   dropping such a node, its build re-checks `parents` across this many ticks
+ *   before concluding the parent genuinely does not exist (e.g. a value that was
+ *   promoted to the root UI).
+ * @type {number}
+ */
+const MAX_PARENT_WAIT_TICKS = 50;
+
 // We modify resurrectable in hopes an including application doesn't need it
 /** @type {import('typeson').TypeSpecSet} */ (
   noneditable.resurrectable
@@ -54,8 +66,9 @@ const encapsulateObserver = (stateObj) => {
 
   const format = /** @type {import('../formats.js').AvailableFormat} */ (frmt);
 
-  // Collects each deferred per-node UI build so `iterate` can await them all
-  //   (see the drain loop there) before returning a fully-built `rootUI`.
+  // Collects each deferred per-node UI build. `iterate` does not await these
+  //   (see the comment there); a caller that needs the fully-populated tree
+  //   awaits `stateObj.whenBuilt` after it has attached `rootUI`.
   const pendingBuilds = (stateObj.pendingBuilds ||= []);
 
   /**
@@ -283,17 +296,37 @@ const encapsulateObserver = (stateObj) => {
     //   `stateObj.pendingBuilds` for a caller that wants to await the fully
     //   populated tree; `iterate` itself does not await them (see below).
     pendingBuilds.push((async () => {
+      // Defer one tick so the caller has attached `rootUI` (connection-dependent
+      //   init such as `blobHTML`/SCEditor relies on being in the document).
       await tick();
-      const ui = parents[parentPath];
-      // These errors occur, e.g., if `replacing` not first added and then
-      //   a converted object gets treated as the root UI (e.g., for `regexp`
-      //   or `blobHTML` at root)
-      // If there isn't a problem in Typeson with transmitting the `readonly`
-      //   status recursively down the object (should be no need to check
-      //   for circulars there?), could change Typeson to report `readonly`
-      //   for the nested items, in which case, we could block out `readonly`
-      //   instead of doing this here
+      // Then wait for this node's parent UI to be registered in `parents`. A
+      //   parent registers itself only after its own build runs, and
+      //   async-replaced parents (`file`/`promise`/`blob`) push their builds out
+      //   of depth order, so a child can still arrive first; re-check across
+      //   ticks instead of dropping the node on the first miss.
+      // A parent that is genuinely absent (e.g. a converted value promoted to
+      //   the root UI, as for `regexp`/`blobHTML` at root) never appears; after
+      //   the bound we give up and record it below rather than hang.
+      let ui = parents[parentPath];
+      for (
+        let waited = 0;
+        (!ui || !('$addAndSetArrayElement' in ui)) &&
+          waited < MAX_PARENT_WAIT_TICKS;
+        waited++
+      ) {
+        // eslint-disable-next-line no-await-in-loop -- Sequential by design
+        await tick();
+        ui = parents[parentPath];
+      }
       if (!ui || !('$addAndSetArrayElement' in ui)) {
+        if (!stateObj.buildWarnings) {
+          stateObj.buildWarnings = [];
+        }
+        stateObj.buildWarnings.push({
+          keypath,
+          type: newType,
+          reason: 'no parent UI registered'
+        });
         return;
       }
 
@@ -366,12 +399,22 @@ const encapsulateObserver = (stateObj) => {
           avoidReport: true
         });
       }
-    // eslint-disable-next-line promise/prefer-await-to-then -- Convenient
-    })().catch(() => {
+    // eslint-disable-next-line promise/prefer-await-to-then, promise/prefer-await-to-callbacks -- Convenient
+    })().catch((err) => {
       // Auto-population is best-effort: a node whose deferred UI is still
       //   settling (its guard throws `'Not yet instantiated'`) or a transient
       //   build hiccup must not surface as an unhandled rejection. Genuine
-      //   schema/type errors are still reported via `stateObj.error`.
+      //   schema/type errors are still reported via `stateObj.error`. Record
+      //   what was dropped so a caller (or test) can assert the tree built
+      //   fully instead of the failure being wholly invisible.
+      if (!stateObj.buildWarnings) {
+        stateObj.buildWarnings = [];
+      }
+      stateObj.buildWarnings.push({
+        keypath,
+        type: newType,
+        reason: /** @type {Error} */ (err)?.message ?? String(err)
+      });
     }));
   };
 };
@@ -594,12 +637,17 @@ const structuredCloning = {
     //   a tick later, once the caller has connected `rootUI`; the race that
     //   used to crash — a node's synchronous `validate` running before its
     //   asynchronous `setValue` had built the DOM — is fixed inside each build,
-    //   which now awaits `setValue` before `validate`. `stateObj.pendingBuilds`
-    //   holds those build promises so a caller that needs the fully-populated
-    //   tree (rather than one still settling) can `await Promise.allSettled(...)`
-    //   them after attaching `rootUI`. We deliberately do not await them here:
-    //   blocking the return re-orders deferred, connection-dependent init (e.g.
-    //   `blobHTML`/SCEditor) ahead of the caller attaching `rootUI`.
+    //   which now awaits `setValue` before `validate`, and a build no longer
+    //   drops itself when its parent is a tick behind (it re-checks `parents`
+    //   up to `MAX_PARENT_WAIT_TICKS`). We deliberately do not await the builds
+    //   here: blocking the return re-orders deferred, connection-dependent init
+    //   (e.g. `blobHTML`/SCEditor) ahead of the caller attaching `rootUI`.
+    //   Instead `stateObj.whenBuilt` resolves once every build has settled, for
+    //   a caller (or test) that needs the fully-populated tree; anything a
+    //   build could not attach is listed on `stateObj.buildWarnings`.
+    stateObj.whenBuilt = (async () => {
+      await Promise.allSettled(stateObj.pendingBuilds ?? []);
+    })();
 
     if (stateObj.error) {
       throw stateObj.error;

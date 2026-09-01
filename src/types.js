@@ -165,7 +165,9 @@ export const getPropertyValueFromLegend = (legend) => {
  *     expectArrayReferent: boolean
  *   }},
  *   handlingReference?: boolean,
- *   pendingBuilds?: Promise<void>[]
+ *   pendingBuilds?: Promise<void>[],
+ *   whenBuilt?: Promise<void>,
+ *   buildWarnings?: {keypath: string, type: string, reason: string}[]
  * }} StateObject
  */
 
