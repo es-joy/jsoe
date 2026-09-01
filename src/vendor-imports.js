@@ -4,7 +4,8 @@ export {jml, body, nbsp, $} from 'jamilih';
 // export {jml, body, nbsp, $} from '../node_modules/jamilih/dist/jml.mjs';
 
 export {
-  getJSONType, Typeson, unescapeKeyPathComponent, structuredCloningThrowing,
+  getJSONType, Typeson, unescapeKeyPathComponent,
+  structuredCloningForStorage,
   resurrectable, toStringTag, hasConstructorOf, symbol, promise
 } from 'typeson-registry';
 // } from '../node_modules/typeson-registry/dist/index.js';

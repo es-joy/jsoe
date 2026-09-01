@@ -1,5 +1,5 @@
 import {
-  Typeson, unescapeKeyPathComponent, structuredCloningThrowing,
+  Typeson, unescapeKeyPathComponent, structuredCloningForStorage,
   resurrectable as noneditable, symbol, promise, toStringTag
 } from '../vendor-imports.js';
 
@@ -531,14 +531,18 @@ const structuredCloning = {
       stateObj.format = 'structuredCloning';
     }
 
-    const structuredCloningFixed = structuredCloningThrowing.filter(
+    const structuredCloningFixed = structuredCloningForStorage.filter(
       (typeSpecSet) => {
         return [
           // Not yet supported within JSOE
           'imagedata',
           'imagebitmap',
           'cryptokey',
-          'domquad'
+          'domquad',
+          'audiodata',
+          'encodedaudiochunk',
+          'encodedvideochunk',
+          'videoframe'
         ].every((prop) => {
           return !Object.hasOwn(typeSpecSet, prop);
         });

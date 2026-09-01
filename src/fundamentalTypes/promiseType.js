@@ -1,6 +1,6 @@
 import {
   jml, toStringTag,
-  Typeson, structuredCloningThrowing,
+  Typeson, structuredCloningForStorage,
   resurrectable as noneditable, symbol, promise
 } from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
@@ -11,14 +11,18 @@ import arrayType from './arrayType.js';
  *
  */
 const getTypeson = () => {
-  const structuredCloningFixed = structuredCloningThrowing.filter(
+  const structuredCloningFixed = structuredCloningForStorage.filter(
     (typeSpecSet) => {
       return [
         // Not yet supported within JSOE
         'imagedata',
         'imagebitmap',
         'cryptokey',
-        'domquad'
+        'domquad',
+        'audiodata',
+        'encodedaudiochunk',
+        'encodedvideochunk',
+        'videoframe'
       ].every((prop) => {
         return !Object.hasOwn(typeSpecSet, prop);
       });

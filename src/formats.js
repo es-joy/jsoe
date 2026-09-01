@@ -24,7 +24,7 @@ import schema from './formats/schema.js';
 /* schema:
 export const getTypeForFormatStateAndValue = ({format, state, value}) => {
   const valType = new Typeson().register(
-    structuredCloningThrowing
+    structuredCloningForStorage
   ).rootTypeName(value);
   return canonicalToAvailableType(format, state, valType, value);
 };

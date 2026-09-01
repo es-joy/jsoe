@@ -4,7 +4,7 @@ import {
   // jamilih
   jml,
   // typeson-registry
-  Typeson, getJSONType, structuredCloningThrowing
+  Typeson, getJSONType, structuredCloningForStorage
 } from './vendor-imports.js';
 
 import {$e, $$e} from './utils/templateUtils.js';
@@ -1046,7 +1046,7 @@ class Types {
         //        allow `arbitraryJS` values; should also be using
         //        `structuredCloningFixed`
         const typeson = new Typeson().register(
-          structuredCloningThrowing
+          structuredCloningForStorage
         );
         try {
           const topRoot = typeson.revive(value);

@@ -132,6 +132,10 @@ Supported supertypes include:
                 1. imagedata, imagebitmap
                 1. cryptokey
                 1. domquad
+                1. audiodata
+                1. encodedaudiochunk
+                1. encodedvideochunk
+                1. videoframe
             1. Our own custom derivative types? (e.g., MIDI using TypedArray)
 1. Expand subtypes
     1. String
