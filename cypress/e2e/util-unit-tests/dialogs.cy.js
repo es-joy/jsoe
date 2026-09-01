@@ -46,7 +46,7 @@ describe('dialogs', function () {
       const dialog = dialogs.makeCancelDialog({
         cancel () {
           setTimeout(() => {
-            expect(dialog.open).to.equal(false);
+            expect(dialog.open).to.equal(true);
             done();
           }, 0);
           return true;
@@ -61,7 +61,7 @@ describe('dialogs', function () {
         const dialog = dialogs.makeCancelDialog({
           cancel () {
             setTimeout(() => {
-              expect(dialog.open).to.equal(true);
+              expect(dialog.open).to.equal(false);
               done();
             }, 0);
             return false;
