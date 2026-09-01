@@ -268,6 +268,13 @@ const arrayType = {
        *   $getMapKeySelects: GetMapKeySelects
        * }}
        */ ($e(root, '.arrayItems'));
+    /* istanbul ignore if -- Async guard */
+    if (!arrayItems) {
+      // The `.arrayItems` container may not exist yet if `getValue` is
+      //   reached (e.g. via a synchronous `validate`) before an async
+      //   `setValue` has finished building the UI.
+      throw new Error('Not yet instantiated');
+    }
     const fieldsets = [...arrayItems.children];
 
     // A `record` schema renders through the `object` type but, like a `Map`,

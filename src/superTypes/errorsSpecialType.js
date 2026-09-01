@@ -213,6 +213,13 @@ const errorsSpecialType = {
           /** @type {HTMLElement} */ ($e(
             root, '.aggregateErrorsContents'
           )).firstElementChild;
+        /* istanbul ignore if -- Async guard */
+        if (!errorRoot) {
+          // `setValue` populates `.aggregateErrorsContents` asynchronously,
+          //   so if `getValue` runs first (e.g. a synchronous `validate`
+          //   immediately after `setValue`), the value is not ready yet.
+          throw new Error('Not yet instantiated');
+        }
 
         const errors = arrayType.getValue({
           stateObj,
@@ -228,6 +235,13 @@ const errorsSpecialType = {
           /** @type {HTMLElement} */ ($e(
             root, '.aggregateErrorsContents'
           )).firstElementChild;
+        /* istanbul ignore if -- Async guard */
+        if (!errorRoot) {
+          // `setValue` populates `.aggregateErrorsContents` asynchronously,
+          //   so if `getValue` runs first (e.g. a synchronous `validate`
+          //   immediately after `setValue`), the value is not ready yet.
+          throw new Error('Not yet instantiated');
+        }
         const errors = arrayType.getValue({
           stateObj,
           root: /** @type {HTMLDivElement} */ (errorRoot)
