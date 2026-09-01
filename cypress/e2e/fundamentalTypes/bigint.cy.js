@@ -236,7 +236,7 @@ describe('BigInt spec (schemas)', () => {
     const input = 'input[name="demo-keypath-not-expected-bigint"]';
 
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-      'bigint (An int64 BigInt)'
+      'BigInt (An int64 BigInt)'
     );
     cy.get(input).should('have.attr', 'min', '-9223372036854775808');
     cy.get(input).should('have.attr', 'max', '9223372036854775807');
@@ -247,7 +247,7 @@ describe('BigInt spec (schemas)', () => {
     });
 
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-      'bigint (A uint64 BigInt)'
+      'BigInt (A uint64 BigInt)'
     );
     cy.get(input).should('have.attr', 'min', '0');
     cy.get(input).should('have.attr', 'max', '18446744073709551615');
