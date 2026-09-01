@@ -2542,7 +2542,7 @@ const arrayType = {
           [specificSchemaObject ? 'span' : 'b', {
             title: specificSchemaObject?.description ?? (DOM.initialCaps(
               /** @type {import('../types.js').AvailableType} */
-              (type)
+              (itemType)
             ).replace(/s$/u, ''))
           }, [
             specificSchemaObject

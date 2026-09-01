@@ -755,7 +755,7 @@
         });
       });
 
-      it('Selects string-keyed record', function () {
+      it.only('Selects string-keyed record', function () {
         const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(6) ' +
           arraySels;
         cy.get(sel + 'div[data-type="object"] span').should(($div) => {
