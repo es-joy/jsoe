@@ -755,7 +755,7 @@
         });
       });
 
-      it.only('Selects string-keyed record', function () {
+      it('Selects string-keyed record', function () {
         const sel = 'section:nth-of-type(7) > .innerItem:nth-of-type(6) ' +
           arraySels;
         cy.get(sel + 'div[data-type="object"] span').should(($div) => {
@@ -772,7 +772,7 @@
         });
         cy.get(
           sel + 'fieldset:nth-of-type(1) > legend .recordItem'
-        ).should('have.text', '0');
+        ).should('have.text', '1');
         cy.get(
           sel + 'fieldset:nth-of-type(1) > legend textarea'
         ).should('have.value', 'aaaaa');
@@ -794,7 +794,7 @@
         });
         cy.get(
           sel + 'fieldset:nth-of-type(2) > legend .recordItem'
-        ).should('have.text', '1');
+        ).should('have.text', '2');
         cy.get(
           sel + 'fieldset:nth-of-type(2) > legend textarea'
         ).should('have.value', 'bbbbb');
