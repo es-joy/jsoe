@@ -1,11 +1,11 @@
 import http from 'node:http';
-import statik from '@brettz9/node-static';
+import {Server} from '@node-static/node-static';
 
 const port = process.argv[2];
 
 const instrumented = process.argv[3];
 
-const fileServer = new statik.Server();
+const fileServer = new Server();
 
 http.createServer(function (request, response) {
   request.addListener('end', function () {
