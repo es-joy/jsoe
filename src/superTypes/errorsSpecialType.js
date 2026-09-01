@@ -328,24 +328,24 @@ const errorsSpecialType = {
           ['div', [['b', ['Error type: ']], ['span', [
             constructor
           ]]]],
-        typeof o.message === 'string'
-          ? ['div', [['b', ['Message: ']], ['span', [o.message]]]]
-          : [],
-        typeof o.name === 'string'
-          ? ['div', [['b', ['Name: ']], ['span', [o.name]]]]
-          : [],
-        typeof o.fileName === 'string'
-          ? ['div', [['b', ['File name: ']], ['span', [o.fileName]]]]
-          : [],
-        typeof o.lineNumber === 'number'
-          ? ['div', [['b', ['Line number: ']], ['span', [o.lineNumber]]]]
-          : [],
-        typeof o.columnNumber === 'number'
-          ? ['div', [['b', ['Column number: ']], ['span', [o.columnNumber]]]]
-          : [],
-        typeof o.stack === 'string'
-          ? ['div', [['b', ['Stack: ']], ['span', [o.stack]]]]
-          : [],
+        ...(typeof o.message === 'string'
+          ? [['div', [['b', ['Message: ']], ['span', [o.message]]]]]
+          : []),
+        ...(typeof o.name === 'string'
+          ? [['div', [['b', ['Name: ']], ['span', [o.name]]]]]
+          : []),
+        ...(typeof o.fileName === 'string'
+          ? [['div', [['b', ['File name: ']], ['span', [o.fileName]]]]]
+          : []),
+        ...(typeof o.lineNumber === 'number'
+          ? [['div', [['b', ['Line number: ']], ['span', [o.lineNumber]]]]]
+          : []),
+        ...(typeof o.columnNumber === 'number'
+          ? [['div', [['b', ['Column number: ']], ['span', [o.columnNumber]]]]]
+          : []),
+        ...(typeof o.stack === 'string'
+          ? [['div', [['b', ['Stack: ']], ['span', [o.stack]]]]]
+          : []),
         ['b', ['Cause: ']], ['div', {class: 'causeHolder'}, [
           ['button', {$on: {click (/** @type {Event} */ e) {
             e.preventDefault();
