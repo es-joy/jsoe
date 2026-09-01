@@ -2194,9 +2194,8 @@ describe('Record spec (schema)', function () {
       // A regular object since we can't distinguish numeric keys
       cy.get('#viewUIResults > div[data-type="object"]').should('exist');
 
-      cy.get('#viewUIResults .arrayItems fieldset > legend').should(
-        'contain', 'Property'
-      );
+      // Schema-driven legends omit the "Property:" prefix and show just the
+      //   key/description in the span
       cy.get('#viewUIResults .arrayItems fieldset > legend > span').should(
         'contain', '123'
       );
@@ -2306,7 +2305,8 @@ describe('Record spec (schema)', function () {
         '#viewUIResults .arrayItems i'
       ).should(($span) => {
         expect($span.text()).to.contain('123');
-        expect($span.attr('title')).to.equal('(a number)');
+        // Schema-driven: the value schema's description becomes the title
+        expect($span.attr('title')).to.equal('A record value number');
       });
 
       // Cover adding of property through `+` button.
@@ -2320,7 +2320,7 @@ describe('Record spec (schema)', function () {
       cy.get(
         sel + '.arrayItems > fieldset:nth-of-type(2) > legend ' +
           '[data-prop="true"]'
-      ).should('have.text', '1');
+      ).should('have.text', '2');
 
       // Cover removing of property
       cy.get(
@@ -2332,7 +2332,7 @@ describe('Record spec (schema)', function () {
       cy.get(
         sel + '.arrayItems > fieldset:nth-of-type(2) > legend ' +
           '[data-prop="true"]'
-      ).should('have.text', '1');
+      ).should('have.text', '2');
 
       cy.get(
         sel + '.arrayItems > fieldset:nth-of-type(3)'
