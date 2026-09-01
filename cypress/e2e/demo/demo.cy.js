@@ -18,12 +18,9 @@ describe('Demo spec', () => {
     );
   });
 
-  it('Invalid if type missing', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('false');
-      done();
-    });
+  it('Invalid if type missing', function () {
     cy.get('#validateInitialType').click();
+    cy.get('dialog[open]').should('include.text', 'false');
   });
 
   it('Initializes a form control with a value', () => {
@@ -41,11 +38,7 @@ describe('Demo spec', () => {
   });
 
 
-  it('gets type', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('bigint');
-      done();
-    });
+  it('gets type', function () {
     const sel = '#typeChoicesOnly ';
     cy.get(sel + 'select.typeChoices-demo-type-choices-only').select(
       'bigint'
@@ -56,13 +49,10 @@ describe('Demo spec', () => {
     );
 
     cy.get('button#typeChoicesOnly-getType').click();
+    cy.get('dialog[open]').should('include.text', 'bigint');
   });
 
-  it('is valid', function (done) {
-    cy.on('window:alert', (t) => {
-      expect(t).to.eq('true');
-      done();
-    });
+  it('is valid', function () {
     const sel = '#typeChoicesOnly ';
     cy.get(sel + 'select.typeChoices-demo-type-choices-only').select(
       'bigint'
@@ -72,6 +62,7 @@ describe('Demo spec', () => {
       '12345'
     );
     cy.get('button#typeChoicesOnly-isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
   });
 
   it('logs value', function () {
