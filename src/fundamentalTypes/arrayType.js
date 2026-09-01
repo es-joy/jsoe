@@ -788,12 +788,21 @@ const arrayType = {
         return;
       }
       if (!sparse && (!specificSchemaObject || parentIsArrayLike)) {
+        // The item-count element is `span.${itemType}Item`, but its depth in the
+        //   legend differs by layout: a plain array puts it directly under
+        //   `<legend>`, while `object`/`arrayNonindexKeys` nest it inside a
+        //   `span.…_propertyHolder` wrapper. Try the nested path first (added in
+        //   the object-property swap fix) and fall back to the direct child.
         const swapCountElem = DOM.filterChildElements(
           swapGroup, ['legend', 'span', `.${itemType}Item`]
+        )[0] ?? DOM.filterChildElements(
+          swapGroup, ['legend', `.${itemType}Item`]
         )[0];
-        const baseCountElem = DOM.filterChildElements(group, [
-          'legend', 'span', `.${itemType}Item`
-        ])[0];
+        const baseCountElem = DOM.filterChildElements(
+          group, ['legend', 'span', `.${itemType}Item`]
+        )[0] ?? DOM.filterChildElements(
+          group, ['legend', `.${itemType}Item`]
+        )[0];
 
         const swap = swapCountElem.textContent;
         const base = baseCountElem.textContent;
@@ -1334,8 +1343,13 @@ const arrayType = {
                       return latest ? a > b : a < b;
                     };
                     if (cmp(intVal, intValOlder) &&
-                      (!nearest || cmp(
-                        intValOlder, Math.trunc(Number(nearest.value))
+                      // A non-numeric `nearest` (e.g. an unset/blank property
+                      //   name) must not compare as `0`; keep the pre-existing
+                      //   `parseInt`-style behavior of treating it as `NaN` so
+                      //   the comparison below is skipped.
+                      (!nearest || (
+                        (/^\d+$/u).test(nearest.value) &&
+                        cmp(intValOlder, Math.trunc(Number(nearest.value)))
                       ))
                     ) {
                       nearest = input;
@@ -2191,8 +2205,18 @@ const arrayType = {
                         return !['void', 'undefined'].includes(option.type);
                       })
                     )) {
-                      const diff = Math.trunc(Number(this.value)) -
-                        Math.trunc(Number(this.$oldvalue ?? this.defaultValue));
+                      // On the first length change there is no prior value to
+                      //   grow from: `$oldvalue` is unset and the `<input>` has
+                      //   no `value` attribute, so `defaultValue` is `''`. Only
+                      //   auto-add items when there is a numeric baseline to
+                      //   measure the increase against (previously this fell out
+                      //   naturally because `parseInt('')` is `NaN`, making
+                      //   `diff` `NaN` and the loop a no-op; `Number('')` is
+                      //   `0`, so the guard must now be explicit).
+                      const prev = this.$oldvalue ?? this.defaultValue;
+                      const diff = (/^\d+$/u).test(prev)
+                        ? Math.trunc(Number(this.value)) - Math.trunc(Number(prev))
+                        : 0;
                       for (let i = 0; i < diff; i++) {
                         // Timeout needed by Cypress at least or will get
                         //   validation triggered which prevents moving forward

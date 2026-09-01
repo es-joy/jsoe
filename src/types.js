@@ -71,8 +71,9 @@ export const getPropertyValueFromLegend = (legend) => {
       'No property with text present on the supplied legend element'
     );
   }
-  // 1-based to 0-based
-  return String(Math.trunc(Number(propElem.textContent) - 1));
+  // 1-based to 0-based (truncate first, then decrement, as the previous
+  //   `parseInt` did)
+  return String(Math.trunc(Number(propElem.textContent)) - 1);
 };
 
 /**

@@ -3,9 +3,15 @@ import {jml, toStringTag} from '../vendor-imports.js';
 import dialogs from '../utils/dialogs.js';
 
 /**
+ * Integer value of a numeric form field, matching the `parseInt` behavior this
+ *   replaced: a blank field is `NaN` (so comparisons against it stay false),
+ *   not `0` as `Number('')` / `Math.trunc(Number(''))` would give.
  * @param {string} str
  */
 const toInteger = (str) => {
+  if (str.trim() === '') {
+    return NaN;
+  }
   return Math.trunc(Number(str));
 };
 

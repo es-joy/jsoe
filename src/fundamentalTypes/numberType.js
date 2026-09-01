@@ -43,7 +43,11 @@ const numberType = {
     };
   },
   getValue ({root}) {
-    return Number(this.getInput({root}).value);
+    const {value} = this.getInput({root});
+    // Preserve the pre-existing `parseFloat` semantics: an empty field reads
+    //   as `NaN` (which `validate` also rejects), not `0` as `Number('')` and
+    //   `Math.trunc(Number(''))` would give.
+    return value.trim() === '' ? NaN : Number(value);
   },
   /* schema
   viewSchemaUI () {
