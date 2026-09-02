@@ -11,6 +11,24 @@ import {tick} from '../utils/timing.js';
 
 import json from './json.js';
 
+export const structuredCloningJsoe = structuredCloningForStorage.filter(
+  (typeSpecSet) => {
+    return [
+      // Not yet supported within JSOE
+      'imagedata',
+      'imagebitmap',
+      'domquad',
+      'cryptokey',
+      'audiodata',
+      'encodedaudiochunk',
+      'encodedvideochunk',
+      'videoframe'
+    ].every((prop) => {
+      return !Object.hasOwn(typeSpecSet, prop);
+    });
+  }
+);
+
 /**
  * A deferred child build registers its own element in `parents` only once its
  *   own build has run. A deeper node's build can wake on the same tick and find
@@ -574,24 +592,7 @@ const structuredCloning = {
       stateObj.format = 'structuredCloning';
     }
 
-    const structuredCloningFixed = structuredCloningForStorage.filter(
-      (typeSpecSet) => {
-        return [
-          // Not yet supported within JSOE
-          'imagedata',
-          'imagebitmap',
-          'cryptokey',
-          'domquad',
-          'audiodata',
-          'encodedaudiochunk',
-          'encodedvideochunk',
-          'videoframe'
-        ].every((prop) => {
-          return !Object.hasOwn(typeSpecSet, prop);
-        });
-      }
-    );
-    structuredCloningFixed.splice(
+    structuredCloningJsoe.splice(
       // Add after userObjects
       1,
       0,
@@ -608,7 +609,7 @@ const structuredCloning = {
         //    to regular demo and test; add tests
         stateObj.format === 'schema'
         ? [
-          ...structuredCloningFixed,
+          ...structuredCloningJsoe,
           symbol,
           promise,
           {
@@ -626,7 +627,7 @@ const structuredCloning = {
             }
           }
         ]
-        : structuredCloningFixed
+        : structuredCloningJsoe
     );
 
     await typeson.encapsulateAsync(records, null, {

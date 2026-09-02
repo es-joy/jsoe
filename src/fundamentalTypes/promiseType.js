@@ -1,34 +1,18 @@
 import {
   jml, toStringTag,
-  Typeson, structuredCloningForStorage,
+  Typeson,
   resurrectable as noneditable, symbol, promise
 } from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
 import {tick} from '../utils/timing.js';
 import arrayType from './arrayType.js';
+import {structuredCloningJsoe} from '../formats/structuredCloning.js';
 
 /**
  *
  */
 const getTypeson = () => {
-  const structuredCloningFixed = structuredCloningForStorage.filter(
-    (typeSpecSet) => {
-      return [
-        // Not yet supported within JSOE
-        'imagedata',
-        'imagebitmap',
-        'cryptokey',
-        'domquad',
-        'audiodata',
-        'encodedaudiochunk',
-        'encodedvideochunk',
-        'videoframe'
-      ].every((prop) => {
-        return !Object.hasOwn(typeSpecSet, prop);
-      });
-    }
-  );
-  structuredCloningFixed.splice(
+  structuredCloningJsoe.splice(
     // Add after userObjects
     1,
     0,
@@ -36,7 +20,7 @@ const getTypeson = () => {
   );
   return new Typeson().register(
     [
-      ...structuredCloningFixed,
+      ...structuredCloningJsoe,
       symbol,
       promise,
       {
