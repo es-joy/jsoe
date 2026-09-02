@@ -120,10 +120,31 @@ function getCheckedType (schemaObject) {
 }
 
 /**
+ * `z.stringbool()` serializes as a `pipe` (a string -> boolean codec) whose
+ * `inner` is a plain string, `outer` is a boolean, and which carries the
+ * `truthy`/`falsy`/`case` options on the pipe itself. jsoe edits the encoded
+ * (string) side, so this is treated as a refinement of the String type -
+ * a `kind` of string - rather than its own type or a boolean.
+ * @param {ZodexSchema} schemaObject
+ * @returns {boolean}
+ */
+function isStringboolSchema (schemaObject) {
+  return schemaObject.type === 'pipe' &&
+    schemaObject.inner?.type === 'string' &&
+    schemaObject.outer?.type === 'boolean' &&
+    'case' in schemaObject &&
+    'falsy' in schemaObject &&
+    'truthy' in schemaObject;
+}
+
+/**
  * @param {ZodexSchema} schemaObject
  * @returns {import('../types.js').AvailableArbitraryType|undefined}
  */
 function getSchemaType (schemaObject) {
+  if (isStringboolSchema(schemaObject)) {
+    return 'string';
+  }
   if (schemaObject.type === 'codec' && schemaObject.name === 'filelist') {
     return 'filelist';
   }
@@ -520,6 +541,19 @@ export function getTypesForSchema (schemaObject, originalJSON) {
       addModifiers(schemaObject, set);
       return new Set(set);
     } case 'pipe': {
+      if (isStringboolSchema(schemaObject)) {
+        // Keep the whole `pipe` as the schema object: `getSchemaType` reports it
+        //   as a String, `stringType` reads its `truthy`/`falsy`/`case` to
+        //   validate the value, and `dezerialize` still rebuilds
+        //   `z.stringbool({truthy, falsy})` for value parsing. Drop the
+        //   `description` first so `addModifiers` re-adds it once rather than
+        //   concatenating it with itself.
+        const stringboolSchema = {...schemaObject};
+        delete stringboolSchema.description;
+        const set = [stringboolSchema];
+        addModifiers(schemaObject, set);
+        return new Set(set);
+      }
       const set = [...getTypesForSchema(schemaObject.inner, originalJSON)];
       addModifiers(schemaObject, set);
       return new Set(set);

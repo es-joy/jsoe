@@ -8,6 +8,9 @@
 - feat: support schema `type: 'file'` with file type
 - feat: `min` and `max` schema validation for Maps
 - feat: support credit card string
+- feat: treat a `z.stringbool()` schema (serialized as a string -> boolean
+    `pipe` with `truthy`/`falsy`/`case`) as a refinement of the String type,
+    validating the value against the recognized truthy/falsy tokens
 - feat: check nanoid with `length`
 - feat: add bigint format validation
 - feat: validate email string types using any pattern/flags properties

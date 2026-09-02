@@ -29,14 +29,20 @@ const stringType = {
   viewUI ({value, specificSchemaObject}) {
     const kind = specificSchemaObject && 'kind' in specificSchemaObject &&
       specificSchemaObject.kind;
+    // `z.stringbool()` serializes as a string -> boolean `pipe` carrying
+    //   `truthy`/`falsy` token arrays; jsoe edits its encoded (string) side.
+    const isStringbool = specificSchemaObject &&
+      'truthy' in specificSchemaObject && 'falsy' in specificSchemaObject;
     return ['span', {
       dataset: {type: 'string'},
       title: specificSchemaObject?.description ??
-        (kind === 'email'
-          ? `(an ${kind} string)`
-          : kind
-            ? `(a ${kind} string)` // url, date
-            : '(a string)')
+        (isStringbool
+          ? '(a string boolean)'
+          : kind === 'email'
+            ? `(an ${kind} string)`
+            : kind
+              ? `(a ${kind} string)` // url, date
+              : '(a string)')
     }, [value]];
   },
   editUI ({typeNamespace, specificSchemaObject, types, value}) {
@@ -71,10 +77,33 @@ const stringType = {
       ? stringSchemaObject.flags
       : undefined;
 
+    // A `z.stringbool()` codec serializes as a string -> boolean `pipe` that
+    //   carries `truthy`/`falsy` token arrays (and an optional `case`). jsoe
+    //   edits the encoded (string) side, so it is handled here as a String
+    //   whose value must be one of those recognized tokens.
+    const stringbool = /** @type {{truthy?: string[], falsy?: string[], case?: string}} */ (
+      stringSchemaObject
+    );
+    const stringboolTokens = Array.isArray(stringbool.truthy) &&
+        Array.isArray(stringbool.falsy)
+      ? [...stringbool.truthy, ...stringbool.falsy]
+      : null;
+
     /**
      * @param {string} value
      */
     const checkValue = (value) => {
+      if (stringboolTokens) {
+        const sensitive = stringbool.case === 'sensitive';
+        const compare = sensitive ? value : value.toLowerCase();
+        const matched = stringboolTokens.some((token) => {
+          return (sensitive ? token : token.toLowerCase()) === compare;
+        });
+        if (!matched) {
+          return `Value is not a recognized string boolean; expected one ` +
+            `of: ${stringboolTokens.join(', ')}`;
+        }
+      }
       if (startsWith && !value.startsWith(startsWith)) {
         return `Value doesn't start with expected: ${startsWith}`;
       }

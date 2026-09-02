@@ -314,6 +314,15 @@ const schemaInstanceJSONStrings9 = {
       description: 'Credit card',
       type: 'string',
       kind: 'credit_card'
+    },
+    {
+      description: 'String boolean',
+      type: 'pipe',
+      inner: {type: 'string'},
+      outer: {type: 'boolean'},
+      truthy: ['true', '1', 'yes', 'on', 'y', 'enabled'],
+      falsy: ['false', '0', 'no', 'off', 'n', 'disabled'],
+      case: 'insensitive'
     }
   ]
 };

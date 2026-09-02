@@ -645,6 +645,33 @@ describe('String spec - Misc. (schemas)', () => {
     });
   });
 
+  it('checks string booleans', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance strings 9'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'String (String boolean)'
+    );
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      'YES'
+    ).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      'maybe'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value is not a recognized string boolean; expected one of: ` +
+          `true, 1, yes, on, y, enabled, false, 0, no, off, n, disabled`
+      );
+    });
+  });
+
   it('checks uuid', () => {
     cy.get('.formatChoices:first').select(
       'Schema: Zodexy schema instance strings 9'
