@@ -266,7 +266,7 @@ describe('String spec - Misc. (schemas)', () => {
       'textarea[name="demo-keypath-not-expected-string"]',
       'abc'
     ).then((elem) => {
-      // todo[cypress@>=16]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
+      // todo[cypress@>=17]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
       // expect(elem[0].validity.tooShort).to.equal(true);
       expect(elem[0].validity.tooLong).to.equal(false);
     });
@@ -276,7 +276,7 @@ describe('String spec - Misc. (schemas)', () => {
       'abcdefghijklmnop'
     ).then((elem) => {
       expect(elem[0].validity.tooShort).to.equal(false);
-      // todo[cypress@>=16]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
+      // todo[cypress@>=17]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
       // expect(elem[0].validity.tooLong).to.equal(true);
     });
 
@@ -301,7 +301,7 @@ describe('String spec - Misc. (schemas)', () => {
       'textarea[name="demo-keypath-not-expected-string"]',
       'abc'
     ).then((elem) => {
-      // todo[cypress@>=16]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
+      // todo[cypress@>=17]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
       // expect(elem[0].validity.tooShort).to.equal(true);
       expect(elem[0].validity.tooLong).to.equal(false);
     });
@@ -311,7 +311,7 @@ describe('String spec - Misc. (schemas)', () => {
       'abcdefghijklmnop'
     ).then((elem) => {
       expect(elem[0].validity.tooShort).to.equal(false);
-      // todo[cypress@>=16]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
+      // todo[cypress@>=17]: See if this is fixed: https://github.com/cypress-io/cypress/issues/1930
       // expect(elem[0].validity.tooLong).to.equal(true);
     });
 
@@ -615,6 +615,32 @@ describe('String spec - Misc. (schemas)', () => {
     ).then((elem) => {
       expect(elem[0].validationMessage).to.equal(
         `Value does not match emoji pattern`
+      );
+    });
+  });
+
+  it('checks credit cards', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance strings 9'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'String (Credit card)'
+    );
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      '1234-5678-1234-5678'
+    ).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      '15'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value doesn't match credit card pattern.`
       );
     });
   });

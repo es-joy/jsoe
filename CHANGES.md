@@ -6,6 +6,7 @@
 - feat: for string schemas with kind uuid, check for version to determine regex for validation
 - feat: support schema `type: 'file'` with file type
 - feat: `min` and `max` schema validation for Maps
+- feat: support credit card string
 - feat: add bigint format validation
 - feat: validate email string types using any pattern/flags properties
 - feat: add string kinds with validation: jwt (along with optional `algorithm` property), e164, xid, guid, ksuid

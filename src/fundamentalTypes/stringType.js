@@ -98,6 +98,11 @@ const stringType = {
       }
       if (kind) {
         switch (kind) {
+        case 'credit_card':
+          if (!regexes.creditCard.test(value)) {
+            return `Value doesn't match credit card pattern.`;
+          }
+          break;
         case 'ip':
           switch ('version' in stringSchemaObject &&
               stringSchemaObject.version) {

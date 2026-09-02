@@ -303,6 +303,11 @@ const schemaInstanceJSONStrings9 = {
       description: 'KSUID',
       type: 'string',
       kind: 'ksuid'
+    },
+    {
+      description: 'Credit card',
+      type: 'string',
+      kind: 'credit_card'
     }
   ]
 };
