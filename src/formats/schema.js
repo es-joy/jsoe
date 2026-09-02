@@ -277,6 +277,19 @@ export function getXorBranchMatchInfo (types, xorSchema, value) {
 }
 
 /**
+ * Whether a value satisfies a single (already-flattened) schema branch. Used
+ * to check the value against the specific `xor` branch the user chose, not
+ * merely against some branch.
+ * @param {InstanceType<typeof import('../types.js').default>} types
+ * @param {ZodexSchema} schema
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+export function valueMatchesSchema (types, schema, value) {
+  return parseValue(types, schema, schema, value).success;
+}
+
+/**
  * @param {InstanceType<typeof import('../types.js').default>} types
  * @returns {NonNullable<
  *   import('zodexy').DezerializerOptions['checks']

@@ -189,6 +189,50 @@ describe('Demo spec', () => {
       }
     );
   });
+
+  it('invalidates a value that misses the chosen `xor` branch', function () {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance xor'
+    );
+    const sel = '#formatAndTypeChoices ';
+    // Choose the email branch, leave it empty: `''` matches the plain-text
+    //   branch, so the bare count would pass it; the chosen branch does not.
+    cy.get(sel + 'fieldset.xorTypeChoices input[type="radio"]').eq(1).check();
+    cy.get(sel + 'fieldset.xorTypeChoices .xorMatchStatus').should(
+      'have.class', 'xorMatchErr'
+    );
+    cy.get(sel + 'fieldset.xorTypeChoices .xorMatchStatus').should(
+      'contain', 'does not match the selected option'
+    );
+  });
+
+  it('clears a stale `xor` branch error after switching branches', function () {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance xor'
+    );
+    const sel = '#formatAndTypeChoices ';
+    // Make the email branch invalid...
+    cy.get(sel + 'fieldset.xorTypeChoices input[type="radio"]').eq(1).check();
+    cy.get(sel + '.typeContainer input:first').type('nope');
+    cy.get(sel + 'fieldset.xorTypeChoices .xorMatchStatus').should(
+      'have.class', 'xorMatchErr'
+    );
+    // ...then switch to the number branch and enter a valid number
+    cy.get(sel + 'fieldset.xorTypeChoices input[type="radio"]').eq(2).check();
+    cy.get(sel + '.typeContainer input:first').type('42');
+    cy.get(sel + 'fieldset.xorTypeChoices .xorMatchStatus').should(
+      'have.class', 'xorMatchOk'
+    );
+    cy.get(sel + 'fieldset.xorTypeChoices input[type="radio"]').should(
+      ($radios) => {
+        [...$radios].forEach((r) => {
+          expect(
+            /** @type {HTMLInputElement} */ (r).validationMessage
+          ).to.equal('');
+        });
+      }
+    );
+  });
 });
 
 describe('`getTypesForSchema`', function () {

@@ -4,7 +4,7 @@ import Types from './types.js';
 
 import {$e, DOM} from './utils/templateUtils.js';
 import {isUnionLike} from './utils/types.js';
-import {getXorBranchMatchInfo} from './formats/schema.js';
+import {getXorBranchMatchInfo, valueMatchesSchema} from './formats/schema.js';
 import dialogs from './utils/dialogs.js';
 import deepEqual from 'fast-deep-equal/es6/index.js';
 
@@ -253,7 +253,15 @@ function buildXorTypeChoices ({
    * @returns {void}
    */
   function updateMatchStatus () {
-    const checked = radios().find((r) => r.checked);
+    // Only the currently-chosen branch's match state is meaningful; clear any
+    //   custom validity left on the other radios so a stale message from a
+    //   previously-selected branch does not keep the form invalid after the
+    //   user switches branches.
+    const allRadios = radios();
+    for (const r of allRadios) {
+      r.setCustomValidity('');
+    }
+    const checked = allRadios.find((r) => r.checked);
     if (!xorSchema || !checked || !$e(typeContainer, 'div[data-type]')) {
       matchStatus.hidden = true;
       return;
@@ -267,19 +275,31 @@ function buildXorTypeChoices ({
       return;
     }
     const {matched, total} = getXorBranchMatchInfo(types, xorSchema, value);
-    // Anything but exactly one match is invalid, including a still-empty
-    //   branch (zero matches): the form must not be submittable in that
-    //   state, so we always show the indicator and set validity once a
-    //   branch is chosen.
-    const ok = matched === 1;
+    // The value must satisfy the branch the user actually chose, not merely
+    //   *some* branch: an empty value on the "email" branch still matches the
+    //   plain-`string` branch, so the count alone would call it valid.
+    const selectedSchema = schemaObjs[Number(checked.dataset.idx)];
+    const selectedMatches = Boolean(selectedSchema) &&
+      valueMatchesSchema(types, selectedSchema, value);
+    // Anything but "the chosen branch, and only it" is invalid — including a
+    //   still-empty branch (zero matches): the form must not be submittable
+    //   in that state, so we always show the indicator and set validity once
+    //   a branch is chosen.
+    const ok = selectedMatches && matched === 1;
     matchStatus.hidden = false;
-    matchStatus.textContent = ok
-      ? `Matches 1 of ${total} options`
-      : `Matches ${matched} of ${total} — value must match exactly one`;
+    matchStatus.textContent = !selectedMatches
+      ? 'Value does not match the selected option'
+      : ok
+        ? `Matches 1 of ${total} options`
+        : `Matches ${matched} of ${total} — value must match exactly one`;
     matchStatus.classList.toggle('xorMatchOk', ok);
     matchStatus.classList.toggle('xorMatchErr', !ok);
     checked.setCustomValidity(
-      ok ? '' : 'Value must match exactly one option'
+      ok
+        ? ''
+        : selectedMatches
+          ? 'Value must match exactly one option'
+          : 'Value does not match the selected option'
     );
   }
 
