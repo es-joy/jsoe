@@ -3,15 +3,18 @@
 ## ?
 
 - feat: add `looseRecord`
+- feat: adds serialization for template literals (with `parts`)
 - feat: for string schemas with kind uuid, check for version to determine regex for validation
 - feat: support schema `type: 'file'` with file type
 - feat: `min` and `max` schema validation for Maps
 - feat: support credit card string
+- feat: check nanoid with `length`
 - feat: add bigint format validation
 - feat: validate email string types using any pattern/flags properties
 - feat: add string kinds with validation: jwt (along with optional `algorithm` property), e164, xid, guid, ksuid
 - feat: add to literals: bigInt, boolean, null, and undefined types
 - feat: optionally utilizes custom errors
+- fix: allow any type as Map key
 - fix: remove enumType, voidType, and neverType, catchType, literalType as were not really modeling the data; instead have them confine other types
 - fix: remove `record` and `tuple` as first-class types (and from the type
     pull-down); a `record` schema now refines the `Object` type and a `tuple`
@@ -26,6 +29,7 @@
 - fix: drop nativeEnum as dropped from Zod/Zodexy
 - fix: update literals per changed API
 - fix: rework function types to work with Zod 4 Zodexy
+- fix: switch from removed "effect" to counterparts
 
 ## 0.24.3
 

@@ -161,6 +161,18 @@ const stringType = {
           }
           break;
         case 'nanoid':
+          if ('length' in stringSchemaObject && stringSchemaObject.length) {
+            if (value.length !== stringSchemaObject.length) {
+              return `Nanoid value is not of the expected length: ${
+                stringSchemaObject.length
+              }`;
+            }
+
+            if (!regexes.nanoidOfLength(15).test(value)) {
+              return `Value does not match nanoid pattern`;
+            }
+            break;
+          }
           if (!regexes.nanoid.test(value)) {
             return `Value does not match nanoid pattern`;
           }

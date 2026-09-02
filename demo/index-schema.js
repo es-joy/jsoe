@@ -243,6 +243,12 @@ const schemaInstanceJSONStrings9 = {
       kind: 'nanoid'
     },
     {
+      description: 'Nanoid with length',
+      type: 'string',
+      kind: 'nanoid',
+      length: 15
+    },
+    {
       description: 'CUID',
       type: 'string',
       kind: 'cuid'

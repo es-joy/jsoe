@@ -778,6 +778,32 @@ describe('String spec - Misc. (schemas)', () => {
     });
   });
 
+  it('checks nanoid with length', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance strings 9'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'String (Nanoid with length)'
+    );
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      '9ZmikYex506KQYM'
+    ).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      'abcdef'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Nanoid value is not of the expected length: 15`
+      );
+    });
+  });
+
   it('checks cuid', () => {
     cy.get('.formatChoices:first').select(
       'Schema: Zodexy schema instance strings 9'
