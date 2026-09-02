@@ -206,6 +206,35 @@ function getInvalidIntersectionBranch (
 }
 
 /**
+ * Checks whether a record property name satisfies the record's `key` schema.
+ *
+ * For a strict `record` every key must conform, so the distinction is
+ * irrelevant. For a `looseRecord`, Zod validates the `value` schema only
+ * against entries whose key conforms; entries with a non-conforming key are
+ * passed through untyped. Both the child-schema resolver in `arrayType.js` and
+ * `convertFromTypeson` below use this to avoid imposing the `value` schema on
+ * those pass-through entries.
+ * @param {InstanceType<typeof import('../types.js').default>} types
+ * @param {ZodexSchema|undefined} keySchema
+ * @param {string|number|undefined} key
+ * @returns {boolean}
+ */
+export function recordKeyConforms (types, keySchema, key) {
+  if (!keySchema || key === undefined) {
+    return true;
+  }
+  if (parseValue(types, keySchema, keySchema, key).success) {
+    return true;
+  }
+  // Mirror Zod's numeric-string key fallback: an object property name is always
+  //   a string, so a `number`/`bigInt`/`nan` key schema is retried against the
+  //   coerced value.
+  return typeof key === 'string' && key.trim() !== '' &&
+    Number.isFinite(Number(key)) &&
+    parseValue(types, keySchema, keySchema, Number(key)).success;
+}
+
+/**
  * @param {InstanceType<typeof import('../types.js').default>} types
  * @returns {NonNullable<
  *   import('zodexy').DezerializerOptions['checks']
@@ -802,7 +831,6 @@ const schema = {
       ).rest;
       break;
     case 'record':
-    case 'looseRecord':
       // Every own property of a record shares the single `value` schema; the
       //   `key` schema constrains the property name and is enforced by
       //   value-level validation (`isValueValidationRequired`). Record keys are
@@ -812,6 +840,24 @@ const schema = {
       ).value;
       mustBeOptional = true;
       break;
+    case 'looseRecord':
+      // As `record`, but only for keys that satisfy the `key` schema. Zod's
+      //   loose mode passes non-conforming keys through untyped, so the `value`
+      //   schema must not be imposed on them; leaving `currentSchema` unset
+      //   falls back to the value's own runtime type (`{type: typesonType}`).
+      mustBeOptional = true;
+      currentSchema = recordKeyConforms(
+        types,
+        /** @type {import('zodexy').SzLooseRecord<any, any>} */ (
+          parentSchema
+        ).key,
+        arrayOrObjectPropertyName
+      )
+        ? /** @type {import('zodexy').SzLooseRecord<any, any>} */ (
+          parentSchema
+        ).value
+        : undefined;
+      break;
     // Todo:
     // 'map': key, value
     // 'function': args, returns
@@ -819,7 +865,10 @@ const schema = {
       break;
     }
 
-    /* istanbul ignore if -- Guard */
+    // Reached when there is no governing schema for this child: an unschema'd
+    //   parent, or a `looseRecord` entry whose key does not satisfy the `key`
+    //   schema (Zod's loose mode passes such entries through untyped). Fall back
+    //   to the value's own runtime type.
     if (!currentSchema) {
       return {type: typesonType};
     }

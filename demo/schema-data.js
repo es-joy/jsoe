@@ -584,6 +584,44 @@ const schemaInstanceJSON11 = {
   ]
 };
 
+// A strict `record` and a `looseRecord` that share a *constrained* key schema
+//   (property names must be at least three characters). With an unconstrained
+//   key schema the two record modes are indistinguishable; the constraint is
+//   what surfaces the difference: the strict `record` rejects a non-conforming
+//   key, whereas the `looseRecord` passes such an entry through untouched (its
+//   `value` schema is not imposed on it).
+const schemaInstanceJSON12 = {
+  type: 'union',
+  options: [
+    {
+      description: 'Strict record',
+      type: 'record',
+      key: {
+        description: 'A record key (min three chars)',
+        type: 'string',
+        min: 3
+      },
+      value: {
+        description: 'A record value number',
+        type: 'number'
+      }
+    },
+    {
+      description: 'Loose record',
+      type: 'looseRecord',
+      key: {
+        description: 'A record key (min three chars)',
+        type: 'string',
+        min: 3
+      },
+      value: {
+        description: 'A record value number',
+        type: 'number'
+      }
+    }
+  ]
+};
+
 /**
  *
  */
@@ -608,6 +646,6 @@ export {
   schemaInstanceJSON, schemaInstanceJSON2, schemaInstanceJSON3,
   schemaInstanceJSON4, schemaInstanceJSON5, schemaInstanceJSON6,
   schemaInstanceJSON7, schemaInstanceJSON8, schemaInstanceJSON9,
-  schemaInstanceJSON10, schemaInstanceJSON11,
+  schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
   makeNoneditableType
 };

@@ -119,3 +119,78 @@ describe('catch schemas expose their output types', () => {
     cy.get('@consoleLog').should('be.calledWith', 'abc');
   });
 });
+
+describe('`looseRecord` accepts non-conforming keys a `record` rejects', () => {
+  beforeEach(() => {
+    cy.visit('http://127.0.0.1:8087/demo/index-schema-instrumented.html', {
+      onBeforeLoad (win) {
+        cy.stub(win.console, 'log').as('consoleLog');
+      }
+    });
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance 12'
+    );
+  });
+
+  const sel = '#formatAndTypeChoices ';
+
+  /**
+   * Adds a single record entry with the given key and numeric value.
+   * @param {string} key
+   * @param {string} value
+   */
+  const addRecordEntry = (key, value) => {
+    cy.get(sel + 'button.addArrayElement').click();
+    cy.clearTypeAndBlur(
+      sel + 'textarea[name="key-type-choices-only-string"]', key
+    );
+    cy.clearTypeAndBlur(
+      sel + 'input[name="demo-keypath-not-expected-number"]', value
+    );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting -- Validates late
+    cy.wait(500);
+  };
+
+  it('strict record: a conforming key is valid', () => {
+    cy.get(typeChoices).select('Object (Strict record)');
+    addRecordEntry('abc', '1');
+
+    cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
+  });
+
+  it('strict record: a non-conforming key is invalid', () => {
+    cy.get(typeChoices).select('Object (Strict record)');
+    addRecordEntry('ab', '1');
+
+    cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
+  });
+
+  it('loose record: a conforming key is valid', () => {
+    cy.get(typeChoices).select('Object (Loose record)');
+    addRecordEntry('abc', '2');
+
+    cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
+    cy.get('dialog[open] .submit button').click();
+
+    cy.get('button#logValue').click();
+    cy.get('@consoleLog').should('be.calledWith', {abc: 2});
+  });
+
+  it(
+    'loose record: a non-conforming key stays valid and is passed through',
+    () => {
+      cy.get(typeChoices).select('Object (Loose record)');
+      addRecordEntry('ab', '3');
+
+      cy.get('button#isValid').click();
+      cy.get('dialog[open]').should('include.text', 'true');
+      cy.get('dialog[open] .submit button').click();
+
+      cy.get('button#logValue').click();
+      cy.get('@consoleLog').should('be.calledWith', {ab: 3});
+    }
+  );
+});

@@ -1,6 +1,7 @@
 import {jml, nbsp} from '../vendor-imports.js';
 
 import {getPropertyValueFromLegend} from '../types.js';
+import {recordKeyConforms} from '../formats/schema.js';
 import {$e, $$e, U, DOM} from '../utils/templateUtils.js';
 import dialogs from '../utils/dialogs.js';
 import {
@@ -1576,9 +1577,19 @@ const arrayType = {
         ).rest;
       }
       if (recordMode) {
-        return /** @type {import('zodexy').SzRecord<any, any>} */ (
-          specificSchemaObject
-        )?.value;
+        const recordSchema =
+          /** @type {import('zodexy').SzLooseRecord<any, any>} */ (
+            specificSchemaObject
+          );
+        // A `looseRecord` only applies its `value` schema to entries whose key
+        //   satisfies the `key` schema; Zod passes any other entry through
+        //   untyped, so its control is offered the unconstrained type choice
+        //   rather than being pinned to `value`.
+        if (specificSchemaObject?.type === 'looseRecord' &&
+            !recordKeyConforms(types, recordSchema.key, propName)) {
+          return /** @type {import('zodexy').SzType} */ ({type: 'unknown'});
+        }
+        return recordSchema?.value;
       }
       if (mapProperties) {
         return /** @type {import('zodexy').SzMap<any, any>} */ (

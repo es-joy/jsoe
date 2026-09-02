@@ -8,7 +8,7 @@ import {
   schemaInstanceJSON4, schemaInstanceJSON5,
   schemaInstanceJSON6, schemaInstanceJSON7,
   schemaInstanceJSON8, schemaInstanceJSON9,
-  schemaInstanceJSON10, schemaInstanceJSON11,
+  schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
   makeNoneditableType
 } from './schema-data.js';
 
@@ -226,6 +226,18 @@ setTimeout(function () {
           }
         ]
       }),
+
+      // `record` vs `looseRecord` sharing a constrained (min-three-char) key
+      //   schema. `.innerItem:nth-of-type(1)` is the strict `record` loaded with
+      //   a conforming key; `.innerItem:nth-of-type(2)` is the `looseRecord`
+      //   loaded with one conforming key (`abc`, governed by the number `value`
+      //   schema) and one non-conforming key (`xy`), which Zod's loose mode
+      //   passes through untyped so it renders with the value's own runtime
+      //   type (a string control) rather than the number `value` schema.
+      ...getTypeChoices([
+        {abc: 1},
+        {abc: 2, xy: 'passthrough'}
+      ], schemaInstanceJSON12),
       ...(() => {
         const schema = {
           type: 'union',

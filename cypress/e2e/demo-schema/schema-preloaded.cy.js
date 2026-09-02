@@ -1152,6 +1152,72 @@
       });
     });
 
+    describe('Group `record` vs `looseRecord`', function () {
+      // `schemaInstanceJSON12`: a strict `record` and a `looseRecord` that share
+      //   a key schema constraining property names to at least three characters.
+      it('Strict record: conforming key uses the value schema', function () {
+        const sel = 'section:nth-of-type(13) > .innerItem:nth-of-type(1) ' +
+          arraySels;
+
+        cy.get(sel + 'div[data-type="object"] span').should(($span) => {
+          expect($span.attr('title')).to.equal('Strict record');
+        });
+
+        // The conforming key `abc` -> the number `value` schema governs it
+        cy.get(sel + 'fieldset:nth-of-type(1) > legend textarea').should(
+          'have.value', 'abc'
+        );
+        cy.get(sel + 'fieldset:nth-of-type(1) > legend .mapKey').should(
+          ($span) => {
+            expect($span.attr('title')).to.equal('(record key)');
+          }
+        );
+        // The value is governed by the number `value` schema
+        cy.get(
+          sel + 'fieldset:nth-of-type(1) ' +
+          'input[name="demo-type-choices-only-initial-value-number"]'
+        ).should('have.value', '1');
+      });
+
+      it(
+        'Loose record: non-conforming key is passed through untyped',
+        function () {
+          const sel = 'section:nth-of-type(13) > .innerItem:nth-of-type(2) ' +
+            arraySels;
+
+          cy.get(sel + 'div[data-type="object"] span').should(($span) => {
+            expect($span.attr('title')).to.equal('Loose record');
+          });
+
+          // `abc` conforms -> governed by the number `value` schema, exactly as
+          //   the strict record
+          cy.get(sel + 'fieldset:nth-of-type(1) > legend textarea').should(
+            'have.value', 'abc'
+          );
+          cy.get(
+            sel + 'fieldset:nth-of-type(1) ' +
+            'input[name="demo-type-choices-only-initial-value-number"]'
+          ).should('have.value', '2');
+
+          // `xy` does not conform -> Zod's loose mode passes the entry through
+          //   without applying the `value` schema, so jsoe renders it with the
+          //   value's own runtime type (a string control), not the number
+          //   `value` widget a strict `record` would impose.
+          cy.get(sel + 'fieldset:nth-of-type(2) > legend textarea').should(
+            'have.value', 'xy'
+          );
+          cy.get(
+            sel + 'fieldset:nth-of-type(2) ' +
+            'input[name="demo-type-choices-only-initial-value-number"]'
+          ).should('not.exist');
+          cy.get(
+            sel + 'fieldset:nth-of-type(2) ' +
+            'textarea[name="demo-type-choices-only-initial-value-string"]'
+          ).should('have.value', 'passthrough');
+        }
+      );
+    });
+
     describe('Group 13', function () {
       it('Selects object with type selector', function () {
         const sel1 = 'form ' + (arraySels
