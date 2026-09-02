@@ -11,6 +11,22 @@ import {tick} from '../utils/timing.js';
 
 import json from './json.js';
 
+/** @type {import('typeson').TypeSpecSet} */
+export const functionSpec = {
+  function: {
+    test (x) {
+      return typeof x === 'function';
+    },
+    replace (funcType) {
+      return '(' + funcType.toString() + ')';
+    },
+    revive (o) {
+      // eslint-disable-next-line no-eval -- User opted in
+      return eval(o);
+    }
+  }
+};
+
 export const structuredCloningJsoe = structuredCloningForStorage.filter(
   (typeSpecSet) => {
     return [
@@ -614,20 +630,7 @@ const structuredCloning = {
           ...structuredCloningJsoe,
           symbol,
           promise,
-          {
-            function: {
-              test (x) {
-                return typeof x === 'function';
-              },
-              replace (funcType) {
-                return '(' + funcType.toString() + ')';
-              },
-              revive (o) {
-                // eslint-disable-next-line no-eval -- User opted in
-                return eval(o);
-              }
-            }
-          }
+          functionSpec
         ]
         : structuredCloningJsoe
     );

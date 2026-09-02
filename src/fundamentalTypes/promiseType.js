@@ -6,7 +6,7 @@ import {
 import {$e} from '../utils/templateUtils.js';
 import {tick} from '../utils/timing.js';
 import arrayType from './arrayType.js';
-import {structuredCloningJsoe} from '../formats/structuredCloning.js';
+import {structuredCloningJsoe, functionSpec} from '../formats/structuredCloning.js';
 
 /**
  *
@@ -23,20 +23,7 @@ const getTypeson = () => {
       ...structuredCloningJsoe,
       symbol,
       promise,
-      {
-        function: {
-          test (x) {
-            return typeof x === 'function';
-          },
-          replace (funcType) {
-            return '(' + funcType.toString() + ')';
-          },
-          revive (o) {
-            // eslint-disable-next-line no-eval -- User opted in
-            return eval(o);
-          }
-        }
-      }
+      functionSpec
     ]
   );
 };
