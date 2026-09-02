@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject}
@@ -18,13 +19,13 @@ const nullType = {
   viewUI ({specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'null'},
-      title: specificSchemaObject?.description ?? '(a `null`)'
+      title: schemaLabel(specificSchemaObject) ?? '(a `null`)'
     }, ['null']];
   },
   editUI ({typeNamespace, specificSchemaObject}) {
     return ['div', {
       dataset: {type: 'null'},
-      title: specificSchemaObject?.description ?? 'Null'
+      title: schemaLabel(specificSchemaObject) ?? 'Null'
     }, [
       ['label', [
         'Null',

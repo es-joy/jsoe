@@ -1,5 +1,6 @@
 import {toStringTag} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject}
@@ -29,7 +30,7 @@ const StringObjectType = {
   viewUI ({value, specificSchemaObject}) {
     return ['span', {
       dataset: {type: 'StringObject'},
-      title: specificSchemaObject?.description ?? '(a String Object)'
+      title: schemaLabel(specificSchemaObject) ?? '(a String Object)'
     }, [
       specificSchemaObject ? '' : ['i', ['String(']],
       ['span', [value.valueOf()]],
@@ -39,7 +40,7 @@ const StringObjectType = {
   editUI ({typeNamespace, specificSchemaObject, value = ''}) {
     return ['div', {
       dataset: {type: 'StringObject'},
-      title: specificSchemaObject?.description ?? 'String object'
+      title: schemaLabel(specificSchemaObject) ?? 'String object'
     }, [
       ['textarea', {name: `${typeNamespace}-StringObject`}, [value]]
     ]];

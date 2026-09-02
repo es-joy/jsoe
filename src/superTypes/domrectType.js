@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {toStringTag} from '../vendor-imports.js';
 
 let idx = 0;
@@ -79,14 +80,14 @@ const domrectType = {
       dataset: {
         type: 'domrect'
       },
-      title: specificSchemaObject?.description
+      title: schemaLabel(specificSchemaObject)
         ? `(a \`${(isReadWrite ? 'DOMRect' : 'DOMRectReadOnly')}\`)`
         : undefined
     }, [
       ['b', {
         class: 'emphasis'
       }, [
-        specificSchemaObject?.description ??
+        schemaLabel(specificSchemaObject) ??
           (isReadWrite ? 'DOMRect' : 'DOMRectReadOnly')
       ]],
       ['br'],
@@ -113,7 +114,7 @@ const domrectType = {
     const step = 'any'; // Proper step?
     return ['div', {
       dataset: {type: 'domrect'},
-      title: specificSchemaObject?.description ?? 'DOMRect'
+      title: schemaLabel(specificSchemaObject) ?? 'DOMRect'
     }, [
       ['div', [
         ['label', [

@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject}
@@ -20,7 +21,7 @@ const undefinedType = {
   viewUI ({specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'undef'},
-      title: specificSchemaObject?.description ?? '(an `undefined`)'
+      title: schemaLabel(specificSchemaObject) ?? '(an `undefined`)'
     }, ['undefined']];
   },
   /* istanbul ignore next -- No dupe keys, array refs, or validation */
@@ -30,7 +31,7 @@ const undefinedType = {
   editUI ({typeNamespace, specificSchemaObject}) {
     return ['div', {
       dataset: {type: 'undef'},
-      title: specificSchemaObject?.description ?? 'Undefined'
+      title: schemaLabel(specificSchemaObject) ?? 'Undefined'
     }, [
       ['label', [
         'Undefined',

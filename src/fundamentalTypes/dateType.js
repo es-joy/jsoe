@@ -1,5 +1,6 @@
 import {jml, toStringTag} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @typedef {(
@@ -99,11 +100,11 @@ const dateType = {
     return !this.valid && this.isValueInvalid(value)
       ? ['i', {
         dataset: {type: 'date'}, class: 'InvalidDate',
-        title: specificSchemaObject?.description ?? '(an InvalidDate)'
+        title: schemaLabel(specificSchemaObject) ?? '(an InvalidDate)'
       }, ['InvalidDate']]
       : ['i', {
         dataset: {type: 'date'}, class: 'ValidDate',
-        title: specificSchemaObject?.description ?? '(a `Date`)'
+        title: schemaLabel(specificSchemaObject) ?? '(a `Date`)'
       }, [
         value.toISOString().slice(0, -8)
       ]];
@@ -169,7 +170,7 @@ const dateType = {
       ]);
     return ['div', {
       dataset: {type: this.valid ? 'ValidDate' : 'date'},
-      title: specificSchemaObject?.description ?? 'Date'
+      title: schemaLabel(specificSchemaObject) ?? 'Date'
     }, [
       ['label', {
         hidden: notANum

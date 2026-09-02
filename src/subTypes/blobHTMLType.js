@@ -1,6 +1,7 @@
 /* globals sceditor -- No ESM version yet */
 import {jml} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 import dialogs from '../utils/dialogs.js';
 import {isNullish} from '../utils/types.js';
@@ -82,9 +83,9 @@ const blobHTMLType = {
     let val;
     const div = jml('div', {
       dataset: {type: 'blobHTML'},
-      title: specificSchemaObject?.description ? 'HTML' : undefined
+      title: schemaLabel(specificSchemaObject) ? 'HTML' : undefined
     }, [
-      specificSchemaObject?.description ?? 'HTML',
+      schemaLabel(specificSchemaObject) ?? 'HTML',
       ': ',
       ['button', {$on: {
         click () {
@@ -135,7 +136,7 @@ const blobHTMLType = {
       'div',
       {
         dataset: {type: 'blobHTML'},
-        title: specificSchemaObject?.description ?? 'Blob (HTML)'
+        title: schemaLabel(specificSchemaObject) ?? 'Blob (HTML)'
       },
       [
         textarea

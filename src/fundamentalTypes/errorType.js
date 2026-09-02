@@ -1,5 +1,6 @@
 import {error as errorTypesonRegistry} from 'typeson-registry';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {tick} from '../utils/timing.js';
 import {jml, toStringTag, hasConstructorOf} from '../vendor-imports.js';
 
@@ -186,9 +187,9 @@ const errorType = {
       'div', {dataset: {type: 'error'}}, [
         ['b', {
           class: 'emphasis',
-          title: specificSchemaObject?.description ? '(an Error)' : undefined
+          title: schemaLabel(specificSchemaObject) ? '(an Error)' : undefined
         }, [
-          specificSchemaObject?.description ?? 'Error'
+          schemaLabel(specificSchemaObject) ?? 'Error'
         ]],
         ...(typeof o.message === 'string'
           ? [['div', [['b', ['Message: ']], ['span', [o.message]]]]]
@@ -272,7 +273,7 @@ const errorType = {
       'div',
       {
         dataset: {type: 'error'},
-        title: specificSchemaObject?.description ?? 'Error'
+        title: schemaLabel(specificSchemaObject) ?? 'Error'
       },
       /** @type {import('jamilih').JamilihChildren} */ ([
         ['div', [

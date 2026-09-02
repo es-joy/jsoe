@@ -8,6 +8,7 @@ import {
 } from './vendor-imports.js';
 
 import {$e, $$e} from './utils/templateUtils.js';
+import {resolveSchemaMeta, appendSchemaMeta} from './utils/schemaMeta.js';
 
 import nullType from './fundamentalTypes/nullType.js';
 import trueType from './subTypes/trueType.js';
@@ -716,8 +717,9 @@ class Types {
     // `record`/`tuple` are not shown as their own pull-down entries; they render
     //   as `Object`/`Array` (their schema, incl. child descriptions, informs the
     //   layout — see `arrayType.js`).
-    if (schemaContent && schemaContent.description) {
-      optInfo[0] = `${optInfo[0]} (${schemaContent.description})`;
+    const schemaContentLabel = resolveSchemaMeta(schemaContent).label;
+    if (schemaContentLabel) {
+      optInfo[0] = `${optInfo[0]} (${schemaContentLabel})`;
     }
 
     optInfo[1] = {
@@ -783,6 +785,7 @@ class Types {
     if (specificSchemaObject) {
       this.schemasForRoots.set(root, specificSchemaObject);
     }
+    appendSchemaMeta(root, specificSchemaObject);
     if (!readonly && typeObj.validate) {
       const formControl = typeObj.getInput({root});
       formControl.addEventListener('input', () => {

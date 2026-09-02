@@ -1,5 +1,6 @@
 import {jml, toStringTag} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {visualize, getUserMedia, startScreenCapture} from '../utils/media.js';
 import dialogs from '../utils/dialogs.js';
 
@@ -179,9 +180,9 @@ const blobType = {
     return ['div', {dataset: {type: 'blob'}}, [
       ['b', {
         class: 'emphasis',
-        title: specificSchemaObject?.description ? '(a Blob)' : undefined
+        title: schemaLabel(specificSchemaObject) ? '(a Blob)' : undefined
       }, [
-        specificSchemaObject?.description ?? 'Blob'
+        schemaLabel(specificSchemaObject) ?? 'Blob'
       ]],
       ['br'],
       ['br'],
@@ -369,7 +370,7 @@ const blobType = {
     //         recorded or uploaded)
     return ['div', {
       dataset: {type: 'blob'},
-      title: specificSchemaObject?.description ?? 'Blob'
+      title: schemaLabel(specificSchemaObject) ?? 'Blob'
     }, [
       ['fieldset', {
         class: 'blobMetaData',

@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').SuperTypeObject}
@@ -39,7 +40,7 @@ const SpecialRealNumberSuperType = {
     const isNegativeZero = Object.is(value, -0);
     return ['i', {
       dataset: {type: 'SpecialRealNumber'},
-      title: specificSchemaObject?.description ?? (isNegativeZero
+      title: schemaLabel(specificSchemaObject) ?? (isNegativeZero
         ? '(negative zero)'
         : `(${String(value)})`)
     }, [
@@ -57,7 +58,7 @@ const SpecialRealNumberSuperType = {
   }) {
     return ['div', {
       dataset: {type: 'SpecialRealNumber'},
-      title: specificSchemaObject?.description ?? 'Special Real Number'
+      title: schemaLabel(specificSchemaObject) ?? 'Special Real Number'
     }, [
       ['label', [
         ['select', {name: `${typeNamespace}-SpecialRealNumber`}, [

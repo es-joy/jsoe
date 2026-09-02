@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @typedef {HTMLInputElement & {
@@ -65,7 +66,7 @@ const bigintType = {
   viewUI ({value, specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'bigint'},
-      title: specificSchemaObject?.description ?? '(a BigInt)'
+      title: schemaLabel(specificSchemaObject) ?? '(a BigInt)'
     }, [
       `${String(value)}n`
     ]];
@@ -75,7 +76,7 @@ const bigintType = {
       const selectedValue = value ?? specificSchemaObject.defaultValue;
       return ['div', {
         dataset: {type: 'bigint'},
-        title: specificSchemaObject.description ?? 'BigInt'
+        title: schemaLabel(specificSchemaObject) ?? 'BigInt'
       }, [
         ['select', {
           name: `${typeNamespace}-bigint`
@@ -120,7 +121,7 @@ const bigintType = {
 
     return ['div', {
       dataset: {type: 'bigint'},
-      title: specificSchemaObject?.description ?? 'BigInt'
+      title: schemaLabel(specificSchemaObject) ?? 'BigInt'
     }, [
       ['input', {
         name: `${typeNamespace}-bigint`, type: 'number',

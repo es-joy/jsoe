@@ -13,7 +13,8 @@ export default [
       'src/deepEqual.js',
       'vendor',
       'typings/**',
-      'dist'
+      'dist',
+      'docs'
     ]
   },
   // {

@@ -764,9 +764,16 @@ const encodedaudiochunk = {
             return {type, timestamp, duration, data};
         },
         revive ({type, timestamp, duration, data}) {
-            return new EncodedAudioChunk({
-                type, timestamp, duration, data: new Uint8Array(data)
-            });
+            // A browser's `EncodedAudioChunkInit` has no `duration`
+            //   default and coerces an explicit `null`/`undefined` to `0`,
+            //   so only pass it through when the source chunk actually
+            //   had one (otherwise `duration` must round-trip as `null`).
+            /** @type {EncodedAudioChunkInit} */
+            const init = {type, timestamp, data: new Uint8Array(data)};
+            if (duration !== null && duration !== undefined) {
+                init.duration = duration;
+            }
+            return new EncodedAudioChunk(init);
         }
     }
 };
@@ -788,9 +795,16 @@ const encodedvideochunk = {
             return {type, timestamp, duration, data};
         },
         revive ({type, timestamp, duration, data}) {
-            return new EncodedVideoChunk({
-                type, timestamp, duration, data: new Uint8Array(data)
-            });
+            // A browser's `EncodedVideoChunkInit` has no `duration`
+            //   default and coerces an explicit `null`/`undefined` to `0`,
+            //   so only pass it through when the source chunk actually
+            //   had one (otherwise `duration` must round-trip as `null`).
+            /** @type {EncodedVideoChunkInit} */
+            const init = {type, timestamp, data: new Uint8Array(data)};
+            if (duration !== null && duration !== undefined) {
+                init.duration = duration;
+            }
+            return new EncodedVideoChunk(init);
         }
     }
 };
@@ -1132,16 +1146,39 @@ const imagedata = {
     imagedata: {
         test (x) { return toStringTag(x) === 'ImageData'; },
         replace (d) {
+            const pixelFormat = toStringTag(d.data) === 'Float16Array'
+                /* c8 ignore next -- Not yet supported in `canvas` */
+                ? 'rgba-float16'
+                : 'rgba-unorm8';
             return {
                 // Ensure `length` gets preserved for revival
                 array: [...d.data],
                 width: d.width,
-                height: d.height
+                height: d.height,
+                pixelFormat,
+                colorSpace: d.colorSpace
             };
         },
         revive (o) {
+            const {array, width, height, colorSpace, pixelFormat} = o;
+            /* c8 ignore next 12 -- Not yet supported in `canvas` */
+            if (pixelFormat === 'rgba-float16') {
+                return new ImageData(
+                    // @ts-expect-error -- Ok
+                    new Float16Array(array),
+                    width,
+                    height,
+                    {
+                        colorSpace,
+                        pixelFormat
+                    }
+                );
+            }
             return new ImageData(
-                new Uint8ClampedArray(o.array), o.width, o.height
+                new Uint8ClampedArray(array), width, height, {
+                    colorSpace,
+                    pixelFormat
+                }
             );
         }
     }
@@ -1760,10 +1797,19 @@ const videoframe = {
             format, codedWidth, codedHeight, timestamp, duration,
             visibleRect, displayWidth, displayHeight, colorSpace, data
         }) {
-            return new VideoFrame(new Uint8Array(data), {
-                format, codedWidth, codedHeight, timestamp, duration,
+            // A browser's `VideoFrameBufferInit` has no `duration` default
+            //   and coerces an explicit `null`/`undefined` to `0`, so only
+            //   pass it through when the source frame actually had one
+            //   (otherwise `duration` must round-trip as `null`).
+            /** @type {VideoFrameBufferInit} */
+            const init = {
+                format, codedWidth, codedHeight, timestamp,
                 visibleRect, displayWidth, displayHeight, colorSpace
-            });
+            };
+            if (duration !== null && duration !== undefined) {
+                init.duration = duration;
+            }
+            return new VideoFrame(new Uint8Array(data), init);
         }
     }
 };

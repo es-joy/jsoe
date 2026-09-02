@@ -3,6 +3,9 @@ import {jml, nbsp} from '../vendor-imports.js';
 import {getPropertyValueFromLegend} from '../types.js';
 import {recordKeyConforms} from '../formats/schema.js';
 import {$e, $$e, U, DOM} from '../utils/templateUtils.js';
+import {
+  schemaLabel, lastTypeChild, deprecatedClassSuffix
+} from '../utils/schemaMeta.js';
 import dialogs from '../utils/dialogs.js';
 import {
   resolveJSONPointer, getJSONPointerParts, reduceJSONPointerParts
@@ -444,35 +447,35 @@ const arrayType = {
       )?.rest;
       return ['legend', [
         !recordMode && this.array
-          ? /** @type {import('zodexy').SzArray} */ (
+          ? schemaLabel(/** @type {import('zodexy').SzArray} */ (
             specificSchemaObject
-          )?.element?.description ??
-            ((type === 'set' && /** @type {import('zodexy').SzSet} */ (
+          )?.element) ??
+            ((type === 'set' && schemaLabel(/** @type {import('zodexy').SzSet} */ (
               specificSchemaObject
-            )?.value?.description)
-              ? /** @type {import('zodexy').SzSet} */ (
+            )?.value))
+              ? schemaLabel(/** @type {import('zodexy').SzSet} */ (
                 specificSchemaObject
-              )?.value?.description
+              )?.value)
               : (
-                tupleItem?.description ?? restItem?.description
+                schemaLabel(tupleItem) ?? schemaLabel(restItem)
               )) ?? 'Item'
           : specificSchemaObject ? '' : 'Property',
         specificSchemaObject ? '' : ':',
         nbsp.repeat(2),
         ['span', {
           class: `propertyName-${typeNamespace}`,
-          title: recordMode && /** @type {import('zodexy').SzRecord} */ (
+          title: recordMode && schemaLabel(/** @type {import('zodexy').SzRecord} */ (
             specificSchemaObject
-          )?.key?.description
-            ? /** @type {import('zodexy').SzRecord} */ (
+          )?.key)
+            ? schemaLabel(/** @type {import('zodexy').SzRecord} */ (
               specificSchemaObject
-            )?.key?.description
+            )?.key)
             : specificSchemaObject ? propName : undefined
         }, [
           propName !== undefined
-            ? /** @type {import('zodexy').SzObject} */ (
+            ? schemaLabel(/** @type {import('zodexy').SzObject} */ (
               specificSchemaObject
-            )?.properties?.[propName]?.description ?? propName
+            )?.properties?.[propName]) ?? propName
             /* istanbul ignore next -- Won't reach here as typeson will always give keypath? */
             : itemIndex
         ]]
@@ -529,15 +532,15 @@ const arrayType = {
               const keyFieldset = jml(
                 'fieldset', [
                   ['legend', {
-                    title: /** @type {import('zodexy').SzMap<any, any>} */ (
+                    title: schemaLabel(/** @type {import('zodexy').SzMap<any, any>} */ (
                       specificSchemaObject
-                    )?.key?.description
+                    )?.key)
                       ? '(map key)'
                       : undefined
                   }, [
-                    /** @type {import('zodexy').SzMap<any, any>} */ (
+                    schemaLabel(/** @type {import('zodexy').SzMap<any, any>} */ (
                       specificSchemaObject
-                    )?.key?.description ?? 'Key'
+                    )?.key) ?? 'Key'
                   ]]
                 ], fieldset
               );
@@ -546,15 +549,15 @@ const arrayType = {
               const valueFieldset = jml(
                 'fieldset', [
                   ['legend', {
-                    title: /** @type {import('zodexy').SzMap<any, any>} */ (
+                    title: schemaLabel(/** @type {import('zodexy').SzMap<any, any>} */ (
                       specificSchemaObject
-                    )?.value?.description
+                    )?.value)
                       ? '(map value)'
                       : undefined
                   }, [
-                    /** @type {import('zodexy').SzMap<any, any>} */ (
+                    schemaLabel(/** @type {import('zodexy').SzMap<any, any>} */ (
                       specificSchemaObject
-                    )?.value?.description ??
+                    )?.value) ??
                     'Value'
                   ]]
                 ], this._lastFieldset
@@ -628,13 +631,13 @@ const arrayType = {
          */
         $getArrayItems () {
           return /** @type {HTMLElement} */ (
-            /** @type {Element} */ (this.lastElementChild).lastElementChild
+            /** @type {Element} */ (lastTypeChild(this)).lastElementChild
           );
         }
       }
     }, [
       ['span', {
-        title: specificSchemaObject?.description
+        title: schemaLabel(specificSchemaObject)
       }, [
         specificSchemaObject
           ? '—'
@@ -672,12 +675,12 @@ const arrayType = {
               : undefined
           }, [
             type === 'filelist'
-              ? (specificSchemaObject?.description ?? 'FileList') + ' length: '
+              ? (schemaLabel(specificSchemaObject) ?? 'FileList') + ' length: '
               : type === 'set'
-                ? (specificSchemaObject?.description ?? 'Set') + ' size: '
+                ? (schemaLabel(specificSchemaObject) ?? 'Set') + ' size: '
                 : type === 'map'
-                  ? (specificSchemaObject?.description ?? 'Map') + ' size: '
-                  : (specificSchemaObject?.description ?? 'Array') +
+                  ? (schemaLabel(specificSchemaObject) ?? 'Map') + ' size: '
+                  : (schemaLabel(specificSchemaObject) ?? 'Array') +
                     ' length: ',
             ['span', [
               (value && (type === 'set' || type === 'map')
@@ -686,7 +689,7 @@ const arrayType = {
             ]]
           ]]
           : (recordMode
-            ? specificSchemaObject?.description ?? 'Record'
+            ? schemaLabel(specificSchemaObject) ?? 'Record'
             : ''),
         ['div', {
           class: 'arrayItems'
@@ -746,18 +749,18 @@ const arrayType = {
       }) ?? message;
     };
 
-    const elementDesc = /** @type {import('zodexy').SzArray} */ (
+    const elementDesc = schemaLabel(/** @type {import('zodexy').SzArray} */ (
       specificSchemaObject
-    )?.element?.description ?? (type === 'set'
-      ? /** @type {import('zodexy').SzSet} */ (
+    )?.element) ?? (type === 'set'
+      ? schemaLabel(/** @type {import('zodexy').SzSet} */ (
         specificSchemaObject
-      )?.value?.description
+      )?.value)
       : type === 'filelist'
-        ? /** @type {import('zodexy').SzArray} */ (
+        ? schemaLabel(/** @type {import('zodexy').SzArray} */ (
           /** @type {import('zodexy').SzCodec} */ (
             specificSchemaObject
           )?.output
-        )?.element.description
+        )?.element)
         : undefined);
 
     /**
@@ -1001,25 +1004,25 @@ const arrayType = {
             class: 'mapKey',
             title: (
               type === 'map' &&
-              /** @type {import('zodexy').SzMap<any, any>} */ (
+              schemaLabel(/** @type {import('zodexy').SzMap<any, any>} */ (
                 specificSchemaObject
-              )?.key?.description
+              )?.key)
             )
               ? '(map key)'
               : recordMode &&
-              /** @type {import('zodexy').SzRecord} */ (
+              schemaLabel(/** @type {import('zodexy').SzRecord} */ (
                 specificSchemaObject
-              )?.key?.description
+              )?.key)
                 ? '(record key)'
                 : undefined
           }, [
             type === 'map'
-              ? /** @type {import('zodexy').SzMap<any, any>} */ (
+              ? schemaLabel(/** @type {import('zodexy').SzMap<any, any>} */ (
                 specificSchemaObject
-              )?.key?.description ?? 'Map key'
-              : /** @type {import('zodexy').SzRecord} */ (
+              )?.key) ?? 'Map key'
+              : schemaLabel(/** @type {import('zodexy').SzRecord} */ (
                 specificSchemaObject
-              )?.key?.description ?? 'Record key',
+              )?.key) ?? 'Record key',
             ' '
           ]],
           ['span', {
@@ -1134,9 +1137,10 @@ const arrayType = {
 
       if (editableProperties) {
         // console.log('PROPNAME', propName, schema, specificSchemaObject);
-        const description = /** @type {import('zodexy').SzObject} */ (
+        const propSchemaForMeta = /** @type {import('zodexy').SzObject} */ (
           specificSchemaObject
-        )?.properties?.[/** @type {string} */ (propName)]?.description;
+        )?.properties?.[/** @type {string} */ (propName)];
+        const description = schemaLabel(propSchemaForMeta);
         const optionalProperties = Object.entries(
           /** @type {import('zodexy').SzObject} */ (
             specificSchemaObject
@@ -1155,7 +1159,9 @@ const arrayType = {
               : (propName !== undefined ? propName : itemIndex)
           )
           : propName || '';
-        return /** @type {import('jamilih').JamilihArray} */ (['legend', [
+        return /** @type {import('jamilih').JamilihArray} */ (['legend', {
+          class: deprecatedClassSuffix(propSchemaForMeta).trim()
+        }, [
           sparse
             ? elementDesc ?? 'Item'
             : {'#': required
@@ -1180,11 +1186,13 @@ const arrayType = {
                               specificSchemaObject
                             )?.properties?.[propName];
                           return propSchema
-                            ? propSchema.description ?? propName
-                            : /** @type {import('zodexy').SzObject} */ (
-                              specificSchemaObject
-                            /* istanbul ignore next -- Guard */
-                            )?.catchall?.description ?? propName;
+                            ? schemaLabel(propSchema) ?? propName
+                            : schemaLabel(
+                              /** @type {import('zodexy').SzObject} */ (
+                                specificSchemaObject
+                              /* istanbul ignore next -- Guard */
+                              )?.catchall
+                            ) ?? propName;
                         })()
                       ]]
                     ]
@@ -1404,10 +1412,10 @@ const arrayType = {
                 )?.properties?.[this.value];
                 jml('b', [
                   propSchema
-                    ? propSchema.description ?? this.value
-                    : /** @type {import('zodexy').SzObject} */ (
+                    ? schemaLabel(propSchema) ?? this.value
+                    : schemaLabel(/** @type {import('zodexy').SzObject} */ (
                       specificSchemaObject
-                    )?.catchall?.description ?? this.value
+                    )?.catchall) ?? this.value
                 ], propHolder);
               },
               /**
@@ -1510,22 +1518,24 @@ const arrayType = {
       }
 
       const fileDesc = type === 'filelist'
-        ? specificSchemaObject?.description
+        ? schemaLabel(specificSchemaObject)
         : undefined;
 
-      return /** @type {import('jamilih').JamilihArray} */ (['legend', [
+      return /** @type {import('jamilih').JamilihArray} */ (['legend', {
+        class: deprecatedClassSuffix(schema).trim()
+      }, [
         elementDesc
           ? ''
           : fileDesc
             ? `${fileDesc} `
-            : schema?.description
-              ? `${schema?.description} `
-              : tupleMode && /** @type {import('zodexy').SzTuple} */ (
+            : schemaLabel(schema)
+              ? `${schemaLabel(schema)} `
+              : tupleMode && schemaLabel(/** @type {import('zodexy').SzTuple} */ (
                 specificSchemaObject
-              )?.rest?.description
-                ? `${/** @type {import('zodexy').SzTuple} */ (
+              )?.rest)
+                ? `${schemaLabel(/** @type {import('zodexy').SzTuple} */ (
                   specificSchemaObject
-                )?.rest?.description} `
+                )?.rest)} `
                 : 'Item ',
         ['span', {
           dataset: {prop: true, array: true},
@@ -1903,25 +1913,25 @@ const arrayType = {
         ['span', {
           class: 'mapValue',
           title: type === 'map' &&
-          /** @type {import('zodexy').SzMap<any, any>} */ (
+          schemaLabel(/** @type {import('zodexy').SzMap<any, any>} */ (
             specificSchemaObject
-          )?.value?.description
+          )?.value)
             ? '(map value)'
             : recordMode &&
-            /** @type {import('zodexy').SzRecord} */ (
+            schemaLabel(/** @type {import('zodexy').SzRecord} */ (
               specificSchemaObject
-            )?.value?.description
+            )?.value)
               ? '(record value)'
               : undefined
         }, [
           type === 'map'
-            ? /** @type {import('zodexy').SzMap<any, any>} */ (
+            ? schemaLabel(/** @type {import('zodexy').SzMap<any, any>} */ (
               specificSchemaObject
-            )?.value?.description ?? 'Map value'
+            )?.value) ?? 'Map value'
             : recordMode
-              ? /** @type {import('zodexy').SzRecord} */ (
+              ? schemaLabel(/** @type {import('zodexy').SzRecord} */ (
                 specificSchemaObject
-              )?.value?.description ?? 'Record value'
+              )?.value) ?? 'Record value'
               : '',
           ' '
         ]],
@@ -2509,7 +2519,7 @@ const arrayType = {
             $getAddArrayElement () {
               const el = /** @type {Element} */ (
                 /** @type {Element} */ (
-                  this.lastElementChild
+                  lastTypeChild(this)
                 ).firstElementChild
               ).nextElementSibling;
               return /** @type {HTMLElement} */ (
@@ -2592,7 +2602,7 @@ const arrayType = {
           }
         }, /** @type {import('jamilih').JamilihChildren} */ ([
           [specificSchemaObject ? 'span' : 'b', {
-            title: specificSchemaObject?.description ?? (DOM.initialCaps(
+            title: schemaLabel(specificSchemaObject) ?? (DOM.initialCaps(
               /** @type {import('../types.js').AvailableType} */
               (itemType)
             ).replace(/s$/u, ''))

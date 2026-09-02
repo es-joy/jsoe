@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {toStringTag} from '../vendor-imports.js';
 
 let idx = 0;
@@ -76,12 +77,12 @@ const dompointType = {
     const isReadWrite = toStringTag(value) === 'DOMPoint';
     return ['div', {
       dataset: {type: 'dompoint'},
-      title: specificSchemaObject?.description
+      title: schemaLabel(specificSchemaObject)
         ? `(a \`${(isReadWrite ? 'DOMPoint' : 'DOMPointReadOnly')}\`)`
         : undefined
     }, [
       ['b', {class: 'emphasis'}, [
-        specificSchemaObject?.description ??
+        schemaLabel(specificSchemaObject) ??
           (isReadWrite ? 'DOMPoint' : 'DOMPointReadOnly')
       ]],
       ['br'],
@@ -108,7 +109,7 @@ const dompointType = {
     const step = 'any'; // Proper step?
     return ['div', {
       dataset: {type: 'dompoint'},
-      title: specificSchemaObject?.description ?? 'DOMPoint'
+      title: schemaLabel(specificSchemaObject) ?? 'DOMPoint'
     }, [
       ['div', [
         ['label', [

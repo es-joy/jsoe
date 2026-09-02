@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject & {ct: number}}
@@ -49,7 +50,7 @@ const symbolType = {
   viewUI ({value, specificSchemaObject}) {
     return ['span', {
       dataset: {type: 'symbol'},
-      title: specificSchemaObject?.description ?? '(a Symbol)'
+      title: schemaLabel(specificSchemaObject) ?? '(a Symbol)'
     }, [
       Symbol.keyFor(value) === undefined ? '' : ['b', ['Global: ']],
       String(value).slice(7, -1)
@@ -59,7 +60,7 @@ const symbolType = {
     this.ct++;
     return ['div', {
       dataset: {type: 'symbol'},
-      title: specificSchemaObject?.description ?? '(a Symbol)'
+      title: schemaLabel(specificSchemaObject) ?? '(a Symbol)'
     }, [
       ['label', [
         'Symbol()',

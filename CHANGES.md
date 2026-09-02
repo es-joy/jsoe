@@ -2,6 +2,18 @@
 
 ## ?
 
+- feat: surface schema `meta` in viewUI/editUI: `meta.title` is now the
+    preferred source for a type's visible label/tooltip (falling back to
+    `meta.description`, then the legacy top-level `description`), and a
+    read-only info toggle beside each type reveals a table of the remaining
+    metadata (`meta.description` long text, `id`, `deprecated`, and any custom
+    keys). A `deprecated` schema tags its info toggle (muted-red glyph plus a
+    "deprecated" mark) in both view and edit mode, and strikes the field label
+    through — the value in viewUI, the property/item legend in editUI. The
+    `jsoe` key on `meta` is reserved for jsoe UI directives and is shown in the
+    table (acting on directives such as `tableView` is not yet implemented).
+    `description` set directly on a schema is now deprecated in favor of
+    `meta.description`.
 - feat: add `looseRecord`
 - feat: `xor`
 - feat: adds serialization for template literals (with `parts`)

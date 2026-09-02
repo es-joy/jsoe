@@ -1,4 +1,5 @@
 import {$e, $$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {jml, toStringTag} from '../vendor-imports.js';
 import dialogs from '../utils/dialogs.js';
 
@@ -309,13 +310,13 @@ const buffersourceType = {
     return ['div', {dataset: {type: 'buffersource'}}, [
       ['b', {
         class: 'emphasis',
-        title: specificSchemaObject?.description
+        title: schemaLabel(specificSchemaObject)
           ? (/^[aeiou]/iu).test(stringTag)
             ? `(an ${stringTag})`
             : `(a ${stringTag})`
           : undefined
       }, [
-        specificSchemaObject?.description ?? stringTag
+        schemaLabel(specificSchemaObject) ?? stringTag
       ]],
       ['br'],
       ['b', ['Buffer byte length: ']],
@@ -425,7 +426,7 @@ const buffersourceType = {
 
     const div = jml('div', {
       dataset: {type: 'buffersource'},
-      title: specificSchemaObject?.description ?? 'BufferSource'
+      title: schemaLabel(specificSchemaObject) ?? 'BufferSource'
     }, [
       ['fieldset', {
         class: 'returnType',

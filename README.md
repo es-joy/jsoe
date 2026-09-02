@@ -152,7 +152,8 @@ Supported supertypes include:
         1. OCR (`TextDetector` API if implemented) added as image pop-up
             utility
 1. Might put views and data into separate repos
-1. Could make option to show more schema data (e.g., min and max) in viewUI
+1. Could show more schema data (e.g., min and max) in viewUI, e.g., as extra
+    rows in the schema `meta` info toggle
 1. Implement as Custom Elements?
 1. Add drag-and-drop support for `File` type
 1. Import CSV as array

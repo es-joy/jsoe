@@ -2,6 +2,63 @@ input:invalid {
   background-color: pink;
 }
 
+.schema-meta {
+  display: inline-block;
+  margin-inline-start: 0.25em;
+}
+.schema-meta-toggle {
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: help;
+  font-size: 0.85em;
+  line-height: 1;
+  color: #555;
+}
+.schema-meta-toggle::before {
+  content: "\24D8"; /* ⓘ */
+}
+.schema-meta-table {
+  border-collapse: collapse;
+  margin-block-start: 0.25em;
+  font-size: 0.85em;
+}
+.schema-meta-table th,
+.schema-meta-table td {
+  border: 1px solid #ccc;
+  padding: 1px 4px;
+  text-align: start;
+  vertical-align: top;
+}
+.schema-meta-table th {
+  font-weight: bold;
+  white-space: nowrap;
+}
+/* Deprecation. `.schema-deprecated` lands on the type root, whose element and
+   internal label placement vary too much for a reliable CSS strike-through, so
+   the consistent signal is on the always-present metadata toggle: a muted-red
+   glyph with a "deprecated" tag. Where the root itself is an inline label
+   element, also strike it. */
+.schema-deprecated > .schema-meta .schema-meta-toggle {
+  color: #b00020;
+}
+.schema-deprecated > .schema-meta .schema-meta-toggle::after {
+  content: " deprecated";
+  font-size: 0.85em;
+  font-style: italic;
+}
+/* Struck through where the class lands on an element that is itself a label:
+   an inline type root (viewUI leaf) or a property/item `<legend>` (editUI). */
+span.schema-deprecated,
+b.schema-deprecated,
+i.schema-deprecated,
+legend.schema-deprecated {
+  text-decoration: line-through;
+}
+.schema-deprecated > .schema-meta {
+  text-decoration: none;
+}
+
 /* `xor` (exclusive union) type choices: a "choose exactly one" radio list */
 fieldset.xorTypeChoices {
   display: inline-block;

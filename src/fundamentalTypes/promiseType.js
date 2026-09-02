@@ -4,6 +4,7 @@ import {
   resurrectable as noneditable, symbol, promise
 } from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {tick} from '../utils/timing.js';
 import arrayType from './arrayType.js';
 import {structuredCloningJsoe, functionSpec} from '../formats/structuredCloning.js';
@@ -119,7 +120,7 @@ const promiseType = {
 
     return ['span', {
       dataset: {type: 'promise'},
-      title: specificSchemaObject?.description
+      title: schemaLabel(specificSchemaObject)
     }, [
       'A Promise ',
       span,
@@ -134,7 +135,7 @@ const promiseType = {
 
     const div = jml('div', {
       dataset: {type: 'promise'},
-      title: specificSchemaObject?.description ?? '(a Promise)'
+      title: schemaLabel(specificSchemaObject) ?? '(a Promise)'
     }, [
       'Promise ',
       ...(/** @type {import('../typeChoices.js').BuildTypeChoices} */ (

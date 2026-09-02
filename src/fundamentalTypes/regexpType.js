@@ -1,5 +1,6 @@
 import {jml, toStringTag} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject & {allowedFlags: string[]}}
@@ -68,7 +69,7 @@ const regexpType = {
   viewUI ({value, specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'regexp'},
-      title: specificSchemaObject?.description ?? '(a `RegExp`)'
+      title: schemaLabel(specificSchemaObject) ?? '(a `RegExp`)'
     }, [
       String(value)
     ]];
@@ -99,7 +100,7 @@ const regexpType = {
     }));
     const root = jml('div', {
       dataset: {type: 'regexp'},
-      title: specificSchemaObject?.description ?? 'RegExp'
+      title: schemaLabel(specificSchemaObject) ?? 'RegExp'
     }, [
       ['label', [
         'Source ',

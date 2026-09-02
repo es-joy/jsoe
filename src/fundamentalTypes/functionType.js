@@ -1,4 +1,5 @@
 import {$e, $$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {jml, parseAcorn} from '../vendor-imports.js';
 import {copyObject} from '../utils/objects.js';
 import {tick} from '../utils/timing.js';
@@ -226,7 +227,7 @@ const functionType = {
     const {args, body} = getArgsAndBodyOfFunction(value);
     return ['span', {
       dataset: {type: 'function'},
-      title: specificSchemaObject?.description ?? '(a function)'
+      title: schemaLabel(specificSchemaObject) ?? '(a function)'
     }, [
       ['b', ['Args']],
       ' ',

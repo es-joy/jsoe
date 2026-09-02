@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject & {ct: number}}
@@ -26,7 +27,7 @@ const booleanType = {
   viewUI ({value, specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'boolean'},
-      title: specificSchemaObject?.description ?? '(a boolean)'
+      title: schemaLabel(specificSchemaObject) ?? '(a boolean)'
     }, [value ? 'true' : 'false']];
   },
   ct: 0,
@@ -45,7 +46,7 @@ const booleanType = {
       : (value ?? specificSchemaObject?.defaultValue);
     return ['div', {
       dataset: {type: 'boolean'},
-      title: specificSchemaObject?.description ?? 'Boolean'
+      title: schemaLabel(specificSchemaObject) ?? 'Boolean'
     }, [
       ['label', [
         'True',

@@ -146,7 +146,7 @@ var dezerializers = {
       } else if (shape.kind == "email") {
         s2 = "pattern" in shape && shape.pattern ? z.email({
           pattern: new RegExp(shape.pattern, shape.flags)
-          /* c8 ignore next -- Guard */
+          /* v8 ignore next -- Guard */
         }) : z.email();
       } else if (shape.kind === "nanoid") {
         s2 = "length" in shape ? z.nanoid({ length: shape.length }) : z.nanoid();
@@ -229,7 +229,7 @@ var dezerializers = {
           });
           return schema;
         }),
-        /* c8 ignore next 2 -- TS */
+        /* v8 ignore next 2 -- TS */
         typeof error === "string" ? error : {
           ...error,
           ...shape.format ? { format: shape.format } : {}
@@ -512,6 +512,7 @@ var dezerializers = {
     const error = getError(shape, opts);
     return z.instanceof(
       Constructor,
+      // v8 ignore next -- Appears to always return an object if pressent
       typeof error === "string" ? { error } : error
     );
   },
@@ -573,10 +574,10 @@ function dezerializeRefs(shape, opts) {
     opts.pathToSchema.set(opts.path, result);
     return result;
   }
-  if ("meta" in shape) {
+  if ("meta" in shape && shape.meta) {
     const { meta, ...rest } = shape;
     const inner = d(rest, opts);
-    const result = meta ? inner.meta(meta) : inner;
+    const result = inner.meta(meta);
     opts.pathToSchema.set(opts.path, result);
     return result;
   }
@@ -623,7 +624,7 @@ function dezerialize(shape, opts = {}) {
 import { z as z2 } from "zod";
 
 // zodexySchema.ts
-var zodexySchema_default = "https://github.com/brettz9/zodexy/releases/tag/v0.30.0";
+var zodexySchema_default = "https://github.com/brettz9/zodexy/releases/tag/v0.30.1";
 
 // zerialize.ts
 var PRIMITIVES = {
@@ -649,7 +650,7 @@ var getCustomChecksAndErrors = (def, opts) => {
       return chk == "custom";
     }).map((check) => {
       const name = Object.entries(
-        /* c8 ignore next -- TS doesn't catch */
+        /* v8 ignore next -- TS doesn't catch */
         opts.checks || {}
       ).find(([, checkFunc]) => {
         return checkFunc === check._zod.check;
@@ -716,7 +717,7 @@ var zerializers = {
           ...check._zod.def.inclusive ? { maxInclusive: true } : {}
         } : chk == "multiple_of" ? {
           multipleOf: check._zod.def.value
-          /* c8 ignore next 2 -- Guard */
+          /* v8 ignore next 2 -- Guard */
         } : {}
       };
     }, {});
@@ -773,7 +774,7 @@ var zerializers = {
               ...check._zod.def.pattern.flags ? {
                 flags: check._zod.def.pattern.flags
               } : {}
-              /* c8 ignore next 2 -- Guard */
+              /* v8 ignore next 2 -- Guard */
             } : {}
           )
         )
@@ -839,7 +840,7 @@ var zerializers = {
           multipleOf: String(
             check._zod.def.value
           )
-          /* c8 ignore next 2 -- Guard */
+          /* v8 ignore next 2 -- Guard */
         } : {}
       };
     }, {});
@@ -865,7 +866,7 @@ var zerializers = {
           max: check._zod.def.maximum
         } : chk == "mime_type" ? {
           mime: check._zod.def.mime
-          /* c8 ignore next 2 -- Guard */
+          /* v8 ignore next 2 -- Guard */
         } : {}
       };
     }, {});
@@ -890,7 +891,7 @@ var zerializers = {
           //   ? { maxInclusive: true }
           //   : {}),
         } : (
-          /* c8 ignore next -- Guard */
+          /* v8 ignore next -- Guard */
           {}
         )
       };
@@ -936,7 +937,7 @@ var zerializers = {
         } : chk == "size_equals" ? {
           minSize: check._zod.def.size,
           maxSize: check._zod.def.size
-          /* c8 ignore next 2 -- Guard */
+          /* v8 ignore next 2 -- Guard */
         } : {}
       };
     }, {});
@@ -960,7 +961,7 @@ var zerializers = {
         } : chk == "length_equals" ? {
           minLength: check._zod.def.length,
           maxLength: check._zod.def.length
-          /* c8 ignore next 2 -- Guard */
+          /* v8 ignore next 2 -- Guard */
         } : {}
       };
     }, {});
@@ -996,7 +997,7 @@ var zerializers = {
             const index = opts.symbols.indexOf(symbol);
             if (index === -1) {
               throw new Error(
-                "Symbol key and `symbols` option both present but not key found"
+                "Symbol key and `symbols` option both present but key not found"
               );
             }
             return [
@@ -1045,7 +1046,7 @@ var zerializers = {
         } : chk === "max_size" ? {
           max: check._zod.def.maximum
         } : (
-          /* c8 ignore next -- Guard */
+          /* v8 ignore next -- Guard */
           {}
         )
       };
@@ -1112,14 +1113,13 @@ var zerializers = {
   },
   transform: (def, opts) => {
     let name = null;
-    if (opts.transforms) {
-      for (const [transformName, transformItem] of Object.entries(
-        opts.transforms
-      )) {
-        if (def.type === "transform" && transformItem === def.transform) {
-          name = transformName;
-          break;
-        }
+    for (const [transformName, transformItem] of Object.entries(
+      // v8 ignore next -- Guard
+      opts.transforms ?? {}
+    )) {
+      if (def.type === "transform" && transformItem === def.transform) {
+        name = transformName;
+        break;
       }
     }
     return {
@@ -1180,7 +1180,7 @@ var zerializers = {
       value: null,
       issues: [],
       // No errors to report, so just add an empty set
-      /* c8 ignore next 3 -- Unused */
+      /* v8 ignore next 3 -- Unused */
       get error() {
         return new z2.ZodError([]);
       },

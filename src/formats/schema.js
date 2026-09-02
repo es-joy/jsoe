@@ -340,6 +340,33 @@ function getComparableConstraint (type, value) {
 }
 
 /**
+ * Merge a serialized schema's `meta` bag from a wrapping or intersecting
+ * schema into an inner one. `title`/`description` concatenate with `" and "`
+ * (mirroring how a bare `description` is merged), skipping Zodexy's
+ * `"Modifiers"` sentinel; any other key is taken from the source only when the
+ * target lacks it.
+ * @param {{[key: string]: any}|undefined} target
+ * @param {{[key: string]: any}} source
+ * @returns {{[key: string]: any}}
+ */
+function mergeMeta (target, source) {
+  const merged = {...target};
+  for (const [key, val] of Object.entries(source)) {
+    if (key === 'title' || key === 'description') {
+      if (typeof val === 'string' && val !== 'Modifiers') {
+        merged[key] = typeof merged[key] === 'string' &&
+            merged[key] !== 'Modifiers'
+          ? merged[key] + ' and ' + val
+          : val;
+      }
+    } else if (!Object.hasOwn(merged, key)) {
+      merged[key] = val && typeof val === 'object' ? copyObject(val) : val;
+    }
+  }
+  return merged;
+}
+
+/**
  * @param {ZodexSchema} leftItem
  * @param {ZodexSchema} rightItem
  * @throws {Error}
@@ -364,6 +391,11 @@ function mergeSchema (leftItem, rightItem) {
             ? existingDescription + ' and ' + val
             : val;
         }
+      } else if (prop === 'meta') {
+        newLeftObj.meta = mergeMeta(
+          /** @type {{[key: string]: any}} */ (newLeftObj.meta),
+          /** @type {{[key: string]: any}} */ (val)
+        );
       } else if (Object.hasOwn(newLeftObj, prop)) {
         if (newLeftObj[prop] !== val && !deepEqual(newLeftObj[prop], val)) {
           if (leftItem.type === 'object') {
@@ -500,6 +532,15 @@ function addModifiers (schemaObject, set) {
       obj.description = obj.description
         ? obj.description + ' and ' + schemaObject.description
         : schemaObject.description;
+    }
+  }
+
+  if (schemaObject.meta && typeof schemaObject.meta === 'object') {
+    for (const obj of set) {
+      obj.meta = mergeMeta(
+        /** @type {{[key: string]: any}} */ (obj.meta),
+        /** @type {{[key: string]: any}} */ (schemaObject.meta)
+      );
     }
   }
 }

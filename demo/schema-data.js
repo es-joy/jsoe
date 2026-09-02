@@ -677,6 +677,44 @@ const schemaInstanceJSONXor2 = {
   ]
 };
 
+// Exercises Zodexy `meta`: `meta.title` as the visible label, `meta.description`
+//   as tooltip-only long text, plus `id`, `deprecated`, a custom key, and the
+//   reserved `jsoe` directive namespace, all surfaced through the info toggle.
+const schemaInstanceJSONMeta = {
+  type: 'object',
+  meta: {
+    title: 'Widget',
+    description: 'A widget is the top-level configurable unit of the demo.',
+    id: 'widget'
+  },
+  properties: {
+    label: {
+      type: 'string',
+      meta: {
+        title: 'Display label',
+        description: 'Shown to end users; keep it under 40 characters.'
+      }
+    },
+    legacyName: {
+      type: 'string',
+      meta: {
+        title: 'Legacy name',
+        deprecated: true,
+        description: 'Retained for old integrations; use "Display label".'
+      }
+    },
+    rows: {
+      type: 'array',
+      element: {type: 'array', element: {type: 'number'}},
+      meta: {
+        title: 'Rows',
+        jsoe: {tableView: true},
+        'x-unit': 'pixels'
+      }
+    }
+  }
+};
+
 /**
  *
  */
@@ -703,5 +741,6 @@ export {
   schemaInstanceJSON7, schemaInstanceJSON8, schemaInstanceJSON9,
   schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
   schemaInstanceJSONXor, schemaInstanceJSONXor2,
+  schemaInstanceJSONMeta,
   makeNoneditableType
 };

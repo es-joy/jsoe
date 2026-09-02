@@ -2,6 +2,7 @@ import {
   jml, toStringTag, mimeStandardTypes, mimeOtherTypes
 } from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {visualize, getUserMedia, startScreenCapture} from '../utils/media.js';
 import dialogs from '../utils/dialogs.js';
 
@@ -305,9 +306,9 @@ const fileType = {
     return ['div', {dataset: {type: 'file'}}, [
       ['b', {
         class: 'emphasis',
-        title: specificSchemaObject?.description ? '(a File)' : undefined
+        title: schemaLabel(specificSchemaObject) ? '(a File)' : undefined
       }, [
-        specificSchemaObject?.description ?? 'File'
+        schemaLabel(specificSchemaObject) ?? 'File'
       ]],
       ['br'],
       ['br'],
@@ -527,7 +528,7 @@ const fileType = {
 
     return ['div', {
       dataset: {type: 'file'},
-      title: specificSchemaObject?.description ?? 'File'
+      title: schemaLabel(specificSchemaObject) ?? 'File'
     }, [
       ['fieldset', {
         class: 'fileMetaData',

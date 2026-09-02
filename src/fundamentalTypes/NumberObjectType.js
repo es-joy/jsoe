@@ -1,5 +1,6 @@
 import {toStringTag} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import numberType from './numberType.js';
 
 /**
@@ -34,7 +35,7 @@ const NumberObjectType = {
   viewUI ({value, specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'NumberObject'},
-      title: specificSchemaObject?.description ?? '(a Number Object)'
+      title: schemaLabel(specificSchemaObject) ?? '(a Number Object)'
     }, [
       specificSchemaObject ? String(value) : `Number(${value})`
     ]];
@@ -42,7 +43,7 @@ const NumberObjectType = {
   editUI ({typeNamespace, specificSchemaObject, value}) {
     return ['div', {
       dataset: {type: 'NumberObject'},
-      title: specificSchemaObject?.description ?? 'Number object'
+      title: schemaLabel(specificSchemaObject) ?? 'Number object'
     }, [
       ['input', {
         name: `${typeNamespace}-NumberObject`,

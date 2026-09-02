@@ -233,6 +233,43 @@ describe('Demo spec', () => {
       }
     );
   });
+
+  it('uses `meta.title` for the schema type label', function () {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance meta'
+    );
+    cy.get(
+      '#formatAndTypeChoices select.typeChoices-demo-keypath-not-expected ' +
+        'option'
+    ).should('contain', 'Object (Widget)');
+  });
+
+  it('reveals schema `meta` through the read-only info toggle', function () {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance meta'
+    );
+    // The lone `object` type renders directly; its own affordance is appended
+    //   last, so it is the object root's direct-child `.schema-meta`.
+    const toggle = '#formatAndTypeChoices [data-type="object"] > ' +
+      '.schema-meta > .schema-meta-toggle';
+
+    // The toggle carries every metadata row as a plain-text tooltip.
+    cy.get(toggle).
+      should('have.attr', 'title').
+      and('contain', 'ID: widget').
+      and('contain', 'Description: A widget');
+
+    // The table is built lazily on first activation.
+    cy.get(
+      '#formatAndTypeChoices [data-type="object"] > .schema-meta ' +
+        '.schema-meta-table'
+    ).should('not.exist');
+    cy.get(toggle).click();
+    cy.get(
+      '#formatAndTypeChoices [data-type="object"] > .schema-meta ' +
+        '.schema-meta-table'
+    ).should('be.visible').and('contain', 'Widget');
+  });
 });
 
 describe('`getTypesForSchema`', function () {

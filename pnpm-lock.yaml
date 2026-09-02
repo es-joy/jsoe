@@ -30,8 +30,8 @@ importers:
         specifier: ^4.5.4
         version: 4.5.4
       zodexy:
-        specifier: ^0.30.0
-        version: 0.30.0(zod@4.5.4)
+        specifier: ^0.30.1
+        version: 0.30.1(zod@4.5.4)
     devDependencies:
       '@babel/core':
         specifier: ^8.0.1
@@ -6067,8 +6067,8 @@ packages:
   zod@4.5.4:
     resolution: {integrity: sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==}
 
-  zodexy@0.30.0:
-    resolution: {integrity: sha512-wXuPkEe1YzSwz5aDqfPBQryy2qFCgp6VlDl1NkvFv6bT+9UZw/PLHVt1tq08gAKpjb72uOorzrlXetIGj7AZ2g==}
+  zodexy@0.30.1:
+    resolution: {integrity: sha512-adXDhDwhx/0nXmEjzE5ez0y8o1zzZ0FG/GYgQHwB1b/YtjEYtnrGRsd9j4I4IQO3CX50PWk8FeRDAyUochf+Rg==}
     peerDependencies:
       zod: ^4.0.x
 
@@ -10197,7 +10197,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 26.4.0
+      '@types/node': 26.4.1
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -13005,7 +13005,7 @@ snapshots:
 
   zod@4.5.4: {}
 
-  zodexy@0.30.0(zod@4.5.4):
+  zodexy@0.30.1(zod@4.5.4):
     dependencies:
       type-fest: 4.41.0
       zod: 4.5.4

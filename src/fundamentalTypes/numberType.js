@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject}
@@ -57,7 +58,7 @@ const numberType = {
   viewUI ({value, specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'number'},
-      title: specificSchemaObject?.description ?? '(a number)'
+      title: schemaLabel(specificSchemaObject) ?? '(a number)'
     }, [
       String(value)
     ]];
@@ -69,7 +70,7 @@ const numberType = {
       const selectedValue = value ?? specificSchemaObject.defaultValue;
       return ['div', {
         dataset: {type: 'number'},
-        title: specificSchemaObject.description ?? 'Number'
+        title: schemaLabel(specificSchemaObject) ?? 'Number'
       }, [
         ['select', {
           name: `${typeNamespace}-number`
@@ -120,7 +121,7 @@ const numberType = {
 
     return ['div', {
       dataset: {type: 'number'},
-      title: specificSchemaObject?.description ?? 'Number'
+      title: schemaLabel(specificSchemaObject) ?? 'Number'
     }, [
       ['input', {
         name: `${typeNamespace}-number`,

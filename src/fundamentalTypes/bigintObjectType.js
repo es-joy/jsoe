@@ -1,5 +1,6 @@
 import {hasConstructorOf} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject}
@@ -45,13 +46,13 @@ const bigintObjectType = {
   viewUI ({value, specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'bigintObject'},
-      title: specificSchemaObject?.description ?? '(a BigInt Object)'
+      title: schemaLabel(specificSchemaObject) ?? '(a BigInt Object)'
     }, [`${String(value)}n`]];
   },
   editUI ({typeNamespace, specificSchemaObject, value = ''}) {
     return ['div', {
       dataset: {type: 'bigintObject'},
-      title: specificSchemaObject?.description ?? 'BigInt object'
+      title: schemaLabel(specificSchemaObject) ?? 'BigInt object'
     }, [
       ['input', {
         name: `${typeNamespace}-bigintObject`, type: 'number', step: '1',

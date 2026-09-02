@@ -1,5 +1,6 @@
 import {toStringTag} from '../vendor-imports.js';
 import {$e, $$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject & {ct: number}}
@@ -34,7 +35,7 @@ const BooleanObjectType = {
   viewUI ({value, specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'BooleanObject'},
-      title: specificSchemaObject?.description ?? '(a Boolean Object)'
+      title: schemaLabel(specificSchemaObject) ?? '(a Boolean Object)'
     }, [specificSchemaObject ? String(value) : `Boolean(${value})`]];
   },
   ct: 0,
@@ -45,7 +46,7 @@ const BooleanObjectType = {
     this.ct++;
     return ['div', {
       dataset: {type: 'BooleanObject'},
-      title: specificSchemaObject?.description ?? 'Boolean object'
+      title: schemaLabel(specificSchemaObject) ?? 'Boolean object'
     }, [
       ['label', [
         'True',

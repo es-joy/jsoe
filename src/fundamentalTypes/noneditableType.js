@@ -1,5 +1,6 @@
 import {toStringTag} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject}
@@ -44,11 +45,11 @@ const noneditableType = {
     return ['div', {dataset: {type: 'resurrectable'}}, [
       ['b', {
         class: 'emphasis',
-        title: specificSchemaObject?.description
+        title: schemaLabel(specificSchemaObject)
           ? `(a non-editable ${stringTag})`
           : undefined
       }, [
-        specificSchemaObject?.description ?? 'Non-editable'
+        schemaLabel(specificSchemaObject) ?? 'Non-editable'
       ]],
       ['span', {
         title: 'There is no current support for editing this element\'s ' +
@@ -61,7 +62,7 @@ const noneditableType = {
   editUI ({typeNamespace, specificSchemaObject, value}) {
     return ['div', {
       dataset: {type: 'resurrectable'},
-      title: specificSchemaObject?.description ?? 'Non-editable'
+      title: schemaLabel(specificSchemaObject) ?? 'Non-editable'
     }, [
       ['a', {
         // eslint-disable-next-line no-script-url -- Safe

@@ -1,5 +1,6 @@
 import {toStringTag} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 let domExceptionNameId = 0;
 
@@ -39,7 +40,7 @@ const domexceptionType = {
   viewUI ({value, specificSchemaObject}) {
     return ['div', {
       dataset: {type: 'domexception'},
-      title: specificSchemaObject?.description ?? '(a `DOMException`)'
+      title: schemaLabel(specificSchemaObject) ?? '(a `DOMException`)'
     }, [
       ['b', ['Message ']],
       value.message,
@@ -55,7 +56,7 @@ const domexceptionType = {
     domExceptionNameId++;
     return ['div', {
       dataset: {type: 'domexception'},
-      title: specificSchemaObject?.description ?? 'DOMException'
+      title: schemaLabel(specificSchemaObject) ?? 'DOMException'
     }, [
       ['label', [
         'Name: ',

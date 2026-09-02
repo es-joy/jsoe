@@ -1,6 +1,7 @@
 /* globals InternalError -- Non-standard */
 import {errors as errorsTypesonRegistry} from 'typeson-registry';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {tick} from '../utils/timing.js';
 import {jml, hasConstructorOf} from '../vendor-imports.js';
 import arrayType from '../fundamentalTypes/arrayType.js';
@@ -320,11 +321,11 @@ const errorsSpecialType = {
     return /** @type {import('jamilih').JamilihArray} */ ([
       'div', {
         dataset: {type: 'errors'},
-        title: specificSchemaObject?.description
+        title: schemaLabel(specificSchemaObject)
           ? `(an Error ${constructor})`
           : undefined
       }, [
-        specificSchemaObject?.description ??
+        schemaLabel(specificSchemaObject) ??
           ['div', [['b', ['Error type: ']], ['span', [
             constructor
           ]]]],
@@ -484,7 +485,7 @@ const errorsSpecialType = {
       'div',
       {
         dataset: {type: 'errors'},
-        title: specificSchemaObject?.description ?? 'Special error'
+        title: schemaLabel(specificSchemaObject) ?? 'Special error'
       },
       /** @type {import('jamilih').JamilihChildren} */ ([
         ['div', [

@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 /**
  * @type {import('../types.js').TypeObject}
@@ -18,13 +19,13 @@ const nanType = {
   viewUI ({specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'nan'},
-      title: specificSchemaObject?.description ?? '(a `NaN`)'
+      title: schemaLabel(specificSchemaObject) ?? '(a `NaN`)'
     }, ['NaN']];
   },
   editUI ({typeNamespace, specificSchemaObject}) {
     return ['div', {
       dataset: {type: 'nan'},
-      title: specificSchemaObject?.description ?? 'NaN'
+      title: schemaLabel(specificSchemaObject) ?? 'NaN'
     }, [
       ['label', [
         'NaN',

@@ -1,5 +1,6 @@
 import {regexes, z} from 'zod';
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 
 const cidrv6Schema = z.cidrv6();
 
@@ -35,7 +36,7 @@ const stringType = {
       'truthy' in specificSchemaObject && 'falsy' in specificSchemaObject;
     return ['span', {
       dataset: {type: 'string'},
-      title: specificSchemaObject?.description ??
+      title: schemaLabel(specificSchemaObject) ??
         (isStringbool
           ? '(a string boolean)'
           : kind === 'email'
@@ -276,7 +277,7 @@ const stringType = {
 
     return ['div', {
       dataset: {type: 'string'},
-      title: specificSchemaObject?.description ?? 'String'
+      title: schemaLabel(specificSchemaObject) ?? 'String'
     }, [
       kind && [
         // There is a `time` and `datetime-local` but they don't

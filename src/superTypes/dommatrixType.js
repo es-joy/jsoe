@@ -1,4 +1,5 @@
 import {$e} from '../utils/templateUtils.js';
+import {schemaLabel} from '../utils/schemaMeta.js';
 import {toStringTag} from '../vendor-imports.js';
 
 let idx = 0;
@@ -230,11 +231,11 @@ const dommatrixType = {
     return ['div', {dataset: {type: 'dommatrix'}}, [
       ['b', {
         class: 'emphasis',
-        title: specificSchemaObject?.description
+        title: schemaLabel(specificSchemaObject)
           ? `(a \`${(isReadWrite ? 'DOMMatrix' : 'DOMMatrixReadOnly')}\`)`
           : undefined
       }, [
-        specificSchemaObject?.description ??
+        schemaLabel(specificSchemaObject) ??
           (isReadWrite ? 'DOMMatrix' : 'DOMMatrixReadOnly')
       ]],
       value.is2D
@@ -318,7 +319,7 @@ const dommatrixType = {
 
     return ['div', {
       dataset: {type: 'dommatrix'},
-      title: specificSchemaObject?.description ?? 'DOMMatrix'
+      title: schemaLabel(specificSchemaObject) ?? 'DOMMatrix'
     }, [
       ['div', [
         ['label', [
