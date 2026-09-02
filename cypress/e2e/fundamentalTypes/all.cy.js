@@ -23,5 +23,5 @@ import './schemaConstraints.cy.js';
 import './set.cy.js';
 import './string.cy.js';
 import './StringObject.cy.js';
-import './undefined.cy.js';
 import './templateLiteral.cy.js';
+import './undefined.cy.js';
