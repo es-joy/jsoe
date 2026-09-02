@@ -4,6 +4,7 @@ import Types from './types.js';
 
 import {$e, DOM} from './utils/templateUtils.js';
 import {isUnionLike} from './utils/types.js';
+import {getXorBranchMatchInfo} from './formats/schema.js';
 import dialogs from './utils/dialogs.js';
 import deepEqual from 'fast-deep-equal/es6/index.js';
 
@@ -178,18 +179,25 @@ function deriveXorBranchLabel (schemaObj, optText, idx) {
  * Build the `xor` (exclusive union) radio-group control. It renders a
  * labelled radio per branch and shims the `<select>` value surface
  * (`value`, `selectedIndex`, `selectedOptions`), reusing the `$`-methods of
- * the parallel `<select>` in `selectEl` by reference.
+ * the parallel `<select>` in `selectEl` by reference. A live indicator under
+ * the radios counts how many branches the current value satisfies, since
+ * `xor` requires exactly one and jsoe otherwise validates only the chosen
+ * branch's leaf schema.
  * @param {{
  *   typeNamespace: string|undefined,
  *   keySelectClass: string|undefined,
  *   typeOptions: [string, {value?: string, title?: string}?][],
  *   schemaObjs: import('zodexy').SzType[],
+ *   types: InstanceType<typeof import('./types.js').default>,
+ *   typeContainer: HTMLElement,
+ *   xorSchema: import('zodexy').SzUnion|undefined,
  *   selectEl: HTMLSelectElement
  * }} cfg
  * @returns {HTMLSelectElement}
  */
 function buildXorTypeChoices ({
-  typeNamespace, keySelectClass, typeOptions, schemaObjs, selectEl
+  typeNamespace, keySelectClass, typeOptions, schemaObjs, types,
+  typeContainer, xorSchema, selectEl
 }) {
   const radioName = `typeChoices-${typeNamespace}-xor`;
   const fieldset = jml('fieldset', {
@@ -210,6 +218,7 @@ function buildXorTypeChoices ({
           : schemaObjs[Number(idxAttr)]
       });
       /** @type {TypeChoicesElementAPI} */ (this).$setStyles();
+      updateMatchStatus();
     }}
   }, [
     ['legend', {class: 'xorTypeChoicesLegend'}, ['Exactly one of']],
@@ -225,12 +234,57 @@ function buildXorTypeChoices ({
           deriveXorBranchLabel(schemaObjs[idx], optText, idx)
         ]]
       ]];
-    })
+    }),
+    ['div', {class: 'xorMatchStatus', hidden: true}]
   ]);
 
   const radios = () => /** @type {HTMLInputElement[]} */ (
     [...fieldset.querySelectorAll('input[type="radio"]')]
   );
+
+  const matchStatus = /** @type {HTMLElement} */ (
+    $e(fieldset, '.xorMatchStatus')
+  );
+
+  /**
+   * Re-count how many `xor` branches the assembled value satisfies and
+   * reflect it in the indicator, also marking the chosen radio invalid when
+   * the count is not exactly one so the form's `checkValidity()` catches it.
+   * @returns {void}
+   */
+  function updateMatchStatus () {
+    const checked = radios().find((r) => r.checked);
+    if (!xorSchema || !checked || !$e(typeContainer, 'div[data-type]')) {
+      matchStatus.hidden = true;
+      return;
+    }
+    let value;
+    try {
+      value = /** @type {() => unknown} */ (fsAPI.$getValue)();
+    } catch {
+      // Editor not ready or value not yet parseable
+      matchStatus.hidden = true;
+      return;
+    }
+    const {matched, total} = getXorBranchMatchInfo(types, xorSchema, value);
+    // Anything but exactly one match is invalid, including a still-empty
+    //   branch (zero matches): the form must not be submittable in that
+    //   state, so we always show the indicator and set validity once a
+    //   branch is chosen.
+    const ok = matched === 1;
+    matchStatus.hidden = false;
+    matchStatus.textContent = ok
+      ? `Matches 1 of ${total} options`
+      : `Matches ${matched} of ${total} — value must match exactly one`;
+    matchStatus.classList.toggle('xorMatchOk', ok);
+    matchStatus.classList.toggle('xorMatchErr', !ok);
+    checked.setCustomValidity(
+      ok ? '' : 'Value must match exactly one option'
+    );
+  }
+
+  typeContainer.addEventListener('input', updateMatchStatus);
+  typeContainer.addEventListener('change', updateMatchStatus);
 
   const selAPI = /** @type {Record<string, unknown>} */ (
     /** @type {unknown} */ (selectEl)
@@ -331,6 +385,10 @@ export const buildTypeChoices = ({
       currentPath
     );
   };
+  // Created before the control so the `xor` radio group can bind its live
+  //   match indicator to value changes inside it
+  const typeContainer = jml('div', {class: 'typeContainer'});
+
   const selectEl = /** @type {HTMLSelectElement} */ (jml('select', {
     hidden: requireObject || typeOptions.length === 1,
     class: `typeChoices-${typeNamespace}${keySelectClass
@@ -575,8 +633,11 @@ export const buildTypeChoices = ({
 
   const sel = useXorTypeChoices
     ? buildXorTypeChoices({
-      typeNamespace, keySelectClass, typeOptions,
+      typeNamespace, keySelectClass, typeOptions, types, typeContainer,
       schemaObjs: /** @type {import('zodexy').SzType[]} */ (schemaObjs),
+      xorSchema: /** @type {import('zodexy').SzUnion} */ (
+        schemaContent?.type === 'xor' ? schemaContent : schemaOriginal
+      ),
       selectEl
     })
     : selectEl;
@@ -641,8 +702,6 @@ export const buildTypeChoices = ({
     }, 0);
   }
 
-  const typeContainer = jml('div', {class: 'typeContainer'});
-
   return {
     domArray: [
       sel,
@@ -662,9 +721,13 @@ export const buildTypeChoices = ({
 
     /** @type {ValidValuesSet} */
     validValuesSet () {
-      const root = /** @type {HTMLDivElement} */ (
+      const root = /** @type {HTMLDivElement|null} */ (
         $e(typeContainer, 'div[data-type]')
       );
+      if (!root) {
+        // No type/branch chosen yet: nothing valid has been set
+        return false;
+      }
       const form = /** @type {HTMLFormElement} */ (root.closest('form'));
       return Types.validValuesSet({form, typeNamespace});
     },

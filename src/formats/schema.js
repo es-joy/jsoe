@@ -257,6 +257,26 @@ export function recordKeyConforms (types, keySchema, key) {
 }
 
 /**
+ * Count how many branches of an `xor` (exclusive union) the value satisfies.
+ * `xor` is valid only when exactly one matches; the count drives the editor's
+ * live match indicator so an ambiguous value reads as a rule, not a glitch.
+ * @param {InstanceType<typeof import('../types.js').default>} types
+ * @param {import('zodexy').SzUnion} xorSchema
+ * @param {unknown} value
+ * @returns {{matched: number, total: number}}
+ */
+export function getXorBranchMatchInfo (types, xorSchema, value) {
+  const options = /** @type {ZodexSchema[]} */ (xorSchema.options ?? []);
+  let matched = 0;
+  for (const option of options) {
+    if (parseValue(types, option, xorSchema, value).success) {
+      matched++;
+    }
+  }
+  return {matched, total: options.length};
+}
+
+/**
  * @param {InstanceType<typeof import('../types.js').default>} types
  * @returns {NonNullable<
  *   import('zodexy').DezerializerOptions['checks']

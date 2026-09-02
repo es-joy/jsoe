@@ -35,6 +35,20 @@ fieldset.xorTypeChoices label.xorTypeChoice > input {
   flex: none;
 }
 
+/* Live "N of M branches match" indicator; `xor` needs exactly one */
+fieldset.xorTypeChoices .xorMatchStatus {
+  margin-top: 0.3em;
+  font-size: 0.85em;
+}
+
+fieldset.xorTypeChoices .xorMatchStatus.xorMatchOk {
+  color: #2e7d32;
+}
+
+fieldset.xorTypeChoices .xorMatchStatus.xorMatchErr {
+  color: #c62828;
+}
+
 b.emphasis {
   text-decoration: underline;
 }

@@ -148,6 +148,47 @@ describe('Demo spec', () => {
       'contain', 'Store credit'
     );
   });
+
+  it('flags an `xor` value that matches more than one branch', function () {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance xor'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'fieldset.xorTypeChoices input[type="radio"]').eq(0).check();
+    // `a@b.com` satisfies both the plain-text and the email branch
+    cy.get(sel + '.typeContainer textarea:first').type('a@b.com');
+    cy.get(sel + 'fieldset.xorTypeChoices .xorMatchStatus').should(
+      'have.class', 'xorMatchErr'
+    );
+    cy.get(sel + 'fieldset.xorTypeChoices .xorMatchStatus').should(
+      'contain', 'Matches 2 of 3'
+    );
+    // A value matching exactly one branch clears the warning
+    cy.get(sel + '.typeContainer textarea:first').clear();
+    cy.get(sel + '.typeContainer textarea:first').type('plain text');
+    cy.get(sel + 'fieldset.xorTypeChoices .xorMatchStatus').should(
+      'have.class', 'xorMatchOk'
+    );
+  });
+
+  it('marks an unfilled `xor` branch invalid so it cannot be submitted', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance xor 2'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'fieldset.xorTypeChoices input[type="radio"]').eq(0).check();
+    // Nothing entered yet: the empty object matches no branch
+    cy.get(sel + 'fieldset.xorTypeChoices .xorMatchStatus').should(
+      'have.class', 'xorMatchErr'
+    );
+    cy.get(sel + 'fieldset.xorTypeChoices input[type="radio"]:checked').should(
+      ($r) => {
+        expect(
+          /** @type {HTMLInputElement} */ ($r[0]).validationMessage
+        ).to.not.equal('');
+      }
+    );
+  });
 });
 
 describe('`getTypesForSchema`', function () {

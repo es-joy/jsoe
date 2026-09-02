@@ -329,8 +329,13 @@ export async function formatAndTypeChoices ({
       const root = /** @type {HTMLDivElement & {$getTypeRoot: TypeRootGetter}} */ (
         typesHolder
       ).$getTypeRoot();
+      if (!root) {
+        // No type/branch chosen yet (e.g. an untouched `xor` radio group or
+        //   union pull-down): nothing valid has been set
+        return false;
+      }
       const form = /** @type {HTMLFormElement} */ (
-        /** @type {Element} */ (root).closest('form')
+        root.closest('form')
       );
       return Types.validValuesSet({form, typeNamespace});
     },

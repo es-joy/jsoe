@@ -3,6 +3,7 @@
 ## ?
 
 - feat: add `looseRecord`
+- feat: `xor`
 - feat: adds serialization for template literals (with `parts`)
 - feat: for string schemas with kind uuid, check for version to determine regex for validation
 - feat: support schema `type: 'file'` with file type
