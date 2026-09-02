@@ -106,6 +106,48 @@ describe('Demo spec', () => {
     );
     cy.get('[data-type="number"][title="Number"]').should('exist');
   });
+
+  it('renders an `xor` schema as a radio group of branches', function () {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance xor'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'fieldset.xorTypeChoices > legend').should(
+      'contain', 'Exactly one of'
+    );
+    cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').should(
+      'have.length', 3
+    );
+    // Branch captions come from each option's `description`
+    cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').eq(1).should(
+      'contain', 'An email address'
+    );
+  });
+
+  it('edits the chosen branch of an `xor` schema', function () {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance xor'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'fieldset.xorTypeChoices input[type="radio"]').eq(0).check();
+    cy.get(sel + '.typeContainer [data-type="string"]').should('exist');
+    cy.get(sel + '.typeContainer textarea:first').type('plain text');
+    cy.get('#viewUI').click();
+    cy.get('#viewUIResults').should('contain', 'plain text');
+  });
+
+  it('captions object-branch `xor` radios from their description', function () {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance xor 2'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').eq(0).should(
+      'contain', 'Pay by card'
+    );
+    cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').eq(2).should(
+      'contain', 'Store credit'
+    );
+  });
 });
 
 describe('`getTypesForSchema`', function () {
@@ -468,5 +510,29 @@ describe('`getTypesForSchema`', function () {
     }, {
       type: 'null'
     }]);
+  });
+
+  it('flattens an `xor` (exclusive union) like a `union`', function () {
+    const schema = /** @type {import('zodexy').SzType} */ ({
+      type: 'xor',
+      options: [
+        {type: 'string'},
+        {type: 'number'}
+      ]
+    });
+
+    expect([...getTypesForSchema(schema, schema)]).to.deep.equal([
+      {type: 'string'},
+      {type: 'number'}
+    ]);
+  });
+
+  it('does not throw on an `xor` with no options', function () {
+    const schema = /** @type {import('zodexy').SzType} */ ({
+      type: 'xor',
+      options: []
+    });
+
+    expect([...getTypesForSchema(schema, schema)]).to.deep.equal([]);
   });
 });

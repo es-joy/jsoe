@@ -8,6 +8,7 @@ import {
   resolveJSONPointer, getJSONPointerParts, reduceJSONPointerParts
 } from '../utils/jsonPointer.js';
 import FileList from '../utils/FileList.js';
+import {isUnionLike} from '../utils/types.js';
 
 let optionalPropertyId = 0;
 
@@ -2224,7 +2225,7 @@ const arrayType = {
                     if (!['void', 'undefined'].includes(
                       element?.type
                     ) && (
-                      element?.type !== 'union' ||
+                      !isUnionLike(element?.type) ||
                       /** @type {import('zodexy').SzUnion} */
                       (element)?.options?.every((option) => {
                         return !['void', 'undefined'].includes(option.type);
@@ -2470,8 +2471,10 @@ const arrayType = {
               typeChoices.$setType({
                 type, baseValue: value, bringIntoFocus,
                 specificSchema:
-                  schemaIdx !== undefined && schema?.type === 'union'
-                    ? schema.options[schemaIdx]
+                  schemaIdx !== undefined && isUnionLike(schema?.type)
+                    ? /** @type {import('zodexy').SzUnion} */ (
+                      schema
+                    ).options[schemaIdx]
                     : schema,
                 avoidReport: true
               });

@@ -622,6 +622,61 @@ const schemaInstanceJSON12 = {
   ]
 };
 
+// `xor` (exclusive union): exactly one branch may match. The `string` and the
+//   email `string` overlap deliberately: a value like `a@b.com` satisfies both
+//   branches, so it is valid under `union` but invalid under `xor`.
+const schemaInstanceJSONXor = {
+  type: 'xor',
+  options: [
+    {
+      description: 'Any text',
+      type: 'string'
+    },
+    {
+      description: 'An email address',
+      type: 'string',
+      kind: 'email'
+    },
+    {
+      description: 'A number',
+      type: 'number'
+    }
+  ]
+};
+
+// `xor` of object branches: the shape best suited to a per-branch radio group.
+//   Branches carry a `description` for the branch label and differ by which
+//   properties they define.
+const schemaInstanceJSONXor2 = {
+  type: 'xor',
+  options: [
+    {
+      description: 'Pay by card',
+      type: 'object',
+      properties: {
+        cardNumber: {type: 'string', kind: 'credit_card'},
+        expiry: {type: 'string'},
+        securityCode: {type: 'string'}
+      }
+    },
+    {
+      description: 'Bank transfer',
+      type: 'object',
+      properties: {
+        iban: {type: 'string'},
+        sortCode: {type: 'string'}
+      }
+    },
+    {
+      description: 'Store credit',
+      type: 'object',
+      properties: {
+        voucherId: {type: 'string'}
+      }
+    }
+  ]
+};
+
 /**
  *
  */
@@ -647,5 +702,6 @@ export {
   schemaInstanceJSON4, schemaInstanceJSON5, schemaInstanceJSON6,
   schemaInstanceJSON7, schemaInstanceJSON8, schemaInstanceJSON9,
   schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
+  schemaInstanceJSONXor, schemaInstanceJSONXor2,
   makeNoneditableType
 };

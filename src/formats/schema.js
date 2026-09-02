@@ -6,6 +6,7 @@ import structuredCloning from './structuredCloning.js';
 
 import {resolveJSONPointer} from '../utils/jsonPointer.js';
 import {copyObject} from '../utils/objects.js';
+import {isUnionLike} from '../utils/types.js';
 import FileList from '../utils/FileList.js';
 
 /**
@@ -514,6 +515,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
       return set;
     }
     case 'discriminatedUnion':
+    case 'xor':
     case 'union': {
       /** @type {(ZodexSchema & {$discriminator?: string})[]} */
       let set = [];
@@ -808,8 +810,10 @@ const schema = {
 
     // We shouldn't have to reprocess intersections, etc., as this is our own
     //   union
-    if (typeof parentSchemaIdx === 'number' && parentSchema?.type === 'union') {
-      parentSchema = parentSchema.options[parentSchemaIdx];
+    if (typeof parentSchemaIdx === 'number' && isUnionLike(parentSchema?.type)) {
+      parentSchema = /** @type {import('zodexy').SzUnion} */ (
+        parentSchema
+      ).options[parentSchemaIdx];
     }
 
     switch (parentSchema?.type) {
@@ -973,6 +977,12 @@ const schema = {
         schema: !stateObj.rootUI ||
           (stateObj.readonly || schemaObjects.length === 1)
           ? schema
+          // This synthesized schema only drives the type-choices pull-down;
+          //   it is deliberately a plain `union` of the flattened leaf
+          //   candidates. Exclusive (`xor`) / keyed (`discriminatedUnion`)
+          //   enforcement stays with the original schema node, which
+          //   `getValidationSchema` passes through untouched to
+          //   `validateValue`.
           : {
             type: 'union',
             options: schemaObjects

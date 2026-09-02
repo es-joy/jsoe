@@ -3,6 +3,7 @@ import Formats from './formats.js';
 import Types from './types.js';
 
 import {$e, DOM} from './utils/templateUtils.js';
+import {isUnionLike} from './utils/types.js';
 import dialogs from './utils/dialogs.js';
 import deepEqual from 'fast-deep-equal/es6/index.js';
 
@@ -127,6 +128,158 @@ import deepEqual from 'fast-deep-equal/es6/index.js';
  */
 
 /**
+ * The `<select>`-shaped `$`-methods that downstream code invokes on a
+ * type-choices control. The `xor` radio group reuses these by reference from
+ * the parallel `<select>`.
+ * @type {readonly string[]}
+ */
+const typeChoicesAPIMethods = [
+  '$getValue', '$setType', '$setTypeNoEditUI', '$setStyles', '$getTypeRoot',
+  '$addAndValidateEditUI', '$addTypeAndEditUI', '$addEditUI', '$getContainer',
+  '$getTopRoot', '$validate'
+];
+
+/**
+ * Human-readable caption for one `xor` branch radio. Prefers the branch's own
+ * `description`; otherwise derives something legible from its shape so the
+ * branches can be told apart without reading schema.
+ * @param {import('zodexy').SzType|undefined} schemaObj
+ * @param {string} optText Fallback option text (already e.g. `"string"`)
+ * @param {number} idx
+ * @returns {string}
+ */
+function deriveXorBranchLabel (schemaObj, optText, idx) {
+  if (schemaObj && 'description' in schemaObj && schemaObj.description) {
+    return /** @type {string} */ (schemaObj.description);
+  }
+  if (schemaObj && schemaObj.type === 'literal') {
+    const {values} = /** @type {import('zodexy').SzLiteral<any>} */ (schemaObj);
+    if (Array.isArray(values) && values.length) {
+      return String(values[0]);
+    }
+  }
+  if (schemaObj && schemaObj.type === 'object') {
+    const {properties} = /** @type {import('zodexy').SzObject} */ (schemaObj);
+    const keys = properties && typeof properties === 'object'
+      ? Object.keys(properties)
+      : [];
+    if (keys.length) {
+      // Todo: when branches share property names, prefer the keys unique to
+      //   this branch (symmetric difference against its siblings)
+      return keys.length > 3
+        ? `${keys.slice(0, 3).join(', ')}, +${keys.length - 3} more`
+        : keys.join(', ');
+    }
+  }
+  return optText || `Option ${idx + 1}`;
+}
+
+/**
+ * Build the `xor` (exclusive union) radio-group control. It renders a
+ * labelled radio per branch and shims the `<select>` value surface
+ * (`value`, `selectedIndex`, `selectedOptions`), reusing the `$`-methods of
+ * the parallel `<select>` in `selectEl` by reference.
+ * @param {{
+ *   typeNamespace: string|undefined,
+ *   keySelectClass: string|undefined,
+ *   typeOptions: [string, {value?: string, title?: string}?][],
+ *   schemaObjs: import('zodexy').SzType[],
+ *   selectEl: HTMLSelectElement
+ * }} cfg
+ * @returns {HTMLSelectElement}
+ */
+function buildXorTypeChoices ({
+  typeNamespace, keySelectClass, typeOptions, schemaObjs, selectEl
+}) {
+  const radioName = `typeChoices-${typeNamespace}-xor`;
+  const fieldset = jml('fieldset', {
+    class: `typeChoices-${typeNamespace} xorTypeChoices${keySelectClass
+      ? ' ' + keySelectClass
+      : ''
+    }`,
+    $on: {change (e) {
+      e?.stopPropagation();
+      const idxAttr =
+        /** @type {HTMLElement} */ (e.target)?.dataset?.idx ??
+        /** @type {TypeChoicesElementAPI} */ (
+          this
+        ).selectedOptions[0]?.dataset?.idx;
+      /** @type {TypeChoicesElementAPI} */ (this).$addAndValidateEditUI({
+        schemaObject: idxAttr === undefined
+          ? undefined
+          : schemaObjs[Number(idxAttr)]
+      });
+      /** @type {TypeChoicesElementAPI} */ (this).$setStyles();
+    }}
+  }, [
+    ['legend', {class: 'xorTypeChoicesLegend'}, ['Exactly one of']],
+    ...typeOptions.map(([optText, optAtts], idx) => {
+      return ['label', {class: 'xorTypeChoice'}, [
+        ['input', {
+          type: 'radio',
+          name: radioName,
+          value: /** @type {string} */ (optAtts?.value ?? ''),
+          dataset: {idx}
+        }],
+        ['span', {class: 'xorTypeChoiceLabel'}, [
+          deriveXorBranchLabel(schemaObjs[idx], optText, idx)
+        ]]
+      ]];
+    })
+  ]);
+
+  const radios = () => /** @type {HTMLInputElement[]} */ (
+    [...fieldset.querySelectorAll('input[type="radio"]')]
+  );
+
+  const selAPI = /** @type {Record<string, unknown>} */ (
+    /** @type {unknown} */ (selectEl)
+  );
+  const fsAPI = /** @type {Record<string, unknown>} */ (
+    /** @type {unknown} */ (fieldset)
+  );
+  for (const method of typeChoicesAPIMethods) {
+    fsAPI[method] = selAPI[method];
+  }
+
+  Object.defineProperties(fieldset, {
+    value: {
+      configurable: true,
+      get () {
+        return radios().find((r) => r.checked)?.value ?? '';
+      },
+      set (v) {
+        const match = radios().find((r) => r.value === v);
+        for (const r of radios()) {
+          r.checked = r === match;
+        }
+      }
+    },
+    selectedIndex: {
+      configurable: true,
+      get () {
+        const i = radios().findIndex((r) => r.checked);
+        return i === -1 ? 0 : i + 1;
+      },
+      set (i) {
+        radios().forEach((r, idx) => {
+          r.checked = idx === Number(i) - 1;
+        });
+      }
+    },
+    selectedOptions: {
+      configurable: true,
+      get () {
+        const r = radios().find((rd) => rd.checked);
+        return r ? [{value: r.value, dataset: {idx: r.dataset.idx}}] : [];
+      }
+    }
+  });
+
+  return /** @type {HTMLSelectElement} */ (/** @type {unknown} */ (fieldset));
+}
+
+/**
  * @type {BuildTypeChoices}
  */
 export const buildTypeChoices = ({
@@ -178,7 +331,7 @@ export const buildTypeChoices = ({
       currentPath
     );
   };
-  const sel = /** @type {HTMLSelectElement} */ (jml('select', {
+  const selectEl = /** @type {HTMLSelectElement} */ (jml('select', {
     hidden: requireObject || typeOptions.length === 1,
     class: `typeChoices-${typeNamespace}${keySelectClass
       ? ' ' + keySelectClass
@@ -294,8 +447,10 @@ export const buildTypeChoices = ({
           format,
           topRoot,
           schemaContent: schemaOriginal ??
-            (schemaIdx !== undefined && schemaContent?.type === 'union'
-              ? schemaContent.options[schemaIdx]
+            (schemaIdx !== undefined && isUnionLike(schemaContent?.type)
+              ? /** @type {import('zodexy').SzUnion} */ (
+                schemaContent
+              ).options[schemaIdx]
               : schemaContent),
           // Added `schemaContent` as inner arrays were not getting their
           //   schema info; this apparently allows (actually requires)
@@ -308,9 +463,11 @@ export const buildTypeChoices = ({
             (schemaObjs?.[sel.selectedIndex - 1]) ??
 
             /* istanbul ignore next -- Can probably remove as `schemaObjs` will be set */
-            (schemaIdx !== undefined && schemaContent?.type === 'union'
+            (schemaIdx !== undefined && isUnionLike(schemaContent?.type)
               /* istanbul ignore next -- Can probably remove */
-              ? schemaContent.options[schemaIdx]
+              ? /** @type {import('zodexy').SzUnion} */ (
+                schemaContent
+              ).options[schemaIdx]
               // This is probably just `undefined` by here
               : schemaContent),
           schemaFallingBack: Boolean(!schemaObject && schemaContent)
@@ -404,6 +561,26 @@ export const buildTypeChoices = ({
       }
     )
   ]));
+
+  // `xor` (exclusive union): exactly one branch may match. Present it as a
+  //   labelled radio group ("choose exactly one of these") rather than the
+  //   flat type pull-down; the layout conveys the rule without the reader
+  //   needing to know the term. The element still exposes the
+  //   `<select>`-shaped surface (`value`, `selectedIndex`, `selectedOptions`,
+  //   the `$`-methods) that the rest of the type machinery reads.
+  const useXorTypeChoices = Boolean(
+    schemaObjs && !requireObject && typeOptions.length > 1 &&
+    (schemaContent?.type === 'xor' || schemaOriginal?.type === 'xor')
+  );
+
+  const sel = useXorTypeChoices
+    ? buildXorTypeChoices({
+      typeNamespace, keySelectClass, typeOptions,
+      schemaObjs: /** @type {import('zodexy').SzType[]} */ (schemaObjs),
+      selectEl
+    })
+    : selectEl;
+
   if (autoTrigger && !setValue && typeOptions.length === 1) {
     setTimeout(() => {
       if (!sel.isConnected) {
