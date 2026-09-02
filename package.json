@@ -68,7 +68,7 @@
     "jamilih": "0.69.0",
     "mime": "^4.1.0",
     "sceditor": "3.2.1",
-    "typeson-registry": "14.4.0",
+    "typeson-registry": "14.5.0",
     "zod": "^4.5.4",
     "zodexy": "^0.30.0"
   },
@@ -84,7 +84,7 @@
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
     "@types/jsdom": "^30.0.0",
-    "@types/node": "^26.4.0",
+    "@types/node": "^26.4.1",
     "axe-core": "^4.13.0",
     "coveradge": "^0.8.2",
     "cypress": "^16.0.0",

@@ -18,6 +18,8 @@ export const structuredCloningJsoe = structuredCloningForStorage.filter(
       'imagedata',
       'imagebitmap',
       'domquad',
+      'quotaexceedederror',
+      'webtransporterror',
       'cryptokey',
       'audiodata',
       'encodedaudiochunk',

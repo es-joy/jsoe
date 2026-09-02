@@ -2389,7 +2389,7 @@ const arrayType = {
      *   $addAndSetArrayElement:
      *     import('../formats/structuredCloning.js').AddAndSetArrayElement,
      *   $addArrayElement: AddArrayElement,
-     *   $getArrayItems: () => HTMLElement,
+     *   $getArrayItems: GetArrayItems,
      *   $getAddArrayElement: GetAddArrayElement,
      *   $getTypeChoices: () => HTMLSelectElement & {
      *     $setType: import('../typeChoices.js').SetType,
@@ -2537,10 +2537,10 @@ const arrayType = {
             },
             /**
              * @this {DivArrayOrObjectHolder}
-             * @returns {HTMLElement}
+             * @type {GetArrayItems}
              */
             $getArrayItems () {
-              return /** @type {HTMLElement} */ (
+              return /** @type {ReturnType<GetArrayItems>} */ (
                 this.$getAddArrayElement().previousElementSibling
               );
             },
