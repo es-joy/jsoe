@@ -888,9 +888,16 @@ const schema = {
     //   is not necessarily the best one: a bare `{type: 'object', properties:
     //   {}}` option strips unrecognized keys, so it parses successfully (with
     //   data loss) even when a sibling option describes the value's actual
-    //   shape. Prefer an option that round-trips the value losslessly and fall
-    //   back to the first structural match only if none does.
+    //   shape. Prefer an option that round-trips the value losslessly, then one
+    //   that at least parses, and only then one that merely matches the value's
+    //   kind. Preserving that last tier matters for a preloaded value that is
+    //   the right type but violates a refinement (a `File` whose MIME type is
+    //   outside the schema's `mime`, an array shorter than `min`, …): the
+    //   control should still carry its schema (and description), with the
+    //   violation surfaced by value-level validation, rather than degrading to
+    //   an untyped control.
     let fallbackMatch;
+    let structuralMatch;
     for (const [schemaIdx, schema] of schemaObjects.entries()) {
       const type = getSchemaType(schema);
 
@@ -915,45 +922,50 @@ const schema = {
         ? {success: true}
         : dezSchema.safeParse(v);
       // console.log('parsed', parsed.success, v, schema);
+
+      /**
+       * @type {{
+       *   type: import('../types.js').AvailableArbitraryType|undefined,
+       *   schema?: import('zodexy').SzType,
+       *   mustBeOptional?: boolean,
+       *   schemaIdx?: number
+       * }}
+       */
+      const match = {
+        type,
+        schemaIdx,
+        // For `readonly`, we just want to show the current type (no
+        //   pull-down)
+        schema: !stateObj.rootUI ||
+          (stateObj.readonly || schemaObjects.length === 1)
+          ? schema
+          : {
+            type: 'union',
+            options: schemaObjects
+          },
+        mustBeOptional
+      };
+
       if (parsed.success) {
         // console.log(
         //   'matched', v, v?.length, type, schema, schemaIdx, schemaObjects
         // );
-        /**
-         * @type {{
-         *   type: import('../types.js').AvailableArbitraryType|undefined,
-         *   schema?: import('zodexy').SzType,
-         *   mustBeOptional?: boolean,
-         *   schemaIdx?: number
-         * }}
-         */
-        const match = {
-          type,
-          schemaIdx,
-          // For `readonly`, we just want to show the current type (no
-          //   pull-down)
-          schema: !stateObj.rootUI ||
-            (stateObj.readonly || schemaObjects.length === 1)
-            ? schema
-            : {
-              type: 'union',
-              options: schemaObjects
-            },
-          mustBeOptional
-        };
         if (
           type === 'promise' ||
           ('data' in parsed && deepEqual(parsed.data, v))
         ) {
           return match;
         }
-        if (!fallbackMatch) {
-          fallbackMatch = match;
-        }
+        fallbackMatch ??= match;
+      } else {
+        structuralMatch ??= match;
       }
     }
     if (fallbackMatch) {
       return fallbackMatch;
+    }
+    if (structuralMatch) {
+      return structuralMatch;
     }
     return {type: typesonType};
   },
