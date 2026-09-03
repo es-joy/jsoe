@@ -1,6 +1,6 @@
 # CHANGES TO `@es-joy/jsoe`
 
-## ?
+## 0.25.0
 
 - feat: surface schema `meta` in viewUI/editUI: `meta.title` is now the
     preferred source for a type's visible label/tooltip (falling back to
