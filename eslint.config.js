@@ -110,7 +110,8 @@ export default [
 
       // Good but slow
       // 'jsdoc/no-unnecessary-type-assertion': ['error', {
-      //   checkLiteralConstAssertions: false,
+      //   checkLiteralConstAssertions: true,
+      //   preferConstToLiteralTuples: true,
       //   treatAnyAsRedundant: false,
       //   typesToIgnore: [
       //     `import('../types.js').SuperTypeObject`
