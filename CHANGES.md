@@ -1,5 +1,10 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.26.0
+
+- feat: awaitable readiness for deferred type/editor builds
+- feat: awaitable readiness for type-choices builds (whenReady / $whenReady)
+
 ## 0.25.1
 
 - fix: retry if select not connected

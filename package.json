@@ -1,6 +1,6 @@
 {
   "name": "@es-joy/jsoe",
-  "version": "0.25.1",
+  "version": "0.26.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "main": "./src/index.js",

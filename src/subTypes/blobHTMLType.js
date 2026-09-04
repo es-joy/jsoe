@@ -5,6 +5,7 @@ import {schemaLabel} from '../utils/schemaMeta.js';
 
 import dialogs from '../utils/dialogs.js';
 import {isNullish} from '../utils/types.js';
+import {whenConnected} from '../utils/timing.js';
 
 /**
  * @typedef {HTMLTextAreaElement & {
@@ -146,14 +147,11 @@ const blobHTMLType = {
     //   connected to the document. The caller attaches `root` after the build
     //   pipeline returns, and re-parenting an SCEditor iframe reloads it, so we
     //   wait here for connection rather than initialising eagerly (or letting
-    //   the build pipeline await us, which would deadlock).
-    let connectionTries = 0;
-    const createWhenConnected = () => {
-      if (!textarea.isConnected) {
-        /* istanbul ignore else -- Bounded guard against a never-attached UI */
-        if (connectionTries++ < 250) {
-          setTimeout(createWhenConnected, 20);
-        }
+    //   the build pipeline await us, which would deadlock). The wait is bounded
+    //   (`whenConnected`) so a never-attached editor is abandoned, not polled
+    //   forever.
+    (async () => {
+      if (!await whenConnected(textarea, 250)) {
         return;
       }
       // Push onto these: https://www.sceditor.com/documentation/formats/xhtml/
@@ -199,8 +197,7 @@ const blobHTMLType = {
           this
         ).setValue({root, value});
       }
-    };
-    setTimeout(createWhenConnected, 0);
+    })();
     return [root];
   }
 };

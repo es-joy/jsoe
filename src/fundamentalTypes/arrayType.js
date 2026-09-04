@@ -12,6 +12,7 @@ import {
 } from '../utils/jsonPointer.js';
 import FileList from '../utils/FileList.js';
 import {isUnionLike} from '../utils/types.js';
+import {tick} from '../utils/timing.js';
 
 let optionalPropertyId = 0;
 
@@ -2253,13 +2254,21 @@ const arrayType = {
                       const diff = (/^\d+$/u).test(prev)
                         ? Math.trunc(Number(this.value)) - Math.trunc(Number(prev))
                         : 0;
-                      for (let i = 0; i < diff; i++) {
-                        // Timeout needed by Cypress at least or will get
-                        //   validation triggered which prevents moving forward
-                        setTimeout(() => {
+                      // Grow the array to the new length outside this `change`
+                      //   event's synchronous phase: `$addArrayElement` runs
+                      //   `$validate` / `$resort` on the sibling property
+                      //   inputs, and doing that mid-`change` aborts the
+                      //   interaction (a native validation bubble, a re-sort
+                      //   that detaches nodes) before the length change lands.
+                      //   Yield a tick before each add so each completes in
+                      //   order rather than racing N queued timers.
+                      (async () => {
+                        for (let i = 0; i < diff; i++) {
+                          // eslint-disable-next-line no-await-in-loop -- Ordered by design
+                          await tick();
                           div.$addArrayElement({});
-                        }, 0);
-                      }
+                        }
+                      })();
                     }
                   }
                   this.$oldvalue = this.value;
