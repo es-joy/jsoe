@@ -6,7 +6,32 @@ import {$e, DOM} from './utils/templateUtils.js';
 import {isUnionLike} from './utils/types.js';
 import {getXorBranchMatchInfo, valueMatchesSchema} from './formats/schema.js';
 import dialogs from './utils/dialogs.js';
+import {tick} from './utils/timing.js';
 import deepEqual from 'fast-deep-equal/es6/index.js';
+
+/**
+ * A deferred `setValue`/auto-select runs a tick after the control is built, but
+ * the caller may only connect it to the document on a deferred tick of its own
+ * (e.g. `setTimeout(0)` DOM insertion). Wait this many ticks for the connection
+ * before giving up, rather than dropping the pre-set value on the first miss.
+ */
+const MAX_CONNECT_WAIT_TICKS = 50;
+
+/**
+ * @param {HTMLSelectElement} sel
+ * @returns {Promise<boolean>} Whether `sel` became connected within the bound.
+ */
+const waitForConnection = async (sel) => {
+  for (
+    let waited = 0;
+    !sel.isConnected && waited < MAX_CONNECT_WAIT_TICKS;
+    waited++
+  ) {
+    // eslint-disable-next-line no-await-in-loop -- Sequential by design
+    await tick();
+  }
+  return sel.isConnected;
+};
 
 // This is technically just `import('./index.js').SetType`, but our
 //   redirect file causes problems, so we redefine here
@@ -663,8 +688,8 @@ export const buildTypeChoices = ({
     : selectEl;
 
   if (autoTrigger && !setValue && typeOptions.length === 1) {
-    setTimeout(() => {
-      if (!sel.isConnected) {
+    setTimeout(async () => {
+      if (!await waitForConnection(sel)) {
         return;
       }
       sel.selectedIndex = 1;
@@ -672,7 +697,7 @@ export const buildTypeChoices = ({
     }, 0);
   } else if (setValue || (requireObject && !objectHasValue)) {
     setTimeout(async () => {
-      if (!sel.isConnected) {
+      if (!await waitForConnection(sel)) {
         return;
       }
       if (!setValue) { // if (requireObject && !objectHasValue) {

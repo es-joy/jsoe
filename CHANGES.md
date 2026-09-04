@@ -1,5 +1,9 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.25.1
+
+- fix: retry if select not connected
+
 ## 0.25.0
 
 - feat: surface schema `meta` in viewUI/editUI: `meta.title` is now the
