@@ -43,9 +43,19 @@ import {$e, DOM} from './utils/templateUtils.js';
  */
 
 /**
+ * Settles once the most recently built type choices have finished their
+ * deferred build work. `await` it (or the `whenReady` on the
+ * `formatAndTypeChoices` result) instead of guessing a `setTimeout` delay
+ * after `$setFormat` / a format change.
+ * @callback WhenReady
+ * @returns {Promise<void>}
+ */
+
+/**
  * @typedef {HTMLSelectElement & {
  *   $setFormat: SetFormat,
- *   $buildTypeChoices: TypeChoiceBuilder
+ *   $buildTypeChoices: TypeChoiceBuilder,
+ *   $whenReady: WhenReady
  * }} FormatChoices
  */
 
@@ -151,6 +161,7 @@ export const getFormatAndSchemaChoices = ({
  *   getType: () => string,
  *   validValuesSet: () => boolean,
  *   setValue: SetValue,
+ *   whenReady: Promise<void>,
  *   formats: import('./formats.js').default,
  *   types: import('./types.js').default
  * }>} The selector for types and the container for them. Both should be
@@ -179,6 +190,12 @@ export async function formatAndTypeChoices ({
     : arbitraryJS
       ? 'arbitraryJS'
       : 'structuredCloning';
+
+  // Tracks the `whenReady` of the type choices currently in `typesHolder`,
+  //   updated on every (re)build so `$whenReady()` and the returned
+  //   `whenReady` always reflect the latest control.
+  let typeChoicesReady = /** @type {Promise<void>} */ (Promise.resolve());
+
   const formatChoices = /** @type {FormatChoices} */ (jml('select', {
     class: 'formatChoices',
     hidden: singleValue,
@@ -200,12 +217,19 @@ export async function formatAndTypeChoices ({
       },
 
       /**
+       * @type {WhenReady}
+       */
+      $whenReady () {
+        return typeChoicesReady;
+      },
+
+      /**
        * @type {TypeChoiceBuilder}
        */
       async $buildTypeChoices (autoTrigger) {
         DOM.removeChildren(typesHolder);
         const {schema} = this.selectedOptions[0].dataset;
-        jml({'#': buildTypeChoices({
+        const built = buildTypeChoices({
           autoTrigger,
           topRoot: /** @type {HTMLDivElement} */ (
             $e(typesHolder, 'div[data-type]')
@@ -223,7 +247,10 @@ export async function formatAndTypeChoices ({
           schemaContent: schema
             ? await getSchemaContent?.(schema)
             : undefined
-        }).domArray}, typesHolder);
+        });
+        typeChoicesReady = built.whenReady;
+        jml({'#': built.domArray}, typesHolder);
+        await built.whenReady;
       }
     },
     $on: {
@@ -266,7 +293,7 @@ export async function formatAndTypeChoices ({
     ? formatChoices.selectedOptions[0].dataset.schema
     : undefined;
 
-  jml({'#': buildTypeChoices({
+  const initialTypeChoices = buildTypeChoices({
     // resultType: 'both',
     topRoot: /** @type {HTMLDivElement} */ ($e(typesHolder, 'div[data-type]')),
     format,
@@ -279,7 +306,9 @@ export async function formatAndTypeChoices ({
     schemaContent: schema === undefined
       ? undefined
       : await getSchemaContent?.(schema)
-  }).domArray}, typesHolder);
+  });
+  typeChoicesReady = initialTypeChoices.whenReady;
+  jml({'#': initialTypeChoices.domArray}, typesHolder);
 
   return {
     formats,
@@ -288,6 +317,14 @@ export async function formatAndTypeChoices ({
     typesHolder,
     // Easier for Jamilih
     domArray: [formatChoices, typesHolder],
+
+    /**
+     * Settles once the initial type choices have finished their deferred
+     *   build work. After a later `$setFormat` / format change, use
+     *   `formatChoices.$whenReady()` for the current control instead.
+     * @type {Promise<void>}
+     */
+    whenReady: typeChoicesReady,
 
     // Normal API
 

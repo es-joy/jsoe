@@ -270,65 +270,72 @@ const functionType = {
       }
     );
 
+    const buildFnTypeChoices =
+      /** @type {import('../typeChoices.js').BuildTypeChoices} */ (
+        buildTypeChoices
+      );
+    const argsChoices = buildFnTypeChoices({
+      // resultType,
+      topRoot: /** @type {HTMLDivElement} */ (topRoot),
+      format: 'schema', // We're always supplying a schema
+      // schemaOriginal: schemaContent,
+      schemaContent: args,
+      state: type,
+      // itemIndex,
+      typeNamespace
+    });
+    const bodyChoices = buildFnTypeChoices({
+      // resultType,
+      topRoot: /** @type {HTMLDivElement} */ (topRoot),
+      format: 'schema', // We're always supplying a schema
+      // schemaOriginal: schemaContent,
+      schemaContent: {type: 'string'},
+      state: type,
+      // itemIndex,
+      typeNamespace
+    });
+
     const div = jml('div', {dataset: {type: 'function'}}, [
       ['b', ['Arguments']],
       ['br'],
-
-      ...(/** @type {import('../typeChoices.js').BuildTypeChoices} */ (
-        buildTypeChoices
-      )({
-        // resultType,
-        topRoot: /** @type {HTMLDivElement} */ (topRoot),
-        format: 'schema', // We're always supplying a schema
-        // schemaOriginal: schemaContent,
-        schemaContent: args,
-        state: type,
-        // itemIndex,
-        typeNamespace
-      }).domArray),
-
+      ...argsChoices.domArray,
       ['b', ['Function body']],
       ['br'],
-      ...(/** @type {import('../typeChoices.js').BuildTypeChoices} */ (
-        buildTypeChoices
-      )({
-        // resultType,
-        topRoot: /** @type {HTMLDivElement} */ (topRoot),
-        format: 'schema', // We're always supplying a schema
-        // schemaOriginal: schemaContent,
-        schemaContent: {type: 'string'},
-        state: type,
-        // itemIndex,
-        typeNamespace
-      }).domArray)
+      ...bodyChoices.domArray
+    ]);
+
+    // Both type-choice controls build their edit UI (the argument and body
+    //   textareas) a tick after they are connected. Wait on their `whenReady`
+    //   rather than guessing with nested `setTimeout`s.
+    const whenControlsReady = Promise.all([
+      argsChoices.whenReady, bodyChoices.whenReady
     ]);
 
     if (value) {
-      setTimeout(() => {
+      (async () => {
         // Fire-and-forget population; swallow rejections from a still-settling
         //   editor so they cannot surface as an unhandled rejection.
-        setValueAndTooltips({
-          root: div,
-          value,
-          specificSchemaObject
-        // eslint-disable-next-line promise/prefer-await-to-then -- Convenient
-        }).catch(() => { /* best-effort */ });
-      }, 0);
+        try {
+          await whenControlsReady;
+          await setValueAndTooltips({root: div, value, specificSchemaObject});
+        } catch {
+          // best-effort
+        }
+      })();
     } else if (specificSchemaObject) {
-      setTimeout(() => {
-        setTimeout(() => {
-          // Should have some empty textareas by now
-          const textareas = /** @type {HTMLTextAreaElement[]} */ (
-            $$e(div, 'textarea')
-          );
-          const textareaBody = /** @type {HTMLTextAreaElement} */ (
-            textareas.pop()
-          );
-          setTooltips({
-            root: div, specificSchemaObject, textareas, textareaBody
-          });
-        }, 0);
-      }, 0);
+      (async () => {
+        await whenControlsReady;
+        // The auto-triggered controls have their textareas by now.
+        const textareas = /** @type {HTMLTextAreaElement[]} */ (
+          $$e(div, 'textarea')
+        );
+        const textareaBody = /** @type {HTMLTextAreaElement} */ (
+          textareas.pop()
+        );
+        setTooltips({
+          root: div, specificSchemaObject, textareas, textareaBody
+        });
+      })();
     }
 
     return [div];

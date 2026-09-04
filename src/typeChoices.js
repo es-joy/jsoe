@@ -86,6 +86,10 @@ const waitForConnection = async (sel) => {
  */
 
 /**
+ * @typedef {() => Promise<void>} WhenReady
+ */
+
+/**
  * @typedef {HTMLSelectElement & {
  *   $addAndValidateEditUI: AddAndValidateEditUI,
  *   $setStyles: SetStyles,
@@ -94,7 +98,8 @@ const waitForConnection = async (sel) => {
  *   $getTopRoot: () => HTMLDivElement,
  *   $addEditUI: AddEditUI,
  *   $validate: Validate,
- *   $setTypeNoEditUI: SetTypeNoEditUI
+ *   $setTypeNoEditUI: SetTypeNoEditUI,
+ *   $whenReady: WhenReady
  * }} TypeChoicesElementAPI
  */
 
@@ -149,7 +154,8 @@ const waitForConnection = async (sel) => {
  *   getValue: GetValue,
  *   getType: GetType,
  *   validValuesSet: ValidValuesSet,
- *   setValue: SetValue
+ *   setValue: SetValue,
+ *   whenReady: Promise<void>
  * }}
  */
 
@@ -162,7 +168,7 @@ const waitForConnection = async (sel) => {
 const typeChoicesAPIMethods = [
   '$getValue', '$setType', '$setTypeNoEditUI', '$setStyles', '$getTypeRoot',
   '$addAndValidateEditUI', '$addTypeAndEditUI', '$addEditUI', '$getContainer',
-  '$getTopRoot', '$validate'
+  '$getTopRoot', '$validate', '$whenReady'
 ];
 
 /**
@@ -413,6 +419,24 @@ export const buildTypeChoices = ({
 
   let editUI;
 
+  /**
+   * `whenReady` resolves once the deferred (auto-trigger / `setValue`) build
+   *   work scheduled at the end of this function has finished and its edit UI
+   *   is in place — or on the next tick when there is no deferred work.
+   *   Callers that need to read from, validate, or drive the control
+   *   immediately after building it can `await` it instead of guessing with a
+   *   `setTimeout`. It always settles (within `MAX_CONNECT_WAIT_TICKS` even if
+   *   the control never connects), so awaiting it cannot hang.
+   * @type {() => void}
+   */
+  let markReady;
+  const whenReady = /** @type {Promise<void>} */ (
+    // eslint-disable-next-line promise/avoid-new, unicorn/prefer-promise-with-resolvers -- Target lib predates `Promise.withResolvers`
+    new Promise((resolve) => {
+      markReady = resolve;
+    })
+  );
+
   /** @type {GetValue} */
   const $getValue = (stateObj, currentPath) => {
     const root = /** @type {HTMLDivElement} */ (
@@ -443,6 +467,12 @@ export const buildTypeChoices = ({
     // is: 'type-choices',
     $custom: {
       $getValue,
+      /**
+       * @type {WhenReady}
+       */
+      $whenReady () {
+        return whenReady;
+      },
       /**
        * @this {TypeChoicesElementAPI}
        * @param {Parameters<SetType>[0]} cfg
@@ -689,61 +719,78 @@ export const buildTypeChoices = ({
 
   if (autoTrigger && !setValue && typeOptions.length === 1) {
     setTimeout(async () => {
-      if (!await waitForConnection(sel)) {
-        return;
+      try {
+        if (!await waitForConnection(sel)) {
+          return;
+        }
+        sel.selectedIndex = 1;
+        sel.dispatchEvent(new Event('change'));
+      } finally {
+        markReady();
       }
-      sel.selectedIndex = 1;
-      sel.dispatchEvent(new Event('change'));
     }, 0);
   } else if (setValue || (requireObject && !objectHasValue)) {
     setTimeout(async () => {
-      if (!await waitForConnection(sel)) {
-        return;
-      }
-      if (!setValue) { // if (requireObject && !objectHasValue) {
-        // Todo (low): We could auto-populate keypath if has
-        //   keypath (and we probably also only want if
-        //   not autoincrement)
-        value = {};
-      }
       try {
-        const {
-          rootUI: rootEditUI,
-          specificSchemas
-        } = await formats.getControlsForFormatAndValue(
-          types,
-          format,
-          value,
-          {
-            readonly: false,
-            typeNamespace,
-            schema,
-            schemaContent,
-            formats,
-            types
-          }
-        );
-        const type =
-          Types.getTypeForRoot(/** @type {HTMLDivElement} */ (
-            rootEditUI
-          ));
-        /** @type {HTMLSelectElement & {$addTypeAndEditUI: AddTypeAndEditUI}} */ (
-          sel
-        ).$addTypeAndEditUI({
-          type,
-          editUI: rootEditUI,
-          // We do actually want the first one
-          specificSchema: specificSchemas?.[0]
-        });
-      } catch (err) {
-        /* istanbul ignore next -- At least some errors handled earlier */
-        dialogs.alert({
-          message: 'The object to be added had types not supported ' +
-            'by the current format.'
-        });
-        /* istanbul ignore next -- How to trigger? */
-        console.log('err', err);
+        if (!await waitForConnection(sel)) {
+          return;
+        }
+        if (!setValue) { // if (requireObject && !objectHasValue) {
+          // Todo (low): We could auto-populate keypath if has
+          //   keypath (and we probably also only want if
+          //   not autoincrement)
+          value = {};
+        }
+        try {
+          const {
+            rootUI: rootEditUI,
+            specificSchemas
+          } = await formats.getControlsForFormatAndValue(
+            types,
+            format,
+            value,
+            {
+              readonly: false,
+              typeNamespace,
+              schema,
+              schemaContent,
+              formats,
+              types
+            }
+          );
+          const type =
+            Types.getTypeForRoot(/** @type {HTMLDivElement} */ (
+              rootEditUI
+            ));
+          /**
+           * @type {HTMLSelectElement & {$addTypeAndEditUI: AddTypeAndEditUI}}
+           */ (
+            sel
+          ).$addTypeAndEditUI({
+            type,
+            editUI: rootEditUI,
+            // We do actually want the first one
+            specificSchema: specificSchemas?.[0]
+          });
+        } catch (err) {
+          /* istanbul ignore next -- At least some errors handled earlier */
+          dialogs.alert({
+            message: 'The object to be added had types not supported ' +
+              'by the current format.'
+          });
+          /* istanbul ignore next -- How to trigger? */
+          console.log('err', err);
+        }
+      } finally {
+        markReady();
       }
+    }, 0);
+  } else {
+    // No deferred build work; still settle on a later tick so `$whenReady()`
+    //   behaves consistently for callers that connect `sel` on a deferred
+    //   tick of their own.
+    setTimeout(() => {
+      markReady();
     }, 0);
   }
 
@@ -752,6 +799,13 @@ export const buildTypeChoices = ({
       sel,
       typeContainer
     ],
+
+    /**
+     * Settles once the deferred build work (if any) scheduled above has
+     *   finished; `await` it instead of guessing a `setTimeout` delay.
+     * @type {Promise<void>}
+     */
+    whenReady,
 
     /** @type {GetValue} */
     getValue: $getValue,
