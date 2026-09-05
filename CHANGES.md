@@ -1,6 +1,6 @@
 # CHANGES TO `@es-joy/jsoe`
 
-## ?
+## 0.26.1
 
 - fix: validate invalid regexp source edits
 - fix: schema editor readiness and zodexy schema rendering
