@@ -1,8 +1,29 @@
 import Types, {
   getPropertyValueFromLegend
 } from '#jsoe/types.js';
-import {typeChoices} from '#jsoe/index.js';
+import {formatAndTypeChoices, typeChoices} from '#jsoe/index.js';
 import {getTypesForSchema} from '#jsoe/formats/schema.js';
+
+/**
+ * @param {ParentNode} root
+ * @returns {Promise<void>}
+ */
+async function whenAllTypeChoicesReady (root) {
+  let settledCount = -1;
+  for (;;) {
+    const choices = [...root.querySelectorAll('select[class*="typeChoices-"]')];
+    // eslint-disable-next-line no-await-in-loop -- Each pass may reveal more nested choices
+    await Promise.all(choices.map((select) => {
+      return /** @type {{ $whenReady?: () => Promise<void> }} */ (
+        select
+      ).$whenReady?.() ?? Promise.resolve();
+    }));
+    if (choices.length === settledCount) {
+      return;
+    }
+    settledCount = choices.length;
+  }
+}
 
 describe('`getPropertyValueFromLegend`', function () {
   beforeEach(() => {
@@ -98,6 +119,65 @@ describe('`typeChoices`', function () {
       'Object (Second branch)'
     );
     expect(document.body.textContent).to.contain('secondOnly');
+  });
+
+  it('renders schema record entries when setting an existing schema value', async function () {
+    const schemaContent = /** @type {import('zodexy').SzObject} */ ({
+      type: 'object',
+      properties: {
+        type: {
+          type: 'literal',
+          values: ['object']
+        },
+        properties: {
+          type: 'record',
+          key: {
+            type: 'string'
+          },
+          value: {
+            type: 'union',
+            options: [
+              {
+                type: 'object',
+                properties: {
+                  type: {
+                    type: 'literal',
+                    values: ['boolean']
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    });
+    const {
+      formatChoices, typesHolder, setValue, whenReady
+    } = await formatAndTypeChoices({
+      schemas: ['schema'],
+      selectedSchema: 'schema',
+      getSchemaContent: () => Promise.resolve(schemaContent),
+      hasValue: false,
+      singleValue: true,
+      typeNamespace: 'existing-schema'
+    });
+    document.body.append(formatChoices, typesHolder);
+    await whenReady;
+    await setValue({
+      type: 'object',
+      properties: {
+        abc: {
+          type: 'boolean'
+        }
+      }
+    }, {
+      readonly: false,
+      typeNamespace: 'existing-schema',
+      schemaContent
+    });
+    await whenAllTypeChoicesReady(typesHolder);
+
+    expect(document.body.textContent).to.contain('abc');
   });
 });
 
