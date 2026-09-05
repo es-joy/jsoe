@@ -202,7 +202,8 @@ export const getPropertyValueFromLegend = (legend) => {
 
 /**
  * @typedef {(cfg: {
- *   topRoot: RootElement
+ *   topRoot: RootElement,
+ *   avoidReport?: boolean
  * }) => void} ValidateAllReferences
  */
 
@@ -391,7 +392,8 @@ export const getPropertyValueFromLegend = (legend) => {
  * }} [validate] Message will be used if validity is false.
  * @property {(info: {
  *   topRoot: HTMLDivElement,
- *   types: Types
+ *   types: Types,
+ *   avoidReport?: boolean
  * }) => void} [validateAll] For
  *   validation of array and object references only.
  * @property {{
@@ -796,7 +798,7 @@ class Types {
   }
 
   /** @type {ValidateAllReferences} */
-  validateAllReferences ({topRoot}) {
+  validateAllReferences ({topRoot, avoidReport}) {
     /* istanbul ignore if -- Unreachable? */
     if (!topRoot) {
       console.log('No references present');
@@ -808,7 +810,7 @@ class Types {
     Object.values(this.availableTypes).forEach((typeObj) => {
       const typeObject = /** @type {TypeObject} */ (typeObj);
       if (typeObject.validateAll) {
-        typeObject.validateAll({topRoot, types: this});
+        typeObject.validateAll({topRoot, types: this, avoidReport});
       }
     });
 

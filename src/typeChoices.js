@@ -471,7 +471,12 @@ export const buildTypeChoices = ({
           this.value = type;
         }
         this.$setStyles();
-        this.$addAndValidateEditUI({baseValue, bringIntoFocus, avoidReport});
+        this.$addAndValidateEditUI({
+          baseValue,
+          bringIntoFocus,
+          schemaObject: specificSchema,
+          avoidReport
+        });
       },
       /**
        * @this {TypeChoicesElementAPI}
@@ -588,7 +593,7 @@ export const buildTypeChoices = ({
         });
         topRoot = this.$getTopRoot(); // May be existing now
         // Needed; Array/object ref somewhere could now be valid or invalid
-        types.validateAllReferences({topRoot});
+        types.validateAllReferences({topRoot, avoidReport});
       },
 
       /**

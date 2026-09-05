@@ -178,7 +178,7 @@ const arrayReferenceType = {
       valid: true
     };
   },
-  validateAll ({types, topRoot}) {
+  validateAll ({types, topRoot, avoidReport}) {
     const type = /** @type {import('../types.js').AvailableType} */ (
       `${this.type}Reference`
     );
@@ -186,7 +186,8 @@ const arrayReferenceType = {
       types.validate({
         type,
         root: /** @type {HTMLDivElement} */ (root),
-        topRoot
+        topRoot,
+        avoidReport
       });
     });
   },

@@ -1,6 +1,7 @@
 import Types, {
   getPropertyValueFromLegend
 } from '#jsoe/types.js';
+import {typeChoices} from '#jsoe/index.js';
 import {getTypesForSchema} from '#jsoe/formats/schema.js';
 
 describe('`getPropertyValueFromLegend`', function () {
@@ -31,6 +32,72 @@ describe('`getPropertyValueFromLegend`', function () {
 describe('`Types.getTypeForRoot`', function () {
   it('`getTypeForRoot` with null root', function () {
     expect(Types.getTypeForRoot(null)).to.equal('null');
+  });
+});
+
+describe('`typeChoices`', function () {
+  beforeEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it('uses the supplied specific schema when setting type programmatically', function () {
+    const schemaContent = /** @type {import('zodexy').SzUnion} */ ({
+      $defs: {
+        secondOnly: {
+          type: 'string'
+        }
+      },
+      type: 'union',
+      options: [
+        {
+          meta: {title: 'First branch'},
+          type: 'object',
+          properties: {
+            type: {
+              type: 'literal',
+              values: ['first']
+            }
+          }
+        },
+        {
+          meta: {title: 'Second branch'},
+          type: 'object',
+          properties: {
+            type: {
+              type: 'literal',
+              values: ['second']
+            },
+            secondOnly: {
+              $ref: '#/$defs/secondOnly'
+            }
+          }
+        }
+      ]
+    });
+    const [, secondSchema] = [...getTypesForSchema(
+      schemaContent,
+      schemaContent
+    )];
+    const choice = typeChoices({
+      format: 'schema',
+      typeNamespace: 'specific-schema',
+      schemaContent
+    });
+    document.body.append(...choice.domArray);
+    const select = /** @type {typeof choice.domArray[0]} */ (
+      document.querySelector('.typeChoices-specific-schema')
+    );
+
+    select.$setType({
+      type: 'object',
+      specificSchema: secondSchema,
+      avoidReport: true
+    });
+
+    expect(select.selectedOptions[0].textContent).to.equal(
+      'Object (Second branch)'
+    );
+    expect(document.body.textContent).to.contain('secondOnly');
   });
 });
 
