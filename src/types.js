@@ -360,6 +360,7 @@ export const getPropertyValueFromLegend = (legend) => {
  *   buildTypeChoices?: import('./typeChoices.js').BuildTypeChoices,
  *   schemaContent?: import('./formats/schema.js').ZodexSchema
  *   replaced?: any
+ *   hasValue?: boolean
  * }) => JamilihArray} viewUI
  * @property {(info: {
  *   value?: StructuredCloneValue,
@@ -375,7 +376,8 @@ export const getPropertyValueFromLegend = (legend) => {
  *   topRoot?: HTMLDivElement
  *   schemaContent?: import('./formats/schema.js').ZodexSchema,
  *   specificSchemaObject?: import('./formats/schema.js').ZodexSchema,
- *   schemaFallingBack?: boolean
+ *   schemaFallingBack?: boolean,
+ *   hasValue?: boolean
  * }) => JamilihArray} editUI
  * @property {(info: {root: HTMLDivElement}) =>
  *   HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement|
@@ -768,7 +770,7 @@ class Types {
         format, schemaContent,
         resultType, topRoot, bringIntoFocus, value,
         replaced,
-        specificSchemaObject, schemaFallingBack,
+        specificSchemaObject, schemaFallingBack, hasValue,
         types: this
       }
       : {
@@ -776,7 +778,7 @@ class Types {
         format, schemaContent,
         resultType, topRoot, bringIntoFocus,
         replaced,
-        specificSchemaObject, schemaFallingBack,
+        specificSchemaObject, schemaFallingBack, hasValue,
         types: this
       };
     const root = /** @type {HTMLDivElement} */ (jml(

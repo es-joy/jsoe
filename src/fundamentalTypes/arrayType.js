@@ -709,7 +709,8 @@ const arrayType = {
   editUI ({
     typeNamespace, buildTypeChoices, format, // resultType,
     formats, types, specificSchemaObject, schemaFallingBack, schemaContent,
-    type, forcedState, topRoot, value: objectValue, bringIntoFocus = true
+    type, forcedState, topRoot, value: objectValue, hasValue,
+    bringIntoFocus = true
   }) {
     const {sparse} = this;
     // eslint-disable-next-line consistent-this -- Clearer
@@ -2664,7 +2665,7 @@ const arrayType = {
       );
     topRoot ||= div;
 
-    if (!objectValue && specificSchemaObject && tupleMode) {
+    if (!hasValue && specificSchemaObject && tupleMode) {
       // See comment referencing `arrayType.js` in `typeChoices.js`
       if (!schemaFallingBack) {
         const specificSchemaObj = /** @type {import('zodexy').SzTuple} */ (
@@ -2676,7 +2677,7 @@ const arrayType = {
           }
         }
       }
-    } else if (!objectValue && specificSchemaObject) {
+    } else if (!hasValue && specificSchemaObject) {
       switch (type) {
       case 'object': {
         // See comment referencing `arrayType.js` in `typeChoices.js`

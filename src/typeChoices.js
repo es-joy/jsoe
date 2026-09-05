@@ -556,7 +556,7 @@ export const buildTypeChoices = ({
           typeNamespace,
           type: /** @type {import('./types.js').AvailableArbitraryType} */ (type),
           bringIntoFocus,
-          hasValue: type === 'arrayNonindexKeys' && baseValue,
+          hasValue: baseValue !== undefined,
           value: baseValue,
           buildTypeChoices,
           format,
