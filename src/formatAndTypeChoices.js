@@ -379,16 +379,15 @@ export async function formatAndTypeChoices ({
 
     /** @type {SetValue} */
     async setValue (value, stateObj) {
-      const rootEditUI = /** @type {HTMLDivElement} */ (
-        (await formats.getControlsForFormatAndValue(
-          types,
-          /** @type {import('./formats.js').AvailableFormat} */ (
-            formatChoices.value
-          ),
-          value,
-          stateObj
-        )).rootUI
+      const builtState = await formats.getControlsForFormatAndValue(
+        types,
+        /** @type {import('./formats.js').AvailableFormat} */ (
+          formatChoices.value
+        ),
+        value,
+        stateObj
       );
+      const rootEditUI = /** @type {HTMLDivElement} */ (builtState.rootUI);
       const type = Types.getTypeForRoot(rootEditUI);
       const sel = /** @type {HTMLDivElement & {$getTypeSelect: TypeSelectGetter}} */ (
         typesHolder
@@ -396,6 +395,7 @@ export async function formatAndTypeChoices ({
       /** @type {HTMLSelectElement & {$addTypeAndEditUI: import('./typeChoices.js').AddTypeAndEditUI}} */ (
         sel
       ).$addTypeAndEditUI({type, editUI: rootEditUI});
+      await builtState.whenBuilt;
     }
   };
 }

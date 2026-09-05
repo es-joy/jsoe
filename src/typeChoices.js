@@ -724,10 +724,7 @@ export const buildTypeChoices = ({
           value = {};
         }
         try {
-          const {
-            rootUI: rootEditUI,
-            specificSchemas
-          } = await formats.getControlsForFormatAndValue(
+          const builtState = await formats.getControlsForFormatAndValue(
             types,
             format,
             value,
@@ -740,6 +737,10 @@ export const buildTypeChoices = ({
               types
             }
           );
+          const {
+            rootUI: rootEditUI,
+            specificSchemas
+          } = builtState;
           const type =
             Types.getTypeForRoot(/** @type {HTMLDivElement} */ (
               rootEditUI
@@ -754,6 +755,7 @@ export const buildTypeChoices = ({
             // We do actually want the first one
             specificSchema: specificSchemas?.[0]
           });
+          await builtState.whenBuilt;
         } catch (err) {
           /* istanbul ignore next -- At least some errors handled earlier */
           dialogs.alert({
