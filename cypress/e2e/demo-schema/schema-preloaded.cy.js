@@ -1139,6 +1139,14 @@
           '[data-type="arrayNonindexKeys"] > .arrayContents > .arrayItems > ' +
           'fieldset:nth-of-type(1) > ' +
           '.typeContainer ' +
+          'fieldset > legend > b[title="a"]'
+        ).should('have.length', 1);
+        cy.get(
+          prefix +
+          'fieldset:nth-of-type(3) > .typeContainer > ' +
+          '[data-type="arrayNonindexKeys"] > .arrayContents > .arrayItems > ' +
+          'fieldset:nth-of-type(1) > ' +
+          '.typeContainer ' +
           'fieldset:nth-of-type(1) > legend > b[title="a"]'
         ).should('have.text', 'A number');
         cy.get(
