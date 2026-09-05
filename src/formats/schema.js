@@ -321,6 +321,20 @@ function getChecks (types) {
 
 /** @type {WeakMap<ZodexSchema, ZodexSchema>} */
 const intersectionSchemas = new WeakMap();
+/** @type {WeakMap<ZodexSchema, ZodexSchema>} */
+const originalSchemas = new WeakMap();
+
+/**
+ * @param {Set<ZodexSchema>} set
+ * @param {ZodexSchema} originalJSON
+ * @returns {Set<ZodexSchema>}
+ */
+function rememberOriginalSchema (set, originalJSON) {
+  for (const schemaObject of set) {
+    originalSchemas.set(schemaObject, originalJSON);
+  }
+  return set;
+}
 
 /**
  * @param {ZodexSchema} schemaObject
@@ -553,14 +567,17 @@ function addModifiers (schemaObject, set) {
 export function getTypesForSchema (schemaObject, originalJSON) {
   for (;;) {
     if (getCheckedType(schemaObject)) {
-      return new Set([schemaObject]);
+      return rememberOriginalSchema(new Set([schemaObject]), originalJSON);
     }
     switch (schemaObject.type) {
     case 'never':
       return new Set();
     case 'literal':
     case 'enum':
-      return splitConstrainedSchema(schemaObject);
+      return rememberOriginalSchema(
+        splitConstrainedSchema(schemaObject),
+        originalJSON
+      );
     case 'catch': {
       const catchSchema = schemaObject;
       const innerSchemas = [...getTypesForSchema(
@@ -572,7 +589,10 @@ export function getTypesForSchema (schemaObject, originalJSON) {
         values: [catchSchema.value]
       }, originalJSON)];
       addModifiers(schemaObject, fallbackSchemas);
-      return new Set([...innerSchemas, ...fallbackSchemas]);
+      return rememberOriginalSchema(
+        new Set([...innerSchemas, ...fallbackSchemas]),
+        originalJSON
+      );
     }
     case 'object': {
       const set = new Set();
@@ -586,7 +606,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
       // }
       // eslint-disable-next-line unicorn/no-immediate-mutation -- May add above
       set.add(schemaObject);
-      return set;
+      return rememberOriginalSchema(set, originalJSON);
     }
     case 'discriminatedUnion':
     case 'xor':
@@ -605,7 +625,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
       }
 
       addModifiers(schemaObject, set);
-      return new Set(set);
+      return rememberOriginalSchema(new Set(set), originalJSON);
     } case 'intersection': {
       const left = getTypesForSchema(schemaObject.left, originalJSON);
       const right = getTypesForSchema(schemaObject.right, originalJSON);
@@ -615,7 +635,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
         intersectionSchemas.set(item, schemaObject);
       }
       addModifiers(schemaObject, set);
-      return new Set(set);
+      return rememberOriginalSchema(new Set(set), originalJSON);
     } case 'pipe': {
       if (isStringboolSchema(schemaObject)) {
         // Keep the whole `pipe` as the schema object: `getSchemaType` reports it
@@ -628,13 +648,13 @@ export function getTypesForSchema (schemaObject, originalJSON) {
         delete stringboolSchema.description;
         const set = [stringboolSchema];
         addModifiers(schemaObject, set);
-        return new Set(set);
+        return rememberOriginalSchema(new Set(set), originalJSON);
       }
       const set = [...getTypesForSchema(schemaObject.inner, originalJSON)];
       addModifiers(schemaObject, set);
-      return new Set(set);
+      return rememberOriginalSchema(new Set(set), originalJSON);
     } case 'any': case 'unknown':
-      return new Set([
+      return rememberOriginalSchema(new Set([
         {
           type: 'boolean'
         },
@@ -809,7 +829,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
             }
           }
         }
-      ]);
+      ]), originalJSON);
     default: {
       if ('$ref' in schemaObject) {
         // console.log('originalJSON', originalJSON, schemaObject.$ref);
@@ -823,7 +843,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
         // eslint-disable-next-line unicorn/no-break-in-nested-loop -- Intentional, continues the `for` loop
         continue;
       }
-      return new Set([schemaObject]);
+      return rememberOriginalSchema(new Set([schemaObject]), originalJSON);
     }
     }
   }
@@ -844,8 +864,10 @@ const schema = {
   },
   validateValue (types, schemaObject, value) {
     const validationSchema = getValidationSchema(schemaObject);
+    const originalShape = originalSchemas.get(schemaObject) ??
+      originalSchemas.get(validationSchema) ?? validationSchema;
     const parsed = parseValue(
-      types, validationSchema, validationSchema, value
+      types, validationSchema, originalShape, value
     );
     return parsed.success
       ? {valid: true}
@@ -854,7 +876,7 @@ const schema = {
         message: parsed.error.issues[0]?.message,
         schema: validationSchema.type === 'intersection'
           ? getInvalidIntersectionBranch(
-            types, validationSchema, validationSchema, value
+            types, validationSchema, originalShape, value
           )
           : validationSchema
       };
