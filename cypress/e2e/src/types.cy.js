@@ -328,6 +328,33 @@ describe('`Types.validate` zodexy error messages', function () {
   });
 });
 
+describe('RegExp type validation', function () {
+  beforeEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it('validates source input changes', function () {
+    const types = new Types();
+    const root = /** @type {HTMLDivElement} */ (types.getUIForModeAndType({
+      readonly: false,
+      typeNamespace: 'regexp-validation',
+      type: 'regexp',
+      format: 'structuredCloning'
+    }));
+    document.body.append(root);
+    const input = /** @type {HTMLInputElement} */ (
+      root.querySelector('input[name="regexp-validation-regexp"]')
+    );
+
+    input.value = 'abc(';
+    input.dispatchEvent(new Event('input'));
+
+    expect(input.validationMessage).to.equal(
+      'Invalid regular expression: /abc(/: Unterminated group'
+    );
+  });
+});
+
 describe('`Types.getTypeOptionsForFormatAndState`', function () {
   it(
     '`getTypeOptionsForFormatAndState` with bad states for format',

@@ -860,7 +860,7 @@ class Types {
         'message' in error
         ? error.message
         : undefined;
-      if (errorMessage !== 'Not yet instantiated') {
+      if (errorMessage !== 'Not yet instantiated' && typeValidation.valid) {
         return false;
       }
       valueReady = false;

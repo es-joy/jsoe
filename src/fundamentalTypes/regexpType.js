@@ -106,7 +106,15 @@ const regexpType = {
         'Source ',
         ['input', {
           name: `${typeNamespace}-regexp`, type: 'text',
-          value: value.source
+          value: value.source,
+          $on: {
+            input () {
+              types.validate({type: 'regexp', root});
+            },
+            change () {
+              types.validate({type: 'regexp', root});
+            }
+          }
         }]
       ]],
       ['br'],

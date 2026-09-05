@@ -1,5 +1,15 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## ?
+
+- fix: validate invalid regexp source edits
+- fix: schema editor readiness and zodexy schema rendering
+    - Fixed programmatic schema branch selection so `$setType({specificSchema})` builds the supplied schema-specific UI branch.
+    - Made `setValue()` readiness wait for deferred nested control builds before resolving.
+    - Preserved `avoidReport` through reference validation during programmatic setup.
+    - Fixed validation of flattened schema branches containing `$ref` children by retaining the original schema document for reference resolution.
+    - Added Cypress coverage for programmatic schema branch selection and rendering existing schema values with record entries.
+
 ## 0.26.0
 
 - feat: awaitable readiness for deferred type/editor builds
