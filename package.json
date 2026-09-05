@@ -28,6 +28,7 @@
     "coverage": "open-cli http://localhost:8087/coverage/lcov-report/",
     "open": "open-cli http://localhost:8087/demo/",
     "start": "node server 8087",
+    "stop": "lsof -tiTCP:8087 -sTCP:LISTEN | xargs kill 2>/dev/null",
     "start-instrumented": "node server 8087 instrumented",
     "cypress:open": "cypress open",
     "rollup": "rollup -c",
