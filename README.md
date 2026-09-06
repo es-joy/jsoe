@@ -129,11 +129,11 @@ Supported supertypes include:
         1. Structured Cloning
             1. (JavaScript types already complete)
             1. Web/API types
+                1. quotaexceedederror
+                1. webtransporterror
                 1. imagedata
                 1. imagebitmap
                 1. domquad
-                1. quotaexceedederror
-                1. webtransporterror
                 1. cryptokey
                 1. audiodata
                 1. encodedaudiochunk

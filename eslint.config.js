@@ -1,7 +1,9 @@
 import ashNazg from 'eslint-config-ash-nazg';
-// import {
-//   parser as typescriptEslintParser
-// } from 'typescript-eslint';
+import {
+  parser as typescriptEslintParser
+} from 'typescript-eslint';
+
+const typescriptEslintEnabled = false;
 
 export default [
   {
@@ -17,21 +19,23 @@ export default [
       'docs'
     ]
   },
-  // {
-  //   languageOptions: {
-  //     parser: typescriptEslintParser,
-  //     parserOptions: {
-  //       projectService: {
-  //         // eslint-disable-next-line camelcase -- API
-  //         maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 500,
-  //         allowDefaultProject: [
-  //           '*.js', '.ncurc.cjs', 'demo/*.js'
-  //         ]
-  //       },
-  //       tsconfigRootDir: import.meta.dirname
-  //     }
-  //   }
-  // },
+  ...(typescriptEslintEnabled
+    ? {
+      languageOptions: {
+        parser: typescriptEslintParser,
+        parserOptions: {
+          projectService: {
+            // eslint-disable-next-line camelcase -- API
+            maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 500,
+            allowDefaultProject: [
+              '*.js', '.ncurc.cjs', 'demo/*.js'
+            ]
+          },
+          tsconfigRootDir: import.meta.dirname
+        }
+      }
+    }
+    : {}),
   ...ashNazg(['sauron', 'browser']),
   {
     name: 'JSOE/Coverage',
@@ -106,17 +110,21 @@ export default [
 
       // Disable in ash-nazg?
       'unicorn/no-top-level-assignment-in-function': 0,
-      'unicorn/no-top-level-side-effects': 0
+      'unicorn/no-top-level-side-effects': 0,
 
       // Good but slow
-      // 'jsdoc/no-unnecessary-type-assertion': ['error', {
-      //   checkLiteralConstAssertions: true,
-      //   preferConstToLiteralTuples: true,
-      //   treatAnyAsRedundant: false,
-      //   typesToIgnore: [
-      //     `import('../types.js').SuperTypeObject`
-      //   ]
-      // }]
+      ...(typescriptEslintEnabled
+        ? {
+        'jsdoc/no-unnecessary-type-assertion': ['error', {
+          checkLiteralConstAssertions: true,
+          preferConstToLiteralTuples: true,
+          treatAnyAsRedundant: false,
+          typesToIgnore: [
+            `import('../types.js').SuperTypeObject`
+          ]
+        }]
+      }
+      : {})
     }
   }
 ];
