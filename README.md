@@ -119,7 +119,7 @@ Supported supertypes include:
 
 ## To-dos
 
-1. Ability to replace content with raw JSON/Typeson/Safe Eval (no functions in default mode, etc.)/AI (including speech-to-text) if it validates
+1. Ability to replace content with raw [JSON6](https://github.com/d3x0r/JSON6)/Typeson/Safe Eval (no functions in default mode, etc.)/AI (including speech-to-text) if it validates
 1. Expand fundamental types
     1. Not in typeson-registry
         1. Structured Cloning
