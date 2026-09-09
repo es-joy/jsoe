@@ -1,5 +1,9 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.27.0 (unreleased)
+
+- feat: add `iban` string kind
+
 ## 0.26.1
 
 - fix: validate invalid regexp source edits

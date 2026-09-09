@@ -645,6 +645,32 @@ describe('String spec - Misc. (schemas)', () => {
     });
   });
 
+  it('checks iban', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance strings 9'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'String (Iban)'
+    );
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      'DE89370400440532013000'
+    ).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      '15'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value doesn't match iban pattern.`
+      );
+    });
+  });
+
   it('checks string booleans', () => {
     cy.get('.formatChoices:first').select(
       'Schema: Zodexy schema instance strings 9'

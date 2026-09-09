@@ -2674,7 +2674,7 @@ class TypesonPromise{constructor(e){this.p=new Promise(e);}}TypesonPromise.__typ
  * @file Typeson - JSON with types.
  * @license The MIT License (MIT)
  * @copyright (c) 2016-2018 David Fahlander, Brett Zamir
- */const{keys:r,hasOwn:n}=Object,{isArray:o}=Array,a=["type","replaced","iterateIn","iterateUnsetNumeric","iterateSymbols","addLength"];function setOwnEnumerable(e,t,r){Object.defineProperty(e,t,{configurable:true,enumerable:true,value:r,writable:true});}const s=["asyncIterator","hasInstance","isConcatSpreadable","iterator","match","matchAll","replace","search","species","split","toPrimitive","toStringTag","unscopables"];function nestedPathsFirst(e,t){if(""===e.keypath)return  -1;let r=e.keypath.match(/\./gu)??0,n=t.keypath.match(/\./gu)??0;return r&&(r=r.length),n&&(n=n.length),r>n?-1:r<n?1:e.keypath<t.keypath?-1:e.keypath>t.keypath?1:0}class Typeson{constructor(e){this.options=e,this.plainObjectReplacers=[],this.nonplainObjectReplacers=[],this.revivers={},this.types={},this.symbolsByName=Object.create(null),this.symbolsByValue=new Map;const t=e?.symbols;t&&Object.entries(t).forEach(([e,t])=>{if("symbol"!=typeof t)throw new TypeError("Non-symbol value supplied for `symbols` entry: "+e);this.symbolsByName[e]=t,this.symbolsByValue.set(t,e);});}stringify(e,t,r,n){n={...this.options,...n,stringification:true};const a=this.encapsulate(e,null,n);return o(a)?JSON.stringify(a[0],t,r):a.then(e=>JSON.stringify(e,t,r))}stringifySync(e,t,r,n){return this.stringify(e,t,r,{throwOnBadSyncType:true,...n,sync:true})}stringifyAsync(e,t,r,n){return this.stringify(e,t,r,{throwOnBadSyncType:true,...n,sync:false})}parse(e,t,r){return r={...this.options,...r,parse:true},this.revive(JSON.parse(e,t),r)}parseSync(e,t,r){return this.parse(e,t,{throwOnBadSyncType:true,...r,sync:true})}parseAsync(e,t,r){return this.parse(e,t,{throwOnBadSyncType:true,...r,sync:false})}specialTypeNames(e,t,r={}){return this.encapsulate(e,t,{...r,returnTypeNames:true})}rootTypeName(e,t,r={}){return this.encapsulate(e,t,{...r,iterateNone:true})}encapsulate(e,t,i){const c={sync:true,...this.options,...i},{sync:l}=c,y={},u={},p=[],f=[],d=[],m=!("cyclic"in c)||c.cyclic,{encapsulateObserver:h,encapsulateError:b}=c,finish=e=>{const t=Object.values(y);if(c.iterateNone)return t.length?t[0]:getJSONType(e);if(c.returnTypeNames)return !!t.length&&[...new Set(t)];const r=Object.keys(u).length>0,o=isObject$1(e)&&(n(e,"$types")||n(e,"$symbolKeys"));return r||t.length?(!o&&e&&isPlainObject$1(e)?t.length&&(e.$types=y):e={$:e,$types:{$:y}},r&&(e.$symbolKeys=u)):o&&(e={$:e,$types:true}),e},checkPromises=async(e,t)=>{const r=await Promise.all(t.map(e=>e[1].p));return await Promise.all(r.map(async function(r){const n=[],[o]=t.splice(0,1),[a,,s,i,c,l,y]=o,u=_encapsulate(a,r,s,i,n,true,y),p=hasConstructorOf(u,TypesonPromise);return a&&p?(setOwnEnumerable(c,l,await u.p),checkPromises(e,n)):(a?setOwnEnumerable(c,l,u):e=p?u.p:u,checkPromises(e,n))})),e},_adaptBuiltinStateObjectProperties=(e,t,r)=>{Object.assign(e,t);const n=a.map(t=>{const r=e[t];return delete e[t],r});r(),a.forEach((t,r)=>{e[t]=n[r];});},_encapsulate=(e,t,a,i,l,d,m)=>{let g,v={};const w=h?function(r){const n=m??i.type??getJSONType(t);h(Object.assign(r??v,{keypath:e,value:t,cyclic:a,stateObj:i,promisesData:l,resolvingTypesonPromise:d,awaitingTypesonPromise:hasConstructorOf(t,TypesonPromise)},{type:n}));}:null,getEncapsulatedValue=(e,t,r)=>{try{return {value:_encapsulate(e,t[r],Boolean(a),i,l,d)}}catch(n){if(!b)throw n;const o=m??i.type??getJSONType(t),a=b({keypath:e,error:n,parent:t,key:r,stateObj:i,type:o});if(!a)throw n;if("substitute"in a)return {value:a.substitute,substitute:true};if(a.ignore)return;throw n}};if(["string","boolean","number","undefined"].includes(typeof t))return void 0===t||t===1/0||0===t||t===-1/0||Number.isNaN(t)?(g=i.replaced?t:replace(e,t,i,l,false,d,w),g!==t&&(v={replaced:g})):g=t,w&&w(),g;if(null===t)return w&&w(),t;if(a&&t&&"object"==typeof t&&!i.iterateIn&&!i.iterateUnsetNumeric){const r=p.indexOf(t);if(-1!==r)return y[e]="#",w&&w({cyclicKeypath:f[r]}),"#"+f[r];true===a&&(p.push(t),f.push(e));}const O=isPlainObject$1(t),A=o(t),T=(O||A)&&(!this.plainObjectReplacers.length||i.replaced)||i.iterateIn?t:replace(e,t,i,l,O||A,null,w);let S;if(T!==t?(g=T,v={replaced:T}):""===e&&hasConstructorOf(t,TypesonPromise)?(l.push([e,t,a,i,void 0,void 0,i.type]),g=t):A&&"object"!==i.iterateIn||"array"===i.iterateIn?(S=new Array(t.length),v={clone:S}):!O&&("object"!=typeof t||"toJSON"in t||hasConstructorOf(t,TypesonPromise)||hasConstructorOf(t,Promise)||hasConstructorOf(t,ArrayBuffer))&&"object"!==i.iterateIn?g=t:(S={},i.addLength&&(S.length=t.length),v={clone:S}),w&&w(),c.iterateNone)return S??g;if(!S)return g;if(i.iterateIn){for(const r in t){const o={ownKeys:n(t,r)};_adaptBuiltinStateObjectProperties(i,o,()=>{const n=e+(e?".":"")+escapeKeyPathComponent(r),o=getEncapsulatedValue(n,t,r),s=o&&o.value;hasConstructorOf(s,TypesonPromise)?l.push([n,s,Boolean(a),i,S,r,i.type]):o&&(void 0!==s||"substitute"in o)&&setOwnEnumerable(S,r,s);});}w&&w({endIterateIn:true,end:true});}else r(t).forEach(function(r){const n=e+(e?".":"")+escapeKeyPathComponent(r);_adaptBuiltinStateObjectProperties(i,{ownKeys:true},()=>{const e=getEncapsulatedValue(n,t,r),o=e&&e.value;hasConstructorOf(o,TypesonPromise)?l.push([n,o,Boolean(a),i,S,r,i.type]):e&&(void 0!==o||"substitute"in e)&&setOwnEnumerable(S,r,o);});}),w&&w({endIterateOwn:true,end:true}),(i.iterateSymbols||c.iterateSymbols)&&(Object.getOwnPropertySymbols(t).filter(e=>Object.prototype.propertyIsEnumerable.call(t,e)).forEach(r=>{const n=function resolveSymbolIdentity(e,t){const r=Symbol.keyFor(e);if(void 0!==r)return {for:r};const n=s.find(t=>Symbol[t]===e);if(n)return {wellKnown:n};const o=t.get(e);return void 0!==o?{registered:o}:null}(r,this.symbolsByValue);if(!n){if(c.throwOnUnregisteredSymbol)throw new TypeError("Cannot serialize a Symbol-keyed property whose Symbol has no portable identity (not global, not well-known, and not in the `symbols` option): "+String(r));return}const o=u[e]??=[],y={key:n};o.push(y);const p=o.length-1,f=`$symbolKeys.${escapeKeyPathComponent(e)}.${String(p)}.value`,d={value:t[r]};_adaptBuiltinStateObjectProperties(i,{ownKeys:true},()=>{const e=getEncapsulatedValue(f,d,"value"),t=e&&e.value;hasConstructorOf(t,TypesonPromise)?l.push([f,t,Boolean(a),i,y,"value",i.type]):e&&(void 0!==t||"substitute"in e)&&setOwnEnumerable(y,"value",t);});}),w&&w({endIterateSymbols:true,end:true}));if(i.iterateUnsetNumeric){const r=t.length;for(let n=0;n<r;n++){if(n in t)continue;const r=`${e}${e?".":""}${String(n)}`;_adaptBuiltinStateObjectProperties(i,{ownKeys:false},()=>{const e=_encapsulate(r,void 0,Boolean(a),i,l,d);hasConstructorOf(e,TypesonPromise)?l.push([r,e,Boolean(a),i,S,n,i.type]):void 0!==e&&setOwnEnumerable(S,n,e);});}w&&w({endIterateUnsetNumeric:true,end:true});}return S},replace=(e,t,r,n,o,a,s)=>{const i=o?this.plainObjectReplacers:this.nonplainObjectReplacers;let c=i.length;for(;c--;){const o=i[c];if(o.test(t,r)){const{type:i}=o;if(Object.hasOwn(this.revivers,i)){const t=y[e];y[e]=t?[i].concat(t):i;}if(Object.assign(r,{type:i,replaced:true}),(l||!o.replaceAsync)&&!o.replace)return s&&s({typeDetected:true}),_encapsulate(e,t,m&&"readonly",r,n,a,i);let c;if(s&&s({replacing:true}),l||!o.replaceAsync){if(void 0===o.replace)throw new TypeError("Missing replacer");c=o.replace(t,r);}else c=o.replaceAsync(t,r);return _encapsulate(e,c,m&&"readonly",r,n,a,i)}}return t},g=_encapsulate("",e,m,t??{},d);if(d.length)return l&&c.throwOnBadSyncType?(()=>{throw new TypeError("Sync method requested but async result obtained")})():Promise.resolve(checkPromises(g,d)).then(finish);if(!l&&c.throwOnBadSyncType)throw new TypeError("Async method requested but sync result obtained");return l&&c.stringification?[finish(g)]:l?finish(g):Promise.resolve(finish(g))}encapsulateSync(e,t,r){return this.encapsulate(e,t,{throwOnBadSyncType:true,...r,sync:true})}encapsulateAsync(e,t,r){return this.encapsulate(e,t,{throwOnBadSyncType:true,...r,sync:false})}revive(e,t){const a={sync:true,...this.options,...t},{sync:i}=a;function finishRevival(e){if(i)return e;if(a.throwOnBadSyncType)throw new TypeError("Async method requested but sync result obtained");return Promise.resolve(e)}if(!e||"object"!=typeof e||Array.isArray(e))return finishRevival(e);let c=e.$types;if(true===c)return finishRevival(e.$);const l=e.$symbolKeys;let y=void 0!==l;if(!c||"object"!=typeof c||Array.isArray(c)){if(!l)return finishRevival(e);c={};}const u=[],p=Object.create(null),f={};let d=true;c.$&&isPlainObject$1(c.$)&&(e=e.$,c=c.$,d=false,y=false,void 0!==l&&isObject$1(e)&&!n(e,"$symbolKeys")&&(e.$symbolKeys=l,y=true));const executeReviver=(e,t)=>{const[r]=this.revivers[e]??[];if(!r)throw new Error("Unregistered type: "+e);if(i&&!("revive"in r))return t;if(!i&&r.reviveAsync)return r.reviveAsync(t,f);if(r.revive)return r.revive(t,f);throw new Error("Missing reviver")},m=[];function checkUndefined(e){return hasConstructorOf(e,Undefined)?void 0:e}const reHomeSymbolKeys=e=>{if(!isObject$1(e))return;const t=y?e.$symbolKeys:l;t&&(Object.entries(t).forEach(([t,r])=>{const o=getByKeyPath(e,t);isObject$1(o)&&r.forEach(e=>{if(!n(e,"value"))return;const t=function resolveSymbolFromIdentity(e,t){if("for"in e)return Symbol.for(e.for);if("wellKnown"in e){const t=s.find(t=>t===e.wellKnown);if(!t)throw new Error("Unknown well-known Symbol: "+e.wellKnown);return Symbol[t]}if(!n(t,e.registered))throw new Error("Unregistered symbol: "+e.registered);return t[e.registered]}(e.key,this.symbolsByName),r=checkUndefined(e.value);e.descriptor?Object.defineProperty(o,t,{configurable:true,enumerable:true,writable:true,...e.descriptor,value:r}):o[t]=r;});}),y&&delete e.$symbolKeys);},h=(()=>{if(!c)throw new Error("Found bad `types`");const t=[];if(Object.entries(c).forEach(([e,r])=>{"#"!==r&&[].concat(r).forEach(r=>{const[,{plain:n}]=this.revivers[r]??[null,{}];n&&(t.push({keypath:e,type:r}),delete c[e]);});}),t.length)return t.sort(nestedPathsFirst),t.reduce(function reducer(t,{keypath:r,type:n}){if(isThenable(t))return t.then(e=>reducer(e,{keypath:r,type:n}));let o=getByKeyPath(e,r);if(o=executeReviver(n,o),hasConstructorOf(o,TypesonPromise))return o.then(t=>{const n=setAtKeyPath(e,r,t);n===t&&(e=n);});const a=setAtKeyPath(e,r,o);a===o&&(e=a);},void 0)})();let b;return hasConstructorOf(h,TypesonPromise)?b=h.then(()=>e):(b=function _revive(e,t,a,s,l){if(d&&"$types"===e)return;const y=m.length,f=n(c,e)?c[e]:void 0,h=o(t);if(h||isPlainObject$1(t)){const o=h?new Array(t.length):{};for(r(t).forEach(r=>{const n=_revive(e+(e?".":"")+escapeKeyPathComponent(r),t[r],a??o,o,r),set=e=>(hasConstructorOf(e,Undefined)?setOwnEnumerable(o,r,void 0):void 0!==e&&setOwnEnumerable(o,r,e),e);hasConstructorOf(n,TypesonPromise)?m.push(n.then(e=>set(e))):set(n);}),t=o;u.length;){const[[e,t,r,o]]=u,a=n(p,t),s=a?p[t]:getByKeyPath(e,t);if(!a&&void 0===s)break;setOwnEnumerable(r,o,s),u.shift();}}if(!f)return p[e]=t,t;if("#"===f){const e=t.slice(1),r=n(p,e),o=r?p[e]:getByKeyPath(a,e);return r||void 0!==o||u.push([a,e,s,l]),o}const applyType=t=>{const r=[].concat(f).reduce(function reducer(e,t){if(hasConstructorOf(e,TypesonPromise))return e.then(e=>reducer(e,t));if("string"!=typeof t)throw new TypeError("Bad type JSON");return executeReviver(t,e)},t);return hasConstructorOf(r,TypesonPromise)?r.then(t=>(p[e]=t,t)):(p[e]=r,r)};return !i&&m.length>y?TypesonPromise.all(m.slice(y)).then(()=>applyType(t)):applyType(t)}("",e,null),m.length&&(b=TypesonPromise.resolve(b).then(e=>TypesonPromise.all([e,...m])).then(([e])=>e))),l&&(isThenable(b)?b=b.then(e=>(reHomeSymbolKeys(e),e)):reHomeSymbolKeys(b)),isThenable(b)?i&&a.throwOnBadSyncType?(()=>{throw new TypeError("Sync method requested but async result obtained")})():hasConstructorOf(b,TypesonPromise)?b.p.then(checkUndefined):b:!i&&a.throwOnBadSyncType?(()=>{throw new TypeError("Async method requested but sync result obtained")})():i?checkUndefined(b):Promise.resolve(checkUndefined(b))}reviveSync(e,t){return this.revive(e,{throwOnBadSyncType:true,...t,sync:true})}reviveAsync(e,t){return this.revive(e,{throwOnBadSyncType:true,...t,sync:false})}register(e,t){const n=t??{},reg=e=>{o(e)?e.forEach(e=>{reg(e);}):r(e).forEach(t=>{if("#"===t)throw new TypeError("# cannot be used as a type name as it is reserved for cyclic objects");if(i$1.includes(t))throw new TypeError("Plain JSON object types are reserved as type names");let r=e[t];if([this.plainObjectReplacers,this.nonplainObjectReplacers].forEach(e=>{const r=e.findIndex(e=>e.type===t);-1!==r&&e.splice(r,1);}),delete this.revivers[t],delete this.types[t],"function"==typeof r){const e=r;r={test:t=>t&&t.constructor===e,replace:e=>({...e}),revive:t=>Object.assign(Object.create(e.prototype),t)};}else if(o(r)){const[e,t,n]=r;r={test:e,replace:t,revive:n};}if(!r?.test)return;const a={type:t,test:r.test.bind(r)};r.replace&&(a.replace=r.replace.bind(r)),r.replaceAsync&&(a.replaceAsync=r.replaceAsync.bind(r));const s="number"==typeof n.fallback?n.fallback:n.fallback?0:1/0;if(r.testPlainObjects?this.plainObjectReplacers.splice(s,0,a):this.nonplainObjectReplacers.splice(s,0,a),r.revive||r.reviveAsync){const e={};r.revive&&(e.revive=r.revive.bind(r)),r.reviveAsync&&(e.reviveAsync=r.reviveAsync.bind(r)),this.revivers[t]=[e,{plain:r.testPlainObjects}];}this.types[t]=r;});};return [].concat(e).forEach(e=>{reg(e);}),this}}class Undefined{}Undefined.__typeson__type__="TypesonUndefined";const i$1=["null","boolean","number","string","array","object"];for(var c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",l=new Uint8Array(256),y=0;y<64;y++)l[c.codePointAt(y)]=y;var u=function encode(e,t,r){null==r&&(r=e.byteLength);for(var n=new Uint8Array(e,0,r),o=n.length,a="",s=0;s<o;s+=3)a+=c[n[s]>>2],a+=c[(3&n[s])<<4|n[s+1]>>4],a+=c[(15&n[s+1])<<2|n[s+2]>>6],a+=c[63&n[s+2]];return o%3==2?a=a.slice(0,-1)+"=":o%3==1&&(a=a.slice(0,-2)+"=="),a},p=function decode(e,t){var r=e.length;if(r%4)throw new Error("Bad base64 length: not divisible by four");var n,o,a,s,i=.75*e.length,c=0;"="===e[e.length-1]&&(i--,"="===e[e.length-2]&&i--);for(var y=new ArrayBuffer(i,t),u=new Uint8Array(y),p=0;p<r;p+=4)n=l[e.codePointAt(p)],o=l[e.codePointAt(p+1)],a=l[e.codePointAt(p+2)],s=l[e.codePointAt(p+3)],u[c++]=n<<2|o>>4,u[c++]=(15&o)<<4|a>>2,u[c++]=(3&a)<<6|63&s;return y};const f={arraybuffer:{test:e=>"ArrayBuffer"===toStringTag(e),replace(e,t){t.buffers||(t.buffers=[]);const r=t.buffers.indexOf(e);return  -1!==r?{index:r}:(t.buffers.push(e),{s:u(e),maxByteLength:e.maxByteLength,resizable:e.resizable})},revive(e,t){if(t.buffers||(t.buffers=[]),Object.hasOwn(e,"index"))return t.buffers[e.index];const r=p(e.s,e.resizable?{maxByteLength:e.maxByteLength}:void 0);return t.buffers.push(r),r}}},d$1={audiodata:{test:e=>"AudioData"===toStringTag(e),replace(e){const{format:t,sampleRate:r,numberOfFrames:n,numberOfChannels:o,timestamp:a}=e,s=t.endsWith("-planar")?o:1,i=[];let c=0;for(let t=0;t<s;t++){const r=e.allocationSize({planeIndex:t});i.push(r),c+=r;}const l=new ArrayBuffer(c);let y=0;for(let t=0;t<s;t++){const r=new Uint8Array(l,y,i[t]);e.copyTo(r,{planeIndex:t}),y+=i[t];}return {format:t,sampleRate:r,numberOfFrames:n,numberOfChannels:o,timestamp:a,data:l}},revive:({format:e,sampleRate:t,numberOfFrames:r,numberOfChannels:n,timestamp:o,data:a})=>new AudioData({format:e,sampleRate:t,numberOfFrames:r,numberOfChannels:n,timestamp:o,data:new Uint8Array(a)})}},m={bigintObject:{test:e=>"object"==typeof e&&hasConstructorOf(e,BigInt),replace:String,revive:e=>new Object(BigInt(e))}},h={bigint:{test:e=>"bigint"==typeof e,replace:String,revive:e=>BigInt(e)}};function arraybuffer2string(e){return new Uint8Array(e).reduce((e,t)=>e+String.fromCodePoint(t),"")}function string2arraybuffer(e){const t=new Uint8Array(e.length);for(let r=0;r<e.length;r++)t[r]=e.charCodeAt(r);return t.buffer}const b={blob:{test:e=>"Blob"===toStringTag(e),replace(e){const t=new XMLHttpRequest;if(t.overrideMimeType("text/plain; charset=x-user-defined"),t.open("GET",URL.createObjectURL(e),false),t.send(),200!==t.status&&0!==t.status)throw new Error("Bad Blob access: "+t.status);return {type:e.type,stringContents:t.responseText}},revive(e){const{type:t,stringContents:r}=e;return new Blob([string2arraybuffer(r)],{type:t})},replaceAsync:e=>new TypesonPromise((t,r)=>{const n=new FileReader;n.addEventListener("load",()=>{t({type:e.type,stringContents:arraybuffer2string(n.result)});}),n.addEventListener("error",()=>{r(n.error);}),n.readAsArrayBuffer(e);})}};function generateUUID(){let e=Date.now();return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replaceAll(/[xy]/gu,function(t){const r=Math.trunc((e+16*Math.random())%16);return e=Math.floor(e/16),("x"===t?r:3&r|8).toString(16)})}const w={cryptokey:{test:e=>"CryptoKey"===toStringTag(e)&&e.extractable,replaceAsync:e=>new TypesonPromise(async(t,r)=>{let n;try{n=await crypto.subtle.exportKey("jwk",e);}catch(e){return void r(e)}t({jwk:n,algorithm:e.algorithm,usages:e.usages});}),revive(e){const{jwk:t,algorithm:r,usages:n}=e;return crypto.subtle.importKey("jwk",t,r,true,n)}}},O={dataview:{test:e=>"DataView"===toStringTag(e),replace({buffer:e,byteOffset:t,byteLength:r},n){n.buffers||(n.buffers=[]);const o=n.buffers.indexOf(e);return  -1!==o?{index:o,byteOffset:t,byteLength:r}:(n.buffers.push(e),{encoded:u(e),maxByteLength:e.maxByteLength,resizable:e.resizable,byteOffset:t,byteLength:r})},revive(e,t){t.buffers||(t.buffers=[]);const{byteOffset:r,byteLength:n,encoded:o,index:a,maxByteLength:s,resizable:i}=e;let c;return "index"in e?c=t.buffers[a]:(c=p(o,i?{maxByteLength:s}:s),t.buffers.push(c)),new DataView(c,r,n)}}},A={date:{test:e=>"Date"===toStringTag(e),replace(e){const t=e.getTime();return Number.isNaN(t)?"NaN":t},revive:e=>"NaN"===e?new Date(NaN):new Date(e)}},T={domexception:{test:e=>"DOMException"===toStringTag(e),replace:e=>({name:e.name,message:e.message}),revive:({message:e,name:t})=>new DOMException(e,t)}},S={};function create$5(e){S[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>e.is2D?{a:e.a,b:e.b,c:e.c,d:e.d,e:e.e,f:e.f}:{m11:e.m11,m12:e.m12,m13:e.m13,m14:e.m14,m21:e.m21,m22:e.m22,m23:e.m23,m24:e.m24,m31:e.m31,m32:e.m32,m33:e.m33,m34:e.m34,m41:e.m41,m42:e.m42,m43:e.m43,m44:e.m44},revive:t=>Object.hasOwn(t,"a")?new e([t.a,t.b,t.c,t.d,t.e,t.f]):new e([t.m11,t.m12,t.m13,t.m14,t.m21,t.m22,t.m23,t.m24,t.m31,t.m32,t.m33,t.m34,t.m41,t.m42,t.m43,t.m44])};}"undefined"!=typeof DOMMatrix&&create$5(DOMMatrix),"undefined"!=typeof DOMMatrixReadOnly&&create$5(DOMMatrixReadOnly);const P={};function create$4(e){P[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>({x:e.x,y:e.y,z:e.z,w:e.w}),revive:({x:t,y:r,z:n,w:o})=>new e(t,r,n,o)};}"undefined"!=typeof DOMPoint&&create$4(DOMPoint),"undefined"!=typeof DOMPointReadOnly&&create$4(DOMPointReadOnly);const E={domquad:{test:e=>"DOMQuad"===toStringTag(e),replace:e=>({p1:e.p1,p2:e.p2,p3:e.p3,p4:e.p4}),revive:({p1:e,p2:t,p3:r,p4:n})=>new DOMQuad(e,t,r,n)}},x={};function create$3(e){x[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>({x:e.x,y:e.y,width:e.width,height:e.height}),revive:({x:t,y:r,width:n,height:o})=>new e(t,r,n,o)};}"undefined"!=typeof DOMRect&&create$3(DOMRect),"undefined"!=typeof DOMRectReadOnly&&create$3(DOMRectReadOnly);const j={encodedaudiochunk:{test:e=>"EncodedAudioChunk"===toStringTag(e),replace(e){const{type:t,timestamp:r,duration:n,byteLength:o}=e,a=new ArrayBuffer(o);return e.copyTo(a),{type:t,timestamp:r,duration:n,data:a}},revive({type:e,timestamp:t,duration:r,data:n}){const o={type:e,timestamp:t,data:new Uint8Array(n)};return null!=r&&(o.duration=r),new EncodedAudioChunk(o)}}},B={encodedvideochunk:{test:e=>"EncodedVideoChunk"===toStringTag(e),replace(e){const{type:t,timestamp:r,duration:n,byteLength:o}=e,a=new ArrayBuffer(o);return e.copyTo(a),{type:t,timestamp:r,duration:n,data:a}},revive({type:e,timestamp:t,duration:r,data:n}){const o={type:e,timestamp:t,data:new Uint8Array(n)};return null!=r&&(o.duration=r),new EncodedVideoChunk(o)}}},N={error:{test:e=>"Error"===toStringTag(e),replace:({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s})=>({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s}),revive(e){const t=new Error(e.message);return t.name=e.name,t.cause=e.cause,t.stack=e.stack,t.fileName=e.fileName,t.lineNumber=e.lineNumber,t.columnNumber=e.columnNumber,t}}},C={};function create$2(e){C[e.name.toLowerCase()]={test:t=>hasConstructorOf(t,e),replace:({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s,errors:i})=>({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s,errors:i}),revive(t){const r="undefined"!=typeof AggregateError&&e===AggregateError?new e(t.errors,t.message):new e(t.message);return r.name=t.name,r.cause=t.cause,r.stack=t.stack,r.fileName=t.fileName,r.lineNumber=t.lineNumber,r.columnNumber=t.columnNumber,r}};}[TypeError,RangeError,SyntaxError,ReferenceError,EvalError,URIError].forEach(e=>create$2(e)),"undefined"!=typeof AggregateError&&create$2(AggregateError),"function"==typeof InternalError&&create$2(InternalError);const I={file:{test:e=>"File"===toStringTag(e),replace(e){const t=new XMLHttpRequest;if(t.overrideMimeType("text/plain; charset=x-user-defined"),t.open("GET",URL.createObjectURL(e),false),t.send(),200!==t.status&&0!==t.status)throw new Error("Bad File access: "+t.status);return {type:e.type,stringContents:t.responseText,name:e.name,lastModified:e.lastModified}},revive:({name:e,type:t,stringContents:r,lastModified:n})=>new File([string2arraybuffer(r)],e,{type:t,lastModified:n}),replaceAsync:e=>new TypesonPromise(function(t,r){const n=new FileReader;n.addEventListener("load",function(){t({type:e.type,stringContents:arraybuffer2string(n.result),name:e.name,lastModified:e.lastModified});}),n.addEventListener("error",function(){r(n.error);}),n.readAsArrayBuffer(e);})}},U$1={file:I.file,filelist:{test:e=>"FileList"===toStringTag(e),replace(e){const t=[];for(let r=0;r<e.length;r++)t[r]=e.item(r);return t},revive(e){class FileList{constructor(){this._files=arguments[0],this.length=this._files.length;}item(e){return this._files[e]}get[Symbol.toStringTag](){return "FileList"}}return new FileList(e)}}},_={imagebitmap:{test:e=>"ImageBitmap"===toStringTag(e)||e&&e.dataset&&"ImageBitmap"===e.dataset.toStringTag,replace(e){const t=document.createElement("canvas");return t.getContext("2d").drawImage(e,0,0),{width:e.width,height:e.height,dataURL:t.toDataURL()}},revive(e){const t="undefined"==typeof OffscreenCanvas?document.createElement("canvas"):new OffscreenCanvas(e.width,e.height),r=t.getContext("2d"),n=document.createElement("img");return n.addEventListener("load",function(){r.drawImage(n,0,0);}),n.src=e.dataURL,"undefined"==typeof OffscreenCanvas?t:t.transferToImageBitmap()},reviveAsync(e){const t=document.createElement("canvas"),r=t.getContext("2d"),n=document.createElement("img");return n.addEventListener("load",function(){r.drawImage(n,0,0);}),n.src=e.dataURL,new TypesonPromise(async(e,r)=>{try{e(await createImageBitmap(t));}catch(e){r(e);}})}}},k={imagedata:{test:e=>"ImageData"===toStringTag(e),replace(e){const t="Float16Array"===toStringTag(e.data)?"rgba-float16":"rgba-unorm8";return {array:[...e.data],width:e.width,height:e.height,pixelFormat:t,colorSpace:e.colorSpace}},revive(e){const{array:t,width:r,height:n,colorSpace:o,pixelFormat:a}=e;return "rgba-float16"===a?new ImageData(new Float16Array(t),r,n,{colorSpace:o,pixelFormat:a}):new ImageData(new Uint8ClampedArray(t),r,n,{colorSpace:o,pixelFormat:a})}}},M={infinity:{test:e=>e===1/0,replace:()=>"Infinity",revive:()=>1/0}},L={map:{test:e=>"Map"===toStringTag(e),replace:e=>e.entries().toArray(),revive:e=>new Map(e)}},F={nan:{test:e=>Number.isNaN(e),replace:()=>"NaN",revive:()=>NaN}},K={negativeInfinity:{test:e=>e===-1/0,replace:()=>"-Infinity",revive:()=>-1/0}},$$1={negativeZero:{test:e=>Object.is(e,-0),replace:()=>0,revive:()=>-0}},W={StringObject:{test:e=>"String"===toStringTag(e)&&"object"==typeof e,replace:String,revive:e=>new String(e)},BooleanObject:{test:e=>"Boolean"===toStringTag(e)&&"object"==typeof e,replace:e=>e.valueOf(),revive:e=>new Boolean(e)},NumberObject:{test:e=>"Number"===toStringTag(e)&&"object"==typeof e,replace(e){const t=e.valueOf();return Number.isNaN(t)?"NaN":t===1/0?"Infinity":t===-1/0?"-Infinity":Object.is(t,-0)?"-0":t},revive:e=>new Number("NaN"===e?NaN:"Infinity"===e?1/0:"-Infinity"===e?-1/0:"-0"===e?-0:e)}},z$2={promise:{test:e=>"Promise"===toStringTag(e),replaceAsync:e=>new TypesonPromise(async t=>{try{t({value:await e});}catch(e){t({error:e});}}),revive:e=>e.error?Promise.reject(e.error):Promise.resolve(e.value)}},V={quotaexceedederror:{test:e=>"QuotaExceededError"===toStringTag(e),replace:({message:e,quota:t,requested:r})=>({message:e,quota:t,requested:r}),revive({message:e,quota:t,requested:r}){const n={};return null!=t&&(n.quota=t),null!=r&&(n.requested=r),new QuotaExceededError(e,n)}}},J={regexp:{test:e=>"RegExp"===toStringTag(e),replace:e=>({source:e.source,flags:(e.global?"g":"")+(e.ignoreCase?"i":"")+(e.multiline?"m":"")+(e.sticky?"y":"")+(e.unicode?"u":"")+(e.unicodeSets?"v":"")+(e.hasIndices?"d":"")+(e.dotAll?"s":"")}),revive:({source:e,flags:t})=>new RegExp(e,t)}},H={},Q={resurrectable:{test:e=>e&&!Array.isArray(e)&&["object","function","symbol"].includes(typeof e),replace(e){const t=generateUUID();return H[t]=e,t},revive:e=>H[e]}},G={set:{test:e=>"Set"===toStringTag(e),replace:e=>e.values().toArray(),revive:e=>new Set(e)}},X={symbol:{test:e=>"symbol"==typeof e,replace:e=>({global:void 0!==Symbol.keyFor(e),sym:String(e).slice(7,-1)}),revive:e=>e.global?Symbol.for(e.sym):Symbol(e.sym)}},Y={};"function"==typeof Int8Array&&[Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,..."function"==typeof BigInt64Array?[BigInt64Array,BigUint64Array]:[],..."function"==typeof Float16Array?[Float16Array]:[]].forEach(e=>function create$1(e){const t=e.name;Y[t.toLowerCase()]={test:e=>toStringTag(e)===t,replace:e=>(0===e.byteOffset&&e.byteLength===e.buffer.byteLength?e:e.slice(0)).buffer,revive:t=>"ArrayBuffer"===toStringTag(t)?new e(t):t};}(e));const Z={};"function"==typeof Int8Array&&[Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,..."function"==typeof BigInt64Array?[BigInt64Array,BigUint64Array]:[],..."function"==typeof Float16Array?[Float16Array]:[]].forEach(e=>function create(e){const t=e.name;Z[t.toLowerCase()]={test:e=>toStringTag(e)===t,replace({buffer:e,byteOffset:t,length:r},n){n.buffers||(n.buffers=[]);const o=n.buffers.indexOf(e);return  -1!==o?{index:o,byteOffset:t,length:r}:(n.buffers.push(e),{maxByteLength:e.maxByteLength,resizable:e.resizable,encoded:u(e),byteOffset:t,length:r})},revive(t,r){r.buffers||(r.buffers=[]);const{byteOffset:n,length:o,encoded:a,index:s,maxByteLength:i,resizable:c}=t;let l;return "index"in t?l=r.buffers[s]:(l=p(a,c?{maxByteLength:i}:void 0),r.buffers.push(l)),new e(l,n,o)}};}(e));const ee={undef:{test:(e,t)=>void 0===e&&(t.ownKeys||!("ownKeys"in t)),replace:()=>0,revive:()=>new Undefined}},te={userObject:{test:e=>isUserObject(e),replace:e=>({...e}),revive:e=>e}},re={videoframe:{test:e=>"VideoFrame"===toStringTag(e),replaceAsync:e=>new TypesonPromise(async(t,r)=>{try{const{format:r,codedWidth:n,codedHeight:o,timestamp:a,duration:s,visibleRect:i,displayWidth:c,displayHeight:l,colorSpace:y}=e,u=new ArrayBuffer(e.allocationSize());await e.copyTo(u),t({format:r,codedWidth:n,codedHeight:o,timestamp:a,duration:s,visibleRect:{x:i.x,y:i.y,width:i.width,height:i.height},displayWidth:c,displayHeight:l,colorSpace:{primaries:y.primaries,transfer:y.transfer,matrix:y.matrix,fullRange:y.fullRange},data:u});}catch(e){r(e);}}),revive({format:e,codedWidth:t,codedHeight:r,timestamp:n,duration:o,visibleRect:a,displayWidth:s,displayHeight:i,colorSpace:c,data:l}){const y={format:e,codedWidth:t,codedHeight:r,timestamp:n,visibleRect:a,displayWidth:s,displayHeight:i,colorSpace:c};return null!=o&&(y.duration=o),new VideoFrame(new Uint8Array(l),y)}}},ne$1={webtransporterror:{test:e=>"WebTransportError"===toStringTag(e),replace:({message:e,streamErrorCode:t})=>({message:e,streamErrorCode:t}),revive:({message:e,streamErrorCode:t})=>new WebTransportError({message:e,streamErrorCode:t})}},oe=[{arrayNonindexKeys:{testPlainObjects:true,test:(e,t)=>!!Array.isArray(e)&&(Object.keys(e).some(e=>String(Number(e))!==e)&&(t.iterateIn="object",t.addLength=true),true),replace:(e,t)=>(t.iterateUnsetNumeric=true,e),revive(e){if(Array.isArray(e))return e;const t=[];return Object.entries(e).forEach(([e,r])=>{t[e]=r;}),t}}},{sparseUndefined:{test:(e,t)=>void 0===e&&false===t.ownKeys,replace:()=>0,revive(){}}}],ae=[F,M,K,$$1],ye=[te,ee,oe,W,ae,A,J,k,_,I,U$1,b,N,C].concat("function"==typeof Map?L:[],"function"==typeof Set?G:[],"function"==typeof ArrayBuffer?f:[],"function"==typeof Uint8Array?Z:[],"function"==typeof DataView?O:[],"undefined"!=typeof crypto?w:[],"undefined"!=typeof BigInt?[h,m]:[],"undefined"!=typeof DOMException?T:[],"undefined"!=typeof QuotaExceededError?V:[],"undefined"!=typeof WebTransportError?ne$1:[],"undefined"!=typeof DOMRect?x:[],"undefined"!=typeof DOMPoint?P:[],"undefined"!=typeof DOMQuad?E:[],"undefined"!=typeof DOMMatrix?S:[],"undefined"!=typeof AudioData?d$1:[],"undefined"!=typeof EncodedAudioChunk?j:[],"undefined"!=typeof EncodedVideoChunk?B:[],"undefined"!=typeof VideoFrame?re:[]);const ue=ye.concat({checkDataCloneException:{test(e){const t={}.toString.call(e).slice(8,-1);if(["symbol","function"].includes(typeof e)||["Arguments","Module","Promise","WeakMap","WeakSet","Event","MessageChannel","MessagePort"].includes(t)||e&&e.constructor&&["MessageChannel","MessagePort"].includes(e.constructor.name)||["ArrayBuffer","DataView","Int8Array","Uint8Array","Uint8ClampedArray","Int16Array","Uint16Array","Int32Array","Uint32Array","Float32Array","Float64Array","BigInt64Array","BigUint64Array"].includes(t)&&function isBufferDetached(e){if("boolean"==typeof e.detached)return e.detached;if(0!==e.byteLength)return  false;try{return new Uint8Array(e),!1}catch{return  true}}(e)||e&&"object"==typeof e&&"number"==typeof e.nodeType&&"function"==typeof e.insertBefore)throw new DOMException("The object cannot be cloned.","DataCloneError");return  false}}}),pe=ue.concat({checkSharedArrayBufferException:{test(e){if("SharedArrayBuffer"==={}.toString.call(e).slice(8,-1))throw new DOMException("The object cannot be cloned.","DataCloneError");return  false}}});
+ */const{keys:r,hasOwn:n}=Object,{isArray:o}=Array,a=["type","replaced","iterateIn","iterateUnsetNumeric","iterateSymbols","addLength"];function setOwnEnumerable(e,t,r){Object.defineProperty(e,t,{configurable:true,enumerable:true,value:r,writable:true});}const s=["asyncIterator","hasInstance","isConcatSpreadable","iterator","match","matchAll","replace","search","species","split","toPrimitive","toStringTag","unscopables"];function nestedPathsFirst(e,t){if(""===e.keypath)return  -1;let r=e.keypath.match(/\./gu)??0,n=t.keypath.match(/\./gu)??0;return r&&(r=r.length),n&&(n=n.length),r>n?-1:r<n?1:e.keypath<t.keypath?-1:e.keypath>t.keypath?1:0}class Typeson{constructor(e){this.options=e,this.plainObjectReplacers=[],this.nonplainObjectReplacers=[],this.revivers={},this.types={},this.symbolsByName=Object.create(null),this.symbolsByValue=new Map;const t=e?.symbols;t&&Object.entries(t).forEach(([e,t])=>{if("symbol"!=typeof t)throw new TypeError("Non-symbol value supplied for `symbols` entry: "+e);this.symbolsByName[e]=t,this.symbolsByValue.set(t,e);});}stringify(e,t,r,n){n={...this.options,...n,stringification:true};const a=this.encapsulate(e,null,n);return o(a)?JSON.stringify(a[0],t,r):a.then(e=>JSON.stringify(e,t,r))}stringifySync(e,t,r,n){return this.stringify(e,t,r,{throwOnBadSyncType:true,...n,sync:true})}stringifyAsync(e,t,r,n){return this.stringify(e,t,r,{throwOnBadSyncType:true,...n,sync:false})}parse(e,t,r){return r={...this.options,...r,parse:true},this.revive(JSON.parse(e,t),r)}parseSync(e,t,r){return this.parse(e,t,{throwOnBadSyncType:true,...r,sync:true})}parseAsync(e,t,r){return this.parse(e,t,{throwOnBadSyncType:true,...r,sync:false})}specialTypeNames(e,t,r={}){return this.encapsulate(e,t,{...r,returnTypeNames:true})}rootTypeName(e,t,r={}){return this.encapsulate(e,t,{...r,iterateNone:true})}encapsulate(e,t,i){const c={sync:true,...this.options,...i},{sync:l}=c,u={},y={},p=[],f=[],d=[],m=!("cyclic"in c)||c.cyclic,{encapsulateObserver:h,encapsulateError:b}=c,finish=e=>{const t=Object.values(u);if(c.iterateNone)return t.length?t[0]:getJSONType(e);if(c.returnTypeNames)return !!t.length&&[...new Set(t)];const r=Object.keys(y).length>0,o=isObject$1(e)&&(n(e,"$types")||n(e,"$symbolKeys"));return r||t.length?(!o&&e&&isPlainObject$1(e)?t.length&&(e.$types=u):e={$:e,$types:{$:u}},r&&(e.$symbolKeys=y)):o&&(e={$:e,$types:true}),e},checkPromises=async(e,t)=>{const r=await Promise.all(t.map(e=>e[1].p));return await Promise.all(r.map(async function(r){const n=[],[o]=t.splice(0,1),[a,,s,i,c,l,u]=o,y=_encapsulate(a,r,s,i,n,true,u),p=hasConstructorOf(y,TypesonPromise);return a&&p?(setOwnEnumerable(c,l,await y.p),checkPromises(e,n)):(a?setOwnEnumerable(c,l,y):e=p?y.p:y,checkPromises(e,n))})),e},_adaptBuiltinStateObjectProperties=(e,t,r)=>{Object.assign(e,t);const n=a.map(t=>{const r=e[t];return delete e[t],r});r(),a.forEach((t,r)=>{e[t]=n[r];});},_encapsulate=(e,t,a,i,l,d,m)=>{let g,v={};const w=h?function(r){const n=m??i.type??getJSONType(t);h(Object.assign(r??v,{keypath:e,value:t,cyclic:a,stateObj:i,promisesData:l,resolvingTypesonPromise:d,awaitingTypesonPromise:hasConstructorOf(t,TypesonPromise)},{type:n}));}:null,getEncapsulatedValue=(e,t,r)=>{try{return {value:_encapsulate(e,t[r],Boolean(a),i,l,d)}}catch(n){if(!b)throw n;const o=m??i.type??getJSONType(t),a=b({keypath:e,error:n,parent:t,key:r,stateObj:i,type:o});if(!a)throw n;if("substitute"in a)return {value:a.substitute,substitute:true};if(a.ignore)return;throw n}};if(["string","boolean","number","undefined"].includes(typeof t))return void 0===t||t===1/0||0===t||t===-1/0||Number.isNaN(t)?(g=i.replaced?t:replace(e,t,i,l,false,d,w),g!==t&&(v={replaced:g})):g=t,w&&w(),g;if(null===t)return w&&w(),t;if(a&&t&&"object"==typeof t&&!i.iterateIn&&!i.iterateUnsetNumeric){const r=p.indexOf(t);if(-1!==r)return u[e]="#",w&&w({cyclicKeypath:f[r]}),"#"+f[r];true===a&&(p.push(t),f.push(e));}const O=isPlainObject$1(t),A=o(t),T=(O||A)&&(!this.plainObjectReplacers.length||i.replaced)||i.iterateIn?t:replace(e,t,i,l,O||A,null,w);let S;if(T!==t?(g=T,v={replaced:T}):""===e&&hasConstructorOf(t,TypesonPromise)?(l.push([e,t,a,i,void 0,void 0,i.type]),g=t):A&&"object"!==i.iterateIn||"array"===i.iterateIn?(S=new Array(t.length),v={clone:S}):!O&&("object"!=typeof t||"toJSON"in t||hasConstructorOf(t,TypesonPromise)||hasConstructorOf(t,Promise)||hasConstructorOf(t,ArrayBuffer))&&"object"!==i.iterateIn?g=t:(S={},i.addLength&&(S.length=t.length),v={clone:S}),w&&w(),c.iterateNone)return S??g;if(!S)return g;if(i.iterateIn){for(const r in t){const o={ownKeys:n(t,r)};_adaptBuiltinStateObjectProperties(i,o,()=>{const n=e+(e?".":"")+escapeKeyPathComponent(r),o=getEncapsulatedValue(n,t,r),s=o&&o.value;hasConstructorOf(s,TypesonPromise)?l.push([n,s,Boolean(a),i,S,r,i.type]):o&&(void 0!==s||"substitute"in o)&&setOwnEnumerable(S,r,s);});}w&&w({endIterateIn:true,end:true});}else r(t).forEach(function(r){const n=e+(e?".":"")+escapeKeyPathComponent(r);_adaptBuiltinStateObjectProperties(i,{ownKeys:true},()=>{const e=getEncapsulatedValue(n,t,r),o=e&&e.value;hasConstructorOf(o,TypesonPromise)?l.push([n,o,Boolean(a),i,S,r,i.type]):e&&(void 0!==o||"substitute"in e)&&setOwnEnumerable(S,r,o);});}),w&&w({endIterateOwn:true,end:true}),(i.iterateSymbols||c.iterateSymbols)&&(Object.getOwnPropertySymbols(t).filter(e=>Object.prototype.propertyIsEnumerable.call(t,e)).forEach(r=>{const n=function resolveSymbolIdentity(e,t){const r=Symbol.keyFor(e);if(void 0!==r)return {for:r};const n=s.find(t=>Symbol[t]===e);if(n)return {wellKnown:n};const o=t.get(e);return void 0!==o?{registered:o}:null}(r,this.symbolsByValue);if(!n){if(c.throwOnUnregisteredSymbol)throw new TypeError("Cannot serialize a Symbol-keyed property whose Symbol has no portable identity (not global, not well-known, and not in the `symbols` option): "+String(r));return}const o=y[e]??=[],u={key:n};o.push(u);const p=o.length-1,f=`$symbolKeys.${escapeKeyPathComponent(e)}.${String(p)}.value`,d={value:t[r]};_adaptBuiltinStateObjectProperties(i,{ownKeys:true},()=>{const e=getEncapsulatedValue(f,d,"value"),t=e&&e.value;hasConstructorOf(t,TypesonPromise)?l.push([f,t,Boolean(a),i,u,"value",i.type]):e&&(void 0!==t||"substitute"in e)&&setOwnEnumerable(u,"value",t);});}),w&&w({endIterateSymbols:true,end:true}));if(i.iterateUnsetNumeric){const r=t.length;for(let n=0;n<r;n++){if(n in t)continue;const r=`${e}${e?".":""}${String(n)}`;_adaptBuiltinStateObjectProperties(i,{ownKeys:false},()=>{const e=_encapsulate(r,void 0,Boolean(a),i,l,d);hasConstructorOf(e,TypesonPromise)?l.push([r,e,Boolean(a),i,S,n,i.type]):void 0!==e&&setOwnEnumerable(S,n,e);});}w&&w({endIterateUnsetNumeric:true,end:true});}return S},replace=(e,t,r,n,o,a,s)=>{const i=o?this.plainObjectReplacers:this.nonplainObjectReplacers;let c=i.length;for(;c--;){const o=i[c];if(o.test(t,r)){const{type:i}=o;if(Object.hasOwn(this.revivers,i)){const t=u[e];u[e]=t?[i].concat(t):i;}if(Object.assign(r,{type:i,replaced:true}),(l||!o.replaceAsync)&&!o.replace)return s&&s({typeDetected:true}),_encapsulate(e,t,m&&"readonly",r,n,a,i);let c;if(s&&s({replacing:true}),l||!o.replaceAsync){if(void 0===o.replace)throw new TypeError("Missing replacer");c=o.replace(t,r);}else c=o.replaceAsync(t,r);return _encapsulate(e,c,m&&"readonly",r,n,a,i)}}return t},g=_encapsulate("",e,m,t??{},d);if(d.length)return l&&c.throwOnBadSyncType?(()=>{throw new TypeError("Sync method requested but async result obtained")})():Promise.resolve(checkPromises(g,d)).then(finish);if(!l&&c.throwOnBadSyncType)throw new TypeError("Async method requested but sync result obtained");return l&&c.stringification?[finish(g)]:l?finish(g):Promise.resolve(finish(g))}encapsulateSync(e,t,r){return this.encapsulate(e,t,{throwOnBadSyncType:true,...r,sync:true})}encapsulateAsync(e,t,r){return this.encapsulate(e,t,{throwOnBadSyncType:true,...r,sync:false})}revive(e,t){const a={sync:true,...this.options,...t},{sync:i}=a;function finishRevival(e){if(i)return e;if(a.throwOnBadSyncType)throw new TypeError("Async method requested but sync result obtained");return Promise.resolve(e)}if(!e||"object"!=typeof e||Array.isArray(e))return finishRevival(e);let c=e.$types;if(true===c)return finishRevival(e.$);const l=e.$symbolKeys;let u=void 0!==l;if(!c||"object"!=typeof c||Array.isArray(c)){if(!l)return finishRevival(e);c={};}const y=[],p=Object.create(null),f={};let d=true;c.$&&isPlainObject$1(c.$)&&(e=e.$,c=c.$,d=false,u=false,void 0!==l&&isObject$1(e)&&!n(e,"$symbolKeys")&&(e.$symbolKeys=l,u=true));const executeReviver=(e,t)=>{const[r]=this.revivers[e]??[];if(!r)throw new Error("Unregistered type: "+e);if(i&&!("revive"in r))return t;if(!i&&r.reviveAsync)return r.reviveAsync(t,f);if(r.revive)return r.revive(t,f);throw new Error("Missing reviver")},m=[];function checkUndefined(e){return hasConstructorOf(e,Undefined)?void 0:e}const reHomeSymbolKeys=e=>{if(!isObject$1(e))return;const t=u?e.$symbolKeys:l;t&&(Object.entries(t).forEach(([t,r])=>{const o=getByKeyPath(e,t);isObject$1(o)&&r.forEach(e=>{if(!n(e,"value"))return;const t=function resolveSymbolFromIdentity(e,t){if("for"in e)return Symbol.for(e.for);if("wellKnown"in e){const t=s.find(t=>t===e.wellKnown);if(!t)throw new Error("Unknown well-known Symbol: "+e.wellKnown);return Symbol[t]}if(!n(t,e.registered))throw new Error("Unregistered symbol: "+e.registered);return t[e.registered]}(e.key,this.symbolsByName),r=checkUndefined(e.value);e.descriptor?Object.defineProperty(o,t,{configurable:true,enumerable:true,writable:true,...e.descriptor,value:r}):o[t]=r;});}),u&&delete e.$symbolKeys);},h=(()=>{if(!c)throw new Error("Found bad `types`");const t=[];if(Object.entries(c).forEach(([e,r])=>{"#"!==r&&[].concat(r).forEach(r=>{const[,{plain:n}]=this.revivers[r]??[null,{}];n&&(t.push({keypath:e,type:r}),delete c[e]);});}),t.length)return t.sort(nestedPathsFirst),t.reduce(function reducer(t,{keypath:r,type:n}){if(isThenable(t))return t.then(e=>reducer(e,{keypath:r,type:n}));let o=getByKeyPath(e,r);if(o=executeReviver(n,o),hasConstructorOf(o,TypesonPromise))return o.then(t=>{const n=setAtKeyPath(e,r,t);n===t&&(e=n);});const a=setAtKeyPath(e,r,o);a===o&&(e=a);},void 0)})();let b;return hasConstructorOf(h,TypesonPromise)?b=h.then(()=>e):(b=function _revive(e,t,a,s,l){if(d&&"$types"===e)return;const u=m.length,f=n(c,e)?c[e]:void 0,h=o(t);if(h||isPlainObject$1(t)){const o=h?new Array(t.length):{};for(r(t).forEach(r=>{const n=_revive(e+(e?".":"")+escapeKeyPathComponent(r),t[r],a??o,o,r),set=e=>(hasConstructorOf(e,Undefined)?setOwnEnumerable(o,r,void 0):void 0!==e&&setOwnEnumerable(o,r,e),e);hasConstructorOf(n,TypesonPromise)?m.push(n.then(e=>set(e))):set(n);}),t=o;y.length;){const[[e,t,r,o]]=y,a=n(p,t),s=a?p[t]:getByKeyPath(e,t);if(!a&&void 0===s)break;setOwnEnumerable(r,o,s),y.shift();}}if(!f)return p[e]=t,t;if("#"===f){const e=t.slice(1),r=n(p,e),o=r?p[e]:getByKeyPath(a,e);return r||void 0!==o||y.push([a,e,s,l]),o}const applyType=t=>{const r=[].concat(f).reduce(function reducer(e,t){if(hasConstructorOf(e,TypesonPromise))return e.then(e=>reducer(e,t));if("string"!=typeof t)throw new TypeError("Bad type JSON");return executeReviver(t,e)},t);return hasConstructorOf(r,TypesonPromise)?r.then(t=>(p[e]=t,t)):(p[e]=r,r)};return !i&&m.length>u?TypesonPromise.all(m.slice(u)).then(()=>applyType(t)):applyType(t)}("",e,null),m.length&&(b=TypesonPromise.resolve(b).then(e=>TypesonPromise.all([e,...m])).then(([e])=>e))),l&&(isThenable(b)?b=b.then(e=>(reHomeSymbolKeys(e),e)):reHomeSymbolKeys(b)),isThenable(b)?i&&a.throwOnBadSyncType?(()=>{throw new TypeError("Sync method requested but async result obtained")})():hasConstructorOf(b,TypesonPromise)?b.p.then(checkUndefined):b:!i&&a.throwOnBadSyncType?(()=>{throw new TypeError("Async method requested but sync result obtained")})():i?checkUndefined(b):Promise.resolve(checkUndefined(b))}reviveSync(e,t){return this.revive(e,{throwOnBadSyncType:true,...t,sync:true})}reviveAsync(e,t){return this.revive(e,{throwOnBadSyncType:true,...t,sync:false})}register(e,t){const n=t??{},reg=e=>{o(e)?e.forEach(e=>{reg(e);}):r(e).forEach(t=>{if("#"===t)throw new TypeError("# cannot be used as a type name as it is reserved for cyclic objects");if(i$1.includes(t))throw new TypeError("Plain JSON object types are reserved as type names");let r=e[t];if([this.plainObjectReplacers,this.nonplainObjectReplacers].forEach(e=>{const r=e.findIndex(e=>e.type===t);-1!==r&&e.splice(r,1);}),delete this.revivers[t],delete this.types[t],"function"==typeof r){const e=r;r={test:t=>t&&t.constructor===e,replace:e=>({...e}),revive:t=>Object.assign(Object.create(e.prototype),t)};}else if(o(r)){const[e,t,n]=r;r={test:e,replace:t,revive:n};}if(!r?.test)return;const a={type:t,test:r.test.bind(r)};r.replace&&(a.replace=r.replace.bind(r)),r.replaceAsync&&(a.replaceAsync=r.replaceAsync.bind(r));const s="number"==typeof n.fallback?n.fallback:n.fallback?0:1/0;if(r.testPlainObjects?this.plainObjectReplacers.splice(s,0,a):this.nonplainObjectReplacers.splice(s,0,a),r.revive||r.reviveAsync){const e={};r.revive&&(e.revive=r.revive.bind(r)),r.reviveAsync&&(e.reviveAsync=r.reviveAsync.bind(r)),this.revivers[t]=[e,{plain:r.testPlainObjects}];}this.types[t]=r;});};return [].concat(e).forEach(e=>{reg(e);}),this}}class Undefined{}Undefined.__typeson__type__="TypesonUndefined";const i$1=["null","boolean","number","string","array","object"];for(var c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",l=new Uint8Array(256),u=0;u<64;u++)l[c.codePointAt(u)]=u;var y=function encode(e,t,r){null==r&&(r=e.byteLength);for(var n=new Uint8Array(e,0,r),o=n.length,a="",s=0;s<o;s+=3)a+=c[n[s]>>2],a+=c[(3&n[s])<<4|n[s+1]>>4],a+=c[(15&n[s+1])<<2|n[s+2]>>6],a+=c[63&n[s+2]];return o%3==2?a=a.slice(0,-1)+"=":o%3==1&&(a=a.slice(0,-2)+"=="),a},p=function decode(e,t){var r=e.length;if(r%4)throw new Error("Bad base64 length: not divisible by four");var n,o,a,s,i=.75*e.length,c=0;"="===e[e.length-1]&&(i--,"="===e[e.length-2]&&i--);for(var u=new ArrayBuffer(i,t),y=new Uint8Array(u),p=0;p<r;p+=4)n=l[e.codePointAt(p)],o=l[e.codePointAt(p+1)],a=l[e.codePointAt(p+2)],s=l[e.codePointAt(p+3)],y[c++]=n<<2|o>>4,y[c++]=(15&o)<<4|a>>2,y[c++]=(3&a)<<6|63&s;return u};const f={arraybuffer:{test:e=>"ArrayBuffer"===toStringTag(e),replace(e,t){t.buffers||(t.buffers=[]);const r=t.buffers.indexOf(e);return  -1!==r?{index:r}:(t.buffers.push(e),{s:y(e),maxByteLength:e.maxByteLength,resizable:e.resizable})},revive(e,t){if(t.buffers||(t.buffers=[]),Object.hasOwn(e,"index"))return t.buffers[e.index];const r=p(e.s,e.resizable?{maxByteLength:e.maxByteLength}:void 0);return t.buffers.push(r),r}}},d$1={audiodata:{test:e=>"AudioData"===toStringTag(e),replace(e){const{format:t,sampleRate:r,numberOfFrames:n,numberOfChannels:o,timestamp:a}=e,s=t.endsWith("-planar")?o:1,i=[];let c=0;for(let t=0;t<s;t++){const r=e.allocationSize({planeIndex:t});i.push(r),c+=r;}const l=new ArrayBuffer(c);let u=0;for(let t=0;t<s;t++){const r=new Uint8Array(l,u,i[t]);e.copyTo(r,{planeIndex:t}),u+=i[t];}return {format:t,sampleRate:r,numberOfFrames:n,numberOfChannels:o,timestamp:a,data:l}},revive:({format:e,sampleRate:t,numberOfFrames:r,numberOfChannels:n,timestamp:o,data:a})=>new AudioData({format:e,sampleRate:t,numberOfFrames:r,numberOfChannels:n,timestamp:o,data:new Uint8Array(a)})}},m={bigintObject:{test:e=>"object"==typeof e&&hasConstructorOf(e,BigInt),replace:String,revive:e=>new Object(BigInt(e))}},h={bigint:{test:e=>"bigint"==typeof e,replace:String,revive:e=>BigInt(e)}};function arraybuffer2string(e){return new Uint8Array(e).reduce((e,t)=>e+String.fromCodePoint(t),"")}function string2arraybuffer(e){const t=new Uint8Array(e.length);for(let r=0;r<e.length;r++)t[r]=e.charCodeAt(r);return t.buffer}const b={blob:{test:e=>"Blob"===toStringTag(e),replace(e){const t=new XMLHttpRequest;if(t.overrideMimeType("text/plain; charset=x-user-defined"),t.open("GET",URL.createObjectURL(e),false),t.send(),200!==t.status&&0!==t.status)throw new Error("Bad Blob access: "+t.status);return {type:e.type,stringContents:t.responseText}},revive(e){const{type:t,stringContents:r}=e;return new Blob([string2arraybuffer(r)],{type:t})},replaceAsync:e=>new TypesonPromise((t,r)=>{const n=new FileReader;n.addEventListener("load",()=>{t({type:e.type,stringContents:arraybuffer2string(n.result)});}),n.addEventListener("error",()=>{r(n.error);}),n.readAsArrayBuffer(e);})}};function generateUUID(){let e=Date.now();return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replaceAll(/[xy]/gu,function(t){const r=Math.trunc((e+16*Math.random())%16);return e=Math.floor(e/16),("x"===t?r:3&r|8).toString(16)})}const w={cryptokey:{test:e=>"CryptoKey"===toStringTag(e)&&e.extractable,replaceAsync:e=>new TypesonPromise(async(t,r)=>{let n;try{n=await crypto.subtle.exportKey("jwk",e);}catch(e){return void r(e)}t({jwk:n,algorithm:e.algorithm,usages:e.usages});}),revive(e){const{jwk:t,algorithm:r,usages:n}=e;return crypto.subtle.importKey("jwk",t,r,true,n)}}},O={dataview:{test:e=>"DataView"===toStringTag(e),replace({buffer:e,byteOffset:t,byteLength:r},n){n.buffers||(n.buffers=[]);const o=n.buffers.indexOf(e);return  -1!==o?{index:o,byteOffset:t,byteLength:r}:(n.buffers.push(e),{encoded:y(e),maxByteLength:e.maxByteLength,resizable:e.resizable,byteOffset:t,byteLength:r})},revive(e,t){t.buffers||(t.buffers=[]);const{byteOffset:r,byteLength:n,encoded:o,index:a,maxByteLength:s,resizable:i}=e;let c;return "index"in e?c=t.buffers[a]:(c=p(o,i?{maxByteLength:s}:s),t.buffers.push(c)),new DataView(c,r,n)}}},A={date:{test:e=>"Date"===toStringTag(e),replace(e){const t=e.getTime();return Number.isNaN(t)?"NaN":t},revive:e=>"NaN"===e?new Date(NaN):new Date(e)}},T={domexception:{test:e=>"DOMException"===toStringTag(e),replace:e=>({name:e.name,message:e.message}),revive:({message:e,name:t})=>new DOMException(e,t)}},S={};function create$5(e){S[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>e.is2D?{a:e.a,b:e.b,c:e.c,d:e.d,e:e.e,f:e.f}:{m11:e.m11,m12:e.m12,m13:e.m13,m14:e.m14,m21:e.m21,m22:e.m22,m23:e.m23,m24:e.m24,m31:e.m31,m32:e.m32,m33:e.m33,m34:e.m34,m41:e.m41,m42:e.m42,m43:e.m43,m44:e.m44},revive:t=>Object.hasOwn(t,"a")?new e([t.a,t.b,t.c,t.d,t.e,t.f]):new e([t.m11,t.m12,t.m13,t.m14,t.m21,t.m22,t.m23,t.m24,t.m31,t.m32,t.m33,t.m34,t.m41,t.m42,t.m43,t.m44])};}"undefined"!=typeof DOMMatrix&&create$5(DOMMatrix),"undefined"!=typeof DOMMatrixReadOnly&&create$5(DOMMatrixReadOnly);const P={};function create$4(e){P[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>({x:e.x,y:e.y,z:e.z,w:e.w}),revive:({x:t,y:r,z:n,w:o})=>new e(t,r,n,o)};}"undefined"!=typeof DOMPoint&&create$4(DOMPoint),"undefined"!=typeof DOMPointReadOnly&&create$4(DOMPointReadOnly);const E={domquad:{test:e=>"DOMQuad"===toStringTag(e),replace:e=>({p1:e.p1,p2:e.p2,p3:e.p3,p4:e.p4}),revive:({p1:e,p2:t,p3:r,p4:n})=>new DOMQuad(e,t,r,n)}},N={};function create$3(e){N[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>({x:e.x,y:e.y,width:e.width,height:e.height}),revive:({x:t,y:r,width:n,height:o})=>new e(t,r,n,o)};}"undefined"!=typeof DOMRect&&create$3(DOMRect),"undefined"!=typeof DOMRectReadOnly&&create$3(DOMRectReadOnly);const x={encodedaudiochunk:{test:e=>"EncodedAudioChunk"===toStringTag(e),replace(e){const{type:t,timestamp:r,duration:n,byteLength:o}=e,a=new ArrayBuffer(o);return e.copyTo(a),{type:t,timestamp:r,duration:n,data:a}},revive({type:e,timestamp:t,duration:r,data:n}){const o={type:e,timestamp:t,data:new Uint8Array(n)};return null!=r&&(o.duration=r),new EncodedAudioChunk(o)}}},j={encodedvideochunk:{test:e=>"EncodedVideoChunk"===toStringTag(e),replace(e){const{type:t,timestamp:r,duration:n,byteLength:o}=e,a=new ArrayBuffer(o);return e.copyTo(a),{type:t,timestamp:r,duration:n,data:a}},revive({type:e,timestamp:t,duration:r,data:n}){const o={type:e,timestamp:t,data:new Uint8Array(n)};return null!=r&&(o.duration=r),new EncodedVideoChunk(o)}}},B={error:{test:e=>"Error"===toStringTag(e),replace:({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s})=>({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s}),revive(e){const t=new Error(e.message);return t.name=e.name,t.cause=e.cause,t.stack=e.stack,t.fileName=e.fileName,t.lineNumber=e.lineNumber,t.columnNumber=e.columnNumber,t}}},C={};function create$2(e){C[e.name.toLowerCase()]={test:t=>hasConstructorOf(t,e),replace:({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s,errors:i})=>({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s,errors:i}),revive(t){const r="undefined"!=typeof AggregateError&&e===AggregateError?new e(t.errors,t.message):new e(t.message);return r.name=t.name,r.cause=t.cause,r.stack=t.stack,r.fileName=t.fileName,r.lineNumber=t.lineNumber,r.columnNumber=t.columnNumber,r}};}[TypeError,RangeError,SyntaxError,ReferenceError,EvalError,URIError].forEach(e=>create$2(e)),"undefined"!=typeof AggregateError&&create$2(AggregateError),"function"==typeof InternalError&&create$2(InternalError);const I={file:{test:e=>"File"===toStringTag(e),replace(e){const t=new XMLHttpRequest;if(t.overrideMimeType("text/plain; charset=x-user-defined"),t.open("GET",URL.createObjectURL(e),false),t.send(),200!==t.status&&0!==t.status)throw new Error("Bad File access: "+t.status);return {type:e.type,stringContents:t.responseText,name:e.name,lastModified:e.lastModified}},revive:({name:e,type:t,stringContents:r,lastModified:n})=>new File([string2arraybuffer(r)],e,{type:t,lastModified:n}),replaceAsync:e=>new TypesonPromise(function(t,r){const n=new FileReader;n.addEventListener("load",function(){t({type:e.type,stringContents:arraybuffer2string(n.result),name:e.name,lastModified:e.lastModified});}),n.addEventListener("error",function(){r(n.error);}),n.readAsArrayBuffer(e);})}},U$1={file:I.file,filelist:{test:e=>"FileList"===toStringTag(e),replace(e){const t=[];for(let r=0;r<e.length;r++)t[r]=e.item(r);return t},revive(e){class FileList{constructor(){this._files=arguments[0],this.length=this._files.length;}item(e){return this._files[e]}get[Symbol.toStringTag](){return "FileList"}}return new FileList(e)}}},k={imagebitmap:{test:e=>"ImageBitmap"===toStringTag(e)||e&&e.dataset&&"ImageBitmap"===e.dataset.toStringTag,replace(e){const t=document.createElement("canvas");return t.getContext("2d").drawImage(e,0,0),{width:e.width,height:e.height,dataURL:t.toDataURL()}},revive(e){const t="undefined"==typeof OffscreenCanvas?document.createElement("canvas"):new OffscreenCanvas(e.width,e.height),r=t.getContext("2d"),n=document.createElement("img");return n.addEventListener("load",function(){r.drawImage(n,0,0);}),n.src=e.dataURL,"undefined"==typeof OffscreenCanvas?t:t.transferToImageBitmap()},reviveAsync(e){const t=document.createElement("canvas"),r=t.getContext("2d"),n=document.createElement("img");return n.addEventListener("load",function(){r.drawImage(n,0,0);}),n.src=e.dataURL,new TypesonPromise(async(e,r)=>{try{e(await createImageBitmap(t));}catch(e){r(e);}})}}},M={imagedata:{test:e=>"ImageData"===toStringTag(e),replace(e){const t="Float16Array"===toStringTag(e.data)?"rgba-float16":"rgba-unorm8";return {array:[...e.data],width:e.width,height:e.height,pixelFormat:t,colorSpace:e.colorSpace}},revive(e){const{array:t,width:r,height:n,colorSpace:o,pixelFormat:a}=e;return "rgba-float16"===a?new ImageData(new Float16Array(t),r,n,{colorSpace:o,pixelFormat:a}):new ImageData(new Uint8ClampedArray(t),r,n,{colorSpace:o,pixelFormat:a})}}},D={infinity:{test:e=>e===1/0,replace:()=>"Infinity",revive:()=>1/0}},F={map:{test:e=>"Map"===toStringTag(e),replace:e=>e.entries().toArray(),revive:e=>new Map(e)}},K={nan:{test:e=>Number.isNaN(e),replace:()=>"NaN",revive:()=>NaN}},$$1={negativeInfinity:{test:e=>e===-1/0,replace:()=>"-Infinity",revive:()=>-1/0}},q={negativeZero:{test:e=>Object.is(e,-0),replace:()=>0,revive:()=>-0}},z$2={StringObject:{test:e=>"String"===toStringTag(e)&&"object"==typeof e,replace:String,revive:e=>new String(e)},BooleanObject:{test:e=>"Boolean"===toStringTag(e)&&"object"==typeof e,replace:e=>e.valueOf(),revive:e=>new Boolean(e)},NumberObject:{test:e=>"Number"===toStringTag(e)&&"object"==typeof e,replace(e){const t=e.valueOf();return Number.isNaN(t)?"NaN":t===1/0?"Infinity":t===-1/0?"-Infinity":Object.is(t,-0)?"-0":t},revive:e=>new Number("NaN"===e?NaN:"Infinity"===e?1/0:"-Infinity"===e?-1/0:"-0"===e?-0:e)}},V={promise:{test:e=>"Promise"===toStringTag(e),replaceAsync:e=>new TypesonPromise(async t=>{try{t({value:await e});}catch(e){t({error:e});}}),revive:e=>e.error?Promise.reject(e.error):Promise.resolve(e.value)}},J={quotaexceedederror:{test:e=>"QuotaExceededError"===toStringTag(e),replace:({message:e,quota:t,requested:r,cause:n,stack:o,fileName:a,lineNumber:s,columnNumber:i})=>({message:e,quota:t,requested:r,cause:n,stack:o,fileName:a,lineNumber:s,columnNumber:i}),revive(e){const{message:t,quota:r,requested:n}=e,o={};null!=r&&(o.quota=r),null!=n&&(o.requested=n);const a=new QuotaExceededError(t,o);return a.cause=e.cause,a.stack=e.stack,a.fileName=e.fileName,a.lineNumber=e.lineNumber,a.columnNumber=e.columnNumber,a}}},H={regexp:{test:e=>"RegExp"===toStringTag(e),replace:e=>({source:e.source,flags:(e.global?"g":"")+(e.ignoreCase?"i":"")+(e.multiline?"m":"")+(e.sticky?"y":"")+(e.unicode?"u":"")+(e.unicodeSets?"v":"")+(e.hasIndices?"d":"")+(e.dotAll?"s":"")}),revive:({source:e,flags:t})=>new RegExp(e,t)}},Q={},G={resurrectable:{test:e=>e&&!Array.isArray(e)&&["object","function","symbol"].includes(typeof e),replace(e){const t=generateUUID();return Q[t]=e,t},revive:e=>Q[e]}},X={set:{test:e=>"Set"===toStringTag(e),replace:e=>e.values().toArray(),revive:e=>new Set(e)}},Y={symbol:{test:e=>"symbol"==typeof e,replace:e=>({global:void 0!==Symbol.keyFor(e),sym:String(e).slice(7,-1)}),revive:e=>e.global?Symbol.for(e.sym):Symbol(e.sym)}},Z={};"function"==typeof Int8Array&&[Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,..."function"==typeof BigInt64Array?[BigInt64Array,BigUint64Array]:[],..."function"==typeof Float16Array?[Float16Array]:[]].forEach(e=>function create$1(e){const t=e.name;Z[t.toLowerCase()]={test:e=>toStringTag(e)===t,replace:e=>(0===e.byteOffset&&e.byteLength===e.buffer.byteLength?e:e.slice(0)).buffer,revive:t=>"ArrayBuffer"===toStringTag(t)?new e(t):t};}(e));const ee={};"function"==typeof Int8Array&&[Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,..."function"==typeof BigInt64Array?[BigInt64Array,BigUint64Array]:[],..."function"==typeof Float16Array?[Float16Array]:[]].forEach(e=>function create(e){const t=e.name;ee[t.toLowerCase()]={test:e=>toStringTag(e)===t,replace({buffer:e,byteOffset:t,length:r},n){n.buffers||(n.buffers=[]);const o=n.buffers.indexOf(e);return  -1!==o?{index:o,byteOffset:t,length:r}:(n.buffers.push(e),{maxByteLength:e.maxByteLength,resizable:e.resizable,encoded:y(e),byteOffset:t,length:r})},revive(t,r){r.buffers||(r.buffers=[]);const{byteOffset:n,length:o,encoded:a,index:s,maxByteLength:i,resizable:c}=t;let l;return "index"in t?l=r.buffers[s]:(l=p(a,c?{maxByteLength:i}:void 0),r.buffers.push(l)),new e(l,n,o)}};}(e));const te={undef:{test:(e,t)=>void 0===e&&(t.ownKeys||!("ownKeys"in t)),replace:()=>0,revive:()=>new Undefined}},re={userObject:{test:e=>isUserObject(e),replace:e=>({...e}),revive:e=>e}},ne$1={videoframe:{test:e=>"VideoFrame"===toStringTag(e),replaceAsync:e=>new TypesonPromise(async(t,r)=>{try{const{format:r,codedWidth:n,codedHeight:o,timestamp:a,duration:s,visibleRect:i,displayWidth:c,displayHeight:l,colorSpace:u}=e,y=new ArrayBuffer(e.allocationSize());await e.copyTo(y),t({format:r,codedWidth:n,codedHeight:o,timestamp:a,duration:s,visibleRect:{x:i.x,y:i.y,width:i.width,height:i.height},displayWidth:c,displayHeight:l,colorSpace:{primaries:u.primaries,transfer:u.transfer,matrix:u.matrix,fullRange:u.fullRange},data:y});}catch(e){r(e);}}),revive({format:e,codedWidth:t,codedHeight:r,timestamp:n,duration:o,visibleRect:a,displayWidth:s,displayHeight:i,colorSpace:c,data:l}){const u={format:e,codedWidth:t,codedHeight:r,timestamp:n,visibleRect:a,displayWidth:s,displayHeight:i,colorSpace:c};return null!=o&&(u.duration=o),new VideoFrame(new Uint8Array(l),u)}}},oe={webtransporterror:{test:e=>"WebTransportError"===toStringTag(e),replace:({message:e,streamErrorCode:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s})=>({message:e,streamErrorCode:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s}),revive(e){const{message:t,streamErrorCode:r}=e,n=new WebTransportError({message:t,streamErrorCode:r});return n.cause=e.cause,n.stack=e.stack,n.fileName=e.fileName,n.lineNumber=e.lineNumber,n.columnNumber=e.columnNumber,n}}},ae=[{arrayNonindexKeys:{testPlainObjects:true,test:(e,t)=>!!Array.isArray(e)&&(Object.keys(e).some(e=>String(Number(e))!==e)&&(t.iterateIn="object",t.addLength=true),true),replace:(e,t)=>(t.iterateUnsetNumeric=true,e),revive(e){if(Array.isArray(e))return e;const t=[];return Object.entries(e).forEach(([e,r])=>{t[e]=r;}),t}}},{sparseUndefined:{test:(e,t)=>void 0===e&&false===t.ownKeys,replace:()=>0,revive(){}}}],se=[K,D,$$1,q],ye=[re,te,ae,z$2,se,A,H,M,k,I,U$1,b,B,C].concat("function"==typeof Map?F:[],"function"==typeof Set?X:[],"function"==typeof ArrayBuffer?f:[],"function"==typeof Uint8Array?ee:[],"function"==typeof DataView?O:[],"undefined"!=typeof crypto?w:[],"undefined"!=typeof BigInt?[h,m]:[],"undefined"!=typeof DOMException?T:[],"undefined"!=typeof QuotaExceededError?J:[],"undefined"!=typeof WebTransportError?oe:[],"undefined"!=typeof DOMRect?N:[],"undefined"!=typeof DOMPoint?P:[],"undefined"!=typeof DOMQuad?E:[],"undefined"!=typeof DOMMatrix?S:[],"undefined"!=typeof AudioData?d$1:[],"undefined"!=typeof EncodedAudioChunk?x:[],"undefined"!=typeof EncodedVideoChunk?j:[],"undefined"!=typeof VideoFrame?ne$1:[]);const pe=ye.concat({checkDataCloneException:{test(e){const t={}.toString.call(e).slice(8,-1);if(["symbol","function"].includes(typeof e)||["Arguments","Module","Promise","WeakMap","WeakSet","Event","MessageChannel","MessagePort"].includes(t)||e&&e.constructor&&["MessageChannel","MessagePort"].includes(e.constructor.name)||["ArrayBuffer","DataView","Int8Array","Uint8Array","Uint8ClampedArray","Int16Array","Uint16Array","Int32Array","Uint32Array","Float32Array","Float64Array","BigInt64Array","BigUint64Array"].includes(t)&&function isBufferDetached(e){if("boolean"==typeof e.detached)return e.detached;if(0!==e.byteLength)return  false;try{return new Uint8Array(e),!1}catch{return  true}}(e)||e&&"object"==typeof e&&"number"==typeof e.nodeType&&"function"==typeof e.insertBefore)throw new DOMException("The object cannot be cloned.","DataCloneError");return  false}}}),fe=pe.concat({checkSharedArrayBufferException:{test(e){if("SharedArrayBuffer"==={}.toString.call(e).slice(8,-1))throw new DOMException("The object cannot be cloned.","DataCloneError");return  false}}});
 
 // This file was generated. Do not modify manually!
 var astralIdentifierCodes = [509, 0, 227, 0, 150, 4, 294, 9, 1368, 2, 2, 1, 6, 3, 41, 2, 5, 0, 166, 1, 574, 3, 9, 9, 7, 9, 32, 4, 318, 1, 78, 5, 71, 10, 50, 3, 123, 2, 54, 14, 32, 10, 3, 1, 11, 3, 46, 10, 8, 0, 46, 9, 7, 2, 37, 13, 2, 9, 6, 1, 45, 0, 13, 2, 49, 13, 9, 3, 2, 11, 83, 11, 7, 0, 3, 0, 158, 11, 6, 9, 7, 3, 56, 1, 2, 6, 3, 1, 3, 2, 10, 0, 11, 1, 3, 6, 4, 4, 68, 8, 2, 0, 3, 0, 2, 3, 2, 4, 2, 0, 15, 1, 83, 17, 10, 9, 5, 0, 82, 19, 13, 9, 214, 6, 3, 8, 28, 1, 83, 16, 16, 9, 82, 12, 9, 9, 7, 19, 58, 14, 5, 9, 243, 14, 166, 9, 71, 5, 2, 1, 3, 3, 2, 0, 2, 1, 13, 9, 120, 6, 3, 6, 4, 0, 29, 9, 41, 6, 2, 3, 9, 0, 10, 10, 47, 15, 199, 7, 137, 9, 54, 7, 2, 7, 17, 9, 57, 21, 2, 13, 123, 5, 4, 0, 2, 1, 2, 6, 2, 0, 9, 9, 49, 4, 2, 1, 2, 4, 9, 9, 55, 9, 266, 3, 10, 1, 2, 0, 49, 6, 4, 4, 14, 10, 5350, 0, 7, 14, 11465, 27, 2343, 9, 87, 9, 39, 4, 60, 6, 26, 9, 535, 9, 470, 0, 2, 54, 8, 3, 82, 0, 12, 1, 19628, 1, 4178, 9, 519, 45, 3, 22, 543, 4, 4, 5, 9, 7, 3, 6, 31, 3, 149, 2, 1418, 49, 513, 54, 5, 49, 9, 0, 15, 0, 23, 4, 2, 14, 1361, 6, 2, 16, 3, 6, 2, 1, 2, 4, 101, 0, 161, 6, 10, 9, 357, 0, 62, 13, 499, 13, 245, 1, 2, 9, 233, 0, 3, 0, 8, 1, 6, 0, 475, 6, 110, 6, 6, 9, 4759, 9, 787719, 239];
@@ -10212,7 +10212,7 @@ convertFromTypeson(typesonType){cov_20y0fm84fb().f[2]++;cov_20y0fm84fb().s[6]++;
 
 function cov_2i9f9gddfq(){var path="/Users/brett/jsoe/src/formats/structuredCloning.js";var hash="6021a8a151953cfbbe65b14aaab6db6672ec6035";var global=new Function("return this")();var gcv="__coverage__";var coverageData={path:"/Users/brett/jsoe/src/formats/structuredCloning.js",statementMap:{"0":{start:{line:15,column:28},end:{line:28,column:1}},"1":{start:{line:18,column:6},end:{line:18,column:37}},"2":{start:{line:21,column:6},end:{line:21,column:45}},"3":{start:{line:25,column:6},end:{line:25,column:21}},"4":{start:{line:30,column:37},end:{line:48,column:1}},"5":{start:{line:32,column:4},end:{line:46,column:7}},"6":{start:{line:45,column:6},end:{line:45,column:47}},"7":{start:{line:60,column:30},end:{line:60,column:32}},"8":{start:{line:63,column:45},end:{line:69,column:2}},"9":{start:{line:66,column:2},end:{line:68,column:38}},"10":{start:{line:96,column:28},end:{line:456,column:1}},"11":{start:{line:101,column:6},end:{line:101,column:14}},"12":{start:{line:103,column:73},end:{line:103,column:77}},"13":{start:{line:108,column:25},end:{line:108,column:54}},"14":{start:{line:116,column:18},end:{line:116,column:20}},"15":{start:{line:126,column:24},end:{line:126,column:26}},"16":{start:{line:129,column:19},end:{line:129,column:21}},"17":{start:{line:132,column:22},end:{line:132,column:24}},"18":{start:{line:134,column:2},end:{line:455,column:4}},"19":{start:{line:146,column:8},end:{line:146,column:19}},"20":{start:{line:147,column:4},end:{line:153,column:5}},"21":{start:{line:148,column:6},end:{line:150,column:47}},"22":{start:{line:152,column:6},end:{line:152,column:13}},"23":{start:{line:154,column:4},end:{line:156,column:5}},"24":{start:{line:155,column:6},end:{line:155,column:13}},"25":{start:{line:157,column:4},end:{line:159,column:5}},"26":{start:{line:158,column:6},end:{line:158,column:13}},"27":{start:{line:160,column:4},end:{line:162,column:5}},"28":{start:{line:161,column:6},end:{line:161,column:13}},"29":{start:{line:163,column:4},end:{line:165,column:5}},"30":{start:{line:164,column:6},end:{line:164,column:13}},"31":{start:{line:166,column:4},end:{line:170,column:5}},"32":{start:{line:169,column:6},end:{line:169,column:13}},"33":{start:{line:174,column:4},end:{line:176,column:5}},"34":{start:{line:175,column:6},end:{line:175,column:13}},"35":{start:{line:179,column:4},end:{line:181,column:5}},"36":{start:{line:185,column:19},end:{line:185,column:24}},"37":{start:{line:188,column:18},end:{line:191,column:15}},"38":{start:{line:193,column:15},end:{line:193,column:39}},"39":{start:{line:195,column:6},end:{line:195,column:53}},"40":{start:{line:196,column:23},end:{line:196,column:60}},"41":{start:{line:199,column:4},end:{line:246,column:5}},"42":{start:{line:200,column:6},end:{line:200,column:57}},"43":{start:{line:201,column:6},end:{line:201,column:72}},"44":{start:{line:202,column:6},end:{line:211,column:9}},"45":{start:{line:218,column:6},end:{line:245,column:7}},"46":{start:{line:222,column:8},end:{line:237,column:11}},"47":{start:{line:242,column:8},end:{line:242,column:45}},"48":{start:{line:243,column:8},end:{line:243,column:52}},"49":{start:{line:244,column:8},end:{line:244,column:15}},"50":{start:{line:248,column:24},end:{line:252,column:23}},"51":{start:{line:253,column:4},end:{line:255,column:5}},"52":{start:{line:254,column:6},end:{line:254,column:32}},"53":{start:{line:259,column:20},end:{line:260,column:62}},"54":{start:{line:261,column:4},end:{line:263,column:5}},"55":{start:{line:262,column:6},end:{line:262,column:29}},"56":{start:{line:265,column:4},end:{line:271,column:5}},"57":{start:{line:266,column:6},end:{line:266,column:39}},"58":{start:{line:267,column:6},end:{line:269,column:7}},"59":{start:{line:268,column:8},end:{line:268,column:38}},"60":{start:{line:270,column:6},end:{line:270,column:44}},"61":{start:{line:277,column:4},end:{line:315,column:5}},"62":{start:{line:279,column:6},end:{line:293,column:9}},"63":{start:{line:294,column:6},end:{line:297,column:42}},"64":{start:{line:299,column:6},end:{line:301,column:7}},"65":{start:{line:300,column:8},end:{line:300,column:48}},"66":{start:{line:306,column:6},end:{line:313,column:7}},"67":{start:{line:307,column:37},end:{line:312,column:11}},"68":{start:{line:308,column:10},end:{line:311,column:45}},"69":{start:{line:314,column:6},end:{line:314,column:13}},"70":{start:{line:317,column:4},end:{line:319,column:5}},"71":{start:{line:318,column:6},end:{line:318,column:51}},"72":{start:{line:334,column:4},end:{line:454,column:8}},"73":{start:{line:337,column:6},end:{line:337,column:19}},"74":{start:{line:346,column:15},end:{line:346,column:34}},"75":{start:{line:347,column:6},end:{line:356,column:7}},"76":{start:{line:348,column:21},end:{line:348,column:22}},"77":{start:{line:354,column:8},end:{line:354,column:21}},"78":{start:{line:355,column:8},end:{line:355,column:33}},"79":{start:{line:357,column:6},end:{line:367,column:7}},"80":{start:{line:358,column:8},end:{line:360,column:9}},"81":{start:{line:359,column:10},end:{line:359,column:38}},"82":{start:{line:361,column:8},end:{line:365,column:11}},"83":{start:{line:366,column:8},end:{line:366,column:15}},"84":{start:{line:371,column:6},end:{line:381,column:7}},"85":{start:{line:372,column:8},end:{line:375,column:9}},"86":{start:{line:374,column:10},end:{line:374,column:22}},"87":{start:{line:376,column:30},end:{line:376,column:54}},"88":{start:{line:377,column:8},end:{line:378,column:66}},"89":{start:{line:380,column:8},end:{line:380,column:15}},"90":{start:{line:385,column:19},end:{line:393,column:8}},"91":{start:{line:396,column:6},end:{line:398,column:7}},"92":{start:{line:403,column:6},end:{line:422,column:7}},"93":{start:{line:404,column:8},end:{line:409,column:12}},"94":{start:{line:414,column:8},end:{line:421,column:9}},"95":{start:{line:415,column:39},end:{line:420,column:13}},"96":{start:{line:416,column:12},end:{line:419,column:52}},"97":{start:{line:424,column:6},end:{line:437,column:7}},"98":{start:{line:425,column:8},end:{line:429,column:11}},"99":{start:{line:430,column:8},end:{line:436,column:11}},"100":{start:{line:446,column:6},end:{line:448,column:7}},"101":{start:{line:447,column:8},end:{line:447,column:36}},"102":{start:{line:449,column:6},end:{line:453,column:9}},"103":{start:{line:464,column:21},end:{line:468,column:1}},"104":{start:{line:465,column:2},end:{line:467,column:5}},"105":{start:{line:466,column:4},end:{line:466,column:76}},"106":{start:{line:499,column:46},end:{line:603,column:1}},"107":{start:{line:503,column:15},end:{line:503,column:49}},"108":{start:{line:504,column:72},end:{line:504,column:76}},"109":{start:{line:505,column:25},end:{line:507,column:10}},"110":{start:{line:509,column:2},end:{line:511,column:3}},"111":{start:{line:512,column:2},end:{line:514,column:3}},"112":{start:{line:513,column:4},end:{line:513,column:34}},"113":{start:{line:527,column:20},end:{line:533,column:3}},"114":{start:{line:529,column:6},end:{line:529,column:26}},"115":{start:{line:531,column:4},end:{line:531,column:32}},"116":{start:{line:532,column:4},end:{line:532,column:14}},"117":{start:{line:535,column:2},end:{line:561,column:3}},"118":{start:{line:539,column:4},end:{line:546,column:7}},"119":{start:{line:547,column:4},end:{line:560,column:5}},"120":{start:{line:548,column:6},end:{line:550,column:7}},"121":{start:{line:549,column:8},end:{line:549,column:37}},"122":{start:{line:551,column:6},end:{line:551,column:27}},"123":{start:{line:552,column:6},end:{line:559,column:7}},"124":{start:{line:553,column:8},end:{line:558,column:10}},"125":{start:{line:563,column:2},end:{line:582,column:5}},"126":{start:{line:566,column:8},end:{line:566,column:42}},"127":{start:{line:570,column:8},end:{line:570,column:15}},"128":{start:{line:571,column:4},end:{line:579,column:5}},"129":{start:{line:577,column:6},end:{line:577,column:26}},"130":{start:{line:578,column:6},end:{line:578,column:18}},"131":{start:{line:581,column:4},end:{line:581,column:17}},"132":{start:{line:584,column:2},end:{line:598,column:3}},"133":{start:{line:587,column:4},end:{line:593,column:7}},"134":{start:{line:588,column:6},end:{line:591,column:7}},"135":{start:{line:589,column:8},end:{line:589,column:28}},"136":{start:{line:590,column:8},end:{line:590,column:20}},"137":{start:{line:592,column:6},end:{line:592,column:19}},"138":{start:{line:594,column:4},end:{line:597,column:5}},"139":{start:{line:595,column:6},end:{line:595,column:79}},"140":{start:{line:596,column:6},end:{line:596,column:32}},"141":{start:{line:599,column:2},end:{line:602,column:4}},"142":{start:{line:606,column:26},end:{line:760,column:1}},"143":{start:{line:609,column:4},end:{line:611,column:5}},"144":{start:{line:613,column:4},end:{line:618,column:6}},"145":{start:{line:619,column:20},end:{line:636,column:5}},"146":{start:{line:638,column:4},end:{line:640,column:7}},"147":{start:{line:654,column:4},end:{line:656,column:9}},"148":{start:{line:655,column:6},end:{line:655,column:61}},"149":{start:{line:658,column:4},end:{line:660,column:5}},"150":{start:{line:659,column:6},end:{line:659,column:27}},"151":{start:{line:661,column:4},end:{line:663,column:7}},"152":{start:{line:666,column:4},end:{line:679,column:5}},"153":{start:{line:667,column:29},end:{line:669,column:10}},"154":{start:{line:670,column:26},end:{line:670,column:74}},"155":{start:{line:671,column:6},end:{line:674,column:9}},"156":{start:{line:672,column:29},end:{line:672,column:58}},"157":{start:{line:673,column:8},end:{line:673,column:57}},"158":{start:{line:675,column:6},end:{line:678,column:8}},"159":{start:{line:683,column:4},end:{line:688,column:5}},"160":{start:{line:684,column:6},end:{line:687,column:8}},"161":{start:{line:689,column:4},end:{line:694,column:5}},"162":{start:{line:690,column:6},end:{line:693,column:8}},"163":{start:{line:695,column:4},end:{line:698,column:6}},"164":{start:{line:714,column:22},end:{line:714,column:34}},"165":{start:{line:715,column:4},end:{line:723,column:7}},"166":{start:{line:724,column:4},end:{line:758,column:6}}},fnMap:{"0":{name:"(anonymous_0)",decl:{start:{line:17,column:4},end:{line:17,column:5}},loc:{start:{line:17,column:13},end:{line:19,column:5}},line:17},"1":{name:"(anonymous_1)",decl:{start:{line:20,column:4},end:{line:20,column:5}},loc:{start:{line:20,column:23},end:{line:22,column:5}},line:20},"2":{name:"(anonymous_2)",decl:{start:{line:23,column:4},end:{line:23,column:5}},loc:{start:{line:23,column:15},end:{line:26,column:5}},line:23},"3":{name:"(anonymous_3)",decl:{start:{line:31,column:2},end:{line:31,column:3}},loc:{start:{line:31,column:19},end:{line:47,column:3}},line:31},"4":{name:"(anonymous_4)",decl:{start:{line:44,column:12},end:{line:44,column:13}},loc:{start:{line:44,column:22},end:{line:46,column:5}},line:44},"5":{name:"(anonymous_5)",decl:{start:{line:65,column:49},end:{line:65,column:50}},loc:{start:{line:65,column:56},end:{line:69,column:1}},line:65},"6":{name:"(anonymous_6)",decl:{start:{line:96,column:28},end:{line:96,column:29}},loc:{start:{line:96,column:42},end:{line:456,column:1}},line:96},"7":{name:"(anonymous_7)",decl:{start:{line:134,column:9},end:{line:134,column:10}},loc:{start:{line:134,column:26},end:{line:455,column:3}},line:134},"8":{name:"(anonymous_8)",decl:{start:{line:147,column:25},end:{line:147,column:26}},loc:{start:{line:147,column:41},end:{line:151,column:5}},line:147},"9":{name:"(anonymous_9)",decl:{start:{line:307,column:56},end:{line:307,column:57}},loc:{start:{line:307,column:66},end:{line:312,column:9}},line:307},"10":{name:"(anonymous_10)",decl:{start:{line:334,column:24},end:{line:334,column:25}},loc:{start:{line:334,column:36},end:{line:439,column:5}},line:334},"11":{name:"(anonymous_11)",decl:{start:{line:371,column:36},end:{line:371,column:37}},loc:{start:{line:371,column:49},end:{line:379,column:7}},line:371},"12":{name:"(anonymous_12)",decl:{start:{line:415,column:58},end:{line:415,column:59}},loc:{start:{line:415,column:68},end:{line:420,column:11}},line:415},"13":{name:"(anonymous_13)",decl:{start:{line:439,column:15},end:{line:439,column:16}},loc:{start:{line:439,column:24},end:{line:454,column:5}},line:439},"14":{name:"(anonymous_14)",decl:{start:{line:464,column:21},end:{line:464,column:22}},loc:{start:{line:464,column:52},end:{line:468,column:1}},line:464},"15":{name:"(anonymous_15)",decl:{start:{line:465,column:23},end:{line:465,column:24}},loc:{start:{line:465,column:58},end:{line:467,column:3}},line:465},"16":{name:"(anonymous_16)",decl:{start:{line:499,column:46},end:{line:499,column:47}},loc:{start:{line:502,column:5},end:{line:603,column:1}},line:502},"17":{name:"(anonymous_17)",decl:{start:{line:527,column:20},end:{line:527,column:21}},loc:{start:{line:527,column:36},end:{line:533,column:3}},line:527},"18":{name:"(anonymous_18)",decl:{start:{line:563,column:22},end:{line:563,column:23}},loc:{start:{line:563,column:41},end:{line:582,column:3}},line:563},"19":{name:"(anonymous_19)",decl:{start:{line:587,column:24},end:{line:587,column:25}},loc:{start:{line:587,column:43},end:{line:593,column:5}},line:587},"20":{name:"(anonymous_20)",decl:{start:{line:607,column:2},end:{line:607,column:3}},loc:{start:{line:607,column:36},end:{line:664,column:3}},line:607},"21":{name:"(anonymous_21)",decl:{start:{line:654,column:26},end:{line:654,column:27}},loc:{start:{line:654,column:38},end:{line:656,column:5}},line:654},"22":{name:"(anonymous_22)",decl:{start:{line:665,column:2},end:{line:665,column:3}},loc:{start:{line:665,column:44},end:{line:712,column:3}},line:665},"23":{name:"(anonymous_23)",decl:{start:{line:671,column:26},end:{line:671,column:27}},loc:{start:{line:671,column:45},end:{line:674,column:7}},line:671},"24":{name:"(anonymous_24)",decl:{start:{line:713,column:2},end:{line:713,column:3}},loc:{start:{line:713,column:11},end:{line:759,column:3}},line:713}},branchMap:{"0":{loc:{start:{line:66,column:9},end:{line:68,column:37}},type:"binary-expr",locations:[{start:{line:66,column:9},end:{line:66,column:10}},{start:{line:66,column:14},end:{line:66,column:35}},{start:{line:66,column:39},end:{line:66,column:56}},{start:{line:68,column:10},end:{line:68,column:37}}],line:66},"1":{loc:{start:{line:147,column:4},end:{line:153,column:5}},type:"if",locations:[{start:{line:147,column:4},end:{line:153,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:147},"2":{loc:{start:{line:148,column:13},end:{line:150,column:46}},type:"cond-expr",locations:[{start:{line:149,column:10},end:{line:149,column:24}},{start:{line:150,column:10},end:{line:150,column:46}}],line:148},"3":{loc:{start:{line:154,column:4},end:{line:156,column:5}},type:"if",locations:[{start:{line:154,column:4},end:{line:156,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:154},"4":{loc:{start:{line:157,column:4},end:{line:159,column:5}},type:"if",locations:[{start:{line:157,column:4},end:{line:159,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:157},"5":{loc:{start:{line:157,column:8},end:{line:157,column:66}},type:"binary-expr",locations:[{start:{line:157,column:8},end:{line:157,column:29}},{start:{line:157,column:33},end:{line:157,column:66}}],line:157},"6":{loc:{start:{line:160,column:4},end:{line:162,column:5}},type:"if",locations:[{start:{line:160,column:4},end:{line:162,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:160},"7":{loc:{start:{line:160,column:8},end:{line:160,column:72}},type:"binary-expr",locations:[{start:{line:160,column:8},end:{line:160,column:29}},{start:{line:160,column:34},end:{line:160,column:48}},{start:{line:160,column:52},end:{line:160,column:71}}],line:160},"8":{loc:{start:{line:163,column:4},end:{line:165,column:5}},type:"if",locations:[{start:{line:163,column:4},end:{line:165,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:163},"9":{loc:{start:{line:163,column:8},end:{line:163,column:37}},type:"binary-expr",locations:[{start:{line:163,column:8},end:{line:163,column:20}},{start:{line:163,column:24},end:{line:163,column:37}}],line:163},"10":{loc:{start:{line:166,column:4},end:{line:170,column:5}},type:"if",locations:[{start:{line:166,column:4},end:{line:170,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:166},"11":{loc:{start:{line:166,column:8},end:{line:168,column:5}},type:"binary-expr",locations:[{start:{line:166,column:8},end:{line:166,column:30}},{start:{line:167,column:6},end:{line:167,column:25}},{start:{line:167,column:29},end:{line:167,column:56}},{start:{line:167,column:60},end:{line:167,column:80}}],line:166},"12":{loc:{start:{line:174,column:4},end:{line:176,column:5}},type:"if",locations:[{start:{line:174,column:4},end:{line:176,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:174},"13":{loc:{start:{line:174,column:8},end:{line:174,column:56}},type:"binary-expr",locations:[{start:{line:174,column:8},end:{line:174,column:31}},{start:{line:174,column:35},end:{line:174,column:56}}],line:174},"14":{loc:{start:{line:179,column:4},end:{line:181,column:5}},type:"if",locations:[{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:179},"15":{loc:{start:{line:188,column:18},end:{line:191,column:15}},type:"cond-expr",locations:[{start:{line:189,column:8},end:{line:189,column:27}},{start:{line:191,column:8},end:{line:191,column:15}}],line:188},"16":{loc:{start:{line:196,column:23},end:{line:196,column:60}},type:"cond-expr",locations:[{start:{line:196,column:35},end:{line:196,column:37}},{start:{line:196,column:40},end:{line:196,column:60}}],line:196},"17":{loc:{start:{line:199,column:4},end:{line:246,column:5}},type:"if",locations:[{start:{line:199,column:4},end:{line:246,column:5}},{start:{line:212,column:11},end:{line:246,column:5}}],line:199},"18":{loc:{start:{line:201,column:16},end:{line:201,column:71}},type:"cond-expr",locations:[{start:{line:201,column:35},end:{line:201,column:51}},{start:{line:201,column:54},end:{line:201,column:71}}],line:201},"19":{loc:{start:{line:253,column:4},end:{line:255,column:5}},type:"if",locations:[{start:{line:253,column:4},end:{line:255,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:253},"20":{loc:{start:{line:253,column:8},end:{line:253,column:44}},type:"binary-expr",locations:[{start:{line:253,column:8},end:{line:253,column:25}},{start:{line:253,column:29},end:{line:253,column:44}}],line:253},"21":{loc:{start:{line:259,column:20},end:{line:260,column:62}},type:"binary-expr",locations:[{start:{line:259,column:20},end:{line:259,column:34}},{start:{line:260,column:6},end:{line:260,column:62}}],line:259},"22":{loc:{start:{line:261,column:4},end:{line:263,column:5}},type:"if",locations:[{start:{line:261,column:4},end:{line:263,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:261},"23":{loc:{start:{line:265,column:4},end:{line:271,column:5}},type:"if",locations:[{start:{line:265,column:4},end:{line:271,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:265},"24":{loc:{start:{line:267,column:6},end:{line:269,column:7}},type:"if",locations:[{start:{line:267,column:6},end:{line:269,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:267},"25":{loc:{start:{line:277,column:4},end:{line:315,column:5}},type:"if",locations:[{start:{line:277,column:4},end:{line:315,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:277},"26":{loc:{start:{line:299,column:6},end:{line:301,column:7}},type:"if",locations:[{start:{line:299,column:6},end:{line:301,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:299},"27":{loc:{start:{line:306,column:6},end:{line:313,column:7}},type:"if",locations:[{start:{line:306,column:6},end:{line:313,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:306},"28":{loc:{start:{line:317,column:4},end:{line:319,column:5}},type:"if",locations:[{start:{line:317,column:4},end:{line:319,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:317},"29":{loc:{start:{line:349,column:8},end:{line:350,column:40}},type:"binary-expr",locations:[{start:{line:349,column:9},end:{line:349,column:12}},{start:{line:349,column:16},end:{line:349,column:49}},{start:{line:350,column:10},end:{line:350,column:40}}],line:349},"30":{loc:{start:{line:357,column:6},end:{line:367,column:7}},type:"if",locations:[{start:{line:357,column:6},end:{line:367,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:357},"31":{loc:{start:{line:357,column:10},end:{line:357,column:50}},type:"binary-expr",locations:[{start:{line:357,column:10},end:{line:357,column:13}},{start:{line:357,column:17},end:{line:357,column:50}}],line:357},"32":{loc:{start:{line:358,column:8},end:{line:360,column:9}},type:"if",locations:[{start:{line:358,column:8},end:{line:360,column:9}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:358},"33":{loc:{start:{line:371,column:6},end:{line:381,column:7}},type:"if",locations:[{start:{line:371,column:6},end:{line:381,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:371},"34":{loc:{start:{line:371,column:10},end:{line:379,column:8}},type:"binary-expr",locations:[{start:{line:371,column:10},end:{line:371,column:18}},{start:{line:371,column:22},end:{line:379,column:8}}],line:371},"35":{loc:{start:{line:372,column:8},end:{line:375,column:9}},type:"if",locations:[{start:{line:372,column:8},end:{line:375,column:9}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:372},"36":{loc:{start:{line:372,column:12},end:{line:373,column:54}},type:"binary-expr",locations:[{start:{line:372,column:12},end:{line:372,column:31}},{start:{line:373,column:11},end:{line:373,column:25}},{start:{line:373,column:29},end:{line:373,column:53}}],line:372},"37":{loc:{start:{line:377,column:16},end:{line:378,column:64}},type:"binary-expr",locations:[{start:{line:377,column:16},end:{line:377,column:29}},{start:{line:377,column:33},end:{line:377,column:47}},{start:{line:378,column:10},end:{line:378,column:64}}],line:377},"38":{loc:{start:{line:392,column:23},end:{line:392,column:46}},type:"binary-expr",locations:[{start:{line:392,column:23},end:{line:392,column:29}},{start:{line:392,column:33},end:{line:392,column:46}}],line:392},"39":{loc:{start:{line:396,column:6},end:{line:398,column:7}},type:"if",locations:[{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:396},"40":{loc:{start:{line:403,column:6},end:{line:422,column:7}},type:"if",locations:[{start:{line:403,column:6},end:{line:422,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:403},"41":{loc:{start:{line:414,column:8},end:{line:421,column:9}},type:"if",locations:[{start:{line:414,column:8},end:{line:421,column:9}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:414},"42":{loc:{start:{line:424,column:6},end:{line:437,column:7}},type:"if",locations:[{start:{line:424,column:6},end:{line:437,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:424},"43":{loc:{start:{line:446,column:6},end:{line:448,column:7}},type:"if",locations:[{start:{line:446,column:6},end:{line:448,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:446},"44":{loc:{start:{line:452,column:37},end:{line:452,column:66}},type:"binary-expr",locations:[{start:{line:452,column:37},end:{line:452,column:51}},{start:{line:452,column:55},end:{line:452,column:66}}],line:452},"45":{loc:{start:{line:509,column:2},end:{line:511,column:3}},type:"if",locations:[{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:509},"46":{loc:{start:{line:512,column:2},end:{line:514,column:3}},type:"if",locations:[{start:{line:512,column:2},end:{line:514,column:3}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:512},"47":{loc:{start:{line:512,column:6},end:{line:512,column:73}},type:"binary-expr",locations:[{start:{line:512,column:6},end:{line:512,column:25}},{start:{line:512,column:29},end:{line:512,column:73}}],line:512},"48":{loc:{start:{line:535,column:2},end:{line:561,column:3}},type:"if",locations:[{start:{line:535,column:2},end:{line:561,column:3}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:535},"49":{loc:{start:{line:547,column:4},end:{line:560,column:5}},type:"if",locations:[{start:{line:547,column:4},end:{line:560,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:547},"50":{loc:{start:{line:548,column:6},end:{line:550,column:7}},type:"if",locations:[{start:{line:548,column:6},end:{line:550,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:548},"51":{loc:{start:{line:548,column:10},end:{line:548,column:51}},type:"binary-expr",locations:[{start:{line:548,column:10},end:{line:548,column:21}},{start:{line:548,column:25},end:{line:548,column:51}}],line:548},"52":{loc:{start:{line:552,column:6},end:{line:559,column:7}},type:"if",locations:[{start:{line:552,column:6},end:{line:559,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:552},"53":{loc:{start:{line:571,column:4},end:{line:579,column:5}},type:"if",locations:[{start:{line:571,column:4},end:{line:579,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:571},"54":{loc:{start:{line:572,column:6},end:{line:575,column:50}},type:"binary-expr",locations:[{start:{line:572,column:7},end:{line:572,column:16}},{start:{line:572,column:20},end:{line:572,column:30}},{start:{line:574,column:8},end:{line:574,column:29}},{start:{line:574,column:33},end:{line:574,column:46}},{start:{line:575,column:7},end:{line:575,column:17}},{start:{line:575,column:21},end:{line:575,column:49}}],line:572},"55":{loc:{start:{line:584,column:2},end:{line:598,column:3}},type:"if",locations:[{start:{line:584,column:2},end:{line:598,column:3}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:584},"56":{loc:{start:{line:588,column:6},end:{line:591,column:7}},type:"if",locations:[{start:{line:588,column:6},end:{line:591,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:588},"57":{loc:{start:{line:594,column:4},end:{line:597,column:5}},type:"if",locations:[{start:{line:594,column:4},end:{line:597,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:594},"58":{loc:{start:{line:609,column:4},end:{line:611,column:5}},type:"if",locations:[{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:609},"59":{loc:{start:{line:622,column:6},end:{line:635,column:31}},type:"cond-expr",locations:[{start:{line:629,column:10},end:{line:634,column:9}},{start:{line:635,column:10},end:{line:635,column:31}}],line:622},"60":{loc:{start:{line:622,column:6},end:{line:628,column:36}},type:"binary-expr",locations:[{start:{line:622,column:6},end:{line:622,column:39}},{start:{line:628,column:8},end:{line:628,column:36}}],line:622},"61":{loc:{start:{line:655,column:31},end:{line:655,column:59}},type:"binary-expr",locations:[{start:{line:655,column:31},end:{line:655,column:53}},{start:{line:655,column:57},end:{line:655,column:59}}],line:655},"62":{loc:{start:{line:658,column:4},end:{line:660,column:5}},type:"if",locations:[{start:{line:658,column:4},end:{line:660,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:658},"63":{loc:{start:{line:666,column:4},end:{line:679,column:5}},type:"if",locations:[{start:{line:666,column:4},end:{line:679,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:666},"64":{loc:{start:{line:666,column:8},end:{line:666,column:65}},type:"binary-expr",locations:[{start:{line:666,column:8},end:{line:666,column:13}},{start:{line:666,column:17},end:{line:666,column:65}}],line:666},"65":{loc:{start:{line:667,column:29},end:{line:669,column:10}},type:"binary-expr",locations:[{start:{line:667,column:29},end:{line:667,column:74}}],line:667},"66":{loc:{start:{line:683,column:4},end:{line:688,column:5}},type:"if",locations:[{start:{line:683,column:4},end:{line:688,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:683},"67":{loc:{start:{line:689,column:4},end:{line:694,column:5}},type:"if",locations:[{start:{line:689,column:4},end:{line:694,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:689}},s:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0,"31":0,"32":0,"33":0,"34":0,"35":0,"36":0,"37":0,"38":0,"39":0,"40":0,"41":0,"42":0,"43":0,"44":0,"45":0,"46":0,"47":0,"48":0,"49":0,"50":0,"51":0,"52":0,"53":0,"54":0,"55":0,"56":0,"57":0,"58":0,"59":0,"60":0,"61":0,"62":0,"63":0,"64":0,"65":0,"66":0,"67":0,"68":0,"69":0,"70":0,"71":0,"72":0,"73":0,"74":0,"75":0,"76":0,"77":0,"78":0,"79":0,"80":0,"81":0,"82":0,"83":0,"84":0,"85":0,"86":0,"87":0,"88":0,"89":0,"90":0,"91":0,"92":0,"93":0,"94":0,"95":0,"96":0,"97":0,"98":0,"99":0,"100":0,"101":0,"102":0,"103":0,"104":0,"105":0,"106":0,"107":0,"108":0,"109":0,"110":0,"111":0,"112":0,"113":0,"114":0,"115":0,"116":0,"117":0,"118":0,"119":0,"120":0,"121":0,"122":0,"123":0,"124":0,"125":0,"126":0,"127":0,"128":0,"129":0,"130":0,"131":0,"132":0,"133":0,"134":0,"135":0,"136":0,"137":0,"138":0,"139":0,"140":0,"141":0,"142":0,"143":0,"144":0,"145":0,"146":0,"147":0,"148":0,"149":0,"150":0,"151":0,"152":0,"153":0,"154":0,"155":0,"156":0,"157":0,"158":0,"159":0,"160":0,"161":0,"162":0,"163":0,"164":0,"165":0,"166":0},f:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0},b:{"0":[0,0,0,0],"1":[0,0],"2":[0,0],"3":[0,0],"4":[0,0],"5":[0,0],"6":[0,0],"7":[0,0,0],"8":[0,0],"9":[0,0],"10":[0,0],"11":[0,0,0,0],"12":[0,0],"13":[0,0],"14":[0],"15":[0,0],"16":[0,0],"17":[0,0],"18":[0,0],"19":[0,0],"20":[0,0],"21":[0,0],"22":[0,0],"23":[0,0],"24":[0,0],"25":[0,0],"26":[0,0],"27":[0,0],"28":[0,0],"29":[0,0,0],"30":[0,0],"31":[0,0],"32":[0,0],"33":[0,0],"34":[0,0],"35":[0,0],"36":[0,0,0],"37":[0,0,0],"38":[0,0],"39":[0],"40":[0,0],"41":[0,0],"42":[0,0],"43":[0,0],"44":[0,0],"45":[0],"46":[0,0],"47":[0,0],"48":[0,0],"49":[0,0],"50":[0,0],"51":[0,0],"52":[0,0],"53":[0,0],"54":[0,0,0,0,0,0],"55":[0,0],"56":[0,0],"57":[0,0],"58":[0],"59":[0,0],"60":[0,0],"61":[0,0],"62":[0,0],"63":[0,0],"64":[0,0],"65":[0],"66":[0,0],"67":[0,0]},inputSourceMap:{version:3,sources:["/Users/brett/jsoe/src/formats/structuredCloning.js"],sourcesContent:["import {\n  Typeson, unescapeKeyPathComponent, structuredCloningForStorage,\n  resurrectable as noneditable, symbol, promise, toStringTag\n} from '../vendor-imports.js';\n\nimport {buildTypeChoices} from '../typeChoices.js';\nimport {\n  typesonPathToJSONPointer\n} from '../utils/jsonPointer.js';\nimport {tick} from '../utils/timing.js';\n\nimport json from './json.js';\n\n/** @type {import('typeson').TypeSpecSet} */\nexport const functionSpec = {\n  function: {\n    test (x) {\n      return typeof x === 'function';\n    },\n    replace (funcType) {\n      return '(' + funcType.toString() + ')';\n    },\n    revive (o) {\n      // eslint-disable-next-line no-eval -- User opted in\n      return eval(o);\n    }\n  }\n};\n\nexport const structuredCloningJsoe = structuredCloningForStorage.filter(\n  (typeSpecSet) => {\n    return [\n      // Not yet supported within JSOE\n      'imagedata',\n      'imagebitmap',\n      'domquad',\n      'quotaexceedederror',\n      'webtransporterror',\n      'cryptokey',\n      'audiodata',\n      'encodedaudiochunk',\n      'encodedvideochunk',\n      'videoframe'\n    ].every((prop) => {\n      return !Object.hasOwn(typeSpecSet, prop);\n    });\n  }\n);\n\n/**\n * A deferred child build registers its own element in `parents` only once its\n *   own build has run. A deeper node's build can wake on the same tick and find\n *   its parent not yet registered (async-replaced parents such as `file`,\n *   `promise` or `blob` also push their builds out of depth order). Rather than\n *   dropping such a node, its build re-checks `parents` across this many ticks\n *   before concluding the parent genuinely does not exist (e.g. a value that was\n *   promoted to the root UI).\n * @type {number}\n */\nconst MAX_PARENT_WAIT_TICKS = 50;\n\n// We modify resurrectable in hopes an including application doesn't need it\n/** @type {import('typeson').TypeSpecSet} */ (\n  noneditable.resurrectable\n).test = /** @type {import('typeson').Tester} */ (x) => {\n  return x && typeof x === 'object' && !Array.isArray(x) &&\n          // Could be a user object with a string tag, but we can't tell\n          toStringTag(x) !== 'Object';\n};\n\n/**\n * Delegates data-based UI building to method for adding child elements (a\n *   method which is housed in the array type object).\n * @typedef {(info: {\n *   propName: string,\n *   type: import('../types.js').AvailableArbitraryType,\n *   value: import('../formats.js').StructuredCloneValue,\n *   bringIntoFocus?: boolean,\n *   setAValue?: boolean,\n *   schemaContent?: import('../formats/schema.js').ZodexSchema,\n *   mustBeOptional?: boolean,\n *   schemaIdx?: number\n * }) => HTMLElement|null} AddAndSetArrayElement\n */\n\n/**\n * @typedef {import('typeson-registry').EncapsulateObserver} EncapsulateObserver\n */\n\n/**\n * Obtains state-specific data and returns an observer that can build a UI based\n *   on data it receives.\n * @param {import('../types.js').StateObject} stateObj\n * @returns {EncapsulateObserver}\n */\nconst encapsulateObserver = (stateObj) => {\n  const {\n    typeNamespace, readonly, format: frmt, schemaContent,\n    formats,\n    types\n  } = stateObj;\n\n  const format = /** @type {import('../formats.js').AvailableFormat} */ (frmt);\n\n  // Collects each deferred per-node UI build. `iterate` does not await these\n  //   (see the comment there); a caller that needs the fully-populated tree\n  //   awaits `stateObj.whenBuilt` after it has attached `rootUI`.\n  const pendingBuilds = (stateObj.pendingBuilds ||= []);\n\n  /**\n   * Matches keypaths to the HTML UI Element.\n   * @type {{[key: string]: HTMLElement & {\n   *   $addAndSetArrayElement: AddAndSetArrayElement\n   * }}}\n   */\n  const parents = {};\n\n  /**\n   * @type {{\n   *   [key: string]: [\n   *     import('zodexy').SzType,\n   *     number|undefined\n   *   ]|undefined\n   * }}\n   */\n  const schemaParents = {};\n\n  /** @type {string[]} */\n  const mapPaths = [];\n\n  /** @type {string[]} */\n  const atomicPaths = [];\n\n  return (observerObj) => {\n    const {\n      type,\n      cyclic,\n      keypath,\n      value,\n      replaced,\n      cyclicKeypath,\n      endIterateIn,\n      endIterateOwn,\n      endIterateUnsetNumeric,\n      clone\n    } = observerObj;\n    if (atomicPaths.some((atomicPath) => {\n      return atomicPath === ''\n        ? keypath !== ''\n        : keypath.startsWith(`${atomicPath}.`);\n    })) {\n      return;\n    }\n    if ('replaced' in observerObj) {\n      return;\n    }\n    if (cyclic === 'readonly' && !Array.isArray(observerObj.value)) {\n      return;\n    }\n    if (cyclic === 'readonly' && (type === 'set' || type === 'filelist')) {\n      return;\n    }\n    if (endIterateIn || endIterateOwn) {\n      return;\n    }\n    if (endIterateUnsetNumeric || (\n      clone === undefined && cyclicKeypath === undefined && Array.isArray(value)\n    )) {\n      return;\n    }\n\n    // What other situations is this firing twice, and it\n    //   shouldn't reach here?\n    if (type === 'negativeZero' && observerObj.replacing) {\n      return;\n    }\n\n    /* istanbul ignore if -- Not part of format */\n    if (type === 'sparseUndefined') { // We'll handle otherwise\n      return;\n    }\n\n    /** @type {import('../types.js').AvailableArbitraryType} */\n    let newType;\n    let newValue = value;\n\n    /* schema: || format.startsWith('schema-') */\n    const state = format === 'structuredCloning'\n      ? 'arrayNonindexKeys'\n    // ? 'sparseArrays'\n      : 'array';\n\n    const li = keypath.lastIndexOf('.');\n    const arrayOrObjectPropertyName =\n      unescapeKeyPathComponent(keypath.slice(li + 1));\n    const parentPath = li === -1 ? '' : keypath.slice(0, li);\n\n    let schema, schemaIdx, mustBeOptional;\n    if (typeof cyclicKeypath === 'string') {\n      newValue = typesonPathToJSONPointer(cyclicKeypath);\n      newType = type === 'array' ? 'arrayReference' : 'objectReference';\n      ({\n        newType, schema, schemaIdx, mustBeOptional\n      } = canonicalTypeToAvailableTypeAndSchema(\n        /** @type {import('../types.js').default} */ (types),\n        /** @type {import('../formats.js').default} */ (formats),\n        format, state, newType, value,\n        arrayOrObjectPropertyName,\n        schemaParents[parentPath],\n        stateObj\n      )); // Todo (low): Add accurate state for second argument\n    } else {\n      // console.log(\n      //   // keypath\n      //   'schemaParents', keypath, parentPath, value,\n      //   arrayOrObjectPropertyName, schemaParents[parentPath]\n      // );\n      try {\n        // console.log(\n        //   'VVVV0', JSON.stringify(parentPath), schemaParents // , stateObj\n        // );\n        ({\n          newType, schema, schemaIdx, mustBeOptional\n        } = canonicalTypeToAvailableTypeAndSchema(\n          /** @type {import('../types.js').default} */ (types),\n          /** @type {import('../formats.js').default} */ (formats),\n          format,\n          state,\n          /**\n           * @type {import('../types.js').AvailableType}\n           */\n          (type),\n          value,\n          arrayOrObjectPropertyName,\n          schemaParents[parentPath],\n          stateObj\n        )); // Todo (low): Add state for second argument\n        // console.log('VVVV1', value, schema);\n        // console.log('VVVV2',\n        //   JSON.stringify(stateObj.schemaContent, null, 2));\n      } catch (err) {\n        console.log('err', type, err, value);\n        stateObj.error = /** @type {Error} */ (err);\n        return;\n      }\n    }\n\n    const hasChildren = [\n      'array', 'object', 'set', 'map', 'filelist',\n      // 'sparseArrays',\n      'arrayNonindexKeys'\n    ].includes(newType);\n    if (type === 'symbol' || type === 'file') {\n      atomicPaths.push(keypath);\n    }\n\n    // Maps are followed up by arrays which we don't want as such;\n    //  we track the paths to avoid reporting these child arrays\n    const mapType = type === 'map' &&\n      Object.prototype.toString.call(value) === '[object Map]';\n    if (mapType) {\n      mapPaths.push(keypath);\n    }\n\n    if (schema) {\n      stateObj.specificSchema = schema;\n      if (!stateObj.specificSchemas) {\n        stateObj.specificSchemas = [];\n      }\n      stateObj.specificSchemas.push(schema);\n    }\n\n    // console.log('is', stateObj.schemaContent);\n    // console.log('but could set to', schema);\n    // console.log('arrayOrObjectPropertyName', arrayOrObjectPropertyName);\n\n    if (!stateObj.rootUI) {\n      // console.log('vvvv0', newType, newValue);\n      stateObj.rootUI = types?.getUIForModeAndType({\n        readonly,\n        typeNamespace,\n        type: newType,\n        bringIntoFocus: false,\n        buildTypeChoices,\n        format,\n        specificSchemaObject: schema,\n        schemaContent,\n        value: newValue,\n        hasValue: true,\n        // Not currently in use but may be convenient for a\n        //     type wanting the serialized data\n        replaced\n      });\n      parents[''] = /**\n                     * @type {HTMLElement &\n                     *   {$addAndSetArrayElement: AddAndSetArrayElement}}\n                     */ (stateObj.rootUI);\n\n      if (schema) {\n        schemaParents[''] = [schema, schemaIdx];\n      }\n\n      // Since we're skipping the array elements, we need to add the\n      //   map element to the array index where the array children\n      //   will be found (which we do want)\n      if (mapType) {\n        /** @type {Map<any, any>} */ [...value].forEach((_, i) => {\n          parents[i] = /**\n                        * @type {HTMLElement &\n                        *   {$addAndSetArrayElement: AddAndSetArrayElement}}\n                        */ (stateObj.rootUI);\n        });\n      }\n      return;\n    }\n\n    if (schema) {\n      schemaParents[keypath] = [schema, schemaIdx];\n    }\n    // console.log(\n    //   'schemaParents', newValue, JSON.stringify(parentPath),\n    //   schema, schemaParents\n    // );\n\n    // Todo (low): Handle `awaitingTypesonPromise` with place-holder\n    // Todo (low): Handle `resolvingTypesonPromise` to replace place-holder\n    //\n    // Each node's UI build is deferred a tick (the parent element is not yet in\n    //   the document when the observer fires). The build now awaits its own\n    //   `setValue` before `validate` (previously `validate` ran synchronously\n    //   against a half-built DOM and threw). Each build promise is collected on\n    //   `stateObj.pendingBuilds` for a caller that wants to await the fully\n    //   populated tree; `iterate` itself does not await them (see below).\n    pendingBuilds.push((async () => {\n      // Defer one tick so the caller has attached `rootUI` (connection-dependent\n      //   init such as `blobHTML`/SCEditor relies on being in the document).\n      await tick();\n      // Then wait for this node's parent UI to be registered in `parents`. A\n      //   parent registers itself only after its own build runs, and\n      //   async-replaced parents (`file`/`promise`/`blob`) push their builds out\n      //   of depth order, so a child can still arrive first; re-check across\n      //   ticks instead of dropping the node on the first miss.\n      // A parent that is genuinely absent (e.g. a converted value promoted to\n      //   the root UI, as for `regexp`/`blobHTML` at root) never appears; after\n      //   the bound we give up and record it below rather than hang.\n      let ui = parents[parentPath];\n      for (\n        let waited = 0;\n        (!ui || !('$addAndSetArrayElement' in ui)) &&\n          waited < MAX_PARENT_WAIT_TICKS;\n        waited++\n      ) {\n        // eslint-disable-next-line no-await-in-loop -- Sequential by design\n        await tick();\n        ui = parents[parentPath];\n      }\n      if (!ui || !('$addAndSetArrayElement' in ui)) {\n        if (!stateObj.buildWarnings) {\n          stateObj.buildWarnings = [];\n        }\n        stateObj.buildWarnings.push({\n          keypath,\n          type: newType,\n          reason: 'no parent UI registered'\n        });\n        return;\n      }\n\n      // Skip the array structures immediately following the Map,\n      //   as map needs to handle\n      if (!mapType && mapPaths.some((mapPath) => {\n        if (mapPath === keypath ||\n          (mapPath === '' && (/^\\d+$/u).test(keypath))) {\n          return true;\n        }\n        const trailingIndex = keypath.match(/\\.\\d+$/u);\n        return (trailingIndex && mapPath !== '' &&\n          keypath.slice(0, -trailingIndex[0].length) === mapPath);\n      })) {\n        return;\n      }\n\n      // console.log('vvvv', newType, '::', newValue, '::', newValue?.cause);\n\n      const root = ui.$addAndSetArrayElement({\n        mustBeOptional,\n        propName: arrayOrObjectPropertyName,\n        type: newType,\n        value: newValue,\n        bringIntoFocus: false,\n        schemaIdx,\n        schemaContent: schema ?? schemaContent\n      });\n\n      /* istanbul ignore if -- Guard for `null` return */\n      if (!root) {\n        return;\n      }\n\n      // Register this node as a parent for its descendants *before* awaiting\n      //   `setValue`, so child builds (already past their own `tick`) can find\n      //   it in `parents`.\n      if (hasChildren) {\n        parents[keypath] = /**\n                            * @type {HTMLElement &\n                            *   {$addAndSetArrayElement: AddAndSetArrayElement}}\n                            */ (\n            root\n          );\n\n        // Since we're skipping the array elements, we need to add the\n        //   map element to the array index where the array children\n        //   will be found (which we do want)\n        if (mapType) {\n          /** @type {Map<any, any>} */ [...value].forEach((_, i) => {\n            parents[`${keypath}.${i}`] = /**\n                                          * @type {HTMLElement &\n                                          *   {$addAndSetArrayElement: AddAndSetArrayElement}}\n                                          */ (root);\n          });\n        }\n      }\n\n      if (!readonly) {\n        await types?.setValue({\n          type: newType,\n          root: /** @type {HTMLDivElement} */ (root),\n          value: newValue\n        });\n        types?.validate({\n          type: newType,\n          root: /** @type {HTMLDivElement} */ (root),\n          topRoot: /** @type {HTMLDivElement} */ (stateObj.rootUI),\n          // We don't want focus when values auto-added\n          avoidReport: true\n        });\n      }\n    // eslint-disable-next-line promise/prefer-await-to-then, promise/prefer-await-to-callbacks -- Convenient\n    })().catch((err) => {\n      // Auto-population is best-effort: a node whose deferred UI is still\n      //   settling (its guard throws `'Not yet instantiated'`) or a transient\n      //   build hiccup must not surface as an unhandled rejection. Genuine\n      //   schema/type errors are still reported via `stateObj.error`. Record\n      //   what was dropped so a caller (or test) can assert the tree built\n      //   fully instead of the failure being wholly invisible.\n      if (!stateObj.buildWarnings) {\n        stateObj.buildWarnings = [];\n      }\n      stateObj.buildWarnings.push({\n        keypath,\n        type: newType,\n        reason: /** @type {Error} */ (err)?.message ?? String(err)\n      });\n    }));\n  };\n};\n\n/**\n * Performs replacements on a list of types.\n * @param {string[]} originTypes\n * @param {[originType: string, replacementType: string][]} replacements\n * @returns {void}\n */\nconst replaceTypes = (originTypes, replacements) => {\n  replacements.forEach(([originType, replacementType]) => {\n    originTypes.splice(originTypes.indexOf(originType), 1, replacementType);\n  });\n};\n\n/**\n * Converts a (typeson structured cloning) type to a type name relevant for the\n *   format, state, value, and schema content, and may supply a child type if\n *   there is a match. Also returns relevant schema for the type.\n * @param {import('../types.js').default} types The Types object containing\n *   type-specific data.\n * @param {import('../formats.js').default} formats The Formats object\n *   containing format-specific data.\n * @param {import('../formats.js').AvailableFormat} format The current format.\n * @param {string} state The current state.\n * @param {import('../types.js').AvailableArbitraryType} valType The value\n *   type being checked.\n * @param {import('../formats.js').StructuredCloneValue} v The value being\n *   checked.\n * @param {string} arrayOrObjectPropertyName\n * @param {[\n *   import('zodexy').SzType,\n *   number|undefined\n * ]|undefined} parentSchema\n * @param {import('../types.js').StateObject} stateObj The schema content\n *   being checked.\n * @throws {Error} May throw if data found to be invalid.\n * @returns {{\n *   newType: import('../types.js').AvailableArbitraryType,\n *   schema?: import('zodexy').SzType|undefined,\n *   mustBeOptional?: boolean,\n *   schemaIdx?: number\n * }} Schema and type info.\n */\nconst canonicalTypeToAvailableTypeAndSchema = (\n  types, formats, format, state, valType, v, arrayOrObjectPropertyName,\n  parentSchema, stateObj\n) => {\n  const frmt = formats.getAvailableFormat(format);\n  const {getTypesAndSchemasForState, convertFromTypeson, testInvalid} = frmt;\n  const allowableTypes = getTypesAndSchemasForState.call(\n    frmt, types, state, stateObj.schemaContent\n  )?.types;\n  /* istanbul ignore if -- Guard */\n  if (!allowableTypes) {\n    throw new Error('Unexpected undefined type for state');\n  }\n  if (valType === 'array' && allowableTypes.includes('arrayNonindexKeys')) {\n    valType = 'arrayNonindexKeys';\n  }\n\n  /**\n   * @type {import('../types.js').AvailableArbitraryType|undefined}\n   */\n  let ret;\n\n  /**\n   * Throws an error with information about the new value type.\n   * @param {string} newValType The new value type being recorded.\n   * @throws {Error} The invalid Error being thrown.\n   * @returns {never} Always throws instead of returning.\n   */\n  const isInvalid = (newValType) => {\n    const err = /** @type {Error & {newValType: string}} */ (\n      new Error('Invalid')\n    );\n    err.newValType = newValType;\n    throw err;\n  };\n  let schema;\n  if (convertFromTypeson) {\n    let newValType;\n    let mustBeOptional;\n    let schemaIdx;\n    ({\n      type: newValType,\n      schema,\n      schemaIdx,\n      mustBeOptional\n    } = convertFromTypeson(\n      valType, types, v, arrayOrObjectPropertyName, parentSchema, stateObj\n    ));\n    if (typeof newValType === 'string') {\n      if (testInvalid && testInvalid(newValType, v)) {\n        return isInvalid(newValType);\n      }\n      valType = newValType;\n      if (schema) {\n        return {\n          newType: valType,\n          schema,\n          schemaIdx,\n          mustBeOptional\n        };\n      }\n    }\n  }\n\n  allowableTypes.some((allowableType) => {\n    const typeObj =\n      /** @type {import('../types.js').TypeObject & {childTypes: string[]}} */ (\n        types.getTypeObject(allowableType)\n      );\n    const {\n      valueMatch, superType, childTypes\n    } = typeObj;\n    if (\n      (superType && valueMatch &&\n        // Using, e.g., for `true` and `false` subtypes\n        superType === valType && valueMatch(v)) ||\n      (childTypes && childTypes.includes(valType))\n    ) {\n      ret = allowableType;\n      return true;\n    }\n\n    return false;\n  });\n\n  if (ret === undefined) {\n    // We run this separately from the `childTypes` check above\n    //    to ensure `childTypes` have priority regardless of position\n    allowableTypes.some((allowableType) => {\n      if (allowableType === valType) {\n        ret = allowableType;\n        return true;\n      }\n      return false;\n    });\n    if (ret === undefined) {\n      console.log('AALLLowableTypes', state, allowableTypes, '::', valType, v);\n      return isInvalid(valType);\n    }\n  }\n  return {\n    newType: ret,\n    schema\n  };\n};\n\n/** @type {import('../formats.js').Format} */\nconst structuredCloning = {\n  async iterate (records, stateObj) {\n    /* istanbul ignore if -- Just a guard */\n    if (!stateObj.format) {\n      stateObj.format = 'structuredCloning';\n    }\n\n    structuredCloningJsoe.splice(\n      // Add after userObjects\n      1,\n      0,\n      noneditable\n    );\n    const typeson = new Typeson({\n      encapsulateObserver: encapsulateObserver(stateObj)\n    }).register(\n      stateObj.format === 'arbitraryJS' ||\n        // Todo: Should have an arbitraryJS variant of schema instead\n        //    to allow function/promise/symbol schemas to be cloneable but not\n        //    through same schema\n        // Todo: Typeson has an issue for symbol-iterating keys; then add\n        //    to regular demo and test; add tests\n        stateObj.format === 'schema'\n        ? [\n          ...structuredCloningJsoe,\n          symbol,\n          promise,\n          functionSpec\n        ]\n        : structuredCloningJsoe\n    );\n\n    await typeson.encapsulateAsync(records, null, {\n      throwOnBadSyncType: false\n    });\n\n    // The per-node builds run themselves (each is a self-executing async IIFE)\n    //   a tick later, once the caller has connected `rootUI`; the race that\n    //   used to crash \u2014 a node's synchronous `validate` running before its\n    //   asynchronous `setValue` had built the DOM \u2014 is fixed inside each build,\n    //   which now awaits `setValue` before `validate`, and a build no longer\n    //   drops itself when its parent is a tick behind (it re-checks `parents`\n    //   up to `MAX_PARENT_WAIT_TICKS`). We deliberately do not await the builds\n    //   here: blocking the return re-orders deferred, connection-dependent init\n    //   (e.g. `blobHTML`/SCEditor) ahead of the caller attaching `rootUI`.\n    //   Instead `stateObj.whenBuilt` resolves once every build has settled, for\n    //   a caller (or test) that needs the fully-populated tree; anything a\n    //   build could not attach is listed on `stateObj.buildWarnings`.\n    stateObj.whenBuilt = (async () => {\n      await Promise.allSettled(stateObj.pendingBuilds ?? []);\n    })();\n\n    if (stateObj.error) {\n      throw stateObj.error;\n    }\n    return (/** @type {Required<import('../types.js').StateObject>} */ (\n      stateObj\n    ));\n  },\n  getTypesAndSchemasForState (types, state) {\n    if (state && types.getContextInfo('structuredCloning', state)) {\n      const typesForFormat = this.getTypesAndSchemasForState(types)?.types ||\n        /* istanbul ignore next -- types should be an array */\n        [];\n      const contextInfo = types.getContextInfo('structuredCloning', state);\n      contextInfo.forEach(({type, after}) => {\n        const precedingIdx = typesForFormat.indexOf(after);\n        typesForFormat.splice(precedingIdx + 1, 0, type);\n      });\n      return {\n        types: typesForFormat,\n        schemaObjects: []\n      };\n    }\n    // Todo: Introduce new keys (to `Types.contexts`?) which could be used to\n    //         determine a delimited group of children (rather\n    //         than manual exception handling as we do here)\n    if (state === 'errorsArray') {\n      return {\n        types: ['error', 'errors'],\n        schemaObjects: []\n      };\n    }\n    if (state === 'filelistArray') {\n      return {\n        types: ['file'],\n        schemaObjects: []\n      };\n    }\n    return {\n      types: this.types(),\n      schemaObjects: []\n    };\n    /*\n    // These have their children determined internally to array\n    if (['map', 'set'].includes(state)) {return;}\n    */\n\n    // These have their own internal numeric children instead\n    /*\n    if (\n      'int8array', 'uint8array', 'uint8clampedarray',\n      'int16array', 'uint16array', 'int32array',\n      'uint32array', 'float32array', 'float64array'\n    ).includes(state)) {return;}\n    */\n  },\n  types () {\n    const jsonTypes = json.types();\n    replaceTypes(jsonTypes, [\n      [\n        'array',\n        // We can rename to this instead of `arrayNonindexKeys` if we change\n        //  typeson-registry name\n        // 'sparseArrays',\n        'arrayNonindexKeys'\n      ]\n    ]);\n    return [\n      // This type is only for throwing upon cloning errors:\n      // 'checkDataCloneException'\n      // This type might be supported by evaluable JS or config passed in:\n      // 'userObject'\n      ...jsonTypes,\n      'undef', // Explicit undefined only\n      'bigint',\n      'bigintObject',\n      'SpecialNumber', // '`NaN`, `Infinity`, `-Infinity`, `-0`\n      'date',\n      'regexp',\n      'BooleanObject',\n      'NumberObject',\n      'StringObject',\n      'error',\n      'errors',\n      'blob',\n      'blobHTML',\n      'file',\n      'set',\n      'map',\n      'filelist',\n      'domexception',\n      'domrect',\n      'dompoint',\n      'dommatrix',\n      'buffersource',\n      'resurrectable'\n\n      // Ok, but will need some work and/or decisions on how to present:\n      // 'cryptokey',\n      // 'domquad',\n      // 'imagedata', 'imagebitmap',\n    ];\n  }\n};\n\nexport default structuredCloning;\n"],names:[],mappings:"AAAA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEhC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC;;AAED,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC;;AAEF,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC;;AAEF,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE9E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEvD,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEpB,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAA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CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAExB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAER,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAER,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7F,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5G,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC;AACH,CAAC;;AAED,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC;;AAED,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC;;AAEF,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAET,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC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AAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC;AACH,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAER,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,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C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;",file:undefined},_coverageSchema:"1a1c01bbd47fc00a2c39e90264f33305004495a9",hash:"6021a8a151953cfbbe65b14aaab6db6672ec6035"};var coverage=global[gcv]||(global[gcv]={});if(!coverage[path]||coverage[path].hash!==hash){coverage[path]=coverageData;}var actualCoverage=coverage[path];{// @ts-ignore
 cov_2i9f9gddfq=function(){return actualCoverage;};}return actualCoverage;}cov_2i9f9gddfq();/** @type {import('typeson').TypeSpecSet} */const functionSpec=(cov_2i9f9gddfq().s[0]++,{function:{test(x){cov_2i9f9gddfq().f[0]++;cov_2i9f9gddfq().s[1]++;return typeof x==='function';},replace(funcType){cov_2i9f9gddfq().f[1]++;cov_2i9f9gddfq().s[2]++;return '('+funcType.toString()+')';},revive(o){cov_2i9f9gddfq().f[2]++;cov_2i9f9gddfq().s[3]++;// eslint-disable-next-line no-eval -- User opted in
-return eval(o);}}});const structuredCloningJsoe=(cov_2i9f9gddfq().s[4]++,pe.filter(typeSpecSet=>{cov_2i9f9gddfq().f[3]++;cov_2i9f9gddfq().s[5]++;return [// Not yet supported within JSOE
+return eval(o);}}});const structuredCloningJsoe=(cov_2i9f9gddfq().s[4]++,fe.filter(typeSpecSet=>{cov_2i9f9gddfq().f[3]++;cov_2i9f9gddfq().s[5]++;return [// Not yet supported within JSOE
 'imagedata','imagebitmap','domquad','quotaexceedederror','webtransporterror','cryptokey','audiodata','encodedaudiochunk','encodedvideochunk','videoframe'].every(prop=>{cov_2i9f9gddfq().f[4]++;cov_2i9f9gddfq().s[6]++;return !Object.hasOwn(typeSpecSet,prop);});}));/**
  * A deferred child build registers its own element in `parents` only once its
  *   own build has run. A deeper node's build can wake on the same tick and find
@@ -10223,7 +10223,7 @@ return eval(o);}}});const structuredCloningJsoe=(cov_2i9f9gddfq().s[4]++,pe.filt
  *   promoted to the root UI).
  * @type {number}
  */const MAX_PARENT_WAIT_TICKS=(cov_2i9f9gddfq().s[7]++,50);// We modify resurrectable in hopes an including application doesn't need it
-/** @type {import('typeson').TypeSpecSet} */cov_2i9f9gddfq().s[8]++;Q.resurrectable.test=/** @type {import('typeson').Tester} */x=>{cov_2i9f9gddfq().f[5]++;cov_2i9f9gddfq().s[9]++;return (cov_2i9f9gddfq().b[0][0]++,x)&&(cov_2i9f9gddfq().b[0][1]++,typeof x==='object')&&(cov_2i9f9gddfq().b[0][2]++,!Array.isArray(x))&&(cov_2i9f9gddfq().b[0][3]++,// Could be a user object with a string tag, but we can't tell
+/** @type {import('typeson').TypeSpecSet} */cov_2i9f9gddfq().s[8]++;G.resurrectable.test=/** @type {import('typeson').Tester} */x=>{cov_2i9f9gddfq().f[5]++;cov_2i9f9gddfq().s[9]++;return (cov_2i9f9gddfq().b[0][0]++,x)&&(cov_2i9f9gddfq().b[0][1]++,typeof x==='object')&&(cov_2i9f9gddfq().b[0][2]++,!Array.isArray(x))&&(cov_2i9f9gddfq().b[0][3]++,// Could be a user object with a string tag, but we can't tell
 toStringTag(x)!=='Object');};/**
  * Delegates data-based UI building to method for adding child elements (a
  *   method which is housed in the array type object).
@@ -10387,12 +10387,12 @@ if(!stateObj.buildWarnings){cov_2i9f9gddfq().b[43][0]++;cov_2i9f9gddfq().s[101]+
 superType===valType)&&(cov_2i9f9gddfq().b[54][3]++,valueMatch(v))||(cov_2i9f9gddfq().b[54][4]++,childTypes)&&(cov_2i9f9gddfq().b[54][5]++,childTypes.includes(valType))){cov_2i9f9gddfq().b[53][0]++;cov_2i9f9gddfq().s[129]++;ret=allowableType;cov_2i9f9gddfq().s[130]++;return true;}else {cov_2i9f9gddfq().b[53][1]++;}cov_2i9f9gddfq().s[131]++;return false;});cov_2i9f9gddfq().s[132]++;if(ret===undefined){cov_2i9f9gddfq().b[55][0]++;cov_2i9f9gddfq().s[133]++;// We run this separately from the `childTypes` check above
 //    to ensure `childTypes` have priority regardless of position
 allowableTypes.some(allowableType=>{cov_2i9f9gddfq().f[19]++;cov_2i9f9gddfq().s[134]++;if(allowableType===valType){cov_2i9f9gddfq().b[56][0]++;cov_2i9f9gddfq().s[135]++;ret=allowableType;cov_2i9f9gddfq().s[136]++;return true;}else {cov_2i9f9gddfq().b[56][1]++;}cov_2i9f9gddfq().s[137]++;return false;});cov_2i9f9gddfq().s[138]++;if(ret===undefined){cov_2i9f9gddfq().b[57][0]++;cov_2i9f9gddfq().s[139]++;console.log('AALLLowableTypes',state,allowableTypes,'::',valType,v);cov_2i9f9gddfq().s[140]++;return isInvalid(valType);}else {cov_2i9f9gddfq().b[57][1]++;}}else {cov_2i9f9gddfq().b[55][1]++;}cov_2i9f9gddfq().s[141]++;return {newType:ret,schema};};/** @type {import('../formats.js').Format} */const structuredCloning=(cov_2i9f9gddfq().s[142]++,{async iterate(records,stateObj){cov_2i9f9gddfq().f[20]++;cov_2i9f9gddfq().s[143]++;/* istanbul ignore if -- Just a guard */if(!stateObj.format){stateObj.format='structuredCloning';}else {cov_2i9f9gddfq().b[58][0]++;}cov_2i9f9gddfq().s[144]++;structuredCloningJsoe.splice(// Add after userObjects
-1,0,Q);const typeson=(cov_2i9f9gddfq().s[145]++,new Typeson({encapsulateObserver:encapsulateObserver(stateObj)}).register((cov_2i9f9gddfq().b[60][0]++,stateObj.format==='arbitraryJS')||(cov_2i9f9gddfq().b[60][1]++,// Todo: Should have an arbitraryJS variant of schema instead
+1,0,G);const typeson=(cov_2i9f9gddfq().s[145]++,new Typeson({encapsulateObserver:encapsulateObserver(stateObj)}).register((cov_2i9f9gddfq().b[60][0]++,stateObj.format==='arbitraryJS')||(cov_2i9f9gddfq().b[60][1]++,// Todo: Should have an arbitraryJS variant of schema instead
 //    to allow function/promise/symbol schemas to be cloneable but not
 //    through same schema
 // Todo: Typeson has an issue for symbol-iterating keys; then add
 //    to regular demo and test; add tests
-stateObj.format==='schema')?(cov_2i9f9gddfq().b[59][0]++,[...structuredCloningJsoe,X,z$2,functionSpec]):(cov_2i9f9gddfq().b[59][1]++,structuredCloningJsoe)));cov_2i9f9gddfq().s[146]++;await typeson.encapsulateAsync(records,null,{throwOnBadSyncType:false});// The per-node builds run themselves (each is a self-executing async IIFE)
+stateObj.format==='schema')?(cov_2i9f9gddfq().b[59][0]++,[...structuredCloningJsoe,Y,V,functionSpec]):(cov_2i9f9gddfq().b[59][1]++,structuredCloningJsoe)));cov_2i9f9gddfq().s[146]++;await typeson.encapsulateAsync(records,null,{throwOnBadSyncType:false});// The per-node builds run themselves (each is a self-executing async IIFE)
 //   a tick later, once the caller has connected `rootUI`; the race that
 //   used to crash — a node's synchronous `validate` running before its
 //   asynchronous `setValue` had built the DOM — is fixed inside each build,
@@ -10476,16 +10476,23 @@ function jsonStringifyReplacer(_, value) {
         return value.toString();
     return value;
 }
+// the accessor lives on a shared prototype: an own accessor makes every box a dictionary-mode object (~360 B and a slow load per read against ~100 B and an inlined getter here)
+class Cached {
+    constructor(getter) {
+        this._getter = getter;
+        this._value = undefined;
+    }
+    get value() {
+        const getter = this._getter;
+        if (getter !== undefined) {
+            this._value = getter();
+            this._getter = undefined;
+        }
+        return this._value;
+    }
+}
 function cached(getter) {
-    return {
-        get value() {
-            {
-                const value = getter();
-                Object.defineProperty(this, "value", { value });
-                return value;
-            }
-        },
-    };
+    return new Cached(getter);
 }
 function nullish$1(input) {
     return input === null || input === undefined;
@@ -10539,6 +10546,71 @@ function assignProp(target, prop, value) {
         enumerable: true,
         configurable: true,
     });
+}
+/**
+ * Whichever object a def's `shape` currently answers from: the one the caller passed until the first read, the frozen copy after it.
+ *
+ * Its keys and descriptors read without invoking anything, which is what lets a discriminated union check its discriminator, and the cycle walk read a shape, without resolving a getter that references the schema being constructed. A def that answers `shape` from an accessor of its own has none.
+ */
+function rawShape(def) {
+    const desc = Object.getOwnPropertyDescriptor(def, "shape");
+    return desc?.get ? desc.get.raw : desc?.value;
+}
+// where a builder reads its source's keys and descriptors, resolving only a shape a def answers for itself. A shape resolves by object spread, so only its enumerable keys are ever part of it.
+function sourceShape(schema) {
+    return rawShape(schema._zod.def) ?? schema._zod.def.shape;
+}
+// a key whose value is not settled yet, self-caching so every read after the first gets the same one
+function deferProp(target, key, getter) {
+    Object.defineProperty(target, key, {
+        get() {
+            const value = getter();
+            assignProp(this, key, value);
+            return value;
+        },
+        enumerable: true,
+        configurable: true,
+    });
+}
+// Writes a settled key. A plain assignment is much cheaper than `defineProperty` and produces the same descriptor, but it runs whatever setter already answers to the key — an accessor this shape deferred, or an inherited one, which `__proto__` has on every object and prototype pollution can add for any name.
+function putProp(target, key, value) {
+    if (key in target)
+        assignProp(target, key, value);
+    else
+        target[key] = value;
+}
+/**
+ * Copies `keys` of `source`'s shape onto `target`, each value passed through `wrap`.
+ *
+ * A key the source has resolved is copied through now, so the derived shape states it outright and nothing has to resolve it to learn what it holds. A key the source still defers stays deferred, and reads back through the source's own `shape`, so it resolves once and both shapes get that one schema.
+ */
+function mirrorShape(target, source, keys, wrap) {
+    const raw = sourceShape(source);
+    for (const key of keys) {
+        const desc = Object.getOwnPropertyDescriptor(raw, key);
+        if (!desc.enumerable)
+            continue;
+        if (desc.get) {
+            deferProp(target, key, () => {
+                const value = source._zod.def.shape[key];
+                return wrap ? wrap(value, key) : value;
+            });
+        }
+        else
+            putProp(target, key, wrap ? wrap(desc.value, key) : desc.value);
+    }
+}
+// same, for a plain shape a caller passed rather than a schema's
+function mirrorProps(target, source) {
+    for (const key of Reflect.ownKeys(source)) {
+        const desc = Object.getOwnPropertyDescriptor(source, key);
+        if (!desc.enumerable)
+            continue;
+        if (desc.get)
+            deferProp(target, key, () => source[key]);
+        else
+            putProp(target, key, desc.value);
+    }
 }
 function mergeDefs(...defs) {
     const mergedDescriptors = {};
@@ -10791,24 +10863,23 @@ function pick(schema, mask) {
     if (hasChecks) {
         throw new Error(".pick() cannot be used on object schemas containing refinements");
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const newShape = {};
-            // `for...in` skips symbols, so a symbol in the mask would select nothing
-            for (const key of Reflect.ownKeys(mask)) {
-                if (!Object.prototype.hasOwnProperty.call(currDef.shape, key)) {
-                    throw new Error(`Unrecognized key: "${String(key)}"`);
-                }
-                if (!mask[key])
-                    continue;
-                assignProp(newShape, key, currDef.shape[key]);
-            }
-            assignProp(this, "shape", newShape); // self-caching
-            return newShape;
-        },
-        checks: [],
-    });
-    return clone(schema, def);
+    const newShape = {};
+    mirrorShape(newShape, schema, maskedKeys(schema, mask));
+    return clone(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
+}
+// the mask keys that select something, checked against the source's shape without resolving it
+function maskedKeys(schema, mask) {
+    const raw = sourceShape(schema);
+    const keys = [];
+    // `for...in` skips symbols, so a symbol in the mask would select nothing
+    for (const key of Reflect.ownKeys(mask)) {
+        if (!Object.getOwnPropertyDescriptor(raw, key)?.enumerable) {
+            throw new Error(`Unrecognized key: "${String(key)}"`);
+        }
+        if (mask[key])
+            keys.push(key);
+    }
+    return keys;
 }
 function omit(schema, mask) {
     const currDef = schema._zod.def;
@@ -10817,23 +10888,10 @@ function omit(schema, mask) {
     if (hasChecks) {
         throw new Error(".omit() cannot be used on object schemas containing refinements");
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const newShape = { ...schema._zod.def.shape };
-            for (const key of Reflect.ownKeys(mask)) {
-                if (!Object.prototype.hasOwnProperty.call(currDef.shape, key)) {
-                    throw new Error(`Unrecognized key: "${String(key)}"`);
-                }
-                if (!mask[key])
-                    continue;
-                delete newShape[key];
-            }
-            assignProp(this, "shape", newShape); // self-caching
-            return newShape;
-        },
-        checks: [],
-    });
-    return clone(schema, def);
+    const omitted = new Set(maskedKeys(schema, mask));
+    const newShape = {};
+    mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)).filter((key) => !omitted.has(key)));
+    return clone(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
 }
 function extend(schema, shape) {
     if (!isPlainObject(shape)) {
@@ -10843,34 +10901,27 @@ function extend(schema, shape) {
     const hasChecks = checks && checks.length > 0;
     if (hasChecks) {
         // Only throw if new shape overlaps with existing shape. Use getOwnPropertyDescriptor to check key existence without accessing values
-        const existingShape = schema._zod.def.shape;
+        const existingShape = sourceShape(schema);
         for (const key of Reflect.ownKeys(shape)) {
             if (Object.getOwnPropertyDescriptor(existingShape, key) !== undefined) {
                 throw new Error("Cannot overwrite keys on object schemas containing refinements. Use `.safeExtend()` instead.");
             }
         }
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const _shape = { ...schema._zod.def.shape, ...shape };
-            assignProp(this, "shape", _shape); // self-caching
-            return _shape;
-        },
-    });
-    return clone(schema, def);
+    return clone(schema, mergeDefs(schema._zod.def, { shape: extended(schema, shape) }));
+}
+// the source's keys, then the caller's overlaid on top
+function extended(schema, shape) {
+    const newShape = {};
+    mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)));
+    mirrorProps(newShape, shape);
+    return newShape;
 }
 function safeExtend(schema, shape) {
     if (!isPlainObject(shape)) {
         throw new Error("Invalid input to safeExtend: expected a plain object");
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const _shape = { ...schema._zod.def.shape, ...shape };
-            assignProp(this, "shape", _shape); // self-caching
-            return _shape;
-        },
-    });
-    return clone(schema, def);
+    return clone(schema, mergeDefs(schema._zod.def, { shape: extended(schema, shape) }));
 }
 function merge(a, b) {
     if (!b?._zod?.def) {
@@ -10879,12 +10930,11 @@ function merge(a, b) {
     if (a._zod.def.checks?.length) {
         throw new Error(".merge() cannot be used on object schemas containing refinements. Use .safeExtend() instead.");
     }
+    const newShape = {};
+    mirrorShape(newShape, a, Reflect.ownKeys(sourceShape(a)));
+    mirrorShape(newShape, b, Reflect.ownKeys(sourceShape(b)));
     const def = mergeDefs(a._zod.def, {
-        get shape() {
-            const _shape = { ...a._zod.def.shape, ...b._zod.def.shape };
-            assignProp(this, "shape", _shape); // self-caching
-            return _shape;
-        },
+        shape: newShape,
         get catchall() {
             return b._zod.def.catchall;
         },
@@ -10899,78 +10949,19 @@ function partial(Class, schema, mask, name = "partial") {
     if (hasChecks) {
         throw new Error(`.${name}() cannot be used on object schemas containing refinements`);
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const oldShape = schema._zod.def.shape;
-            const shape = { ...oldShape };
-            if (mask) {
-                for (const key of Reflect.ownKeys(mask)) {
-                    if (!Object.prototype.hasOwnProperty.call(oldShape, key)) {
-                        throw new Error(`Unrecognized key: "${String(key)}"`);
-                    }
-                    if (!mask[key])
-                        continue;
-                    // if (oldShape[key]!._zod.optin === "optional") continue;
-                    shape[key] = Class
-                        ? new Class({
-                            type: "optional",
-                            innerType: oldShape[key],
-                        })
-                        : oldShape[key];
-                }
-            }
-            else {
-                // the spread copies symbol keys; `for...in` would not reach them
-                for (const key of Reflect.ownKeys(oldShape)) {
-                    // if (oldShape[key]!._zod.optin === "optional") continue;
-                    shape[key] = Class
-                        ? new Class({
-                            type: "optional",
-                            innerType: oldShape[key],
-                        })
-                        : oldShape[key];
-                }
-            }
-            assignProp(this, "shape", shape); // self-caching
-            return shape;
-        },
-        checks: [],
-    });
-    return clone(schema, def);
+    const selected = mask ? new Set(maskedKeys(schema, mask)) : undefined;
+    const newShape = {};
+    mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), Class &&
+        ((value, key) => (selected && !selected.has(key) ? value : new Class({ type: "optional", innerType: value }))));
+    return clone(schema, mergeDefs(schema._zod.def, { shape: newShape, checks: [] }));
 }
 function required(Class, schema, mask) {
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const oldShape = schema._zod.def.shape;
-            const shape = { ...oldShape };
-            if (mask) {
-                for (const key of Reflect.ownKeys(mask)) {
-                    if (!Object.prototype.hasOwnProperty.call(shape, key)) {
-                        throw new Error(`Unrecognized key: "${String(key)}"`);
-                    }
-                    if (!mask[key])
-                        continue;
-                    // overwrite with non-optional
-                    shape[key] = new Class({
-                        type: "nonoptional",
-                        innerType: oldShape[key],
-                    });
-                }
-            }
-            else {
-                for (const key of Reflect.ownKeys(oldShape)) {
-                    // overwrite with non-optional
-                    shape[key] = new Class({
-                        type: "nonoptional",
-                        innerType: oldShape[key],
-                    });
-                }
-            }
-            assignProp(this, "shape", shape); // self-caching
-            return shape;
-        },
-    });
-    return clone(schema, def);
+    const selected = mask ? new Set(maskedKeys(schema, mask)) : undefined;
+    const newShape = {};
+    mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), (value, key) => 
+    // overwrite with non-optional
+    selected && !selected.has(key) ? value : new Class({ type: "nonoptional", innerType: value }));
+    return clone(schema, mergeDefs(schema._zod.def, { shape: newShape }));
 }
 // invalid_type | too_big | too_small | invalid_format | not_multiple_of | unrecognized_keys | invalid_union | invalid_key | invalid_element | invalid_value | custom
 function aborted(x, startIndex = 0) {
@@ -11032,13 +11023,19 @@ function finalizeIssue(iss, ctx, config) {
             unwrapMessage(config.customError?.(iss)) ??
             unwrapMessage(config.localeError?.(iss)) ??
             "Invalid input");
-    const { inst: _inst, schema: _schema, continue: _continue, input: _input, ...rest } = iss;
-    rest.path ?? (rest.path = []);
-    rest.message = message;
-    if (ctx?.reportInput) {
-        rest.input = _input;
+    // an explicit own-key copy beats object rest with excluded keys, which v8 routes through a generic runtime call; Object.keys rather than for-in so an issue pushed with a prototype does not leak inherited keys, and an own __proto__ key is dropped rather than assigned through the setter
+    const full = {};
+    for (const k of Object.keys(iss)) {
+        if (k === "inst" || k === "schema" || k === "continue" || k === "input" || k === "__proto__")
+            continue;
+        full[k] = iss[k];
     }
-    return rest;
+    full.path ?? (full.path = []);
+    full.message = message;
+    if (ctx?.reportInput) {
+        full.input = iss.input;
+    }
+    return full;
 }
 function getSizableOrigin(input) {
     if (input instanceof Set)
@@ -11175,6 +11172,10 @@ function members(proto, table) {
         else
             defineBound(proto, key, desc.value);
     }
+    // for..in sees no symbol keys, so well-known members like Symbol.iterator install here
+    for (const sym of Object.getOwnPropertySymbols(table)) {
+        defineBound(proto, sym, table[sym]);
+    }
 }
 /** Shadows a prototype member with an own value, so a getter that builds from the instance runs once. */
 function own(inst, key, value, enumerable = true) {
@@ -11184,6 +11185,24 @@ function own(inst, key, value, enumerable = true) {
 /** Like {@link own}, for a member that was never an own data property and has to stay out of `Object.keys`. */
 function hide(inst, key, value) {
     return own(inst, key, value, false);
+}
+/** Adds members a table derives from the instance: each builds on first read and shadows as own data, and assignment shadows the same way, as when these were own properties. */
+function derived(computes, table) {
+    for (const key in computes) {
+        const compute = computes[key];
+        // an object literal's accessor is configurable and enumerable, and `members` copies the descriptor as written
+        Object.defineProperty(table, key, {
+            configurable: true,
+            enumerable: true,
+            get() {
+                return own(this, key, compute(this));
+            },
+            set(value) {
+                own(this, key, value);
+            },
+        });
+    }
+    return table;
 }
 function defineBound(proto, key, fn) {
     Object.defineProperty(proto, key, {
@@ -11318,6 +11337,7 @@ var util = /*#__PURE__*/Object.freeze({
 	createTransparentProxy: createTransparentProxy,
 	defineLazy: defineLazy,
 	defineLazyInternal: defineLazyInternal,
+	derived: derived,
 	esc: esc,
 	escapeRegex: escapeRegex$1,
 	explicitlyAborted: explicitlyAborted,
@@ -11355,6 +11375,7 @@ var util = /*#__PURE__*/Object.freeze({
 	promiseAllObject: promiseAllObject,
 	propertyKeyTypes: propertyKeyTypes,
 	randomString: randomString,
+	rawShape: rawShape,
 	required: required,
 	safeExtend: safeExtend,
 	shallowClone: shallowClone,
@@ -11374,7 +11395,7 @@ const NEVER = /*@__PURE__*/ Object.freeze({
 });
 /* Shared descriptor for installing `_zod`; defineProperty reads it
  * synchronously, so reusing one object avoids a per-instance allocation. */
-const _zodDesc$1 = { value: undefined, enumerable: false };
+const _zodDesc = { value: undefined, enumerable: false };
 // null where suppressing the capture would be unrecoverable: `parse()` puts the frames back with `captureStackTrace`, so without it the throw would lose its stack. also latched to null once `stackTraceLimit` proves unassignable, which a realm can do at any point by hardening Error
 let _E = "captureStackTrace" in Error ? Error : null;
 // v8 captures a stack trace inside the Error constructor, which dominates a failed parse; costs only the frames, and parse() restores those. the constructor must RUN: Object.create is cheaper and passes instanceof, but Error.isError and util.types.isNativeError check an internal slot
@@ -11417,13 +11438,13 @@ proto, params) {
     const initialized = protoMembers && new WeakSet();
     function init(inst, def) {
         if (!inst._zod) {
-            _zodDesc$1.value = new Internals(def);
+            _zodDesc.value = new Internals(def);
             try {
-                Object.defineProperty(inst, "_zod", _zodDesc$1);
+                Object.defineProperty(inst, "_zod", _zodDesc);
             }
             finally {
                 // Cleared even on throw, so the shared descriptor never leaks one instance's internals into the next.
-                _zodDesc$1.value = undefined;
+                _zodDesc.value = undefined;
             }
         }
         if (inst._zod.traits.has(name)) {
@@ -11528,7 +11549,6 @@ const _messageDesc = {
     enumerable: true,
     configurable: true,
 };
-const _zodDesc = { value: undefined, enumerable: false };
 const _issuesDesc = { value: undefined, enumerable: false };
 /* Prototypes that already carry the lazy `toString`. Seeded with the
  * intrinsics so that `init` on a foreign object — it accepts any object —
@@ -11536,12 +11556,10 @@ const _issuesDesc = { value: undefined, enumerable: false };
 const _installedToString = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
 const initializer$1 = (inst, def) => {
     inst.name = "$ZodError";
-    _zodDesc.value = inst._zod;
-    Object.defineProperty(inst, "_zod", _zodDesc);
+    // `_zod` is already non-enumerable: $constructor's init defined it with this same descriptor
     _issuesDesc.value = def;
     Object.defineProperty(inst, "issues", _issuesDesc);
-    // Clear the shared slots; a retained `value` pins the last error's issues.
-    _zodDesc.value = undefined;
+    // Clear the shared slot; a retained `value` pins the last error's issues.
     _issuesDesc.value = undefined;
     Object.defineProperty(inst, "message", _messageDesc);
     /* `toString` lives as a non-enumerable lazy getter on the shared
@@ -11820,25 +11838,37 @@ const _safeParse = (_Err) => (schema, value, _ctx) => {
     if (result instanceof Promise) {
         throw new $ZodAsyncError();
     }
-    return result.issues.length
-        ? {
-            success: false,
-            error: new (_Err ?? $ZodError)(result.issues.map((iss) => finalizeIssue(iss, ctx, config()))),
-        }
-        : { success: true, data: result.value };
+    return result.issues.length ? failure(_Err, result.issues, ctx) : { success: true, data: result.value };
 };
 const safeParse$1 = /* @__PURE__*/ _safeParse($ZodRealError);
+// the error is built on the first read of `error`: finalizing the issues and constructing the instance is most of a failing parse, and a caller that only branches on `success` never pays it. a getter in the literal keeps this small; the alternative, one shared accessor descriptor plus a hidden state slot, reads ~15% faster but costs ~75 B gzipped in every bundle
+function failure(Err, issues, ctx) {
+    let error;
+    return {
+        success: false,
+        get error() {
+            if (!error) {
+                error = new Err(issues.map((iss) => finalizeIssue(iss, ctx, config())));
+                // finalizeIssue drops `input`, so the built error holds nothing; keeping the raw issues past this point pins the parsed value for the life of the result
+                issues = undefined;
+                ctx = undefined;
+            }
+            return error;
+        },
+        set error(e) {
+            error = e;
+            // a replacement makes the getter's branch unreachable, so the captures have to go here too
+            issues = undefined;
+            ctx = undefined;
+        },
+    };
+}
 const _safeParseAsync = (_Err) => async (schema, value, _ctx) => {
     const ctx = _ctx ? { ..._ctx, async: true } : { async: true };
     let result = schema._zod.run({ value, issues: [] }, ctx);
     if (result instanceof Promise)
         result = await result;
-    return result.issues.length
-        ? {
-            success: false,
-            error: new _Err(result.issues.map((iss) => finalizeIssue(iss, ctx, config()))),
-        }
-        : { success: true, data: result.value };
+    return result.issues.length ? failure(_Err, result.issues, ctx) : { success: true, data: result.value };
 };
 const safeParseAsync$1 = /* @__PURE__*/ _safeParseAsync($ZodRealError);
 // registry mirrors of the compiler's sentinels, so this module never imports the compiler
@@ -11847,12 +11877,19 @@ const COMPILE_FALLBACK = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
 // Deliberately tiny, because v8 will not inline a body carrying the fallback's object literals and throw. Everything that is not the compiled happy path lives in validateFallback, and that split is worth ~35% on a compiled schema.
 const validate = ((schema, value, _ctx) => {
     const validator = schema._zod.bag.validator;
-    if (validator !== undefined && validator(value) !== COMPILE_INVALID)
-        return true;
+    if (validator !== undefined) {
+        if (validator(value) !== COMPILE_INVALID)
+            return true;
+        // a definite sentinel means the runtime would reject, so skip the re-parse; a ctx can still change the answer
+        if (validator.definite === true && _ctx === undefined)
+            return false;
+    }
     return validateFallback(schema, value, _ctx);
 });
 function validateFallback(schema, value, _ctx) {
-    const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
+    const ctx = _ctx
+        ? { ..._ctx, async: false, abortEarly: true }
+        : { async: false, abortEarly: true };
     const fallbackRun = schema._zod.bag.fallbackRun;
     let result;
     if (fallbackRun) {
@@ -11869,8 +11906,10 @@ function validateFallback(schema, value, _ctx) {
     return result.issues.length === 0;
 }
 // no fast path: the compiler keeps async parses on the runtime, because a promise-returning callback that is not declared async compiles to a throw
-const validateAsync = async (schema, value, _ctx) => {
-    const ctx = _ctx ? { ..._ctx, async: true } : { async: true };
+const validateAsync$1 = async (schema, value, _ctx) => {
+    const ctx = _ctx
+        ? { ..._ctx, async: true, abortEarly: true }
+        : { async: true, abortEarly: true };
     let result = schema._zod.run({ value, issues: [] }, ctx);
     if (result instanceof Promise)
         result = await result;
@@ -11961,7 +12000,7 @@ const uuid4 = /*@__PURE__*/ uuid$1(4);
 const uuid6 = /*@__PURE__*/ uuid$1(6);
 const uuid7 = /*@__PURE__*/ uuid$1(7);
 /** Practical email validation */
-const email$1 = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
+const email$1 = /^(?:[A-Za-z0-9_'+\-]+\.)*[A-Za-z0-9_'+\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
 /** Equivalent to the HTML5 input[type=email] validation implemented by browsers. Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email */
 const html5Email = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 /** The classic emailregex.com regex for RFC 5322-compliant emails */
@@ -11971,8 +12010,8 @@ const unicodeEmail = /^[^\s@"]{1,64}@[^\s@]{1,255}$/u;
 const idnEmail = unicodeEmail;
 const browserEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 // from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
-// Single character class, not an alternation: the two properties overlap (U+1F9B0-U+1F9B3), so `(A|B)+` backtracks exponentially on a failed match.
-const _emoji$1 = `^[\\p{Extended_Pictographic}\\p{Emoji_Component}]+$`;
+// Single character class, not an alternation: the two properties overlap (U+1F9B0-U+1F9B3), so `(A|B)+` backtracks exponentially on a failed match. The leading lookahead then demands one anchor — a pictograph, a regional indicator, or the enclosing keycap — because `\p{Emoji_Component}` on its own covers ASCII digits, `#`, `*`, ZWJ, variation selectors and skin tone modifiers, none of which is an emoji without a base.
+const _emoji$1 = `^(?=[\\s\\S]*[\\p{Extended_Pictographic}\\p{Regional_Indicator}\\u20E3])[\\p{Extended_Pictographic}\\p{Emoji_Component}]+$`;
 function emoji$1() {
     return new RegExp(_emoji$1, "u");
 }
@@ -11986,7 +12025,7 @@ const cidrv4$1 = /^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[
 const cidrv6$1 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
 // https://stackoverflow.com/questions/7860392/determine-if-string-is-in-base64-using-javascript
 const base64$1 = /^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2}==)|(?:[0-9a-zA-Z+/]{3}=))?$/;
-const base64url$1 = /^[A-Za-z0-9_-]*$/;
+const base64url$1 = /^(?:[A-Za-z0-9_-]{4})*(?:[A-Za-z0-9_-]{2,3})?$/;
 // based on https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
 // export const hostname: RegExp = /^([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+$/;
 const hostname$1 = /^(?=.{1,253}\.?$)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[-0-9a-zA-Z]{0,61}[0-9a-zA-Z])?)*\.?$/;
@@ -11996,6 +12035,8 @@ const httpProtocol = /^https?$/;
 const e164$1 = /^\+[1-9]\d{6,14}$/;
 // Credit card shape: 12–19 digits, optionally separated by single spaces or single hyphens. ISO/IEC 7812 caps the PAN at 19 digits; 12 is the shortest issued length (Maestro).
 const creditCard$1 = /^\d(?:[ -]?\d){11,18}$/;
+// iban electronic format: 2-letter country, check digits 02-98 (the only values `98 - remainder` can produce), 11-30 bban characters
+const iban$1 = /^[A-Z]{2}(?!00|01|99)\d{2}[A-Z0-9]{11,30}$/;
 const dateSource = `(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))`;
 
 function anchor(source) {
@@ -12029,6 +12070,8 @@ function datetime$1(args) {
     const timeRegex = args.local ? `${qualified}|${timeSource({ precision: args.precision })}` : qualified;
     return new RegExp(`^${dateSource}T(?:${timeRegex})$`);
 }
+// the unbounded form of `string()` as a literal, so every plain string shares one instance instead of building its own
+const anyString = /^[\s\S]{0,}$/;
 const string$2 = (params) => {
     const regex = params ? `[\\s\\S]{${params?.minimum ?? 0},${params?.maximum ?? ""}}` : `[\\s\\S]*`;
     return new RegExp(`^${regex}$`);
@@ -12077,6 +12120,7 @@ const sha512_base64url = /*@__PURE__*/ fixedBase64url(86);
 
 var regexes = /*#__PURE__*/Object.freeze({
 	__proto__: null,
+	anyString: anyString,
 	base64: base64$1,
 	base64url: base64url$1,
 	bigint: bigint$2,
@@ -12100,6 +12144,7 @@ var regexes = /*#__PURE__*/Object.freeze({
 	hostname: hostname$1,
 	html5Email: html5Email,
 	httpProtocol: httpProtocol,
+	iban: iban$1,
 	idnEmail: idnEmail,
 	integer: integer,
 	ipv4: ipv4$1,
@@ -12165,16 +12210,6 @@ const numericOriginMap = {
 const $ZodCheckLessThan = /*@__PURE__*/ $constructor("$ZodCheckLessThan", (inst, def) => {
     $ZodCheck.init(inst, def);
     const origin = numericOriginMap[typeof def.value];
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        const curr = (def.inclusive ? bag.maximum : bag.exclusiveMaximum) ?? Number.POSITIVE_INFINITY;
-        if (def.value < curr) {
-            if (def.inclusive)
-                bag.maximum = def.value;
-            else
-                bag.exclusiveMaximum = def.value;
-        }
-    });
     inst._zod.check = (payload) => {
         if (def.inclusive ? payload.value <= def.value : payload.value < def.value) {
             return;
@@ -12193,16 +12228,6 @@ const $ZodCheckLessThan = /*@__PURE__*/ $constructor("$ZodCheckLessThan", (inst,
 const $ZodCheckGreaterThan = /*@__PURE__*/ $constructor("$ZodCheckGreaterThan", (inst, def) => {
     $ZodCheck.init(inst, def);
     const origin = numericOriginMap[typeof def.value];
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        const curr = (def.inclusive ? bag.minimum : bag.exclusiveMinimum) ?? Number.NEGATIVE_INFINITY;
-        if (def.value > curr) {
-            if (def.inclusive)
-                bag.minimum = def.value;
-            else
-                bag.exclusiveMinimum = def.value;
-        }
-    });
     inst._zod.check = (payload) => {
         if (def.inclusive ? payload.value >= def.value : payload.value > def.value) {
             return;
@@ -12221,10 +12246,6 @@ const $ZodCheckGreaterThan = /*@__PURE__*/ $constructor("$ZodCheckGreaterThan", 
 const $ZodCheckMultipleOf = 
 /*@__PURE__*/ $constructor("$ZodCheckMultipleOf", (inst, def) => {
     $ZodCheck.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        var _a;
-        (_a = inst._zod.bag).multipleOf ?? (_a.multipleOf = def.value);
-    });
     inst._zod.check = (payload) => {
         if (typeof payload.value !== typeof def.value)
             throw new Error("Cannot mix number and bigint in multiple_of check.");
@@ -12250,14 +12271,6 @@ const $ZodCheckNumberFormat = /*@__PURE__*/ $constructor("$ZodCheckNumberFormat"
     const isInt = def.format?.includes("int");
     const origin = isInt ? "int" : "number";
     const [minimum, maximum] = NUMBER_FORMAT_RANGES[def.format];
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = def.format;
-        bag.minimum = minimum;
-        bag.maximum = maximum;
-        if (isInt)
-            bag.pattern = integer;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         if (isInt) {
@@ -12346,12 +12359,6 @@ const $ZodCheckNumberFormat = /*@__PURE__*/ $constructor("$ZodCheckNumberFormat"
 const $ZodCheckBigIntFormat = /*@__PURE__*/ $constructor("$ZodCheckBigIntFormat", (inst, def) => {
     $ZodCheck.init(inst, def); // no format checks
     const [minimum, maximum] = BIGINT_FORMAT_RANGES[def.format];
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = def.format;
-        bag.minimum = minimum;
-        bag.maximum = maximum;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         if (input < minimum) {
@@ -12382,11 +12389,6 @@ const $ZodCheckMaxSize = /*@__PURE__*/ $constructor("$ZodCheckMaxSize", (inst, d
     var _a;
     $ZodCheck.init(inst, def);
     (_a = inst._zod.def).when ?? (_a.when = _whenHasSize);
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.bag.maximum ?? Number.POSITIVE_INFINITY);
-        if (def.maximum < curr)
-            inst._zod.bag.maximum = def.maximum;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         const size = input.size;
@@ -12407,11 +12409,6 @@ const $ZodCheckMinSize = /*@__PURE__*/ $constructor("$ZodCheckMinSize", (inst, d
     var _a;
     $ZodCheck.init(inst, def);
     (_a = inst._zod.def).when ?? (_a.when = _whenHasSize);
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.bag.minimum ?? Number.NEGATIVE_INFINITY);
-        if (def.minimum > curr)
-            inst._zod.bag.minimum = def.minimum;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         const size = input.size;
@@ -12432,12 +12429,6 @@ const $ZodCheckSizeEquals = /*@__PURE__*/ $constructor("$ZodCheckSizeEquals", (i
     var _a;
     $ZodCheck.init(inst, def);
     (_a = inst._zod.def).when ?? (_a.when = _whenHasSize);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.minimum = def.size;
-        bag.maximum = def.size;
-        bag.size = def.size;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         const size = input.size;
@@ -12459,11 +12450,6 @@ const $ZodCheckMaxLength = /*@__PURE__*/ $constructor("$ZodCheckMaxLength", (ins
     var _a;
     $ZodCheck.init(inst, def);
     (_a = inst._zod.def).when ?? (_a.when = _whenHasLength);
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.bag.maximum ?? Number.POSITIVE_INFINITY);
-        if (def.maximum < curr)
-            inst._zod.bag.maximum = def.maximum;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         const units = input.length;
@@ -12487,11 +12473,6 @@ const $ZodCheckMinLength = /*@__PURE__*/ $constructor("$ZodCheckMinLength", (ins
     var _a;
     $ZodCheck.init(inst, def);
     (_a = inst._zod.def).when ?? (_a.when = _whenHasLength);
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.bag.minimum ?? Number.NEGATIVE_INFINITY);
-        if (def.minimum > curr)
-            inst._zod.bag.minimum = def.minimum;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         const units = input.length;
@@ -12517,12 +12498,6 @@ const $ZodCheckLengthEquals = /*@__PURE__*/ $constructor("$ZodCheckLengthEquals"
     var _a;
     $ZodCheck.init(inst, def);
     (_a = inst._zod.def).when ?? (_a.when = _whenHasLength);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.minimum = def.length;
-        bag.maximum = def.length;
-        bag.length = def.length;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         const units = input.length;
@@ -12548,14 +12523,6 @@ const $ZodCheckLengthEquals = /*@__PURE__*/ $constructor("$ZodCheckLengthEquals"
 const $ZodCheckStringFormat = /*@__PURE__*/ $constructor("$ZodCheckStringFormat", (inst, def) => {
     var _a, _b;
     $ZodCheck.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = def.format;
-        if (def.pattern) {
-            bag.patterns ?? (bag.patterns = new Set());
-            bag.patterns.add(def.pattern);
-        }
-    });
     if (def.pattern)
         (_a = inst._zod).check ?? (_a.check = (payload) => {
             def.pattern.lastIndex = 0;
@@ -12607,11 +12574,6 @@ const $ZodCheckIncludes = /*@__PURE__*/ $constructor("$ZodCheckIncludes", (inst,
     // (`{N,}`), not exactly `position` chars (`{N}`).
     const pattern = new RegExp(typeof def.position === "number" ? `^.{${def.position},}${escapedRegex}` : escapedRegex);
     def.pattern = pattern;
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.patterns ?? (bag.patterns = new Set());
-        bag.patterns.add(pattern);
-    });
     inst._zod.check = (payload) => {
         if (payload.value.includes(def.includes, def.position))
             return;
@@ -12630,11 +12592,6 @@ const $ZodCheckStartsWith = /*@__PURE__*/ $constructor("$ZodCheckStartsWith", (i
     $ZodCheck.init(inst, def);
     const pattern = new RegExp(`^${escapeRegex$1(def.prefix)}.*`);
     def.pattern ?? (def.pattern = pattern);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.patterns ?? (bag.patterns = new Set());
-        bag.patterns.add(pattern);
-    });
     inst._zod.check = (payload) => {
         if (payload.value.startsWith(def.prefix))
             return;
@@ -12653,11 +12610,6 @@ const $ZodCheckEndsWith = /*@__PURE__*/ $constructor("$ZodCheckEndsWith", (inst,
     $ZodCheck.init(inst, def);
     const pattern = new RegExp(`.*${escapeRegex$1(def.suffix)}$`);
     def.pattern ?? (def.pattern = pattern);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.patterns ?? (bag.patterns = new Set());
-        bag.patterns.add(pattern);
-    });
     inst._zod.check = (payload) => {
         if (payload.value.endsWith(def.suffix))
             return;
@@ -12697,9 +12649,6 @@ const $ZodCheckProperty = /*@__PURE__*/ $constructor("$ZodCheckProperty", (inst,
 const $ZodCheckMimeType = /*@__PURE__*/ $constructor("$ZodCheckMimeType", (inst, def) => {
     $ZodCheck.init(inst, def);
     const mimeSet = new Set(def.mime);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.bag.mime = def.mime;
-    });
     inst._zod.check = (payload) => {
         if (mimeSet.has(payload.value.type))
             return;
@@ -12726,10 +12675,15 @@ class Doc {
         this.args = args;
         this.closed = closed;
     }
+    // the compiler catches a child's throw and keeps writing into this doc, so the indent has to unwind with it
     indented(fn) {
         this.indent += 1;
-        fn(this);
-        this.indent -= 1;
+        try {
+            fn(this);
+        }
+        finally {
+            this.indent -= 1;
+        }
     }
     write(arg) {
         if (typeof arg === "function") {
@@ -12755,8 +12709,8 @@ class Doc {
 
 const version = {
     major: 4,
-    minor: 5,
-    patch: 4,
+    minor: 6,
+    patch: 1,
 };
 
 const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
@@ -12882,16 +12836,24 @@ const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
     },
 });
 /** The Standard Schema surface for `inst`. Shared so wrappers can extend it without forcing it. */
-const toStandardResult = (r) => r.success ? { value: r.data } : { issues: r.error?.issues };
+// a Standard Schema result only reports issues, so a failure finalizes them straight off the raw payload: no ZodError, and no lazy result to read through
+const toStandardResult = (r, ctx) => r.issues.length ? { issues: r.issues.map((iss) => finalizeIssue(iss, ctx, config())) } : { value: r.value };
+async function validateAsync(inst, value) {
+    const ctx = { async: true };
+    return toStandardResult((await inst._zod.run({ value, issues: [] }, ctx)), ctx);
+}
 function standardProps(inst) {
     return {
         validate: (value) => {
+            const ctx = { async: false };
             try {
-                return toStandardResult(safeParse$1(inst, value));
+                const r = inst._zod.run({ value, issues: [] }, ctx);
+                if (!(r instanceof Promise))
+                    return toStandardResult(r, ctx);
             }
-            catch (_) {
-                return safeParseAsync$1(inst, value).then(toStandardResult);
-            }
+            catch (_) { }
+            // async function so a synchronously throwing check rejects instead of escaping validate
+            return validateAsync(inst, value);
         },
         vendor: "zod",
         version: 1,
@@ -12899,7 +12861,8 @@ function standardProps(inst) {
 }
 const $ZodString = /*@__PURE__*/ $constructor("$ZodString", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._zod.pattern = [...(inst?._zod.bag?.patterns ?? [])].pop() ?? string$2(inst._zod.bag);
+    // a format's own pattern, else unbounded; a template literal derives the check-aware form itself
+    inst._zod.pattern = def.pattern ?? anyString;
     inst._zod.parse = (payload, _) => {
         if (def.coerce)
             try {
@@ -13085,13 +13048,6 @@ const $ZodKSUID = /*@__PURE__*/ $constructor("$ZodKSUID", (inst, def) => {
 const $ZodISODateTime = /*@__PURE__*/ $constructor("$ZodISODateTime", (inst, def) => {
     def.pattern ?? (def.pattern = datetime$1(def));
     $ZodStringFormat.init(inst, def);
-    // these two drop the offset or seconds `date-time` requires — on the bag not the def, since `z.string().check(...)` lands the format on a different schema
-    if (def.local || def.precision === -1) {
-        inst._zod.bag.laxFormat = true;
-        inst._zod.onattach.push((s) => {
-            s._zod.bag.laxFormat = true;
-        });
-    }
 });
 const $ZodISODate = /*@__PURE__*/ $constructor("$ZodISODate", (inst, def) => {
     def.pattern ?? (def.pattern = date$3);
@@ -13108,7 +13064,6 @@ const $ZodISODuration = /*@__PURE__*/ $constructor("$ZodISODuration", (inst, def
 const $ZodIPv4 = /*@__PURE__*/ $constructor("$ZodIPv4", (inst, def) => {
     def.pattern ?? (def.pattern = ipv4$1);
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.format = `ipv4`;
 });
 /** An IPv6 address is written with hex digits, colons and dots, and nothing else. The guard is what makes the check below an IPv6 check: `new URL("http://[...]")` parses an authority, not an address, so `@` and `\` re-delimit it and `"::@1\\"` validates against the host `0.0.0.1`. The URL parser also deletes ASCII tab, LF and CR rather than failing, which is how `"::1\n"` validated as `::1`. */
 const ipv6Alphabet = /^[0-9a-fA-F:.]+$/;
@@ -13127,7 +13082,6 @@ function isValidIPv6(value) {
 const $ZodIPv6 = /*@__PURE__*/ $constructor("$ZodIPv6", (inst, def) => {
     def.pattern ?? (def.pattern = ipv6$1);
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.format = `ipv6`;
     inst._zod.check = (payload) => {
         if (!isValidIPv6(payload.value)) {
             payload.issues.push({
@@ -13143,7 +13097,6 @@ const $ZodIPv6 = /*@__PURE__*/ $constructor("$ZodIPv6", (inst, def) => {
 const $ZodMAC = /*@__PURE__*/ $constructor("$ZodMAC", (inst, def) => {
     def.pattern ?? (def.pattern = mac$1(def.delimiter));
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.format = `mac`;
 });
 const $ZodCIDRv4 = /*@__PURE__*/ $constructor("$ZodCIDRv4", (inst, def) => {
     def.pattern ?? (def.pattern = cidrv4$1);
@@ -13196,10 +13149,11 @@ function isValidBase64(data) {
         return false;
     }
 }
+// lax on purpose: the quantified regexes.base64 overflows the regex stack on multi-MB input and its leading ^$| alternation leaks through template-literal composition; isValidBase64 enforces length and padding
+const base64Charset = /^[0-9a-zA-Z+/]*={0,2}$/;
 const $ZodBase64 = /*@__PURE__*/ $constructor("$ZodBase64", (inst, def) => {
-    def.pattern ?? (def.pattern = base64$1);
+    def.pattern ?? (def.pattern = base64Charset);
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.contentEncoding = "base64";
     inst._zod.check = (payload) => {
         if (isValidBase64(payload.value))
             return;
@@ -13212,18 +13166,19 @@ const $ZodBase64 = /*@__PURE__*/ $constructor("$ZodBase64", (inst, def) => {
         });
     };
 });
-//////////////////////////////   ZodBase64   //////////////////////////////
+//////////////////////////////   ZodBase64URL   //////////////////////////////
+// lax on purpose: the quantified regexes.base64url overflows the regex stack on multi-MB input; isValidBase64 enforces length on the padded string
+const base64urlCharset = /^[A-Za-z0-9_-]*$/;
 function isValidBase64URL(data) {
-    if (!base64url$1.test(data))
+    if (!base64urlCharset.test(data))
         return false;
     const base64 = data.replace(/[-_]/g, (c) => (c === "-" ? "+" : "/"));
     const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
     return isValidBase64(padded);
 }
 const $ZodBase64URL = /*@__PURE__*/ $constructor("$ZodBase64URL", (inst, def) => {
-    def.pattern ?? (def.pattern = base64url$1);
+    def.pattern ?? (def.pattern = base64urlCharset);
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.contentEncoding = "base64url";
     inst._zod.check = (payload) => {
         if (isValidBase64URL(payload.value))
             return;
@@ -13248,7 +13203,7 @@ function isLuhnAlgo(digits) {
     let bit = 1;
     let sum = 0;
     while (length) {
-        const value = +digits[--length];
+        const value = digits.charCodeAt(--length) - 48;
         bit ^= 1;
         sum += bit ? [0, 2, 4, 6, 8, 1, 3, 5, 7, 9][value] : value;
     }
@@ -13269,6 +13224,42 @@ const $ZodCreditCard = /*@__PURE__*/ $constructor("$ZodCreditCard", (inst, def) 
         payload.issues.push({
             code: "invalid_format",
             format: "credit_card",
+            input: payload.value,
+            inst,
+            continue: !def.abort,
+        });
+    };
+});
+//////////////////////////////   ZodIBAN   //////////////////////////////
+// iso 7064 mod 97-10 checksum without BigInt
+function isIso7064Mod97(iban) {
+    let remainder = 0;
+    const len = iban.length;
+    for (let i = 4; i < len; i++) {
+        const code = iban.charCodeAt(i);
+        remainder = (code >= 65 ? remainder * 100 + (code - 55) : remainder * 10 + (code - 48)) % 97;
+    }
+    for (let i = 0; i < 4; i++) {
+        const code = iban.charCodeAt(i);
+        remainder = (code >= 65 ? remainder * 100 + (code - 55) : remainder * 10 + (code - 48)) % 97;
+    }
+    return remainder === 1;
+}
+function isValidIBAN(input) {
+    if (!iban$1.test(input))
+        return false;
+    return isIso7064Mod97(input);
+}
+const $ZodIBAN = /*@__PURE__*/ $constructor("$ZodIBAN", (inst, def) => {
+    // shape only — checksum is not expressible as a pattern
+    def.pattern ?? (def.pattern = iban$1);
+    $ZodStringFormat.init(inst, def);
+    inst._zod.check = (payload) => {
+        if (isValidIBAN(payload.value))
+            return;
+        payload.issues.push({
+            code: "invalid_format",
+            format: "iban",
             input: payload.value,
             inst,
             continue: !def.abort,
@@ -13328,7 +13319,7 @@ const $ZodCustomStringFormat = /*@__PURE__*/ $constructor("$ZodCustomStringForma
 });
 const $ZodNumber = /*@__PURE__*/ $constructor("$ZodNumber", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._zod.pattern = inst._zod.bag.pattern ?? number$2;
+    inst._zod.pattern = number$2;
     inst._zod.parse = (payload, _ctx) => {
         if (def.coerce)
             try {
@@ -13536,6 +13527,7 @@ const $ZodArray = /*@__PURE__*/ $constructor("$ZodArray", (inst, def) => {
         }
         payload.value = memo ? memo.alloc(inst, payload, Array(input.length), ctx) : Array(input.length);
         const proms = [];
+        const abortEarly = ctx?.abortEarly;
         for (let i = 0; i < input.length; i++) {
             const item = input[i];
             const result = def.element._zod.run({
@@ -13547,6 +13539,9 @@ const $ZodArray = /*@__PURE__*/ $constructor("$ZodArray", (inst, def) => {
             }
             else {
                 handleArrayResult(result, payload, i);
+                // the element's payload is authoritative here, since handleArrayResult forwards every issue; an object's is not, because it drops a failed absent optional
+                if (abortEarly && result.issues.length !== 0 && aborted(result))
+                    break;
             }
         }
         if (proms.length) {
@@ -13613,14 +13608,21 @@ function normalizeDef(def) {
         optionalKeys: new Set(okeys),
     };
 }
-function handleCatchall(proms, input, payload, ctx, def, inst) {
+function handleCatchall(proms, input, payload, ctx, def, inst, abortEarly) {
     const unrecognized = [];
     const keySet = def.keySet;
     const _catchall = def.catchall._zod;
     const t = _catchall.def.type;
     const optin = _catchall.optin;
     const optout = _catchall.optout;
+    // starts at 0, not the current length: the shape phase already ran and may have aborted
+    let seen = 0;
     for (const key in input) {
+        if (abortEarly && payload.issues.length !== seen) {
+            if (aborted(payload, seen))
+                break;
+            seen = payload.issues.length;
+        }
         // Must precede the __proto__ branch: a declared key is not unrecognized, even though the shape loop deliberately strips __proto__ from the parsed output.
         if (keySet.has(key))
             continue;
@@ -13658,26 +13660,22 @@ function handleCatchall(proms, input, payload, ctx, def, inst) {
         return payload;
     });
 }
-// Whichever object a def's `shape` currently answers from: the one the caller passed until the first read, the frozen copy after it. Keyed by def, so a def rebuilt by a builder is simply absent rather than inheriting the source's. Read its keys with `Object.keys`, which does not invoke them — that is what lets a discriminated union check its discriminator without resolving an option whose getters reference the union being constructed.
-const propShapes = new WeakMap();
 const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
     // requires cast because technically $ZodObject doesn't extend
     $ZodType.init(inst, def);
-    // const sh = def.shape;
     const desc = Object.getOwnPropertyDescriptor(def, "shape");
-    if (!desc?.get) {
-        const sh = def.shape;
-        propShapes.set(def, sh);
-        Object.defineProperty(def, "shape", {
-            get: () => {
-                const newSh = { ...sh };
-                Object.defineProperty(def, "shape", {
-                    value: newSh,
-                });
-                propShapes.set(def, newSh);
-                return newSh;
-            },
-        });
+    // a cloned def carries its source's accessor, which knows the shape it answers from; adopting that keeps the clone's keys readable without running it
+    const sh = desc?.get ? desc.get.raw : (def.shape ?? {});
+    if (sh) {
+        // Freezes the shape on first read, so its getters resolve once and every later read sees the same schemas.
+        const get = () => {
+            const newSh = { ...sh };
+            Object.defineProperty(def, "shape", { value: newSh });
+            get.raw = newSh;
+            return newSh;
+        };
+        get.raw = sh;
+        Object.defineProperty(def, "shape", { get });
     }
     const _normalized = cached(() => normalizeDef(def));
     defineLazyInternal(inst, "propValues", (zod) => {
@@ -13718,7 +13716,14 @@ const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
         payload.value = memo ? memo.alloc(inst, payload, {}, ctx) : {};
         const proms = [];
         const shape = value.shape;
+        const abortEarly = ctx?.abortEarly;
+        let seen = payload.issues.length;
         for (const key of value.allKeys) {
+            if (abortEarly && payload.issues.length !== seen) {
+                if (aborted(payload, seen))
+                    break;
+                seen = payload.issues.length;
+            }
             if (key === "__proto__")
                 continue;
             const el = shape[key];
@@ -13735,7 +13740,7 @@ const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
         if (!catchall) {
             return proms.length ? Promise.all(proms).then(() => payload) : payload;
         }
-        return handleCatchall(proms, input, payload, ctx, _normalized.value, inst);
+        return handleCatchall(proms, input, payload, ctx, _normalized.value, inst, abortEarly === true);
     };
 });
 const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) => {
@@ -13750,12 +13755,18 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
         // a symbol has no source literal, so it is read as `syms[i]` off the closed-over scope
         const doc = new Doc(["payload", "ctx"], { shape, inst, memo, syms });
         const parseStr = (k) => `shape[${k}]._zod.run({ value: input[${k}], issues: [] }, ctx)`;
-        // Prefixes in place, like util.prefixIssues does for every interpreted path.
+        // prefixes in place, like util.prefixIssues. newResult must land before the early return: a catchall runs after this and would otherwise write onto the caller's input
         const prefixStr = (id, k) => `
+          let ${id}_ab = false;
           for (let i = 0; i < ${id}.issues.length; i++) {
             const iss = ${id}.issues[i];
             iss.path = iss.path ? [${k}, ...iss.path] : [${k}];
             payload.issues.push(iss);
+            if (iss.continue !== true) ${id}_ab = true;
+          }
+          if (${id}_ab && ctx && ctx.abortEarly) {
+            payload.value = newResult;
+            return payload;
           }`;
         doc.write(`const input = payload.value;`);
         const ids = Object.create(null);
@@ -13804,6 +13815,10 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
             input: undefined,
             path: [${k}]
           });
+          if (ctx && ctx.abortEarly) {
+            payload.value = newResult;
+            return payload;
+          }
         }
 
         if (${id}_present) {
@@ -13859,7 +13874,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
             payload = fastpass(payload, ctx);
             if (!catchall)
                 return payload;
-            return handleCatchall([], input, payload, ctx, value, inst);
+            return handleCatchall([], input, payload, ctx, value, inst, ctx?.abortEarly === true);
         }
         return superParse(payload, ctx);
     };
@@ -13996,22 +14011,38 @@ const $ZodXor = /*@__PURE__*/ $constructor("$ZodXor", (inst, def) => {
         });
     };
 });
-/** Returns the option of `union` whose discriminator claims `value`. */
+/** Returns the option whose discriminator claims `value`, or throws if ambiguous. */
 function getDiscriminatedOption(union, value) {
     const internals = union._zod;
     let map = internals.bag.optionsMap;
     if (!map) {
-        map = new Map();
-        const { options, discriminator } = internals.def;
-        for (const option of options) {
-            // First declaration wins, matching the order the parse path resolves a duplicate in.
-            for (const v of option._zod.propValues?.[discriminator] ?? [])
-                if (!map.has(v))
-                    map.set(v, option);
-        }
+        map = discriminatorMap(internals.def);
         internals.bag.optionsMap = map;
     }
-    return map.get(value);
+    const option = map.get(value);
+    if (option === null)
+        throw new Error(`Ambiguous discriminator value "${String(value)}"`);
+    return option;
+}
+function discriminatorMap(def) {
+    const map = new Map();
+    for (const option of def.options) {
+        const values = option._zod.propValues?.[def.discriminator];
+        if (!values || values.size === 0)
+            throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(option)}"`);
+        for (const value of values) {
+            if (map.has(value)) {
+                if (value !== undefined)
+                    throw new Error(`Duplicate discriminator value "${String(value)}"`);
+                // keep the collision marked so a later member cannot reclaim it
+                map.set(value, null);
+            }
+            else {
+                map.set(value, option);
+            }
+        }
+    }
+    return map;
 }
 const $ZodDiscriminatedUnion = 
 /*@__PURE__*/
@@ -14021,10 +14052,13 @@ $constructor("$ZodDiscriminatedUnion", (inst, def) => {
     const _super = inst._zod.parse;
     defineLazyInternal(inst, "propValues", (zod) => {
         const propValues = {};
+        let undefinedCount = 0;
         for (const option of zod.def.options) {
             const pv = option._zod.propValues;
             if (!pv || Object.keys(pv).length === 0)
                 throw new Error(`Invalid discriminated union option at index "${zod.def.options.indexOf(option)}"`);
+            if (pv[zod.def.discriminator]?.has(undefined))
+                undefinedCount++;
             for (const [k, v] of Object.entries(pv)) {
                 if (!Object.prototype.hasOwnProperty.call(propValues, k)) {
                     assignProp(propValues, k, new Set());
@@ -14034,31 +14068,18 @@ $constructor("$ZodDiscriminatedUnion", (inst, def) => {
                 }
             }
         }
+        if (!zod.def.unionFallback && undefinedCount > 1)
+            propValues[zod.def.discriminator]?.delete(undefined);
         return propValues;
     });
-    // Checked now rather than in the lookup map below, so an option that lacks the discriminator fails at the `discriminatedUnion` call instead of on the first object parsed. Options whose shape cannot be enumerated without resolving it — pipes, lazies, and objects rebuilt by a builder such as `.extend()` — are left to the map.
+    // Checked now rather than in the lookup map below, so an option that lacks the discriminator fails at the `discriminatedUnion` call instead of on the first object parsed. Options whose shape cannot be enumerated without resolving it — pipes and lazies — are left to the map.
     def.options.forEach((option, i) => {
-        const propShape = propShapes.get(option._zod.def);
+        const propShape = rawShape(option._zod.def);
         if (propShape && !Object.prototype.hasOwnProperty.call(propShape, def.discriminator)) {
             throw new Error(`Invalid discriminated union option at index "${i}"`);
         }
     });
-    const disc = cached(() => {
-        const opts = def.options;
-        const map = new Map();
-        for (const o of opts) {
-            const values = o._zod.propValues?.[def.discriminator];
-            if (!values || values.size === 0)
-                throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(o)}"`);
-            for (const v of values) {
-                if (map.has(v)) {
-                    throw new Error(`Duplicate discriminator value "${String(v)}"`);
-                }
-                map.set(v, o);
-            }
-        }
-        return map;
-    });
+    const disc = cached(() => discriminatorMap(def));
     inst._zod.parse = (payload, ctx) => {
         const input = payload.value;
         if (!isObject(input)) {
@@ -14070,8 +14091,10 @@ $constructor("$ZodDiscriminatedUnion", (inst, def) => {
             });
             return payload;
         }
-        const opt = disc.value.get(input?.[def.discriminator]);
-        if (opt) {
+        const value = input?.[def.discriminator];
+        const opt = disc.value.get(value);
+        // forward metadata cannot choose an encoder for an absent tag
+        if (opt && (value !== undefined || ctx.direction !== "backward")) {
             return opt._zod.run(payload, ctx);
         }
         // Fall back to union matching when the fast discriminator path fails:
@@ -14086,7 +14109,7 @@ $constructor("$ZodDiscriminatedUnion", (inst, def) => {
             errors: [],
             note: "No matching discriminator",
             discriminator: def.discriminator,
-            options: Array.from(disc.value.keys()),
+            options: Array.from(disc.value.keys()).filter((value) => disc.value.get(value) !== null),
             input,
             path: [def.discriminator],
             inst,
@@ -14259,6 +14282,9 @@ const $ZodTuple = /*@__PURE__*/ $constructor("$ZodTuple", (inst, def) => {
         }
         // Run every item in parallel, collecting results into an indexed array. The post-processing in `handleTupleResults` walks them in order so it can decide whether an absent optional-output error can truncate the tail or must be reported to preserve required output.
         const itemResults = new Array(items.length);
+        // only tracked when there is a rest loop to skip
+        const abortEarly = def.rest ? ctx?.abortEarly : undefined;
+        let itemAborted = false;
         for (let i = 0; i < items.length; i++) {
             const r = items[i]._zod.run({ value: input[i], issues: [] }, ctx);
             if (r instanceof Promise) {
@@ -14268,12 +14294,21 @@ const $ZodTuple = /*@__PURE__*/ $constructor("$ZodTuple", (inst, def) => {
             }
             else {
                 itemResults[i] = r;
+                if (abortEarly && !itemAborted && r.issues.length)
+                    itemAborted = aborted(r);
             }
         }
-        if (def.rest) {
+        // sound because rest is non-empty exactly when every fixed index is present, the one case handleTupleResults cannot discard an item's issues
+        if (def.rest && !itemAborted) {
             let i = items.length - 1;
             const rest = input.slice(items.length);
+            let seen = payload.issues.length;
             for (const el of rest) {
+                if (abortEarly && payload.issues.length !== seen) {
+                    if (aborted(payload, seen))
+                        break;
+                    seen = payload.issues.length;
+                }
                 i++;
                 const result = def.rest._zod.run({ value: el, issues: [] }, ctx);
                 if (result instanceof Promise) {
@@ -14355,6 +14390,7 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
             });
             return payload;
         }
+        // no guard in either loop below: a record's invalid_key aborts but an enclosing intersection can reconcile it, so a stopped loop hides keys the sibling does not own and the intersection then rejects nothing
         const proms = [];
         const values = def.keyType._zod.values;
         if (values && !def.partial) {
@@ -14526,7 +14562,14 @@ const $ZodMap = /*@__PURE__*/ $constructor("$ZodMap", (inst, def) => {
         }
         const proms = [];
         payload.value = memo ? memo.alloc(inst, payload, new Map(), ctx) : new Map();
+        const abortEarly = ctx?.abortEarly;
+        let seen = payload.issues.length;
         for (const [key, value] of input) {
+            if (abortEarly && payload.issues.length !== seen) {
+                if (aborted(payload, seen))
+                    break;
+                seen = payload.issues.length;
+            }
             const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
             const valueResult = def.valueType._zod.run({ value: value, issues: [] }, ctx);
             if (keyResult instanceof Promise || valueResult instanceof Promise) {
@@ -14592,7 +14635,14 @@ const $ZodSet = /*@__PURE__*/ $constructor("$ZodSet", (inst, def) => {
         }
         const proms = [];
         payload.value = memo ? memo.alloc(inst, payload, new Set(), ctx) : new Set();
+        const abortEarly = ctx?.abortEarly;
+        let seen = payload.issues.length;
         for (const item of input) {
+            if (abortEarly && payload.issues.length !== seen) {
+                if (aborted(payload, seen))
+                    break;
+                seen = payload.issues.length;
+            }
             const result = def.valueType._zod.run({ value: item, issues: [] }, ctx);
             if (result instanceof Promise) {
                 proms.push(result.then((result) => handleSetResult(result, payload)));
@@ -14616,9 +14666,11 @@ const $ZodEnum = /*@__PURE__*/ $constructor("$ZodEnum", (inst, def) => {
     const values = getEnumValues(def.entries);
     const valuesSet = new Set(values);
     inst._zod.values = valuesSet;
-    const patternValues = values.filter((k) => propertyKeyTypes.has(typeof k));
-    // unmatchable fallback, RE2-safe: an empty alternation would compile to /^()$/, which matches ""
-    inst._zod.pattern = new RegExp(patternValues.length ? `^(${patternValues.map((o) => escapeRegex$1(o.toString())).join("|")})$` : "^[^\\s\\S]$");
+    defineLazyInternal(inst, "pattern", (zod) => {
+        const patternValues = getEnumValues(zod.def.entries).filter((k) => propertyKeyTypes.has(typeof k));
+        // unmatchable fallback, RE2-safe: an empty alternation would compile to /^()$/, which matches ""
+        return new RegExp(patternValues.length ? `^(${patternValues.map((o) => escapeRegex$1(o.toString())).join("|")})$` : "^[^\\s\\S]$");
+    });
     inst._zod.parse = (payload, _ctx) => {
         const input = payload.value;
         if (valuesSet.has(input)) {
@@ -14637,12 +14689,15 @@ const $ZodLiteral = /*@__PURE__*/ $constructor("$ZodLiteral", (inst, def) => {
     $ZodType.init(inst, def);
     const values = new Set(def.values);
     inst._zod.values = values;
-    // unmatchable fallback, RE2-safe: an empty alternation would compile to /^()$/, which matches ""
-    inst._zod.pattern = new RegExp(def.values.length
-        ? `^(${def.values
-            .map((o) => (typeof o === "string" ? escapeRegex$1(o) : o ? escapeRegex$1(o.toString()) : String(o)))
-            .join("|")})$`
-        : "^[^\\s\\S]$");
+    defineLazyInternal(inst, "pattern", (zod) => {
+        const vals = zod.def.values;
+        // unmatchable fallback, RE2-safe: an empty alternation would compile to /^()$/, which matches ""
+        return new RegExp(vals.length
+            ? `^(${vals
+                .map((o) => typeof o === "string" ? escapeRegex$1(o) : o ? escapeRegex$1(o.toString()) : String(o))
+                .join("|")})$`
+            : "^[^\\s\\S]$");
+    });
     inst._zod.parse = (payload, _ctx) => {
         const input = payload.value;
         if (values.has(input)) {
@@ -15006,22 +15061,67 @@ function handleReadonlyResult(payload) {
         payload.value = Object.freeze(payload.value);
     return payload;
 }
+// a leaf's pattern source with its own checks folded in: the last pattern-carrying check wins, else length bounds narrow the catch-all, else an integer format narrows the number form. the fold lives here instead of on `_zod.pattern` so a bundle without template literals never pays for it
+function leafPattern(schema) {
+    const def = schema._zod.def;
+    let pattern = def.pattern;
+    let isInt = !!def.format?.includes("int");
+    let minimum;
+    let maximum;
+    for (const ch of def.checks ?? []) {
+        const d = ch._zod.def;
+        if (d.pattern)
+            pattern = d.pattern;
+        isInt || (isInt = !!d.format?.includes("int"));
+        const lo = d.minimum ?? d.length;
+        const hi = d.maximum ?? d.length;
+        if (lo !== undefined && (minimum === undefined || lo > minimum))
+            minimum = lo;
+        if (hi !== undefined && (maximum === undefined || hi < maximum))
+            maximum = hi;
+    }
+    if (pattern)
+        return pattern.source;
+    // an empty range matches nothing at runtime, and `{8,5}` is not a legal quantifier
+    if (minimum !== undefined && maximum !== undefined && minimum > maximum)
+        return "(?!)";
+    if (minimum !== undefined || maximum !== undefined)
+        return string$2({ minimum, maximum }).source;
+    const own = schema._zod.pattern;
+    return (isInt && own === number$2 ? integer : own)?.source;
+}
+// a part's pattern source. a wrapper's pattern embeds its inner pattern's source verbatim, so the folded form is substituted in place without knowing the wrapper's own composition; a union's options are joined the way the union builds its own pattern
+function partPattern(schema) {
+    const def = schema._zod.def;
+    const own = schema._zod.pattern?.source;
+    // lazy resolves its inner on the internals, not the def
+    const inner = def.innerType ?? schema._zod.innerType;
+    if (inner) {
+        const before = inner._zod.pattern?.source;
+        const after = partPattern(inner);
+        if (own && before && after && after !== before) {
+            return own.replace(cleanRegex(before), () => cleanRegex(after));
+        }
+        return own;
+    }
+    if (def.options) {
+        const sources = def.options.map(partPattern);
+        if (sources.every(Boolean))
+            return `^(${sources.map((s) => cleanRegex(s)).join("|")})$`;
+    }
+    return leafPattern(schema);
+}
 const $ZodTemplateLiteral = /*@__PURE__*/ $constructor("$ZodTemplateLiteral", (inst, def) => {
     $ZodType.init(inst, def);
     const regexParts = [];
     for (const part of def.parts) {
         if (typeof part === "object" && part !== null) {
             // is Zod schema
-            if (!part._zod.pattern) {
-                // if (!source)
+            const source = partPattern(part);
+            if (!source) {
                 throw new Error(`Invalid template literal part, no pattern found: ${[...part._zod.traits].shift()}`);
             }
-            const source = part._zod.pattern instanceof RegExp ? part._zod.pattern.source : part._zod.pattern;
-            if (!source)
-                throw new Error(`Invalid template literal part: ${part._zod.traits}`);
-            const start = source.startsWith("^") ? 1 : 0;
-            const end = source.endsWith("$") ? source.length - 1 : source.length;
-            regexParts.push(source.slice(start, end));
+            regexParts.push(cleanRegex(source));
         }
         else if (part === null || primitiveTypes.has(typeof part)) {
             regexParts.push(escapeRegex$1(`${part}`));
@@ -15191,6 +15291,67 @@ function handleRefineResult(result, payload, input, inst) {
         payload.issues.push(issue(_iss));
     }
 }
+// asserts in place: the child result's value is discarded, matching z.property(), because a nested object or array schema rebuilds its output even when nothing transformed
+function handlePropertiesResult(result, payload, key) {
+    if (result.issues.length) {
+        payload.issues.push(...prefixIssues(key, result.issues));
+    }
+}
+const $ZodProperties = /*@__PURE__*/ $constructor("$ZodProperties", (inst, def) => {
+    // $ZodType.init prepends an instance that already carries the $ZodCheck trait to its own `checks`, which would run the shape a second time and cost the parse context. Initializing the check trait after it keeps the schema role in `parse`, where the context arrives.
+    $ZodType.init(inst, def);
+    $ZodCheck.init(inst, def);
+    const memo = globalConfig.memoizer;
+    memo?.attach(inst);
+    // key and schema snapshotted together: reading one live and the other cached lets a later mutation of the caller's shape object pair a stale key with a missing schema
+    let entries;
+    const runShape = (payload, ctx) => {
+        entries ?? (entries = Reflect.ownKeys(def.shape).map((key) => [key, def.shape[key]]));
+        const input = payload.value;
+        let proms;
+        for (const [key, schema] of entries) {
+            const result = schema._zod.run({ value: input[key], issues: [] }, ctx);
+            if (result instanceof Promise) {
+                proms ?? (proms = []);
+                proms.push(result.then((result) => handlePropertiesResult(result, payload, key)));
+            }
+            else {
+                handlePropertiesResult(result, payload, key);
+            }
+        }
+        if (proms)
+            return Promise.all(proms).then(() => undefined);
+        return undefined;
+    };
+    inst._zod.parse = (payload, ctx) => {
+        const input = payload.value;
+        // as a schema this is the type gate, and it infers an object shape, so a primitive is a type error. A function passes: its properties read like any other object's, and z.instanceof allows one.
+        if (input === null || (typeof input !== "object" && typeof input !== "function")) {
+            payload.issues.push({ expected: "object", code: "invalid_type", input, inst });
+            return payload;
+        }
+        // both sides declare the shape's input type, so the assertion runs forward in either direction; encoding the children backward would reject the very type this schema claims to take
+        if (ctx.direction === "backward")
+            ctx = { ...ctx, direction: "forward" };
+        // the input is its own output here, so it registers as its own memo entry: a cycle re-entering this node hits the bucket instead of recursing forever
+        if (memo)
+            memo.alloc(inst, payload, input, ctx);
+        const result = runShape(payload, ctx);
+        return result instanceof Promise ? result.then(() => payload) : payload;
+    };
+    // as a check the base schema already typed the value, so this only asserts the properties — which read on a primitive too, matching z.property() on a string's length. It gets no context of its own, so a cycle through a spread schema is not tracked.
+    inst._zod.check = (payload) => {
+        if (payload.value == null) {
+            payload.issues.push({ expected: "object", code: "invalid_type", input: payload.value, inst });
+            return undefined;
+        }
+        return runShape(payload, {});
+    };
+}, {
+    *[Symbol.iterator]() {
+        yield this;
+    },
+});
 
 class $ZodCyclicError extends Error {
     constructor() {
@@ -15201,35 +15362,68 @@ class $ZodCyclicError extends Error {
 /** Keyed off the context object every schema in one parse call already shares. */
 const STATE = "~memo";
 const NO_ISSUES = [];
+// a value a cycle can close through; callables count, since z.properties asserts on one
+function isRef(value) {
+    return value !== null && (typeof value === "object" || typeof value === "function");
+}
 // Receivers prefix paths in place, so the cache and every hand-out need their own copies.
 function cloneIssues(issues) {
     return issues.map((iss) => (iss.path ? { ...iss, path: iss.path.slice() } : { ...iss }));
 }
 const recursive = /*@__PURE__*/ new WeakMap();
+/** What the walk established, in order of certainty: ordered so the strongest answer among children wins. */
+const NONE = 0;
+const ASSUMED = 1;
+const PROVEN = 2;
 /** Whether this schema's subtree contains a cycle, so one parse can re-enter it. */
-function isRecursive(inst, stack) {
+function isRecursive(inst, stack, resolve) {
     const cached = recursive.get(inst);
     if (cached !== undefined)
-        return cached;
+        return cached ? PROVEN : NONE;
     // Relative to the walk in progress, so not cached.
     if (stack.has(inst))
-        return true;
+        return PROVEN;
     stack.add(inst);
-    let result = false;
+    let result = NONE;
     const check = (child) => {
-        if (!result && child?._zod && isRecursive(child, stack))
-            result = true;
+        if (result !== PROVEN && child?._zod) {
+            const answer = isRecursive(child, stack, resolve);
+            if (answer > result)
+                result = answer;
+        }
+    };
+    // `Reflect.ownKeys` rather than `Object.keys`, so a cycle through a declared symbol key is still seen
+    const shape = (sh, spread) => {
+        let answer = NONE;
+        for (const key of Reflect.ownKeys(sh)) {
+            const desc = Object.getOwnPropertyDescriptor(sh, key);
+            // an object resolves its shape by spread, so a key it does not enumerate is never parsed; `z.properties` reads every own key and so keeps them all
+            if (spread && !desc.enumerable)
+                continue;
+            // resolving runs user code, and a factory mints a fresh subtree per read, so an edge the walk can't follow counts as a cycle
+            const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve) : NONE;
+            if (child > answer)
+                answer = child;
+        }
+        return answer;
+    };
+    const merge = (answer) => {
+        if (answer > result)
+            result = answer;
     };
     const def = inst._zod.def;
     const kind = def.type;
     switch (kind) {
         case "object": {
-            // `Reflect.ownKeys` rather than `Object.keys`, so a cycle through a declared symbol key is still seen
-            for (const key of Reflect.ownKeys(def.shape))
-                check(def.shape[key]);
+            const raw = rawShape(def);
+            // a def with no raw shape answers `shape` from an accessor of its own, and running that can mint a whole fresh subtree
+            merge(raw ? shape(raw, true) : ASSUMED);
             check(def.catchall);
             break;
         }
+        case "properties":
+            merge(shape(def.shape, false));
+            break;
         case "array":
             check(def.element);
             break;
@@ -15273,10 +15467,13 @@ function isRecursive(inst, stack) {
             check(def.input);
             check(def.output);
             break;
-        // reading `_zod.innerType` resolves the getter once and caches it
-        case "lazy":
-            check(inst._zod.innerType);
+        // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
+        case "lazy": {
+            const inner = def._cachedInner ?? (resolve ? inst._zod.innerType : undefined);
+            // walked with resolution off: one hop sees past the deferral, and a lazy that yields only another unresolved lazy is generative, so it stops there
+            merge(inner ? isRecursive(inner, stack, false) : ASSUMED);
             break;
+        }
         // a leaf by choice: `parts` are regex fragments, not data positions
         case "template_literal":
         // leaves
@@ -15318,8 +15515,13 @@ function isRecursive(inst, stack) {
         }
     }
     stack.delete(inst);
-    recursive.set(inst, result);
-    return result;
+    return settle(inst, result);
+}
+/** An assumed answer must not outlive the resolution that settles it, so only a certain one is cached. */
+function settle(inst, answer) {
+    if (answer !== ASSUMED)
+        recursive.set(inst, answer === PROVEN);
+    return answer;
 }
 /**
  * Whether one parse can re-enter this schema, i.e. its subtree contains a cycle.
@@ -15328,12 +15530,13 @@ function isRecursive(inst, stack) {
  * generated fast path has no context to key on.
  */
 function isRecursiveSchema(inst) {
-    return isRecursive(inst, new Set());
+    // z.compile never parses, so nothing would ever resolve a lazy for it; it runs once and already treats a throw here as recursive
+    return isRecursive(inst, new Set(), true) !== NONE;
 }
 function bucketFor(state, inst) {
     let bucket = state.buckets.get(inst);
     if (!bucket) {
-        bucket = new Map();
+        bucket = new WeakMap();
         state.buckets.set(inst, bucket);
     }
     return bucket;
@@ -15372,7 +15575,8 @@ const memo = {
     attach(inst) {
         var _a;
         let isRecursiveInst;
-        // `bucket` memoized for one parse; a recursive schema is re-entered many times and its bucket never changes
+        let rechecked = false;
+        // a recursive schema is re-entered many times per parse and its bucket never changes
         let lastCtx;
         let lastBucket;
         // Wraps `parse` in a deferred so it sees the container's final parse. Core's own deferred copies `parse` into `run` when there are no checks, and it ran first, so `run` is patched to match; with checks, `run` reads `parse` dynamically.
@@ -15381,21 +15585,26 @@ const memo = {
             const base = inst._zod.parse;
             const wrapped = (payload, ctx) => {
                 if (isRecursiveInst === undefined) {
-                    isRecursiveInst = isRecursive(inst, new Set());
-                    if (!isRecursiveInst) {
+                    const walked = isRecursive(inst, new Set(), false);
+                    if (walked === NONE) {
                         // Nothing here can ever fire, so take it back out.
                         inst._zod.parse = base;
                         if (inst._zod.run === wrapped)
                             inst._zod.run = base;
                         return base(payload, ctx);
                     }
+                    // this parse resolves the deferred edges on its own path, so ask once more before latching
+                    if (walked === PROVEN || rechecked)
+                        isRecursiveInst = true;
+                    else
+                        rechecked = true;
                 }
                 const input = payload.value;
-                if (input === null || typeof input !== "object")
+                if (!isRef(input))
                     return base(payload, ctx);
                 let state = ctx[STATE];
                 if (!state) {
-                    state = { buckets: new Map(), backEdges: undefined };
+                    state = { buckets: new WeakMap(), backEdges: undefined };
                     ctx[STATE] = state;
                 }
                 let bucket;
@@ -15417,7 +15626,7 @@ const memo = {
                     else {
                         // Still being parsed: its own checks cover it, so skip them here.
                         payload.memo = true;
-                        state.backEdges ?? (state.backEdges = new Set());
+                        state.backEdges ?? (state.backEdges = new WeakSet());
                         state.backEdges.add(hit.value);
                     }
                     return payload;
@@ -15453,10 +15662,10 @@ function memoizer() {
 /** Whether this value is a node a back-edge resolved to before it finished. */
 function isBackEdge(ctx, value) {
     const backEdges = ctx[STATE]?.backEdges;
-    return backEdges !== undefined && value !== null && typeof value === "object" && backEdges.has(value);
+    return backEdges !== undefined && isRef(value) && backEdges.has(value);
 }
 
-const error$X = () => {
+const error$Y = () => {
     const Sizable = {
         string: { unit: "حرف", verb: "أن يحوي" },
         file: { unit: "بايت", verb: "أن يحوي" },
@@ -15496,6 +15705,7 @@ const error$X = () => {
         json_string: "نَص على هيئة JSON",
         e164: "رقم هاتف بمعيار E.164",
         credit_card: "رقم بطاقة الائتمان",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "مدخل",
     };
@@ -15561,11 +15771,11 @@ const error$X = () => {
 };
 function ar () {
     return {
-        localeError: error$X(),
+        localeError: error$Y(),
     };
 }
 
-const error$W = () => {
+const error$X = () => {
     const Sizable = {
         string: { unit: "simvol", verb: "olmalıdır" },
         file: { unit: "bayt", verb: "olmalıdır" },
@@ -15605,6 +15815,7 @@ const error$W = () => {
         json_string: "JSON string",
         e164: "E.164 number",
         credit_card: "kredit kartı nömrəsi",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "input",
     };
@@ -15669,7 +15880,7 @@ const error$W = () => {
 };
 function az () {
     return {
-        localeError: error$W(),
+        localeError: error$X(),
     };
 }
 
@@ -15688,7 +15899,7 @@ function getBelarusianPlural(count, one, few, many) {
     }
     return many;
 }
-const error$V = () => {
+const error$W = () => {
     const Sizable = {
         string: {
             unit: {
@@ -15763,6 +15974,7 @@ const error$V = () => {
         json_string: "JSON радок",
         e164: "нумар E.164",
         credit_card: "нумар крэдытнай карты",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "увод",
     };
@@ -15835,11 +16047,11 @@ const error$V = () => {
 };
 function be () {
     return {
-        localeError: error$V(),
+        localeError: error$W(),
     };
 }
 
-const error$U = () => {
+const error$V = () => {
     const Sizable = {
         string: { unit: "символа", verb: "да съдържа" },
         file: { unit: "байта", verb: "да съдържа" },
@@ -15879,6 +16091,7 @@ const error$U = () => {
         json_string: "JSON низ",
         e164: "E.164 номер",
         credit_card: "номер на кредитна карта",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "вход",
     };
@@ -15958,11 +16171,11 @@ const error$U = () => {
 };
 function bg () {
     return {
-        localeError: error$U(),
+        localeError: error$V(),
     };
 }
 
-const error$T = () => {
+const error$U = () => {
     const Sizable = {
         string: { unit: "অক্ষর", verb: "থাকতে হবে" },
         file: { unit: "বাইট", verb: "থাকতে হবে" },
@@ -16002,6 +16215,7 @@ const error$T = () => {
         json_string: "JSON স্ট্রিং",
         e164: "E.164 নম্বর",
         credit_card: "ক্রেডিট কার্ড নম্বর",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "ইনপুট",
     };
@@ -16069,11 +16283,11 @@ const error$T = () => {
 };
 function bn () {
     return {
-        localeError: error$T(),
+        localeError: error$U(),
     };
 }
 
-const error$S = () => {
+const error$T = () => {
     const Sizable = {
         string: { unit: "caràcters", verb: "contenir" },
         file: { unit: "bytes", verb: "contenir" },
@@ -16113,6 +16327,7 @@ const error$S = () => {
         json_string: "cadena JSON",
         e164: "número E.164",
         credit_card: "número de targeta de crèdit",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "entrada",
     };
@@ -16179,11 +16394,11 @@ const error$S = () => {
 };
 function ca () {
     return {
-        localeError: error$S(),
+        localeError: error$T(),
     };
 }
 
-const error$R = () => {
+const error$S = () => {
     const Sizable = {
         string: { unit: "پیت", verb: "بێت" },
         file: { unit: "بایت", verb: "بێت" },
@@ -16223,6 +16438,7 @@ const error$R = () => {
         json_string: "دەقی JSON",
         e164: "ژمارەی E.164",
         credit_card: "ژمارەی کارتی کرێدیت",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "تێکردە",
     };
@@ -16310,11 +16526,11 @@ const error$R = () => {
 };
 function ckb () {
     return {
-        localeError: error$R(),
+        localeError: error$S(),
     };
 }
 
-const error$Q = () => {
+const error$R = () => {
     const Sizable = {
         string: { unit: "znaků", verb: "mít" },
         file: { unit: "bajtů", verb: "mít" },
@@ -16354,6 +16570,7 @@ const error$Q = () => {
         json_string: "řetězec ve formátu JSON",
         e164: "číslo E.164",
         credit_card: "číslo kreditní karty",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "vstup",
     };
@@ -16424,11 +16641,11 @@ const error$Q = () => {
 };
 function cs () {
     return {
-        localeError: error$Q(),
+        localeError: error$R(),
     };
 }
 
-const error$P = () => {
+const error$Q = () => {
     const Sizable = {
         string: { unit: "tegn", verb: "havde" },
         file: { unit: "bytes", verb: "havde" },
@@ -16468,6 +16685,7 @@ const error$P = () => {
         json_string: "JSON-streng",
         e164: "E.164-nummer",
         credit_card: "kreditkortnummer",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "input",
     };
@@ -16542,11 +16760,11 @@ const error$P = () => {
 };
 function da () {
     return {
-        localeError: error$P(),
+        localeError: error$Q(),
     };
 }
 
-const error$O = () => {
+const error$P = () => {
     const Sizable = {
         string: { unit: "Zeichen", verb: "zu haben" },
         file: { unit: "Bytes", verb: "zu haben" },
@@ -16586,6 +16804,7 @@ const error$O = () => {
         json_string: "JSON-String",
         e164: "E.164-Nummer",
         credit_card: "Kreditkartennummer",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "Eingabe",
     };
@@ -16653,11 +16872,11 @@ const error$O = () => {
 };
 function de () {
     return {
-        localeError: error$O(),
+        localeError: error$P(),
     };
 }
 
-const error$N = () => {
+const error$O = () => {
     const Sizable = {
         string: { unit: "χαρακτήρες", verb: "να έχει" },
         file: { unit: "bytes", verb: "να έχει" },
@@ -16697,6 +16916,7 @@ const error$N = () => {
         json_string: "συμβολοσειρά JSON",
         e164: "αριθμός E.164",
         credit_card: "αριθμός πιστωτικής κάρτας",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "είσοδος",
     };
@@ -16763,11 +16983,11 @@ const error$N = () => {
 };
 function el () {
     return {
-        localeError: error$N(),
+        localeError: error$O(),
     };
 }
 
-const error$M = () => {
+const error$N = () => {
     const Sizable = {
         string: { unit: "characters", verb: "to have" },
         file: { unit: "bytes", verb: "to have" },
@@ -16807,6 +17027,7 @@ const error$M = () => {
         json_string: "JSON string",
         e164: "E.164 number",
         credit_card: "credit card number",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "input",
     };
@@ -16886,11 +17107,11 @@ const error$M = () => {
 };
 function en () {
     return {
-        localeError: error$M(),
+        localeError: error$N(),
     };
 }
 
-const error$L = () => {
+const error$M = () => {
     const Sizable = {
         string: { unit: "karaktrojn", verb: "havi" },
         file: { unit: "bajtojn", verb: "havi" },
@@ -16930,6 +17151,7 @@ const error$L = () => {
         json_string: "JSON-karaktraro",
         e164: "E.164-nombro",
         credit_card: "kreditkarta numero",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "enigo",
     };
@@ -16998,11 +17220,11 @@ const error$L = () => {
 };
 function eo () {
     return {
-        localeError: error$L(),
+        localeError: error$M(),
     };
 }
 
-const error$K = () => {
+const error$L = () => {
     const Sizable = {
         string: { unit: "caracteres", verb: "tener" },
         file: { unit: "bytes", verb: "tener" },
@@ -17041,6 +17263,7 @@ const error$K = () => {
         json_string: "cadena JSON",
         e164: "número E.164",
         credit_card: "número de tarjeta de crédito",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "entrada",
     };
@@ -17132,11 +17355,11 @@ const error$K = () => {
 };
 function es () {
     return {
-        localeError: error$K(),
+        localeError: error$L(),
     };
 }
 
-const error$J = () => {
+const error$K = () => {
     const Sizable = {
         string: { unit: "کاراکتر", verb: "داشته باشد" },
         file: { unit: "بایت", verb: "داشته باشد" },
@@ -17176,6 +17399,7 @@ const error$J = () => {
         json_string: "JSON رشته",
         e164: "E.164 عدد",
         credit_card: "شماره کارت اعتباری",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "ورودی",
     };
@@ -17249,11 +17473,11 @@ const error$J = () => {
 };
 function fa () {
     return {
-        localeError: error$J(),
+        localeError: error$K(),
     };
 }
 
-const error$I = () => {
+const error$J = () => {
     const Sizable = {
         string: { unit: "merkkiä", subject: "merkkijonon" },
         file: { unit: "tavua", subject: "tiedoston" },
@@ -17297,6 +17521,7 @@ const error$I = () => {
         json_string: "JSON-merkkijono",
         e164: "E.164-luku",
         credit_card: "luottokortin numero",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "templaattimerkkijono",
     };
@@ -17364,11 +17589,11 @@ const error$I = () => {
 };
 function fi () {
     return {
-        localeError: error$I(),
+        localeError: error$J(),
     };
 }
 
-const error$H = () => {
+const error$I = () => {
     const Sizable = {
         string: { unit: "caractères", verb: "avoir" },
         file: { unit: "octets", verb: "avoir" },
@@ -17407,6 +17632,7 @@ const error$H = () => {
         json_string: "chaîne de caractères JSON",
         e164: "numéro au format E.164",
         credit_card: "numéro de carte de crédit",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "entrée",
     };
@@ -17491,11 +17717,11 @@ const error$H = () => {
 };
 function fr () {
     return {
-        localeError: error$H(),
+        localeError: error$I(),
     };
 }
 
-const error$G = () => {
+const error$H = () => {
     const Sizable = {
         string: { unit: "caractères", verb: "avoir" },
         file: { unit: "octets", verb: "avoir" },
@@ -17535,6 +17761,7 @@ const error$G = () => {
         json_string: "chaîne JSON",
         e164: "numéro E.164",
         credit_card: "numéro de carte de crédit",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "entrée",
     };
@@ -17601,11 +17828,11 @@ const error$G = () => {
 };
 function frCA () {
     return {
-        localeError: error$G(),
+        localeError: error$H(),
     };
 }
 
-const error$F = () => {
+const error$G = () => {
     const Sizable = {
         string: { unit: "અક્ષર", verb: "હોવા જોઈએ" },
         file: { unit: "બાયટ", verb: "હોવા જોઈએ" },
@@ -17645,6 +17872,7 @@ const error$F = () => {
         json_string: "JSON સ્ટ્રિંગ",
         e164: "E.164 નંબર",
         credit_card: "ક્રેડિટ કાર્ડ નંબર",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "ઇનપુટ",
     };
@@ -17712,11 +17940,11 @@ const error$F = () => {
 };
 function gu () {
     return {
-        localeError: error$F(),
+        localeError: error$G(),
     };
 }
 
-const error$E = () => {
+const error$F = () => {
     // Hebrew labels + grammatical gender
     const TypeNames = {
         string: { label: "מחרוזת", gender: "f" },
@@ -17795,6 +18023,7 @@ const error$E = () => {
         json_string: { label: "מחרוזת JSON", gender: "f" },
         e164: { label: "מספר E.164", gender: "m" },
         credit_card: { label: "מספר כרטיס אשראי", gender: "m" },
+        iban: { label: "IBAN", gender: "m" },
         jwt: { label: "JWT", gender: "m" },
         template_literal: { label: "קלט", gender: "m" },
         ends_with: { label: "קלט", gender: "m" },
@@ -17931,11 +18160,11 @@ const error$E = () => {
 };
 function he () {
     return {
-        localeError: error$E(),
+        localeError: error$F(),
     };
 }
 
-const error$D = () => {
+const error$E = () => {
     const Sizable = {
         string: { unit: "अक्षर", verb: "रखने के लिए" },
         file: { unit: "बाइट्स", verb: "रखने के लिए" },
@@ -17975,6 +18204,7 @@ const error$D = () => {
         json_string: "JSON स्ट्रिंग",
         e164: "E.164 संख्या",
         credit_card: "क्रेडिट कार्ड संख्या",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "इनपुट",
     };
@@ -18040,11 +18270,11 @@ const error$D = () => {
 };
 function hi () {
     return {
-        localeError: error$D(),
+        localeError: error$E(),
     };
 }
 
-const error$C = () => {
+const error$D = () => {
     const Sizable = {
         string: { unit: "znakova", verb: "imati" },
         file: { unit: "bajtova", verb: "imati" },
@@ -18083,6 +18313,7 @@ const error$C = () => {
         json_string: "JSON tekst",
         e164: "E.164 broj",
         credit_card: "broj kreditne kartice",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "unos",
     };
@@ -18164,11 +18395,11 @@ const error$C = () => {
 };
 function hr () {
     return {
-        localeError: error$C(),
+        localeError: error$D(),
     };
 }
 
-const error$B = () => {
+const error$C = () => {
     const Sizable = {
         string: { unit: "karakter", verb: "legyen" },
         file: { unit: "byte", verb: "legyen" },
@@ -18208,6 +18439,7 @@ const error$B = () => {
         json_string: "JSON string",
         e164: "E.164 szám",
         credit_card: "hitelkártyaszám",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "bemenet",
     };
@@ -18275,7 +18507,7 @@ const error$B = () => {
 };
 function hu () {
     return {
-        localeError: error$B(),
+        localeError: error$C(),
     };
 }
 
@@ -18289,7 +18521,7 @@ function withDefiniteArticle(word) {
     const lastChar = word[word.length - 1];
     return word + (vowels.includes(lastChar) ? "ն" : "ը");
 }
-const error$A = () => {
+const error$B = () => {
     const Sizable = {
         string: {
             unit: {
@@ -18359,6 +18591,7 @@ const error$A = () => {
         json_string: "JSON տող",
         e164: "E.164 համար",
         credit_card: "կրեդիտ քարտի համար",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "մուտք",
     };
@@ -18431,11 +18664,11 @@ const error$A = () => {
 };
 function hy () {
     return {
-        localeError: error$A(),
+        localeError: error$B(),
     };
 }
 
-const error$z = () => {
+const error$A = () => {
     const Sizable = {
         string: { unit: "karakter", verb: "memiliki" },
         file: { unit: "byte", verb: "memiliki" },
@@ -18475,6 +18708,7 @@ const error$z = () => {
         json_string: "string JSON",
         e164: "angka E.164",
         credit_card: "nomor kartu kredit",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "input",
     };
@@ -18540,11 +18774,11 @@ const error$z = () => {
 };
 function id () {
     return {
-        localeError: error$z(),
+        localeError: error$A(),
     };
 }
 
-const error$y = () => {
+const error$z = () => {
     const Sizable = {
         string: { unit: "stafi", verb: "að hafa" },
         file: { unit: "bæti", verb: "að hafa" },
@@ -18584,6 +18818,7 @@ const error$y = () => {
         json_string: "JSON strengur",
         e164: "E.164 tölugildi",
         credit_card: "kreditkortanúmer",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "gildi",
     };
@@ -18652,11 +18887,11 @@ const error$y = () => {
 };
 function is () {
     return {
-        localeError: error$y(),
+        localeError: error$z(),
     };
 }
 
-const error$x = () => {
+const error$y = () => {
     const Sizable = {
         string: { unit: "caratteri", verb: "avere" },
         file: { unit: "byte", verb: "avere" },
@@ -18696,6 +18931,7 @@ const error$x = () => {
         json_string: "stringa JSON",
         e164: "numero E.164",
         credit_card: "numero di carta di credito",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "input",
     };
@@ -18763,11 +18999,11 @@ const error$x = () => {
 };
 function it () {
     return {
-        localeError: error$x(),
+        localeError: error$y(),
     };
 }
 
-const error$w = () => {
+const error$x = () => {
     const Sizable = {
         string: { unit: "文字", verb: "である" },
         file: { unit: "バイト", verb: "である" },
@@ -18807,6 +19043,7 @@ const error$w = () => {
         json_string: "JSON文字列",
         e164: "E.164番号",
         credit_card: "クレジットカード番号",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "入力値",
     };
@@ -18873,11 +19110,11 @@ const error$w = () => {
 };
 function ja () {
     return {
-        localeError: error$w(),
+        localeError: error$x(),
     };
 }
 
-const error$v = () => {
+const error$w = () => {
     const Sizable = {
         string: { unit: "სიმბოლო", verb: "უნდა შეიცავდეს" },
         file: { unit: "ბაიტი", verb: "უნდა შეიცავდეს" },
@@ -18917,6 +19154,7 @@ const error$v = () => {
         json_string: "JSON ველი",
         e164: "E.164 ნომერი",
         credit_card: "საკრედიტო ბარათის ნომერი",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "შეყვანა",
     };
@@ -18988,11 +19226,11 @@ const error$v = () => {
 };
 function ka () {
     return {
-        localeError: error$v(),
+        localeError: error$w(),
     };
 }
 
-const error$u = () => {
+const error$v = () => {
     const Sizable = {
         string: { unit: "តួអក្សរ", verb: "គួរមាន" },
         file: { unit: "បៃ", verb: "គួរមាន" },
@@ -19032,6 +19270,7 @@ const error$u = () => {
         json_string: "ខ្សែអក្សរ JSON",
         e164: "លេខ E.164",
         credit_card: "លេខប័ណ្ណឥណទាន",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "ទិន្នន័យបញ្ចូល",
     };
@@ -19101,7 +19340,7 @@ const error$u = () => {
 };
 function km () {
     return {
-        localeError: error$u(),
+        localeError: error$v(),
     };
 }
 
@@ -19110,7 +19349,7 @@ function kh () {
     return km();
 }
 
-const error$t = () => {
+const error$u = () => {
     const Sizable = {
         string: { unit: "ಅಕ್ಷರಗಳು", verb: "ಹೊಂದಲು" },
         file: { unit: "ಬೈಟ್‌ಗಳು", verb: "ಹೊಂದಲು" },
@@ -19150,6 +19389,7 @@ const error$t = () => {
         json_string: "JSONಸ್ಟ್ರಿಂಗ್",
         e164: "E.164 ಸಂಖ್ಯೆ",
         credit_card: "ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ ಸಂಖ್ಯೆ",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "ಇನ್ಪುಟ್",
     };
@@ -19220,11 +19460,11 @@ const error$t = () => {
 };
 function kn () {
     return {
-        localeError: error$t(),
+        localeError: error$u(),
     };
 }
 
-const error$s = () => {
+const error$t = () => {
     const Sizable = {
         string: { unit: "문자", verb: "to have" },
         file: { unit: "바이트", verb: "to have" },
@@ -19264,6 +19504,7 @@ const error$s = () => {
         json_string: "JSON 문자열",
         e164: "E.164 번호",
         credit_card: "신용카드 번호",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "입력",
     };
@@ -19334,7 +19575,7 @@ const error$s = () => {
 };
 function ko () {
     return {
-        localeError: error$s(),
+        localeError: error$t(),
     };
 }
 
@@ -19351,7 +19592,7 @@ function getUnitTypeFromNumber(number) {
         return "one";
     return "few";
 }
-const error$r = () => {
+const error$s = () => {
     const Sizable = {
         string: {
             unit: {
@@ -19460,6 +19701,7 @@ const error$r = () => {
         json_string: "JSON eilutė",
         e164: "E.164 numeris",
         credit_card: "kredito kortelės numeris",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "įvestis",
     };
@@ -19539,11 +19781,11 @@ const error$r = () => {
 };
 function lt () {
     return {
-        localeError: error$r(),
+        localeError: error$s(),
     };
 }
 
-const error$q = () => {
+const error$r = () => {
     const Sizable = {
         string: { unit: "знаци", verb: "да имаат" },
         file: { unit: "бајти", verb: "да имаат" },
@@ -19583,6 +19825,7 @@ const error$q = () => {
         json_string: "JSON низа",
         e164: "E.164 број",
         credit_card: "број на кредитна картичка",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "внес",
     };
@@ -19651,11 +19894,11 @@ const error$q = () => {
 };
 function mk () {
     return {
-        localeError: error$q(),
+        localeError: error$r(),
     };
 }
 
-const error$p = () => {
+const error$q = () => {
     const Sizable = {
         string: { unit: "aksara", verb: "mempunyai" },
         file: { unit: "bait", verb: "mempunyai" },
@@ -19695,6 +19938,7 @@ const error$p = () => {
         json_string: "string JSON",
         e164: "nombor E.164",
         credit_card: "nombor kad kredit",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "input",
     };
@@ -19761,11 +20005,11 @@ const error$p = () => {
 };
 function ms () {
     return {
-        localeError: error$p(),
+        localeError: error$q(),
     };
 }
 
-const error$o = () => {
+const error$p = () => {
     const Sizable = {
         string: { unit: "अक्षर", verb: "हुनुपर्छ" },
         file: { unit: "बाइट", verb: "हुनुपर्छ" },
@@ -19805,6 +20049,7 @@ const error$o = () => {
         json_string: "JSON स्ट्रिङ",
         e164: "E.164 नम्बर",
         credit_card: "क्रेडिट कार्ड नम्बर",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "इनपुट",
     };
@@ -19870,11 +20115,11 @@ const error$o = () => {
 };
 function ne () {
     return {
-        localeError: error$o(),
+        localeError: error$p(),
     };
 }
 
-const error$n = () => {
+const error$o = () => {
     const Sizable = {
         string: { unit: "tekens", verb: "heeft" },
         file: { unit: "bytes", verb: "heeft" },
@@ -19914,6 +20159,7 @@ const error$n = () => {
         json_string: "JSON string",
         e164: "E.164-nummer",
         credit_card: "creditcardnummer",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "invoer",
     };
@@ -19983,11 +20229,11 @@ const error$n = () => {
 };
 function nl () {
     return {
-        localeError: error$n(),
+        localeError: error$o(),
     };
 }
 
-const error$m = () => {
+const error$n = () => {
     const Sizable = {
         string: { unit: "teikn", verb: "å ha" },
         file: { unit: "bytes", verb: "å ha" },
@@ -20027,6 +20273,7 @@ const error$m = () => {
         json_string: "JSON-streng",
         e164: "E.164-nummer",
         credit_card: "kredittkortnummer",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "input",
     };
@@ -20094,11 +20341,11 @@ const error$m = () => {
 };
 function nn () {
     return {
-        localeError: error$m(),
+        localeError: error$n(),
     };
 }
 
-const error$l = () => {
+const error$m = () => {
     const Sizable = {
         string: { unit: "tegn", verb: "å ha" },
         file: { unit: "bytes", verb: "å ha" },
@@ -20138,6 +20385,7 @@ const error$l = () => {
         json_string: "JSON-streng",
         e164: "E.164-nummer",
         credit_card: "kredittkortnummer",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "input",
     };
@@ -20205,11 +20453,11 @@ const error$l = () => {
 };
 function no () {
     return {
-        localeError: error$l(),
+        localeError: error$m(),
     };
 }
 
-const error$k = () => {
+const error$l = () => {
     const Sizable = {
         string: { unit: "harf", verb: "olmalıdır" },
         file: { unit: "bayt", verb: "olmalıdır" },
@@ -20249,6 +20497,7 @@ const error$k = () => {
         json_string: "JSON metin",
         e164: "E.164 sayısı",
         credit_card: "i'tibâr kartı numarası",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "giren",
     };
@@ -20317,11 +20566,11 @@ const error$k = () => {
 };
 function ota () {
     return {
-        localeError: error$k(),
+        localeError: error$l(),
     };
 }
 
-const error$j = () => {
+const error$k = () => {
     const Sizable = {
         string: { unit: "توکي", verb: "ولري" },
         file: { unit: "بایټس", verb: "ولري" },
@@ -20361,6 +20610,7 @@ const error$j = () => {
         json_string: "JSON متن",
         e164: "د E.164 شمېره",
         credit_card: "د کریډیټ کارت شمیره",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "ورودي",
     };
@@ -20434,11 +20684,11 @@ const error$j = () => {
 };
 function ps () {
     return {
-        localeError: error$j(),
+        localeError: error$k(),
     };
 }
 
-const error$i = () => {
+const error$j = () => {
     const Sizable = {
         string: { unit: "znaków", verb: "mieć" },
         file: { unit: "bajtów", verb: "mieć" },
@@ -20478,6 +20728,7 @@ const error$i = () => {
         json_string: "ciąg znaków w formacie JSON",
         e164: "liczba E.164",
         credit_card: "numer karty kredytowej",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "wejście",
     };
@@ -20546,11 +20797,11 @@ const error$i = () => {
 };
 function pl () {
     return {
-        localeError: error$i(),
+        localeError: error$j(),
     };
 }
 
-const error$h = () => {
+const error$i = () => {
     const Sizable = {
         string: { unit: "caracteres" },
         file: { unit: "bytes" },
@@ -20590,6 +20841,7 @@ const error$h = () => {
         json_string: "o texto JSON",
         e164: "o número E.164",
         credit_card: "o número de cartão de crédito",
+        iban: "o IBAN",
         jwt: "o JWT",
         template_literal: "a entrada",
     };
@@ -20686,11 +20938,11 @@ const error$h = () => {
 };
 function pt () {
     return {
-        localeError: error$h(),
+        localeError: error$i(),
     };
 }
 
-const error$g = () => {
+const error$h = () => {
     const Sizable = {
         string: { unit: "caracteres" },
         file: { unit: "bytes" },
@@ -20730,6 +20982,7 @@ const error$g = () => {
         json_string: "o texto JSON",
         e164: "o número E.164",
         credit_card: "o número de cartão de crédito",
+        iban: "o IBAN",
         jwt: "o JWT",
         template_literal: "a entrada",
     };
@@ -20827,11 +21080,11 @@ const error$g = () => {
 };
 function ptBR () {
     return {
-        localeError: error$g(),
+        localeError: error$h(),
     };
 }
 
-const error$f = () => {
+const error$g = () => {
     const Sizable = {
         string: { unit: "caractere", verb: "să aibă" },
         file: { unit: "octeți", verb: "să aibă" },
@@ -20871,6 +21124,7 @@ const error$f = () => {
         json_string: "șir JSON",
         e164: "număr E.164",
         credit_card: "număr de card de credit",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "intrare",
     };
@@ -20947,7 +21201,7 @@ const error$f = () => {
 };
 function ro () {
     return {
-        localeError: error$f(),
+        localeError: error$g(),
     };
 }
 
@@ -20966,7 +21220,7 @@ function getRussianPlural(count, one, few, many) {
     }
     return many;
 }
-const error$e = () => {
+const error$f = () => {
     const Sizable = {
         string: {
             unit: {
@@ -21041,6 +21295,7 @@ const error$e = () => {
         json_string: "JSON строка",
         e164: "номер E.164",
         credit_card: "номер кредитной карты",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "ввод",
     };
@@ -21113,11 +21368,11 @@ const error$e = () => {
 };
 function ru () {
     return {
-        localeError: error$e(),
+        localeError: error$f(),
     };
 }
 
-const error$d = () => {
+const error$e = () => {
     const Sizable = {
         string: { unit: "znakov", verb: "mať" },
         file: { unit: "bajtov", verb: "mať" },
@@ -21157,6 +21412,7 @@ const error$d = () => {
         json_string: "reťazec vo formáte JSON",
         e164: "číslo E.164",
         credit_card: "číslo kreditnej karty",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "vstup",
     };
@@ -21227,11 +21483,11 @@ const error$d = () => {
 };
 function sk () {
     return {
-        localeError: error$d(),
+        localeError: error$e(),
     };
 }
 
-const error$c = () => {
+const error$d = () => {
     const Sizable = {
         string: { unit: "znakov", verb: "imeti" },
         file: { unit: "bajtov", verb: "imeti" },
@@ -21271,6 +21527,7 @@ const error$c = () => {
         json_string: "JSON niz",
         e164: "E.164 številka",
         credit_card: "številka kreditne kartice",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "vnos",
     };
@@ -21339,11 +21596,11 @@ const error$c = () => {
 };
 function sl () {
     return {
-        localeError: error$c(),
+        localeError: error$d(),
     };
 }
 
-const error$b = () => {
+const error$c = () => {
     const Sizable = {
         string: { unit: "tecken", verb: "att ha" },
         file: { unit: "bytes", verb: "att ha" },
@@ -21383,6 +21640,7 @@ const error$b = () => {
         json_string: "JSON-sträng",
         e164: "E.164-nummer",
         credit_card: "kreditkortsnummer",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "mall-literal",
     };
@@ -21452,11 +21710,11 @@ const error$b = () => {
 };
 function sv () {
     return {
-        localeError: error$b(),
+        localeError: error$c(),
     };
 }
 
-const error$a = () => {
+const error$b = () => {
     const Sizable = {
         string: { unit: "எழுத்துக்கள்", verb: "கொண்டிருக்க வேண்டும்" },
         file: { unit: "பைட்டுகள்", verb: "கொண்டிருக்க வேண்டும்" },
@@ -21496,6 +21754,7 @@ const error$a = () => {
         json_string: "JSON சரம்",
         e164: "E.164 எண்",
         credit_card: "கடன் அட்டை எண்",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "input",
     };
@@ -21565,6 +21824,122 @@ const error$a = () => {
 };
 function ta () {
     return {
+        localeError: error$b(),
+    };
+}
+
+const error$a = () => {
+    // singular units after numerals in Tajik
+    const Sizable = {
+        string: { unit: "аломат", verb: "дошта бошад" },
+        file: { unit: "байт", verb: "дошта бошад" },
+        array: { unit: "унсур", verb: "дошта бошад" },
+        set: { unit: "унсур", verb: "дошта бошад" },
+        map: { unit: "сабт", verb: "дошта бошад" },
+    };
+    function getSizing(origin) {
+        return Sizable[origin] ?? null;
+    }
+    const FormatDictionary = {
+        regex: "вуруд",
+        email: "суроғаи email",
+        url: "URL",
+        emoji: "эмоҷи",
+        uuid: "UUID",
+        uuidv4: "UUIDv4",
+        uuidv6: "UUIDv6",
+        nanoid: "nanoid",
+        guid: "GUID",
+        cuid: "cuid",
+        cuid2: "cuid2",
+        ulid: "ULID",
+        xid: "XID",
+        ksuid: "KSUID",
+        datetime: "санаву вақти ISO",
+        date: "санаи ISO",
+        time: "вақти ISO",
+        duration: "давомнокии ISO",
+        ipv4: "суроғаи IPv4",
+        ipv6: "суроғаи IPv6",
+        mac: "суроғаи MAC",
+        cidrv4: "маҳдудаи IPv4",
+        cidrv6: "маҳдудаи IPv6",
+        base64: "сатри дар формати base64",
+        base64url: "сатри дар формати base64url",
+        json_string: "сатри JSON",
+        e164: "рақами E.164",
+        credit_card: "рақами корти кредитӣ",
+        iban: "IBAN",
+        jwt: "JWT",
+        template_literal: "вуруд",
+    };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "рақам",
+        string: "сатр",
+        array: "массив",
+        object: "объект",
+        date: "сана",
+    };
+    return (issue) => {
+        switch (issue.code) {
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                return `Вуруди нодуруст: ${expected} интизор мерафт, ${received} гирифта шуд`;
+            }
+            case "invalid_value":
+                if (issue.values.length === 1)
+                    return `Вуруди нодуруст: ${stringifyPrimitive(issue.values[0])} интизор мерафт`;
+                return `Интихоби нодуруст: яке аз ${joinValues(issue.values, "|")} интизор мерафт`;
+            case "too_big": {
+                const adj = issue.inclusive ? "<=" : "<";
+                const sizing = getSizing(issue.origin);
+                if (sizing)
+                    return `Хеле калон: ${issue.origin ?? "қимат"} бояд ${adj}${issue.maximum.toString()} ${sizing.unit} ${sizing.verb}`;
+                return `Хеле калон: ${issue.origin ?? "қимат"} бояд ${adj}${issue.maximum.toString()} бошад`;
+            }
+            case "too_small": {
+                const adj = issue.inclusive ? ">=" : ">";
+                const sizing = getSizing(issue.origin);
+                if (sizing)
+                    return `Хеле хурд: ${issue.origin} бояд ${adj}${issue.minimum.toString()} ${sizing.unit} ${sizing.verb}`;
+                return `Хеле хурд: ${issue.origin} бояд ${adj}${issue.minimum.toString()} бошад`;
+            }
+            case "invalid_format": {
+                const _issue = issue;
+                if (_issue.format === "starts_with")
+                    return `Сатри нодуруст: бояд бо "${_issue.prefix}" оғоз шавад`;
+                if (_issue.format === "ends_with")
+                    return `Сатри нодуруст: бояд бо "${_issue.suffix}" анҷом ёбад`;
+                if (_issue.format === "includes")
+                    return `Сатри нодуруст: бояд "${_issue.includes}"-ро дар бар гирад`;
+                if (_issue.format === "regex")
+                    return `Сатри нодуруст: бояд ба намунаи ${_issue.pattern} мувофиқат кунад`;
+                return `${FormatDictionary[_issue.format] ?? issue.format}-и нодуруст`;
+            }
+            case "not_multiple_of":
+                return `Рақами нодуруст: бояд ба ${issue.divisor} бе бақия тақсим шавад`;
+            case "unrecognized_keys":
+                return `Калид${issue.keys.length > 1 ? "ҳои" : "и"} номаълум: ${joinValues(issue.keys, ", ")}`;
+            case "invalid_key":
+                return `Калиди нодуруст дар ${issue.origin}`;
+            case "invalid_union":
+                if (issue.options && Array.isArray(issue.options) && issue.options.length > 0) {
+                    const opts = issue.options.map((o) => `'${o}'`).join(" | ");
+                    return `Қимати нодурусти дискриминатор: ${opts} интизор мерафт`;
+                }
+                return "Вуруди нодуруст";
+            case "invalid_element":
+                return `Қимати нодуруст дар ${issue.origin}`;
+            default:
+                return `Вуруди нодуруст`;
+        }
+    };
+};
+function tg () {
+    return {
         localeError: error$a(),
     };
 }
@@ -21609,6 +21984,7 @@ const error$9 = () => {
         json_string: "ข้อความแบบ JSON",
         e164: "เบอร์โทรศัพท์ระหว่างประเทศ (E.164)",
         credit_card: "หมายเลขบัตรเครดิต",
+        iban: "IBAN",
         jwt: "โทเคน JWT",
         template_literal: "ข้อมูลที่ป้อน",
     };
@@ -21722,6 +22098,7 @@ const error$8 = () => {
         json_string: "JSON setiri",
         e164: "E.164 nomeri",
         credit_card: "kredit kartynyň nomeri",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "şablon",
     };
@@ -21827,6 +22204,7 @@ const error$7 = () => {
         json_string: "JSON dizesi",
         e164: "E.164 sayısı",
         credit_card: "kredi kartı numarası",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "Şablon dizesi",
     };
@@ -21935,6 +22313,7 @@ const error$6 = () => {
         json_string: "рядок JSON",
         e164: "номер E.164",
         credit_card: "номер кредитної картки",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "вхідні дані",
     };
@@ -22051,6 +22430,7 @@ const error$5 = () => {
         json_string: "جے ایس او این سٹرنگ",
         e164: "ای 164 نمبر",
         credit_card: "کریڈٹ کارڈ نمبر",
+        iban: "IBAN",
         jwt: "جے ڈبلیو ٹی",
         template_literal: "ان پٹ",
     };
@@ -22164,6 +22544,7 @@ const error$4 = () => {
         json_string: "JSON satr",
         e164: "E.164 raqam",
         credit_card: "kredit karta raqami",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "kirish",
     };
@@ -22275,6 +22656,7 @@ const error$3 = () => {
         json_string: "chuỗi JSON",
         e164: "số E.164",
         credit_card: "số thẻ tín dụng",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "đầu vào",
     };
@@ -22386,6 +22768,7 @@ const error$2 = () => {
         json_string: "JSON字符串",
         e164: "E.164号码",
         credit_card: "信用卡号",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "输入",
     };
@@ -22498,6 +22881,7 @@ const error$1 = () => {
         json_string: "JSON 字串",
         e164: "E.164 數值",
         credit_card: "信用卡號",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "輸入",
     };
@@ -22608,6 +22992,7 @@ const error = () => {
         json_string: "ọ̀rọ̀ JSON",
         e164: "nọ́mbà E.164",
         credit_card: "nọmba kaadi gbese",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "ẹ̀rọ ìbáwọlé",
     };
@@ -22731,6 +23116,7 @@ var index$1 = /*#__PURE__*/Object.freeze({
 	sl: sl,
 	sv: sv,
 	ta: ta,
+	tg: tg,
 	th: th,
 	tk: tk,
 	tr: tr,
@@ -22796,7 +23182,7 @@ function registry() {
 (_a = globalThis).__zod_globalRegistry ?? (_a.__zod_globalRegistry = registry());
 const globalRegistry = globalThis.__zod_globalRegistry;
 
-/** Sentinel value returned by the compiled fast path when validation fails. Internal. */
+/** @internal Sentinel the compiled fast path returns when validation fails. */
 const INVALID = Symbol.for("zod.compile.invalid");
 // Set on the parse ctx when a compiled wrapper falls back to the runtime, so nested compiled wrappers skip their fast paths for the rest of that parse.
 const FALLBACK_FLAG = Symbol.for("zod.compile.fallback");
@@ -22847,46 +23233,10 @@ function compileValidator(schema, parser) {
 function compile(schema, options) {
     try {
         const parser = compileFn(schema);
-        const clone$1 = clone(schema);
-        // Capture the source-of-truth runtime eagerly. If schema._zod.run is itself a shim installed by global-mode (`__originalRun` set), unwrap past it. Otherwise capturing the live property lazily would let a later self- replacement of schema._zod.run feed our wrapper back into itself.
-        const liveRun = schema._zod.run;
-        const originalRun = liveRun.__originalRun ?? liveRun;
-        // Delegate to the *original* schema's run on bypass/fallback (not the
-        // clone's). The original closed over its own `inst` at construction time;
-        // issue payloads use that reference to derive things like the class name
-        // for `z.instanceof(Test)`. Calling the clone's freshly-initialized run
-        // would push issues with `inst === clone`, producing diverging error
-        // messages from the original schema.
-        const wrapped = (payload, ctx) => {
-            if (ctx?.async ||
-                ctx?.direction === "backward" ||
-                ctx?.skipChecks ||
-                ctx?.[FALLBACK_FLAG]) {
-                return originalRun(payload, ctx);
-            }
-            // A memoized back-edge: only the runtime can close a reference cycle, and a transform on one must raise $ZodCyclicError from its own parse.
-            if (ctx && isBackEdge(ctx, payload.value)) {
-                return originalRun(payload, ctx);
-            }
-            const out = parser(payload.value);
-            if (out !== INVALID) {
-                payload.value = out;
-                return payload;
-            }
-            // Mark this parse as runtime-driven: under global mode every nested schema carries its own compiled wrapper, and without the flag the parent's runtime fallback re-enters each child's fast path, running user callbacks a third time on invalid input.
-            if (ctx)
-                ctx[FALLBACK_FLAG] = true;
-            return originalRun(payload, ctx);
-        };
-        // Let later compiles of (or through) this run unwrap to the true runtime — both the global shim and repeated z.compile calls rely on this. The bag also carries the parser and the validator, so the standalone validate can skip the payload and wrapper on the happy path.
-        wrapped.__originalRun = originalRun;
-        clone$1._zod.bag.fallbackRun = originalRun;
-        clone$1._zod.bag.validator = compileValidator(schema, parser);
-        clone$1._zod.run = wrapped;
-        // The fast parse/safeParse closures fall back through the source schema's methods. If the source is shim- or wrapper-managed, those methods route into a compiled run and would execute user callbacks a third time on invalid input — the plain method → wrapper path is exactly 2x, so skip.
-        if (!liveRun.__originalRun)
-            installCompiledUserMethods(clone$1, schema, parser);
-        return clone$1;
+        const clone = withParser(schema, parser);
+        // withParser leaves the parser as its own validator; the generated assert-only variant is better when we have one
+        clone._zod.bag.validator = compileValidator(schema, parser);
+        return clone;
     }
     catch (err) {
         if (options?.strict)
@@ -22894,6 +23244,59 @@ function compile(schema, options) {
         // a schema we can't compile still has to work, so hand it back untouched on the runtime parser — the same silent fallback global mode already does
         return schema;
     }
+}
+/**
+ * Install an already-generated parser as a schema's fast path. Returns a clone; the original is
+ * unchanged.
+ *
+ * The parser takes the input and returns the parsed value, or `INVALID` to hand the parse to the
+ * runtime. It must be synchronous and forward-direction, and it must build fresh output rather than
+ * return its input — Zod cannot check either, and a wrong *success* is returned to the caller as-is.
+ *
+ * `compile()` is the ordinary entry point. This is for a build-time or native compiler that produces
+ * a parser where `new Function` is unavailable.
+ */
+function withParser(schema, parser) {
+    // generated code never receives the parse context, so only the runtime can close a reference cycle; compileFn refuses these too
+    if (isRecursiveSchema(schema)) {
+        throw new ZodCompileUnsupportedError("a schema whose subtree contains a reference cycle");
+    }
+    const clone$1 = clone(schema);
+    // Capture the source-of-truth runtime eagerly. If schema._zod.run is itself a shim installed by global-mode (`__originalRun` set), unwrap past it. Otherwise capturing the live property lazily would let a later self- replacement of schema._zod.run feed our wrapper back into itself.
+    const liveRun = schema._zod.run;
+    const originalRun = liveRun.__originalRun ?? liveRun;
+    // Delegate to the *original* schema's run on bypass/fallback, not the clone's. The original closed over its own `inst` at construction time, and issue payloads use that reference to derive things like the class name for `z.instanceof(Test)`; calling the clone's freshly-initialized run would push issues with `inst === clone` and diverge from the original schema's error messages.
+    const wrapped = (payload, ctx) => {
+        if (ctx?.async ||
+            ctx?.direction === "backward" ||
+            ctx?.skipChecks ||
+            ctx?.[FALLBACK_FLAG]) {
+            return originalRun(payload, ctx);
+        }
+        // A memoized back-edge: only the runtime can close a reference cycle, and a transform on one must raise $ZodCyclicError from its own parse.
+        if (ctx && isBackEdge(ctx, payload.value)) {
+            return originalRun(payload, ctx);
+        }
+        const out = parser(payload.value);
+        if (out !== INVALID) {
+            payload.value = out;
+            return payload;
+        }
+        // Mark this parse as runtime-driven: under global mode every nested schema carries its own compiled wrapper, and without the flag the parent's runtime fallback re-enters each child's fast path, running user callbacks a third time on invalid input.
+        if (ctx)
+            ctx[FALLBACK_FLAG] = true;
+        return originalRun(payload, ctx);
+    };
+    // Let later compiles of (or through) this run unwrap to the true runtime — both the global shim and repeated z.compile calls rely on this. The bag also carries the parser and the validator, so the standalone validate can skip the payload and wrapper on the happy path.
+    wrapped.__originalRun = originalRun;
+    clone$1._zod.bag.fallbackRun = originalRun;
+    // a supplied parser answers `validate` too: one implementation means parse and validate cannot disagree, and its undefined `definite` keeps the runtime re-parse on every rejection
+    clone$1._zod.bag.validator = parser;
+    clone$1._zod.run = wrapped;
+    // The fast parse/safeParse closures fall back through the source schema's methods. If the source is shim- or wrapper-managed, those methods route into a compiled run and would execute user callbacks a third time on invalid input — the plain method → wrapper path is exactly 2x, so skip.
+    if (!liveRun.__originalRun)
+        installCompiledUserMethods(clone$1, schema, parser);
+    return clone$1;
 }
 function installCompiledUserMethods(target, source, parser) {
     const targetAny = target;
@@ -22920,9 +23323,8 @@ function installCompiledUserMethods(target, source, parser) {
     }
 }
 /**
- * Generate the standalone compiled function: a parser by default, a validator under
- * `assertOnly`. Returns either the parsed value, `true` where nothing reads the output,
- * or the `INVALID` sentinel. Internal — consumers should use `compile()`.
+ * @internal Generate the standalone compiled function: a parser by default, a validator under
+ * `assertOnly`. Returns the parsed value, `true` where nothing reads the output, or `INVALID`. Consumers use `compile()`.
  */
 function compileFn(schema, options) {
     // Cycle-breaking is keyed on the parse context, which generated code never receives. `shape` can be a getter that throws (z.pick() with an unrecognized mask key), so treat "can't tell" as recursive.
@@ -22938,6 +23340,7 @@ function compileFn(schema, options) {
         constants: new Map(),
         constantCounter: 0,
         varCounter: 0,
+        definite: true,
     };
     const doc = new Doc(["input"]);
     const outputAccessor = generateCheck(doc, ctx, schema, "input", !options?.assertOnly);
@@ -22966,6 +23369,7 @@ function compileFn(schema, options) {
     if (options?.debug) {
         fn.code = fullCode;
     }
+    fn.definite = ctx.definite;
     return fn;
 }
 function addConstant(ctx, value) {
@@ -22977,6 +23381,11 @@ function addConstant(ctx, value) {
     const name = `c${ctx.constantCounter++}`;
     ctx.constants.set(name, value);
     return name;
+}
+/** Hoists a user-supplied callback. Anything the schema's author wrote can throw, and generated code can reject an earlier sibling before ever reaching it, so this clears `definite` — a rejection is then no longer proof that the interpreter would have rejected rather than thrown. */
+function addUserConstant(ctx, fn) {
+    ctx.definite = false;
+    return addConstant(ctx, fn);
 }
 function newVar(ctx) {
     return `v${ctx.varCounter++}`;
@@ -23013,6 +23422,8 @@ function compileChild(doc, ctx, schema, accessor, needsValue = true) {
     }
 }
 function emitRuntimeIsland(doc, ctx, schema, accessor) {
+    // an islanded child answers INVALID for an async run too, which the interpreter throws for
+    ctx.definite = false;
     const schemaConst = addConstant(ctx, schema);
     const runConst = addConstant(ctx, runtimeRun);
     const outVar = newVar(ctx);
@@ -23095,6 +23506,9 @@ function generateChecks(doc, ctx, schema, accessor) {
                 break;
             case "property":
                 generatePropertyCheck(doc, ctx, def, currentAccessor);
+                break;
+            case "properties":
+                generatePropertiesChecks(doc, ctx, def, currentAccessor, false);
                 break;
             case "overwrite": {
                 // Overwrite transforms the value - create new variable for transformed result
@@ -23218,6 +23632,26 @@ function generateMimeTypeCheck(doc, ctx, def, accessor) {
         doc.write(`if (!${mimeSet}.has(${accessor}.type)) return INVALID;`);
     }
 }
+// asserts each named property in place; children compile assert-only because z.properties never rebuilds its input
+function generatePropertiesChecks(doc, ctx, def, accessor, schemaRole) {
+    // a custom `when` gates the assertion at runtime; inside a union a wrongly-run branch is absorbed as a branch failure rather than falling back, so refuse at codegen the way the check role does
+    if (def.when) {
+        throw new ZodCompileUnsupportedError(`check with a custom "when" condition`);
+    }
+    // matches the runtime gate for whichever role this is: a schema rejects a primitive outright, a check only a nullish value
+    doc.write(schemaRole
+        ? `if (${accessor} === null || (typeof ${accessor} !== "object" && typeof ${accessor} !== "function")) return INVALID;`
+        : `if (${accessor} == null) return INVALID;`);
+    const shape = def.shape;
+    for (const key of Reflect.ownKeys(shape)) {
+        // a symbol has no source literal, so it is hoisted as a constant
+        const keyExpr = typeof key === "symbol" ? addConstant(ctx, key) : esc(key);
+        // cache the property read so a getter runs exactly once, matching the runtime
+        const inputVar = newVar(ctx);
+        doc.write(`const ${inputVar} = ${accessor}[${keyExpr}];`);
+        compileChild(doc, ctx, shape[key], inputVar, false);
+    }
+}
 function generatePropertyCheck(doc, ctx, def, accessor) {
     const propAccessor = `${accessor}[${JSON.stringify(def.property)}]`;
     generateCheck(doc, ctx, def.schema, propAccessor);
@@ -23250,7 +23684,7 @@ function generateCustomRefineCheck(doc, ctx, check, accessor) {
         if (isAsyncFunction(def.fn)) {
             throw new ZodCompileAsyncError("z.compile: async .refine() predicates are not supported");
         }
-        const fnConst = addConstant(ctx, def.fn);
+        const fnConst = addUserConstant(ctx, def.fn);
         const throwAsyncConst = addConstant(ctx, throwAsync);
         const resVar = newVar(ctx);
         doc.write(`const ${resVar} = ${fnConst}(${accessor});`);
@@ -23278,7 +23712,7 @@ function generateCustomRefineCheck(doc, ctx, check, accessor) {
                 throwAsync();
             return fakePayload.issues.length === 0 ? fakePayload.value : INVALID;
         };
-        const helperConst = addConstant(ctx, helperFn);
+        const helperConst = addUserConstant(ctx, helperFn);
         const outVar = newVar(ctx);
         doc.write(`const ${outVar} = ${helperConst}(${accessor});`);
         doc.write(`if (${outVar} === INVALID) return INVALID;`);
@@ -23352,6 +23786,11 @@ function generateStringFormatCheck(doc, ctx, def, accessor) {
     }
     if (fmt === "credit_card") {
         const validator = addConstant(ctx, isValidCreditCard);
+        doc.write(`if (!${validator}(${accessor})) return INVALID;`);
+        return accessor;
+    }
+    if (fmt === "iban") {
+        const validator = addConstant(ctx, isValidIBAN);
         doc.write(`if (!${validator}(${accessor})) return INVALID;`);
         return accessor;
     }
@@ -23551,6 +23990,10 @@ function generateCheck(doc, ctx, schema, accessor, needsValue = true) {
             break;
         case "custom":
             typeAccessor = generateCustomCheck(doc, ctx, schema, accessor);
+            break;
+        case "properties":
+            generatePropertiesChecks(doc, ctx, schema._zod.def, accessor, true);
+            typeAccessor = accessor;
             break;
         case "transform":
             typeAccessor = generateTransformCheck(doc, ctx, schema, accessor);
@@ -24224,7 +24667,7 @@ function generateDiscriminatedUnionCheck(doc, ctx, def, accessor) {
         if (!values || values.size === 0) {
             throw new ZodCompileUnsupportedError("discriminated union option without static discriminator values");
         }
-        // Two options claiming one value are not discriminable, and the branch chain below would silently give it to the first. Declining to compile hands that back to the interpreter, whose own map build reports it.
+        // let the interpreter handle collisions instead of compiling first-match dispatch
         for (const value of values) {
             if (claimed.has(value)) {
                 throw new ZodCompileUnsupportedError(`duplicate discriminator value ${String(value)}`);
@@ -24268,6 +24711,8 @@ function literalEquality(ctx, accessor, value) {
 }
 function generateIntersectionCheck(doc, ctx, schema, accessor) {
     const def = schema._zod.def;
+    // An unmergeable merge, and a child failing before the merge is even reached, both return INVALID for a case the interpreter answers with a throw.
+    ctx.definite = false;
     const leftOutput = compileChild(doc, ctx, def.left, accessor);
     const rightOutput = compileChild(doc, ctx, def.right, accessor);
     // Hoist the runtime merge helper so recursive object/array merge semantics stay in one place. If the merge is invalid, return INVALID and let the runtime fallback construct canonical errors.
@@ -24337,14 +24782,15 @@ function generateRecordCheck(doc, ctx, schema, accessor) {
         // The runtime runs it against each own enumerable key and writes the value
         // under the key it produced, so compile it once and call it per key.
         const isLoose = def.mode === "loose";
-        const keyFast = addConstant(ctx, compileFn(def.keyType));
+        // the key compiles in its own context, so carry its verdict out: a key schema that can answer INVALID undecidably makes this validator undecidable too
+        const keyFn = compileFn(def.keyType);
+        if (keyFn.definite === false)
+            ctx.definite = false;
+        const keyFast = addConstant(ctx, keyFn);
         const numericConst = addConstant(ctx, number$2);
-        const propIsEnumerableConst = addConstant(ctx, Object.prototype.propertyIsEnumerable);
         const outKeyVar = newVar(ctx);
-        doc.write(`for (const ${kVar} of Reflect.ownKeys(${accessor})) {`);
-        doc.indented((d) => {
-            d.write(`if (${kVar} === "__proto__") continue;`);
-            d.write(`if (!${propIsEnumerableConst}.call(${accessor}, ${kVar})) continue;`);
+        // the body runs once per string key and once per symbol key, since a key schema can accept symbols
+        emitOwnKeys(doc, ctx, accessor, kVar, (d) => {
             d.write(`let ${outKeyVar} = ${keyFast}(${kVar});`);
             // Numeric-string retry, mirroring the runtime: a key the schema rejects as a string is tried again as a number, so z.record(z.number(), …) matches the numeric keys JavaScript stringified on the way in.
             d.write(`if (${outKeyVar} === INVALID && typeof ${kVar} === "string" && ${numericConst}.test(${kVar})) ${outKeyVar} = ${keyFast}(Number(${kVar}));`);
@@ -24363,22 +24809,41 @@ function generateRecordCheck(doc, ctx, schema, accessor) {
             const valOutput = compileChild(d, ctx, def.valueType, valueVar);
             d.write(`${outputVar}[${outKeyVar}] = ${valOutput};`);
         });
-        doc.write(`}`);
         return outputVar;
     }
-    // Plain z.string() keys: iterate enumerable own keys and validate each value. Runtime uses Reflect.ownKeys so symbol keys participate in validation; matching that here prevents silently accepting objects with enumerable Symbol keys under z.record(z.string(), ...).
-    const propIsEnumerable = addConstant(ctx, Object.prototype.propertyIsEnumerable);
-    doc.write(`for (const ${kVar} of Reflect.ownKeys(${accessor})) {`);
-    doc.indented((d) => {
-        d.write(`if (${kVar} === "__proto__") continue;`);
-        d.write(`if (!${propIsEnumerable}.call(${accessor}, ${kVar})) continue;`);
-        d.write(`if (typeof ${kVar} !== "string") return INVALID;`);
+    // Plain z.string() keys: every own enumerable string key's value is validated, and an own enumerable symbol key fails the string key schema, as it does in the runtime's Reflect.ownKeys walk.
+    emitOwnKeys(doc, ctx, accessor, kVar, (d) => {
         d.write(`const ${valVar} = ${accessor}[${kVar}];`);
         const valOutput = compileChild(d, ctx, def.valueType, valVar);
         d.write(`${outputVar}[${kVar}] = ${valOutput};`);
+    }, `return INVALID;`);
+    return outputVar;
+}
+// Walks the own enumerable keys of a plain object in Reflect.ownKeys order — strings from getOwnPropertyNames, then symbols — instead of Reflect.ownKeys, whose accumulator made that walk 3–6x the cost of the loop it fed. Both snapshots are taken before any value is read and every key is rechecked with propertyIsEnumerable when visited, exactly the runtime's walk, so a getter that adds, deletes, hides or reveals a key mid-walk sees the runtime's verdict; for-in and Object.keys were no faster and each lost a case (for-in enumerates the prototype chain after the own keys, Object.keys drops a key that is non-enumerable at snapshot time). `body` is written once for the string loop and once for the symbol loop unless `onSymbol` replaces the latter.
+function emitOwnKeys(doc, ctx, accessor, kVar, body, onSymbol) {
+    const propIsEnumerableConst = addConstant(ctx, Object.prototype.propertyIsEnumerable);
+    const symsVar = newVar(ctx);
+    const keysVar = newVar(ctx);
+    const iVar = newVar(ctx);
+    doc.write(`const ${symsVar} = Object.getOwnPropertySymbols(${accessor});`);
+    doc.write(`const ${keysVar} = Object.getOwnPropertyNames(${accessor});`);
+    doc.write(`for (let ${iVar} = 0; ${iVar} < ${keysVar}.length; ${iVar}++) {`);
+    doc.indented((d) => {
+        d.write(`const ${kVar} = ${keysVar}[${iVar}];`);
+        d.write(`if (${kVar} === "__proto__" || !${propIsEnumerableConst}.call(${accessor}, ${kVar})) continue;`);
+        body(d);
     });
     doc.write(`}`);
-    return outputVar;
+    doc.write(`for (let ${iVar} = 0; ${iVar} < ${symsVar}.length; ${iVar}++) {`);
+    doc.indented((d) => {
+        d.write(`const ${kVar} = ${symsVar}[${iVar}];`);
+        d.write(`if (!${propIsEnumerableConst}.call(${accessor}, ${kVar})) continue;`);
+        if (onSymbol)
+            d.write(onSymbol);
+        else
+            body(d);
+    });
+    doc.write(`}`);
 }
 function literalPropertyKey(ctx, key) {
     if (typeof key === "string")
@@ -24434,7 +24899,7 @@ function generateTemplateLiteralCheck(doc, ctx, schema, accessor) {
 function generateLazyCheck(doc, ctx, schema, accessor) {
     // For lazy schemas, we use a cached parser that falls back to runtime Zod parsing This handles recursive schemas correctly by avoiding infinite compilation loops
     const def = schema._zod.def;
-    const getterConst = addConstant(ctx, def.getter);
+    const getterConst = addUserConstant(ctx, def.getter);
     const cacheConst = addConstant(ctx, { parser: null });
     doc.write(`if (!${cacheConst}.parser) {`);
     doc.indented((d) => {
@@ -24458,7 +24923,7 @@ function generatePipeCheck(doc, ctx, schema, accessor) {
     // Validate input type first
     const inputOutput = generateCheck(doc, ctx, def.in, accessor);
     if (def.transform) {
-        // Apply transform and validate output. The transform may read its second `payload` argument (codec transforms like z.stringbool() push issues there) so wrap the call in a helper that spoofs a payload. Pushed issues signal INVALID and the wrapper falls back to the runtime.
+        // Apply transform and validate output. The transform may read its second `payload` argument (codec transforms like z.stringbool() push issues there) so wrap the call in a helper that spoofs a payload. Pushed issues signal INVALID and the wrapper falls back to the runtime, and a plain function handing back a promise answers INVALID too — union parity, but not a decidable rejection at the top level.
         if (isAsyncFunction(def.transform)) {
             throw new ZodCompileAsyncError("z.compile: async transforms in pipes are not supported");
         }
@@ -24472,7 +24937,7 @@ function generatePipeCheck(doc, ctx, schema, accessor) {
                 return INVALID;
             return fakePayload.issues.length === 0 ? result : INVALID;
         };
-        const helperConst = addConstant(ctx, helperFn);
+        const helperConst = addUserConstant(ctx, helperFn);
         const transformedVar = newVar(ctx);
         doc.write(`const ${transformedVar} = ${helperConst}(${inputOutput});`);
         doc.write(`if (${transformedVar} === INVALID) return INVALID;`);
@@ -24496,7 +24961,7 @@ function generateCustomCheck(doc, ctx, schema, accessor) {
             throw new ZodCompileAsyncError("z.compile: async custom predicates are not supported");
         }
         // Custom schema with a predicate function (e.g. z.instanceof). `isAsyncFunction` above is syntactic, so a plain function returning a promise reaches here, and a promise is truthy — it would read as a pass where the interpreter throws.
-        const fnConst = addConstant(ctx, def.fn);
+        const fnConst = addUserConstant(ctx, def.fn);
         const throwAsyncConst = addConstant(ctx, throwAsync);
         const resVar = newVar(ctx);
         doc.write(`const ${resVar} = ${fnConst}(${accessor});`);
@@ -24533,7 +24998,7 @@ function generateCatchCheck(doc, ctx, schema, accessor) {
     });
     doc.write(`})();`);
     const innerConst = addConstant(ctx, def.innerType);
-    const catchConst = addConstant(ctx, def.catchValue);
+    const catchConst = addUserConstant(ctx, def.catchValue);
     const catchHelperConst = addConstant(ctx, runtimeCatch);
     doc.write(`if (${outputVar} === INVALID) {`);
     doc.indented((d) => {
@@ -24560,7 +25025,7 @@ function generateTransformCheck(doc, ctx, schema, accessor) {
                 return INVALID;
             return fakePayload.issues.length === 0 ? result : INVALID;
         };
-        const helperConst = addConstant(ctx, helperFn);
+        const helperConst = addUserConstant(ctx, helperFn);
         const outputVar = newVar(ctx);
         doc.write(`const ${outputVar} = ${helperConst}(${accessor});`);
         doc.write(`if (${outputVar} === INVALID) return INVALID;`);
@@ -24817,6 +25282,16 @@ function _creditCard(Class, params) {
     return new Class({
         type: "string",
         format: "credit_card",
+        check: "string_format",
+        abort: false,
+        ...normalizeParams(params),
+    });
+}
+// @__NO_SIDE_EFFECTS__
+function _iban(Class, params) {
+    return new Class({
+        type: "string",
+        format: "iban",
         check: "string_format",
         abort: false,
         ...normalizeParams(params),
@@ -25239,8 +25714,13 @@ function _property(property, schema, params) {
     });
 }
 // @__NO_SIDE_EFFECTS__
-function _properties(shape) {
-    return Object.entries(shape).map(([property, schema]) => new $ZodCheckProperty({ check: "property", property, schema }));
+function _properties(Class, shape, params) {
+    return new Class({
+        type: "properties",
+        check: "properties",
+        shape,
+        ...normalizeParams(params),
+    });
 }
 // @__NO_SIDE_EFFECTS__
 function _mime(types, params) {
@@ -25723,7 +26203,8 @@ function handleUnrepresentable(schema, ctx, json, params, message) {
     Object.assign(json, result);
     return true;
 }
-function process(schema, ctx, _params = { path: [], schemaPath: [] }) {
+// never rename this back to `process`: bundler polyfills inject a top-level `const process` that a lexical declaration of the same name collides with (#6397)
+function processSchema(schema, ctx, _params = { path: [], schemaPath: [] }) {
     var _a;
     const def = schema._zod.def;
     // check for schema in seens
@@ -25769,7 +26250,7 @@ function process(schema, ctx, _params = { path: [], schemaPath: [] }) {
             // Also set ref if processor didn't (for inheritance)
             if (!result.ref)
                 result.ref = parent;
-            process(parent, ctx, params);
+            processSchema(parent, ctx, params);
             ctx.seen.get(parent).isParent = true;
         }
     }
@@ -25906,8 +26387,6 @@ function extractDefs(ctx, schema
         if (seen.count > 1) {
             if (ctx.reused === "ref") {
                 extractToDef(entry);
-                // biome-ignore lint:
-                continue;
             }
         }
     }
@@ -26296,18 +26775,111 @@ function isTransforming(_schema, _ctx) {
  */
 const createToJSONSchemaMethod = (schema, processors = {}) => (params) => {
     const ctx = initializeContext({ ...params, processors });
-    process(schema, ctx);
+    processSchema(schema, ctx);
     extractDefs(ctx, schema);
     return finalize(ctx, schema);
 };
 const createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) => {
     const { libraryOptions, target } = params ?? {};
     const ctx = initializeContext({ ...(libraryOptions ?? {}), target, io, processors });
-    process(schema, ctx);
+    processSchema(schema, ctx);
     extractDefs(ctx, schema);
     return finalize(ctx, schema);
 };
 
+const narrowMin = (agg, key, value) => {
+    if (agg[key] === undefined || value > agg[key])
+        agg[key] = value;
+};
+const narrowMax = (agg, key, value) => {
+    if (agg[key] === undefined || value < agg[key])
+        agg[key] = value;
+};
+const narrowBoth = (agg, value) => {
+    narrowMin(agg, "minimum", value);
+    narrowMax(agg, "maximum", value);
+};
+const addDivisor = (agg, value) => {
+    agg.multipleOf ?? (agg.multipleOf = []);
+    if (!agg.multipleOf.includes(value))
+        agg.multipleOf.push(value);
+};
+const addPattern = (agg, pattern) => {
+    agg.patterns ?? (agg.patterns = new Set());
+    agg.patterns.add(pattern);
+};
+const intersectMime = (agg, mime) => {
+    agg.mime = agg.mime ? agg.mime.filter((m) => mime.includes(m)) : [...mime];
+};
+// last-wins, matching the bag's historical write order; the flag keeps an integer format from being lost to a later float one
+const setFormat = (agg, format) => {
+    agg.format = format;
+    if (format.includes("int"))
+        agg.isInt = true;
+};
+const minContributor = (agg, def) => narrowMin(agg, "minimum", def.minimum);
+const maxContributor = (agg, def) => narrowMax(agg, "maximum", def.maximum);
+const formatContributor = (ranges) => (agg, def) => {
+    setFormat(agg, def.format);
+    const [minimum, maximum] = ranges[def.format];
+    narrowMin(agg, "minimum", minimum);
+    narrowMax(agg, "maximum", maximum);
+};
+const contributors = {
+    greater_than: (agg, def) => narrowMin(agg, def.inclusive ? "minimum" : "exclusiveMinimum", def.value),
+    less_than: (agg, def) => narrowMax(agg, def.inclusive ? "maximum" : "exclusiveMaximum", def.value),
+    multiple_of: (agg, def) => addDivisor(agg, def.value),
+    number_format: formatContributor(NUMBER_FORMAT_RANGES),
+    bigint_format: formatContributor(BIGINT_FORMAT_RANGES),
+    min_length: minContributor,
+    max_length: maxContributor,
+    length_equals: (agg, def) => narrowBoth(agg, def.length),
+    min_size: minContributor,
+    max_size: maxContributor,
+    size_equals: (agg, def) => narrowBoth(agg, def.size),
+    string_format: (agg, def) => {
+        setFormat(agg, def.format);
+        if (def.pattern)
+            addPattern(agg, def.pattern);
+        if (def.format === "base64" || def.format === "base64url")
+            agg.contentEncoding = def.format;
+        if (def.local || def.precision === -1)
+            agg.laxFormat = true;
+    },
+    mime_type: (agg, def) => intersectMime(agg, def.mime),
+};
+function aggregateChecks(schema) {
+    const agg = {};
+    const def = schema._zod.def;
+    // a format schema is its own first check, same rule as $ZodType init
+    const list = schema._zod.traits.has("$ZodCheck")
+        ? [schema, ...(def.checks ?? [])]
+        : (def.checks ?? []);
+    for (const ch of list)
+        contributors[ch._zod.def.check]?.(agg, ch._zod.def);
+    // reconcile with the bag so third-party onattach contributions still land; first-party residue is never tighter than the fold, so merging it back is idempotent for one and additive for the other
+    const bag = schema._zod.bag;
+    if (bag.minimum !== undefined)
+        narrowMin(agg, "minimum", bag.minimum);
+    if (bag.exclusiveMinimum !== undefined)
+        narrowMin(agg, "exclusiveMinimum", bag.exclusiveMinimum);
+    if (bag.maximum !== undefined)
+        narrowMax(agg, "maximum", bag.maximum);
+    if (bag.exclusiveMaximum !== undefined)
+        narrowMax(agg, "exclusiveMaximum", bag.exclusiveMaximum);
+    if (bag.multipleOf !== undefined)
+        addDivisor(agg, bag.multipleOf);
+    if (bag.format !== undefined) {
+        agg.format ?? (agg.format = bag.format);
+        if (bag.format.includes("int"))
+            agg.isInt = true;
+    }
+    if (bag.mime)
+        intersectMime(agg, bag.mime);
+    for (const pattern of bag.patterns ?? [])
+        addPattern(agg, pattern);
+    return agg;
+}
 const formatMap = {
     guid: "uuid",
     url: "uri",
@@ -26316,11 +26888,16 @@ const formatMap = {
     regex: "", // do not set
 };
 // ==================== SIMPLE TYPE PROCESSORS ====================
+// the runtime patterns are lax so parse paths never overflow the regex stack; the emitted schema swaps in the exact block forms, which zod itself never executes
+const exactPatterns = new Map([
+    [base64Charset, base64$1],
+    [base64urlCharset, base64url$1],
+]);
+const exactPattern = (p) => exactPatterns.get(p) ?? p;
 const stringProcessor = (schema, ctx, _json, _params) => {
     const json = _json;
     json.type = "string";
-    const { minimum, maximum, format, patterns, contentEncoding, laxFormat } = schema._zod
-        .bag;
+    const { minimum, maximum, format, patterns, contentEncoding, laxFormat } = aggregateChecks(schema);
     if (typeof minimum === "number")
         json.minLength = minimum;
     if (typeof maximum === "number")
@@ -26338,7 +26915,7 @@ const stringProcessor = (schema, ctx, _json, _params) => {
     if (contentEncoding)
         json.contentEncoding = contentEncoding;
     if (patterns && patterns.size > 0) {
-        const patternList = [...patterns];
+        const patternList = [...patterns].map(exactPattern);
         if (patternList.length === 1)
             json.pattern = patternList[0].source;
         else if (patternList.length > 1) {
@@ -26355,11 +26932,8 @@ const stringProcessor = (schema, ctx, _json, _params) => {
 };
 const numberProcessor = (schema, ctx, _json, params) => {
     const json = _json;
-    const { minimum, maximum, format, multipleOf, exclusiveMaximum, exclusiveMinimum } = schema._zod.bag;
-    if (typeof format === "string" && format.includes("int"))
-        json.type = "integer";
-    else
-        json.type = "number";
+    const { minimum, maximum, multipleOf, exclusiveMaximum, exclusiveMinimum, isInt } = aggregateChecks(schema);
+    json.type = isInt ? "integer" : "number";
     // when both minimum and exclusiveMinimum exist, pick the more restrictive one
     const exMin = typeof exclusiveMinimum === "number" && exclusiveMinimum >= (minimum ?? Number.NEGATIVE_INFINITY);
     const exMax = typeof exclusiveMaximum === "number" && exclusiveMaximum <= (maximum ?? Number.POSITIVE_INFINITY);
@@ -26388,12 +26962,21 @@ const numberProcessor = (schema, ctx, _json, params) => {
     else if (typeof maximum === "number") {
         json.maximum = maximum;
     }
-    if (typeof multipleOf === "number") {
+    if (multipleOf) {
         // JSON Schema requires a divisor strictly greater than zero, and a non-finite one does not survive JSON at all. A negative divisor accepts exactly what its absolute value accepts, so it still maps; zero, NaN and Infinity have no keyword form.
-        if (Number.isFinite(multipleOf) && multipleOf !== 0)
-            json.multipleOf = Math.abs(multipleOf);
-        else
-            handleUnrepresentable(schema, ctx, json, params, `A multipleOf divisor of ${multipleOf} cannot be represented in JSON Schema`);
+        const divisors = new Set();
+        for (const divisor of multipleOf) {
+            if (Number.isFinite(divisor) && divisor !== 0)
+                divisors.add(Math.abs(divisor));
+            else
+                handleUnrepresentable(schema, ctx, json, params, `A multipleOf divisor of ${divisor} cannot be represented in JSON Schema`);
+        }
+        // chained divisors are a conjunction the keyword cannot carry alone, so extras ride an allOf, same as stacked patterns
+        const [first, ...rest] = divisors;
+        if (first !== undefined)
+            json.multipleOf = first;
+        if (rest.length)
+            json.allOf = [...(json.allOf ?? []), ...rest.map((m) => ({ multipleOf: m }))];
     }
 };
 const booleanProcessor = (_schema, _ctx, json, _params) => {
@@ -26508,29 +27091,24 @@ const templateLiteralProcessor = (schema, _ctx, json, _params) => {
 };
 const fileProcessor = (schema, _ctx, json, _params) => {
     const _json = json;
-    const file = {
-        type: "string",
-        format: "binary",
-        contentEncoding: "binary",
-    };
-    const { minimum, maximum, mime } = schema._zod.bag;
+    _json.type = "string";
+    _json.format = "binary";
+    _json.contentEncoding = "binary";
+    const { minimum, maximum, mime } = aggregateChecks(schema);
     if (minimum !== undefined)
-        file.minLength = minimum;
+        _json.minLength = minimum;
     if (maximum !== undefined)
-        file.maxLength = maximum;
-    if (mime) {
-        if (mime.length === 1) {
-            file.contentMediaType = mime[0];
-            Object.assign(_json, file);
-        }
-        else {
-            Object.assign(_json, file); // shared props at root
-            _json.anyOf = mime.map((m) => ({ contentMediaType: m })); // only contentMediaType differs
-        }
-    }
-    else {
-        Object.assign(_json, file);
-    }
+        _json.maxLength = maximum;
+    if (!mime)
+        return;
+    // an empty intersection means the mime checks share no value, so nothing passes at runtime; `anyOf` must be non-empty, so the false schema is `not: {}`
+    if (mime.length === 0)
+        _json.not = {};
+    else if (mime.length === 1)
+        _json.contentMediaType = mime[0];
+    // only contentMediaType differs, so the shared props stay at the root
+    else
+        _json.anyOf = mime.map((m) => ({ contentMediaType: m }));
 };
 const successProcessor = (_schema, _ctx, json, _params) => {
     json.type = "boolean";
@@ -26554,13 +27132,13 @@ const setProcessor = (schema, ctx, json, params) => {
 const arrayProcessor = (schema, ctx, _json, params) => {
     const json = _json;
     const def = schema._zod.def;
-    const { minimum, maximum } = schema._zod.bag;
+    const { minimum, maximum } = aggregateChecks(schema);
     if (typeof minimum === "number")
         json.minItems = minimum;
     if (typeof maximum === "number")
         json.maxItems = maximum;
     json.type = "array";
-    json.items = process(def.element, ctx, {
+    json.items = processSchema(def.element, ctx, {
         ...params,
         path: [...params.path, "items"],
     });
@@ -26594,7 +27172,7 @@ const objectProcessor = (schema, ctx, _json, params) => {
     json.properties = {};
     for (const key in shape) {
         // assignProp so a __proto__ key becomes an own property instead of hitting the inherited setter on the plain {} we build into
-        assignProp(json.properties, key, process(shape[key], ctx, {
+        assignProp(json.properties, key, processSchema(shape[key], ctx, {
             ...params,
             path: [...params.path, "properties", key],
         }));
@@ -26624,17 +27202,48 @@ const objectProcessor = (schema, ctx, _json, params) => {
             json.additionalProperties = false;
     }
     else if (def.catchall) {
-        json.additionalProperties = process(def.catchall, ctx, {
+        json.additionalProperties = processSchema(def.catchall, ctx, {
             ...params,
             path: [...params.path, "additionalProperties"],
         });
     }
 };
+// asserts named properties in place and passes everything else through, so no additionalProperties constraint is emitted
+const propertiesProcessor = (schema, ctx, _json, params) => {
+    const json = _json;
+    const def = schema._zod.def;
+    // dropping a symbol key silently would emit a schema that asserts less than this one does
+    if (Object.getOwnPropertySymbols(def.shape).length &&
+        handleUnrepresentable(schema, ctx, json, params, "Symbol keys cannot be represented in JSON Schema")) {
+        return;
+    }
+    // the parsed value is the input, so an output-mode emission would describe a transformed value this schema never returns
+    if (ctx.io === "output") {
+        for (const key in def.shape) {
+            if (isTransforming(def.shape[key]) &&
+                handleUnrepresentable(schema, ctx, json, params, `z.properties() returns its input, so the output of a transforming schema at key "${key}" cannot be represented in JSON Schema`)) {
+                return;
+            }
+        }
+    }
+    json.type = "object";
+    json.properties = {};
+    for (const key in def.shape) {
+        assignProp(json.properties, key, processSchema(def.shape[key], ctx, {
+            ...params,
+            path: [...params.path, "properties", key],
+        }));
+    }
+    // input-side optionality in both modes: the parsed value is the input, so a defaulted key that stays absent must not be required of the output either
+    const required = Object.keys(def.shape).filter((key) => inputOptin(def.shape[key]) === undefined);
+    if (required.length > 0)
+        json.required = required;
+};
 const unionProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
     // Exclusive unions (inclusive === false) use oneOf (exactly one match) instead of anyOf (one or more matches). This includes both z.xor() and discriminated unions
     const isExclusive = def.inclusive === false;
-    const options = def.options.map((x, i) => process(x, ctx, {
+    const options = def.options.map((x, i) => processSchema(x, ctx, {
         ...params,
         path: [...params.path, isExclusive ? "oneOf" : "anyOf", i],
     }));
@@ -26647,11 +27256,11 @@ const unionProcessor = (schema, ctx, json, params) => {
 };
 const intersectionProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    const a = process(def.left, ctx, {
+    const a = processSchema(def.left, ctx, {
         ...params,
         path: [...params.path, "allOf", 0],
     });
-    const b = process(def.right, ctx, {
+    const b = processSchema(def.right, ctx, {
         ...params,
         path: [...params.path, "allOf", 1],
     });
@@ -26670,12 +27279,12 @@ const tupleProcessor = (schema, ctx, _json, params) => {
     json.type = "array";
     const prefixPath = ctx.target === "draft-2020-12" ? "prefixItems" : "items";
     const restPath = ctx.target === "draft-2020-12" ? "items" : ctx.target === "openapi-3.0" ? "items" : "additionalItems";
-    const prefixItems = def.items.map((x, i) => process(x, ctx, {
+    const prefixItems = def.items.map((x, i) => processSchema(x, ctx, {
         ...params,
         path: [...params.path, prefixPath, i],
     }));
     const rest = def.rest
-        ? process(def.rest, ctx, {
+        ? processSchema(def.rest, ctx, {
             ...params,
             path: [...params.path, restPath, ...(ctx.target === "openapi-3.0" ? [def.items.length] : [])],
         })
@@ -26729,7 +27338,7 @@ const tupleProcessor = (schema, ctx, _json, params) => {
             json.maxItems = maxItems;
     }
     // explicit user-defined length checks take precedence
-    const { minimum, maximum } = schema._zod.bag;
+    const { minimum, maximum } = aggregateChecks(schema);
     if (typeof minimum === "number")
         json.minItems = minimum;
     if (typeof maximum === "number")
@@ -26822,23 +27431,22 @@ const recordProcessor = (schema, ctx, _json, params) => {
     json.type = "object";
     // For looseRecord with regex patterns, use patternProperties. This correctly represents "only validate keys matching the pattern" semantics and composes well with allOf (intersections)
     const keyType = def.keyType;
-    const keyBag = keyType._zod.bag;
-    const patterns = keyBag?.patterns;
+    const patterns = aggregateChecks(keyType).patterns;
     if (def.mode === "loose" && patterns && patterns.size > 0) {
         // Use patternProperties for looseRecord with regex patterns
-        const valueSchema = process(def.valueType, ctx, {
+        const valueSchema = processSchema(def.valueType, ctx, {
             ...params,
             path: [...params.path, "patternProperties", "*"],
         });
         json.patternProperties = {};
         for (const pattern of patterns) {
-            assignProp(json.patternProperties, pattern.source, valueSchema);
+            assignProp(json.patternProperties, exactPattern(pattern).source, valueSchema);
         }
     }
     else {
         // Default behavior: use propertyNames + additionalProperties
         if (ctx.target === "draft-07" || ctx.target === "draft-2020-12") {
-            json.propertyNames = process(def.keyType, ctx, {
+            json.propertyNames = processSchema(def.keyType, ctx, {
                 ...params,
                 path: [...params.path, "propertyNames"],
             });
@@ -26850,7 +27458,7 @@ const recordProcessor = (schema, ctx, _json, params) => {
             }
             pending.push(schema);
         }
-        json.additionalProperties = process(def.valueType, ctx, {
+        json.additionalProperties = processSchema(def.valueType, ctx, {
             ...params,
             path: [...params.path, "additionalProperties"],
         });
@@ -26868,7 +27476,7 @@ const recordProcessor = (schema, ctx, _json, params) => {
 };
 const nullableProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    const inner = process(def.innerType, ctx, params);
+    const inner = processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     if (ctx.target === "openapi-3.0") {
         seen.ref = def.innerType;
@@ -26880,7 +27488,7 @@ const nullableProcessor = (schema, ctx, json, params) => {
 };
 const nonoptionalProcessor = (schema, ctx, _json, params) => {
     const def = schema._zod.def;
-    process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
 };
@@ -26903,7 +27511,7 @@ function serializeDefaultValue(value, schema, ctx, json, params) {
 }
 const defaultProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
     const value = serializeDefaultValue(def.defaultValue, schema, ctx, json, params);
@@ -26912,7 +27520,7 @@ const defaultProcessor = (schema, ctx, json, params) => {
 };
 const prefaultProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
     if (ctx.io !== "input")
@@ -26923,7 +27531,7 @@ const prefaultProcessor = (schema, ctx, json, params) => {
 };
 const catchProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
     let catchValue;
@@ -26940,32 +27548,32 @@ const pipeProcessor = (schema, ctx, _json, params) => {
     const def = schema._zod.def;
     const inIsTransform = def.in._zod.traits.has("$ZodTransform");
     const innerType = ctx.io === "input" ? (inIsTransform ? def.out : def.in) : def.out;
-    process(innerType, ctx, params);
+    processSchema(innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = innerType;
 };
 const readonlyProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
     json.readOnly = true;
 };
 const promiseProcessor = (schema, ctx, _json, params) => {
     const def = schema._zod.def;
-    process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
 };
 const optionalProcessor = (schema, ctx, _json, params) => {
     const def = schema._zod.def;
-    process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
 };
 const lazyProcessor = (schema, ctx, _json, params) => {
     const innerType = schema._zod.innerType;
-    process(innerType, ctx, params);
+    processSchema(innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = innerType;
 };
@@ -26990,6 +27598,7 @@ const allProcessors = {
     file: fileProcessor,
     success: successProcessor,
     custom: customProcessor,
+    properties: propertiesProcessor,
     function: functionProcessor,
     transform: transformProcessor,
     map: mapProcessor,
@@ -27020,7 +27629,7 @@ function toJSONSchema(input, params) {
         // First pass: process all schemas to build the seen map
         for (const entry of registry._idmap.entries()) {
             const [_, schema] = entry;
-            process(schema, ctx);
+            processSchema(schema, ctx);
         }
         const schemas = {};
         const external = {
@@ -27046,7 +27655,7 @@ function toJSONSchema(input, params) {
     }
     // Single schema case
     const ctx = initializeContext({ ...params, processors: allProcessors });
-    process(input, ctx);
+    processSchema(input, ctx);
     extractDefs(ctx, input);
     return finalize(ctx, input);
 }
@@ -27122,7 +27731,7 @@ class JSONSchemaGenerator {
      * This must be called before emit().
      */
     process(schema, _params = { path: [], schemaPath: [] }) {
-        return process(schema, this.ctx, _params);
+        return processSchema(schema, this.ctx, _params);
     }
     /**
      * Emit the final JSON Schema after processing.
@@ -27208,6 +27817,7 @@ var index = /*#__PURE__*/Object.freeze({
 	$ZodFile: $ZodFile,
 	$ZodFunction: $ZodFunction,
 	$ZodGUID: $ZodGUID,
+	$ZodIBAN: $ZodIBAN,
 	$ZodIPv4: $ZodIPv4,
 	$ZodIPv6: $ZodIPv6,
 	$ZodISODate: $ZodISODate,
@@ -27236,6 +27846,7 @@ var index = /*#__PURE__*/Object.freeze({
 	$ZodPrefault: $ZodPrefault,
 	$ZodPreprocess: $ZodPreprocess,
 	$ZodPromise: $ZodPromise,
+	$ZodProperties: $ZodProperties,
 	$ZodReadonly: $ZodReadonly,
 	$ZodRealError: $ZodRealError,
 	$ZodRecord: $ZodRecord,
@@ -27309,6 +27920,7 @@ var index = /*#__PURE__*/Object.freeze({
 	_gt: _gt,
 	_gte: _gte,
 	_guid: _guid,
+	_iban: _iban,
 	_includes: _includes,
 	_int: _int,
 	_int32: _int32,
@@ -27400,6 +28012,8 @@ var index = /*#__PURE__*/Object.freeze({
 	_void: _void$1,
 	_xid: _xid,
 	_xor: _xor,
+	base64Charset: base64Charset,
+	base64urlCharset: base64urlCharset,
 	clone: clone,
 	compile: compile,
 	compileFn: compileFn,
@@ -27422,10 +28036,12 @@ var index = /*#__PURE__*/Object.freeze({
 	initializeContext: initializeContext,
 	isBackEdge: isBackEdge,
 	isRecursiveSchema: isRecursiveSchema,
+	isTransforming: isTransforming,
 	isValidBase64: isValidBase64,
 	isValidBase64URL: isValidBase64URL,
 	isValidCIDRv6: isValidCIDRv6,
 	isValidCreditCard: isValidCreditCard,
+	isValidIBAN: isValidIBAN,
 	isValidIPv6: isValidIPv6,
 	isValidJWT: isValidJWT,
 	locales: index$1,
@@ -27436,7 +28052,8 @@ var index = /*#__PURE__*/Object.freeze({
 	parseAsync: parseAsync$1,
 	parseURLObject: parseURLObject,
 	prettifyError: prettifyError,
-	process: process,
+	process: processSchema,
+	processSchema: processSchema,
 	regexes: regexes,
 	registry: registry,
 	safeDecode: safeDecode$1,
@@ -27455,8 +28072,9 @@ var index = /*#__PURE__*/Object.freeze({
 	urlProtocolOk: urlProtocolOk,
 	util: util,
 	validate: validate,
-	validateAsync: validateAsync,
-	version: version
+	validateAsync: validateAsync$1,
+	version: version,
+	withParser: withParser
 });
 
 var _checks = /*#__PURE__*/Object.freeze({
@@ -27481,7 +28099,6 @@ var _checks = /*#__PURE__*/Object.freeze({
 	normalize: _normalize,
 	overwrite: _overwrite,
 	positive: _positive,
-	properties: _properties,
 	property: _property,
 	regex: _regex,
 	size: _size,
@@ -27706,6 +28323,12 @@ const ZodType = /*@__PURE__*/ $constructor("ZodType", (inst, def) => {
     set spa(value) {
         own(this, "spa", value);
     },
+    validate(data, params) {
+        return validate(this, data, params);
+    },
+    validateAsync(data, params) {
+        return validateAsync$1(this, data, params);
+    },
     encode: function _encode(data, params) {
         return encode(this, data, params, { callee: _encode });
     },
@@ -27747,10 +28370,11 @@ const _ZodString = /*@__PURE__*/ $constructor("_ZodString", (inst, def) => {
     $ZodString.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => stringProcessor(inst, ctx, json);
-    const bag = inst._zod.bag;
-    inst.format = bag.format ?? null;
-    inst.minLength = bag.minimum ?? null;
-    inst.maxLength = bag.maximum ?? null;
+}, 
+/*@__PURE__*/ derived({
+    format: (inst) => aggregateChecks(inst).format ?? null,
+    minLength: (inst) => aggregateChecks(inst).minimum ?? null,
+    maxLength: (inst) => aggregateChecks(inst).maximum ?? null,
 }, {
     regex(...args) {
         return this.check(_regex(...args));
@@ -27797,7 +28421,7 @@ const _ZodString = /*@__PURE__*/ $constructor("_ZodString", (inst, def) => {
     slugify() {
         return this.check(_slugify());
     },
-});
+}));
 const ZodString = /*@__PURE__*/ $constructor("ZodString", (inst, def) => {
     $ZodString.init(inst, def);
     _ZodString.init(inst, def);
@@ -28091,6 +28715,13 @@ const ZodCreditCard = /*@__PURE__*/ $constructor("ZodCreditCard", (inst, def) =>
 function creditCard(params) {
     return _creditCard(ZodCreditCard, params);
 }
+const ZodIBAN = /*@__PURE__*/ $constructor("ZodIBAN", (inst, def) => {
+    $ZodIBAN.init(inst, def);
+    ZodStringFormat.init(inst, def);
+});
+function iban(params) {
+    return _iban(ZodIBAN, params);
+}
 const ZodJWT = /*@__PURE__*/ $constructor("ZodJWT", (inst, def) => {
     // ZodStringFormat.init(inst, def);
     $ZodJWT.init(inst, def);
@@ -28125,14 +28756,22 @@ const ZodNumber = /*@__PURE__*/ $constructor("ZodNumber", (inst, def) => {
     $ZodNumber.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => numberProcessor(inst, ctx, json, params);
-    const bag = inst._zod.bag;
-    inst.minValue =
-        Math.max(bag.minimum ?? Number.NEGATIVE_INFINITY, bag.exclusiveMinimum ?? Number.NEGATIVE_INFINITY) ?? null;
-    inst.maxValue =
-        Math.min(bag.maximum ?? Number.POSITIVE_INFINITY, bag.exclusiveMaximum ?? Number.POSITIVE_INFINITY) ?? null;
-    inst.isInt = (bag.format ?? "").includes("int") || Number.isSafeInteger(bag.multipleOf ?? 0.5);
     inst.isFinite = true;
-    inst.format = bag.format ?? null;
+}, 
+/*@__PURE__*/ derived({
+    minValue: (inst) => {
+        const { minimum, exclusiveMinimum } = aggregateChecks(inst);
+        return Math.max(minimum ?? Number.NEGATIVE_INFINITY, exclusiveMinimum ?? Number.NEGATIVE_INFINITY);
+    },
+    maxValue: (inst) => {
+        const { maximum, exclusiveMaximum } = aggregateChecks(inst);
+        return Math.min(maximum ?? Number.POSITIVE_INFINITY, exclusiveMaximum ?? Number.POSITIVE_INFINITY);
+    },
+    isInt: (inst) => {
+        const { isInt, multipleOf } = aggregateChecks(inst);
+        return !!isInt || !!multipleOf?.some(Number.isSafeInteger);
+    },
+    format: (inst) => aggregateChecks(inst).format ?? null,
 }, {
     gt(value, params) {
         return this.check(_gt(value, params));
@@ -28179,7 +28818,7 @@ const ZodNumber = /*@__PURE__*/ $constructor("ZodNumber", (inst, def) => {
     finite() {
         return this;
     },
-});
+}));
 function number$1(params) {
     return _number(ZodNumber, params);
 }
@@ -28214,10 +28853,11 @@ const ZodBigInt = /*@__PURE__*/ $constructor("ZodBigInt", (inst, def) => {
     $ZodBigInt.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => bigintProcessor(inst, ctx, json, params);
-    const bag = inst._zod.bag;
-    inst.minValue = bag.minimum ?? null;
-    inst.maxValue = bag.maximum ?? null;
-    inst.format = bag.format ?? null;
+}, 
+/*@__PURE__*/ derived({
+    minValue: (inst) => aggregateChecks(inst).minimum ?? null,
+    maxValue: (inst) => aggregateChecks(inst).maximum ?? null,
+    format: (inst) => aggregateChecks(inst).format ?? null,
 }, {
     gte(value, params) {
         return this.check(_gte(value, params));
@@ -28252,7 +28892,7 @@ const ZodBigInt = /*@__PURE__*/ $constructor("ZodBigInt", (inst, def) => {
     multipleOf(value, params) {
         return this.check(_multipleOf(value, params));
     },
-});
+}));
 function bigint$1(params) {
     return _bigint(ZodBigInt, params);
 }
@@ -28328,10 +28968,17 @@ const ZodDate = /*@__PURE__*/ $constructor("ZodDate", (inst, def) => {
     inst._zod.processJSONSchema = (ctx, json, params) => dateProcessor(inst, ctx, json, params);
     inst.min = (value, params) => inst.check(_gte(value, params));
     inst.max = (value, params) => inst.check(_lte(value, params));
-    const c = inst._zod.bag;
-    inst.minDate = c.minimum ? new Date(c.minimum) : null;
-    inst.maxDate = c.maximum ? new Date(c.maximum) : null;
-});
+}, 
+/*@__PURE__*/ derived({
+    minDate: (inst) => {
+        const { minimum } = aggregateChecks(inst);
+        return minimum ? new Date(minimum) : null;
+    },
+    maxDate: (inst) => {
+        const { maximum } = aggregateChecks(inst);
+        return maximum ? new Date(maximum) : null;
+    },
+}, {}));
 function date$2(params) {
     return _date(ZodDate, params);
 }
@@ -28377,19 +29024,20 @@ const ZodObject = /*@__PURE__*/ $constructor("ZodObject", (inst, def) => {
         return _enum(Object.keys(this._zod.def.shape));
     },
     catchall(catchall) {
-        return this.clone({ ...this._zod.def, catchall: catchall });
+        // `mergeDefs` rather than a spread: spreading reads `shape`, and resolving it can mint a whole fresh subtree
+        return this.clone(mergeDefs(this._zod.def, { catchall: catchall }));
     },
     passthrough() {
-        return this.clone({ ...this._zod.def, catchall: unknown() });
+        return this.clone(mergeDefs(this._zod.def, { catchall: unknown() }));
     },
     loose() {
-        return this.clone({ ...this._zod.def, catchall: unknown() });
+        return this.clone(mergeDefs(this._zod.def, { catchall: unknown() }));
     },
     strict() {
-        return this.clone({ ...this._zod.def, catchall: never() });
+        return this.clone(mergeDefs(this._zod.def, { catchall: never() }));
     },
     strip() {
-        return this.clone({ ...this._zod.def, catchall: undefined });
+        return this.clone(mergeDefs(this._zod.def, { catchall: undefined }));
     },
     extend(incoming) {
         return extend(this, incoming);
@@ -28617,7 +29265,8 @@ const ZodEnum = /*@__PURE__*/ $constructor("ZodEnum", (inst, def) => {
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => enumProcessor(inst, ctx, json);
     inst.enum = def.entries;
-    inst.options = Object.values(def.entries);
+    // reuse the parsed value set so a numeric TS enum's reverse-mapping keys stay out
+    inst.options = [...inst._zod.values];
     const keys = new Set(Object.keys(def.entries));
     inst.extract = (values, params) => {
         const newEntries = {};
@@ -28974,6 +29623,14 @@ const ZodCustom = /*@__PURE__*/ $constructor("ZodCustom", (inst, def) => {
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => customProcessor(inst, ctx, json, params);
 });
+const ZodProperties = /*@__PURE__*/ $constructor("ZodProperties", (inst, def) => {
+    _ensureDefaultMemoizer();
+    $ZodProperties.init(inst, def);
+    ZodType.init(inst, def);
+});
+function properties(shape, params) {
+    return _properties(ZodProperties, shape, params);
+}
 // custom checks
 function check(fn) {
     const ch = new $ZodCheck({
@@ -28996,8 +29653,16 @@ function superRefine(fn, params) {
 // Re-export describe and meta from core
 const describe = describe$1;
 const meta = meta$1;
+const ZodInstanceOf = /*@__PURE__*/ $constructor("ZodInstanceOf", (inst, def) => {
+    ZodCustom.init(inst, def);
+}, {
+    properties(shape, params) {
+        // asserts in place, so the narrowed output type is truthful without a wrapper
+        return this.check(properties(shape, params));
+    },
+});
 function _instanceof(cls, params = {}) {
-    const inst = new ZodCustom({
+    const inst = new ZodInstanceOf({
         type: "custom",
         check: "custom",
         fn: (data) => data instanceof cls,
@@ -29069,12 +29734,14 @@ var _schemas = /*#__PURE__*/Object.freeze({
 	ZodFile: ZodFile,
 	ZodFunction: ZodFunction,
 	ZodGUID: ZodGUID,
+	ZodIBAN: ZodIBAN,
 	ZodIPv4: ZodIPv4,
 	ZodIPv6: ZodIPv6,
 	ZodISODate: ZodISODate,
 	ZodISODateTime: ZodISODateTime,
 	ZodISODuration: ZodISODuration,
 	ZodISOTime: ZodISOTime,
+	ZodInstanceOf: ZodInstanceOf,
 	ZodIntersection: ZodIntersection,
 	ZodJWT: ZodJWT,
 	ZodKSUID: ZodKSUID,
@@ -29096,6 +29763,7 @@ var _schemas = /*#__PURE__*/Object.freeze({
 	ZodPrefault: ZodPrefault,
 	ZodPreprocess: ZodPreprocess,
 	ZodPromise: ZodPromise,
+	ZodProperties: ZodProperties,
 	ZodReadonly: ZodReadonly,
 	ZodRecord: ZodRecord,
 	ZodSet: ZodSet,
@@ -29151,6 +29819,7 @@ var _schemas = /*#__PURE__*/Object.freeze({
 	hex: hex,
 	hostname: hostname,
 	httpUrl: httpUrl,
+	iban: iban,
 	instanceof: _instanceof,
 	int: int,
 	int32: int32,
@@ -29186,6 +29855,7 @@ var _schemas = /*#__PURE__*/Object.freeze({
 	prefault: prefault,
 	preprocess: preprocess,
 	promise: promise,
+	properties: properties,
 	readonly: readonly,
 	record: record,
 	refine: refine,
@@ -29391,12 +30061,13 @@ function resolveRef(ref, ctx) {
     throw new Error(`Reference not found: ${ref}`);
 }
 /**
- * Rejects every own key that fails `keySchema`, before `objectSchema` runs. The
- * guard has to see the raw input: an object parse drops `__proto__` and can add
- * keys from a property `default`, so its output is not the set of names the
- * instance actually carried.
+ * Enforces the keywords that constrain an object's own keys — `propertyNames`,
+ * `minProperties`, `maxProperties` — before `objectSchema` runs. The guard has
+ * to see the raw input: an object parse drops `__proto__` and can add keys from
+ * a property `default`, so its output is not the set of names the instance
+ * actually carried.
  */
-function checkPropertyNames(objectSchema, keySchema) {
+function checkObjectGuards(objectSchema, guards) {
     // An identity transform, not z.any(), so `toJSONSchema` reports the object on both the input and the output side of the pipe.
     const guard = z$1
         .transform((value) => value)
@@ -29404,21 +30075,208 @@ function checkPropertyNames(objectSchema, keySchema) {
         const value = payload.value;
         if (typeof value !== "object" || value === null || Array.isArray(value))
             return;
-        for (const key of Object.getOwnPropertyNames(value)) {
-            const result = keySchema.safeParse(key);
-            if (result.success)
-                continue;
+        const keys = Object.getOwnPropertyNames(value);
+        if (guards.minProperties !== undefined && keys.length < guards.minProperties) {
             payload.issues.push({
-                code: "invalid_key",
-                origin: "record",
-                issues: result.error.issues,
-                input: key,
-                path: [key],
+                origin: "object",
+                code: "too_small",
+                minimum: guards.minProperties,
+                inclusive: true,
+                message: `Too small: expected object to have >=${guards.minProperties} properties`,
+                input: value,
+                inst: objectSchema,
                 continue: true,
             });
         }
+        if (guards.maxProperties !== undefined && keys.length > guards.maxProperties) {
+            payload.issues.push({
+                origin: "object",
+                code: "too_big",
+                maximum: guards.maxProperties,
+                inclusive: true,
+                message: `Too big: expected object to have <=${guards.maxProperties} properties`,
+                input: value,
+                inst: objectSchema,
+                continue: true,
+            });
+        }
+        if (guards.keySchema) {
+            for (const key of keys) {
+                const result = guards.keySchema.safeParse(key);
+                if (result.success)
+                    continue;
+                payload.issues.push({
+                    code: "invalid_key",
+                    origin: "record",
+                    issues: result.error.issues,
+                    input: key,
+                    path: [key],
+                    continue: true,
+                });
+            }
+        }
     });
     return guard.pipe(objectSchema);
+}
+/**
+ * An injective string for JSON data: two values share a key exactly when `uniqueItems` calls them
+ * equal, so duplicate detection is a Map lookup rather than a pairwise walk. Strings and keys are
+ * length-prefixed so no value can spell another one. `null` means "never equal to anything" — a
+ * cycle or a NaN, neither of which JSON can express.
+ */
+function canonicalKey(value, seen) {
+    if (value === null)
+        return "z";
+    const type = typeof value;
+    if (type !== "object") {
+        if (type === "number" && Number.isNaN(value))
+            return null;
+        const raw = String(value);
+        return `${type[0]}${raw.length}:${raw}`;
+    }
+    if (seen.has(value))
+        return null;
+    seen.add(value);
+    try {
+        if (Array.isArray(value)) {
+            const parts = [];
+            for (const item of value) {
+                const key = canonicalKey(item, seen);
+                if (key === null)
+                    return null;
+                parts.push(key);
+            }
+            return `a${parts.length}:[${parts.join(",")}]`;
+        }
+        const keys = Object.keys(value).sort();
+        const parts = [];
+        for (const k of keys) {
+            const key = canonicalKey(value[k], seen);
+            if (key === null)
+                return null;
+            parts.push(`${k.length}:${k}=${key}`);
+        }
+        return `o${parts.length}:{${parts.join(",")}}`;
+    }
+    finally {
+        seen.delete(value);
+    }
+}
+// keywords whose value is a schema or an array of them
+const SCHEMA_KEYWORDS = /*@__PURE__*/ new Set([
+    "items",
+    "prefixItems",
+    "additionalItems",
+    "additionalProperties",
+    "contains",
+    "propertyNames",
+    "not",
+    "if",
+    "then",
+    "else",
+    "allOf",
+    "anyOf",
+    "oneOf",
+    "unevaluatedItems",
+    "unevaluatedProperties",
+    "contentSchema",
+]);
+// keywords whose value maps names to schemas. draft-7 `dependencies` also allows an array of property names, which holds no schema to walk
+const SCHEMA_MAP_KEYWORDS = /*@__PURE__*/ new Set([
+    "properties",
+    "patternProperties",
+    "dependentSchemas",
+    "dependencies",
+    "$defs",
+    "definitions",
+]);
+/**
+ * True when a subschema holds a `$ref` anywhere a schema can appear. Only those positions are
+ * walked: `$ref` under `default` or an `x-` annotation is instance data with an ordinary key, and
+ * reading it as a reference would drop a constraint that resolves perfectly well.
+ */
+function containsRef(value) {
+    if (typeof value !== "object" || value === null)
+        return false;
+    if (Array.isArray(value))
+        return value.some(containsRef);
+    if (typeof value.$ref === "string")
+        return true;
+    return Object.entries(value).some(([key, sub]) => {
+        if (SCHEMA_KEYWORDS.has(key))
+            return containsRef(sub);
+        if (!SCHEMA_MAP_KEYWORDS.has(key) || typeof sub !== "object" || sub === null)
+            return false;
+        return Object.values(sub).some(containsRef);
+    });
+}
+function plural(n) {
+    return n === 1 ? "element" : "elements";
+}
+/**
+ * Enforces `uniqueItems` and the `contains` family before `arraySchema` runs, for the same reason
+ * `checkObjectGuards` runs pre-pipe: an item parse can apply a nested `default`, so the parsed
+ * array is not the instance the keywords are defined over. A guard issue aborts the pipe, so
+ * `minItems`/`maxItems` are not also reported on the same parse — instance correctness is worth
+ * more than co-reporting two issues.
+ */
+function checkArrayGuards(arraySchema, guards) {
+    // An identity transform, not z.any(), so `toJSONSchema` reports the array on both the input and the output side of the pipe.
+    const guard = z$1
+        .transform((value) => value)
+        .check((payload) => {
+        const items = payload.value;
+        if (!Array.isArray(items))
+            return;
+        if (guards.uniqueItems === true) {
+            const firstSeen = new Map();
+            for (let i = 0; i < items.length; i++) {
+                const key = canonicalKey(items[i], new Set());
+                if (key === null)
+                    continue;
+                const first = firstSeen.get(key);
+                if (first === undefined) {
+                    firstSeen.set(key, i);
+                    continue;
+                }
+                payload.issues.push({
+                    code: "custom",
+                    message: `Array items must be unique: element at index ${i} duplicates the one at index ${first}`,
+                    input: items,
+                    path: [i],
+                    continue: true,
+                });
+            }
+        }
+        if (guards.containsSchema) {
+            const minContains = guards.minContains ?? 1;
+            // one past the ceiling already proves the failure, and nothing above it changes the verdict
+            const ceiling = guards.maxContains !== undefined ? guards.maxContains + 1 : Number.POSITIVE_INFINITY;
+            let matches = 0;
+            for (const item of items) {
+                if (guards.containsSchema.safeParse(item).success && ++matches >= ceiling)
+                    break;
+            }
+            if (matches < minContains) {
+                // the scan ran to the end, so this count is exact
+                payload.issues.push({
+                    code: "custom",
+                    message: `Array must contain at least ${minContains} matching ${plural(minContains)}; found ${matches}`,
+                    input: items,
+                    continue: true,
+                });
+            }
+            if (guards.maxContains !== undefined && matches > guards.maxContains) {
+                payload.issues.push({
+                    code: "custom",
+                    message: `Array must contain at most ${guards.maxContains} matching ${plural(guards.maxContains)}`,
+                    input: items,
+                    continue: true,
+                });
+            }
+        }
+    });
+    return guard.pipe(arraySchema);
 }
 function getTupleRest(restSchema, ctx) {
     if (restSchema === false) {
@@ -29583,6 +30441,9 @@ function convertBaseSchema(schema, ctx) {
                 }
                 else if (format === "credit_card") {
                     stringSchema = stringSchema.check(z$1.creditCard());
+                }
+                else if (format === "iban") {
+                    stringSchema = stringSchema.check(z$1.iban());
                 }
                 else if (format === "jwt") {
                     stringSchema = stringSchema.check(z$1.jwt());
@@ -29751,17 +30612,23 @@ function convertBaseSchema(schema, ctx) {
                 }
             }
             // propertyNames constrains key *names* only, and says nothing about which keys are required or how their values validate. Layering it on top of the result keeps properties/patternProperties/additionalProperties composing underneath. `true` allows every name, so it needs no guard.
-            if (schema.propertyNames !== undefined && schema.propertyNames !== true) {
-                // Keys are always strings, so a propertyNames subschema that omits `type` still constrains them — without this it would convert to z.any().
-                const keyJSONSchema = typeof schema.propertyNames === "object" && schema.propertyNames.type === undefined
-                    ? { type: "string", ...schema.propertyNames }
-                    : schema.propertyNames;
-                zodSchema = checkPropertyNames(zodSchema, convertSchema(keyJSONSchema, ctx));
+            const hasKeyGuard = schema.propertyNames !== undefined && schema.propertyNames !== true;
+            const minProperties = typeof schema.minProperties === "number" ? schema.minProperties : undefined;
+            const maxProperties = typeof schema.maxProperties === "number" ? schema.maxProperties : undefined;
+            if (hasKeyGuard || minProperties !== undefined || maxProperties !== undefined) {
+                let keySchema;
+                if (hasKeyGuard) {
+                    // Keys are always strings, so a propertyNames subschema that omits `type` still constrains them — without this it would convert to z.any().
+                    const keyJSONSchema = typeof schema.propertyNames === "object" && schema.propertyNames.type === undefined
+                        ? { type: "string", ...schema.propertyNames }
+                        : schema.propertyNames;
+                    keySchema = convertSchema(keyJSONSchema, ctx);
+                }
+                zodSchema = checkObjectGuards(zodSchema, { keySchema, minProperties, maxProperties });
             }
             break;
         }
         case "array": {
-            // TODO: uniqueItems and contains/minContains/maxContains are not supported
             // Check if this is a tuple (prefixItems or items as array)
             const prefixItems = schema.prefixItems;
             const items = schema.items;
@@ -29813,6 +30680,15 @@ function convertBaseSchema(schema, ctx) {
             else {
                 // No items specified - array of any
                 zodSchema = z$1.array(z$1.any());
+            }
+            // minContains/maxContains only constrain anything when `contains` itself is present
+            if (schema.uniqueItems === true || schema.contains !== undefined) {
+                zodSchema = checkArrayGuards(zodSchema, {
+                    uniqueItems: schema.uniqueItems === true,
+                    containsSchema: schema.contains !== undefined ? convertSchema(schema.contains, ctx) : undefined,
+                    minContains: typeof schema.minContains === "number" ? schema.minContains : undefined,
+                    maxContains: typeof schema.maxContains === "number" ? schema.maxContains : undefined,
+                });
             }
             break;
         }
@@ -29881,9 +30757,24 @@ function convertSchema(schema, ctx) {
             extraMeta[key] = schema[key];
         }
     }
-    // `propertyNames` is enforced by a key guard, which `toJSONSchema` cannot infer, so the original keyword is carried as metadata to keep the round-trip lossless. Only where it was actually applied: on any other type it is inert, and on a `$ref` the metadata would land on the target every reference shares.
-    if (schema.propertyNames !== undefined && schema.type === "object" && schema.$ref === undefined) {
-        extraMeta.propertyNames = schema.propertyNames;
+    // `propertyNames` and `contains` are enforced by a guard, which `toJSONSchema` cannot infer, so the original keyword is carried as metadata to keep the round-trip lossless. Only where it was actually applied: on any other type it is inert, and on a `$ref` the metadata would land on the target every reference shares. A carried subschema is copied verbatim while the root `$defs` stay behind, so one holding a `$ref` is dropped rather than emitted as a dangling reference.
+    if (schema.type === "object" && schema.$ref === undefined) {
+        if (schema.propertyNames !== undefined && !containsRef(schema.propertyNames)) {
+            extraMeta.propertyNames = schema.propertyNames;
+        }
+        for (const key of ["minProperties", "maxProperties"]) {
+            if (schema[key] !== undefined)
+                extraMeta[key] = schema[key];
+        }
+    }
+    if (schema.type === "array" && schema.$ref === undefined) {
+        if (schema.contains !== undefined && !containsRef(schema.contains)) {
+            extraMeta.contains = schema.contains;
+        }
+        for (const key of ["uniqueItems", "minContains", "maxContains"]) {
+            if (schema[key] !== undefined)
+                extraMeta[key] = schema[key];
+        }
     }
     for (const key of Object.keys(schema)) {
         if (!RECOGNIZED_KEYS.has(key)) {
@@ -30062,6 +30953,18 @@ function visit(schema, fnOrHandlers) {
                 const { _cachedInner, ...rest } = def;
                 return clone(s, { ...rest, getter: () => run(original()) });
             }
+            case "properties": {
+                const oldShape = def.shape;
+                let changed = false;
+                const newShape = {};
+                for (const k of Reflect.ownKeys(oldShape)) {
+                    const mapped = run(oldShape[k]);
+                    if (mapped !== oldShape[k])
+                        changed = true;
+                    newShape[k] = mapped;
+                }
+                return changed ? clone(s, { ...def, shape: newShape }) : s;
+            }
             // A leaf by choice: `parts` are regex fragments, not data positions.
             case "template_literal":
             // Leaves.
@@ -30169,6 +31072,7 @@ var z = /*#__PURE__*/Object.freeze({
 	$brand: $brand,
 	$input: $input,
 	$output: $output,
+	INVALID: INVALID,
 	NEVER: NEVER,
 	TimePrecision: TimePrecision,
 	ZodAny: ZodAny,
@@ -30202,12 +31106,14 @@ var z = /*#__PURE__*/Object.freeze({
 	get ZodFirstPartyTypeKind () { return ZodFirstPartyTypeKind; },
 	ZodFunction: ZodFunction,
 	ZodGUID: ZodGUID,
+	ZodIBAN: ZodIBAN,
 	ZodIPv4: ZodIPv4,
 	ZodIPv6: ZodIPv6,
 	ZodISODate: ZodISODate,
 	ZodISODateTime: ZodISODateTime,
 	ZodISODuration: ZodISODuration,
 	ZodISOTime: ZodISOTime,
+	ZodInstanceOf: ZodInstanceOf,
 	ZodIntersection: ZodIntersection,
 	ZodIssueCode: ZodIssueCode,
 	ZodJWT: ZodJWT,
@@ -30230,6 +31136,7 @@ var z = /*#__PURE__*/Object.freeze({
 	ZodPrefault: ZodPrefault,
 	ZodPreprocess: ZodPreprocess,
 	ZodPromise: ZodPromise,
+	ZodProperties: ZodProperties,
 	ZodReadonly: ZodReadonly,
 	ZodRealError: ZodRealError,
 	ZodRecord: ZodRecord,
@@ -30305,6 +31212,7 @@ var z = /*#__PURE__*/Object.freeze({
 	hex: hex,
 	hostname: hostname,
 	httpUrl: httpUrl,
+	iban: iban,
 	includes: _includes,
 	input: input,
 	instanceof: _instanceof,
@@ -30365,7 +31273,7 @@ var z = /*#__PURE__*/Object.freeze({
 	preprocess: preprocess,
 	prettifyError: prettifyError,
 	promise: promise,
-	properties: _properties,
+	properties: properties,
 	property: _property,
 	readonly: readonly,
 	record: record,
@@ -30414,8 +31322,9 @@ var z = /*#__PURE__*/Object.freeze({
 	uuidv6: uuidv6,
 	uuidv7: uuidv7,
 	validate: validate,
-	validateAsync: validateAsync,
+	validateAsync: validateAsync$1,
 	void: _void,
+	withParser: withParser,
 	xid: xid,
 	xor: xor
 });
@@ -30683,6 +31592,26 @@ var dezerializers = {
     if (shape.maxLength !== void 0) {
       i = i.max(shape.maxLength);
     }
+    opts.pathToSchema.set(opts.path, i);
+    return getCustomChecks(i, shape, opts);
+  }),
+  properties: ((shape, opts) => {
+    const i = properties(
+      {
+        ...Object.fromEntries(
+          Object.entries(shape.properties).map(([key, value]) => {
+            return [
+              key,
+              checkRef(value, opts) || d(value, {
+                ...opts,
+                path: opts.path + "/properties/" + key
+              })
+            ];
+          })
+        )
+      },
+      getError(shape, opts)
+    );
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
   }),
@@ -31753,7 +32682,7 @@ String.raw`\d+`+'n'+'$',// No trailing content.
   },
   */viewUI({value,specificSchemaObject}){cov_t81xsi8ro().f[6]++;cov_t81xsi8ro().s[8]++;return ['i',{dataset:{type:'bigintObject'},title:(cov_t81xsi8ro().b[2][0]++,schemaLabel(specificSchemaObject))??(cov_t81xsi8ro().b[2][1]++,'(a BigInt Object)')},[`${String(value)}n`]];},editUI({typeNamespace,specificSchemaObject,value=(cov_t81xsi8ro().b[3][0]++,'')}){cov_t81xsi8ro().f[7]++;cov_t81xsi8ro().s[9]++;return ['div',{dataset:{type:'bigintObject'},title:(cov_t81xsi8ro().b[4][0]++,schemaLabel(specificSchemaObject))??(cov_t81xsi8ro().b[4][1]++,'BigInt object')},[['input',{name:`${typeNamespace}-bigintObject`,type:'number',step:'1',value}]]];}});
 
-function cov_1cdkaudltz(){var path="/Users/brett/jsoe/src/fundamentalTypes/stringType.js";var hash="c4f0afaecba40755e575e2020125754082228c5d";var global=new Function("return this")();var gcv="__coverage__";var coverageData={path:"/Users/brett/jsoe/src/fundamentalTypes/stringType.js",statementMap:{"0":{start:{line:5,column:21},end:{line:5,column:31}},"1":{start:{line:10,column:19},end:{line:344,column:1}},"2":{start:{line:14,column:4},end:{line:14,column:33}},"3":{start:{line:17,column:4},end:{line:17,column:35}},"4":{start:{line:20,column:4},end:{line:22,column:6}},"5":{start:{line:25,column:4},end:{line:25,column:40}},"6":{start:{line:28,column:4},end:{line:28,column:39}},"7":{start:{line:31,column:17},end:{line:32,column:31}},"8":{start:{line:35,column:25},end:{line:36,column:73}},"9":{start:{line:37,column:4},end:{line:47,column:16}},"10":{start:{line:51,column:6},end:{line:51,column:46}},"11":{start:{line:53,column:17},end:{line:53,column:78}},"12":{start:{line:54,column:26},end:{line:55,column:43}},"13":{start:{line:56,column:22},end:{line:56,column:75}},"14":{start:{line:57,column:22},end:{line:57,column:75}},"15":{start:{line:59,column:23},end:{line:59,column:53}},"16":{start:{line:60,column:21},end:{line:60,column:49}},"17":{start:{line:62,column:24},end:{line:62,column:55}},"18":{start:{line:63,column:24},end:{line:63,column:55}},"19":{start:{line:64,column:17},end:{line:64,column:41}},"20":{start:{line:66,column:21},end:{line:67,column:33}},"21":{start:{line:68,column:21},end:{line:70,column:17}},"22":{start:{line:72,column:18},end:{line:73,column:30}},"23":{start:{line:74,column:20},end:{line:76,column:17}},"24":{start:{line:77,column:18},end:{line:79,column:17}},"25":{start:{line:86,column:6},end:{line:86,column:24}},"26":{start:{line:88,column:29},end:{line:91,column:12}},"27":{start:{line:96,column:23},end:{line:260,column:5}},"28":{start:{line:97,column:6},end:{line:107,column:7}},"29":{start:{line:98,column:26},end:{line:98,column:57}},"30":{start:{line:99,column:24},end:{line:99,column:63}},"31":{start:{line:100,column:24},end:{line:102,column:10}},"32":{start:{line:101,column:10},end:{line:101,column:71}},"33":{start:{line:103,column:8},end:{line:106,column:9}},"34":{start:{line:104,column:10},end:{line:105,column:49}},"35":{start:{line:108,column:6},end:{line:110,column:7}},"36":{start:{line:109,column:8},end:{line:109,column:66}},"37":{start:{line:111,column:6},end:{line:113,column:7}},"38":{start:{line:112,column:8},end:{line:112,column:62}},"39":{start:{line:114,column:6},end:{line:118,column:7}},"40":{start:{line:115,column:8},end:{line:117,column:11}},"41":{start:{line:119,column:6},end:{line:123,column:7}},"42":{start:{line:120,column:8},end:{line:122,column:11}},"43":{start:{line:124,column:6},end:{line:128,column:7}},"44":{start:{line:125,column:8},end:{line:127,column:11}},"45":{start:{line:129,column:6},end:{line:258,column:7}},"46":{start:{line:130,column:8},end:{line:257,column:9}},"47":{start:{line:132,column:10},end:{line:134,column:11}},"48":{start:{line:133,column:12},end:{line:133,column:62}},"49":{start:{line:135,column:10},end:{line:135,column:16}},"50":{start:{line:137,column:10},end:{line:148,column:11}},"51":{start:{line:140,column:12},end:{line:142,column:13}},"52":{start:{line:141,column:14},end:{line:141,column:58}},"53":{start:{line:143,column:12},end:{line:143,column:18}},"54":{start:{line:145,column:12},end:{line:147,column:13}},"55":{start:{line:146,column:14},end:{line:146,column:58}},"56":{start:{line:149,column:10},end:{line:149,column:16}},"57":{start:{line:152,column:10},end:{line:154,column:11}},"58":{start:{line:153,column:12},end:{line:153,column:58}},"59":{start:{line:155,column:10},end:{line:155,column:16}},"60":{start:{line:158,column:10},end:{line:160,column:11}},"61":{start:{line:159,column:12},end:{line:159,column:74}},"62":{start:{line:161,column:10},end:{line:161,column:16}},"63":{start:{line:163,column:10},end:{line:165,column:11}},"64":{start:{line:164,column:12},end:{line:164,column:56}},"65":{start:{line:166,column:10},end:{line:166,column:16}},"66":{start:{line:168,column:10},end:{line:174,column:11}},"67":{start:{line:173,column:12},end:{line:173,column:55}},"68":{start:{line:175,column:10},end:{line:175,column:16}},"69":{start:{line:177,column:10},end:{line:183,column:11}},"70":{start:{line:182,column:12},end:{line:182,column:54}},"71":{start:{line:184,column:10},end:{line:184,column:16}},"72":{start:{line:189,column:10},end:{line:191,column:11}},"73":{start:{line:190,column:12},end:{line:190,column:58}},"74":{start:{line:192,column:10},end:{line:192,column:16}},"75":{start:{line:194,column:10},end:{line:205,column:11}},"76":{start:{line:195,column:12},end:{line:199,column:13}},"77":{start:{line:196,column:14},end:{line:198,column:17}},"78":{start:{line:201,column:12},end:{line:203,column:13}},"79":{start:{line:202,column:14},end:{line:202,column:59}},"80":{start:{line:204,column:12},end:{line:204,column:18}},"81":{start:{line:206,column:10},end:{line:208,column:11}},"82":{start:{line:207,column:12},end:{line:207,column:57}},"83":{start:{line:209,column:10},end:{line:209,column:16}},"84":{start:{line:211,column:10},end:{line:213,column:11}},"85":{start:{line:212,column:12},end:{line:212,column:55}},"86":{start:{line:214,column:10},end:{line:214,column:16}},"87":{start:{line:216,column:10},end:{line:218,column:11}},"88":{start:{line:217,column:12},end:{line:217,column:56}},"89":{start:{line:219,column:10},end:{line:219,column:16}},"90":{start:{line:221,column:10},end:{line:223,column:11}},"91":{start:{line:222,column:12},end:{line:222,column:55}},"92":{start:{line:224,column:10},end:{line:224,column:16}},"93":{start:{line:226,column:10},end:{line:228,column:11}},"94":{start:{line:227,column:12},end:{line:227,column:59}},"95":{start:{line:229,column:10},end:{line:229,column:16}},"96":{start:{line:231,column:10},end:{line:233,column:11}},"97":{start:{line:232,column:12},end:{line:232,column:57}},"98":{start:{line:234,column:10},end:{line:234,column:16}},"99":{start:{line:236,column:10},end:{line:238,column:11}},"100":{start:{line:237,column:12},end:{line:237,column:60}},"101":{start:{line:239,column:10},end:{line:239,column:16}},"102":{start:{line:241,column:10},end:{line:252,column:11}},"103":{start:{line:244,column:12},end:{line:246,column:13}},"104":{start:{line:245,column:14},end:{line:245,column:63}},"105":{start:{line:247,column:12},end:{line:247,column:18}},"106":{start:{line:249,column:12},end:{line:251,column:13}},"107":{start:{line:250,column:14},end:{line:250,column:63}},"108":{start:{line:253,column:10},end:{line:253,column:16}},"109":{start:{line:256,column:10},end:{line:256,column:16}},"110":{start:{line:259,column:6},end:{line:259,column:18}},"111":{start:{line:265,column:22},end:{line:276,column:5}},"112":{start:{line:266,column:6},end:{line:268,column:7}},"113":{start:{line:267,column:8},end:{line:267,column:36}},"114":{start:{line:269,column:6},end:{line:271,column:7}},"115":{start:{line:270,column:8},end:{line:270,column:36}},"116":{start:{line:272,column:6},end:{line:274,column:7}},"117":{start:{line:273,column:8},end:{line:273,column:29}},"118":{start:{line:275,column:6},end:{line:275,column:19}},"119":{start:{line:278,column:4},end:{line:342,column:7}},"120":{start:{line:290,column:60},end:{line:290,column:64}},"121":{start:{line:291,column:14},end:{line:291,column:49}},"122":{start:{line:292,column:30},end:{line:292,column:52}},"123":{start:{line:293,column:14},end:{line:297,column:24}},"124":{start:{line:298,column:14},end:{line:298,column:36}},"125":{start:{line:315,column:12},end:{line:315,column:43}},"126":{start:{line:319,column:12},end:{line:321,column:22}},"127":{start:{line:326,column:65},end:{line:326,column:69}},"128":{start:{line:327,column:16},end:{line:327,column:51}},"129":{start:{line:328,column:32},end:{line:328,column:54}},"130":{start:{line:329,column:16},end:{line:333,column:26}},"131":{start:{line:334,column:16},end:{line:334,column:38}}},fnMap:{"0":{name:"(anonymous_0)",decl:{start:{line:13,column:2},end:{line:13,column:3}},loc:{start:{line:13,column:17},end:{line:15,column:3}},line:13},"1":{name:"(anonymous_1)",decl:{start:{line:16,column:2},end:{line:16,column:3}},loc:{start:{line:16,column:14},end:{line:18,column:3}},line:16},"2":{name:"(anonymous_2)",decl:{start:{line:19,column:2},end:{line:19,column:3}},loc:{start:{line:19,column:20},end:{line:23,column:3}},line:19},"3":{name:"(anonymous_3)",decl:{start:{line:24,column:2},end:{line:24,column:3}},loc:{start:{line:24,column:27},end:{line:26,column:3}},line:24},"4":{name:"(anonymous_4)",decl:{start:{line:27,column:2},end:{line:27,column:3}},loc:{start:{line:27,column:20},end:{line:29,column:3}},line:27},"5":{name:"(anonymous_5)",decl:{start:{line:30,column:2},end:{line:30,column:3}},loc:{start:{line:30,column:41},end:{line:48,column:3}},line:30},"6":{name:"(anonymous_6)",decl:{start:{line:49,column:2},end:{line:49,column:3}},loc:{start:{line:49,column:63},end:{line:343,column:3}},line:49},"7":{name:"(anonymous_7)",decl:{start:{line:96,column:23},end:{line:96,column:24}},loc:{start:{line:96,column:34},end:{line:260,column:5}},line:96},"8":{name:"(anonymous_8)",decl:{start:{line:100,column:46},end:{line:100,column:47}},loc:{start:{line:100,column:57},end:{line:102,column:9}},line:100},"9":{name:"(anonymous_9)",decl:{start:{line:265,column:22},end:{line:265,column:23}},loc:{start:{line:265,column:33},end:{line:276,column:5}},line:265},"10":{name:"(anonymous_10)",decl:{start:{line:289,column:12},end:{line:289,column:13}},loc:{start:{line:289,column:22},end:{line:299,column:13}},line:289},"11":{name:"(anonymous_11)",decl:{start:{line:312,column:63},end:{line:312,column:64}},loc:{start:{line:314,column:15},end:{line:316,column:11}},line:314},"12":{name:"(anonymous_12)",decl:{start:{line:316,column:17},end:{line:316,column:18}},loc:{start:{line:318,column:15},end:{line:322,column:11}},line:318},"13":{name:"(anonymous_13)",decl:{start:{line:325,column:14},end:{line:325,column:15}},loc:{start:{line:325,column:24},end:{line:335,column:15}},line:325}},branchMap:{"0":{loc:{start:{line:31,column:17},end:{line:32,column:31}},type:"binary-expr",locations:[{start:{line:31,column:17},end:{line:31,column:37}},{start:{line:31,column:41},end:{line:31,column:71}},{start:{line:32,column:6},end:{line:32,column:31}}],line:31},"1":{loc:{start:{line:35,column:25},end:{line:36,column:73}},type:"binary-expr",locations:[{start:{line:35,column:25},end:{line:35,column:45}},{start:{line:36,column:6},end:{line:36,column:38}},{start:{line:36,column:42},end:{line:36,column:73}}],line:35},"2":{loc:{start:{line:39,column:13},end:{line:46,column:29}},type:"binary-expr",locations:[{start:{line:39,column:13},end:{line:39,column:46}},{start:{line:40,column:9},end:{line:46,column:28}}],line:39},"3":{loc:{start:{line:40,column:9},end:{line:46,column:28}},type:"cond-expr",locations:[{start:{line:41,column:12},end:{line:41,column:32}},{start:{line:42,column:12},end:{line:46,column:28}}],line:40},"4":{loc:{start:{line:42,column:12},end:{line:46,column:28}},type:"cond-expr",locations:[{start:{line:43,column:14},end:{line:43,column:35}},{start:{line:44,column:14},end:{line:46,column:28}}],line:42},"5":{loc:{start:{line:44,column:14},end:{line:46,column:28}},type:"cond-expr",locations:[{start:{line:45,column:16},end:{line:45,column:36}},{start:{line:46,column:16},end:{line:46,column:28}}],line:44},"6":{loc:{start:{line:51,column:6},end:{line:51,column:46}},type:"binary-expr",locations:[{start:{line:51,column:6},end:{line:51,column:26}},{start:{line:51,column:30},end:{line:51,column:46}}],line:51},"7":{loc:{start:{line:53,column:17},end:{line:53,column:78}},type:"cond-expr",locations:[{start:{line:53,column:48},end:{line:53,column:71}},{start:{line:53,column:74},end:{line:53,column:78}}],line:53},"8":{loc:{start:{line:54,column:26},end:{line:55,column:43}},type:"binary-expr",locations:[{start:{line:54,column:26},end:{line:54,column:66}},{start:{line:55,column:6},end:{line:55,column:43}}],line:54},"9":{loc:{start:{line:56,column:22},end:{line:56,column:75}},type:"binary-expr",locations:[{start:{line:56,column:22},end:{line:56,column:45}},{start:{line:56,column:49},end:{line:56,column:75}}],line:56},"10":{loc:{start:{line:57,column:22},end:{line:57,column:75}},type:"binary-expr",locations:[{start:{line:57,column:22},end:{line:57,column:45}},{start:{line:57,column:49},end:{line:57,column:75}}],line:57},"11":{loc:{start:{line:66,column:21},end:{line:67,column:33}},type:"binary-expr",locations:[{start:{line:66,column:21},end:{line:66,column:53}},{start:{line:67,column:6},end:{line:67,column:33}}],line:66},"12":{loc:{start:{line:68,column:21},end:{line:70,column:17}},type:"cond-expr",locations:[{start:{line:69,column:8},end:{line:69,column:35}},{start:{line:70,column:8},end:{line:70,column:17}}],line:68},"13":{loc:{start:{line:72,column:18},end:{line:73,column:30}},type:"binary-expr",locations:[{start:{line:72,column:18},end:{line:72,column:47}},{start:{line:73,column:6},end:{line:73,column:30}}],line:72},"14":{loc:{start:{line:74,column:20},end:{line:76,column:17}},type:"cond-expr",locations:[{start:{line:75,column:8},end:{line:75,column:34}},{start:{line:76,column:8},end:{line:76,column:17}}],line:74},"15":{loc:{start:{line:74,column:20},end:{line:74,column:71}},type:"binary-expr",locations:[{start:{line:74,column:20},end:{line:74,column:36}},{start:{line:74,column:40},end:{line:74,column:71}}],line:74},"16":{loc:{start:{line:77,column:18},end:{line:79,column:17}},type:"cond-expr",locations:[{start:{line:78,column:8},end:{line:78,column:32}},{start:{line:79,column:8},end:{line:79,column:17}}],line:77},"17":{loc:{start:{line:88,column:29},end:{line:91,column:12}},type:"cond-expr",locations:[{start:{line:90,column:8},end:{line:90,column:51}},{start:{line:91,column:8},end:{line:91,column:12}}],line:88},"18":{loc:{start:{line:88,column:29},end:{line:89,column:39}},type:"binary-expr",locations:[{start:{line:88,column:29},end:{line:88,column:61}},{start:{line:89,column:8},end:{line:89,column:39}}],line:88},"19":{loc:{start:{line:97,column:6},end:{line:107,column:7}},type:"if",locations:[{start:{line:97,column:6},end:{line:107,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:97},"20":{loc:{start:{line:99,column:24},end:{line:99,column:63}},type:"cond-expr",locations:[{start:{line:99,column:36},end:{line:99,column:41}},{start:{line:99,column:44},end:{line:99,column:63}}],line:99},"21":{loc:{start:{line:101,column:18},end:{line:101,column:57}},type:"cond-expr",locations:[{start:{line:101,column:30},end:{line:101,column:35}},{start:{line:101,column:38},end:{line:101,column:57}}],line:101},"22":{loc:{start:{line:103,column:8},end:{line:106,column:9}},type:"if",locations:[{start:{line:103,column:8},end:{line:106,column:9}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:103},"23":{loc:{start:{line:108,column:6},end:{line:110,column:7}},type:"if",locations:[{start:{line:108,column:6},end:{line:110,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:108},"24":{loc:{start:{line:108,column:10},end:{line:108,column:53}},type:"binary-expr",locations:[{start:{line:108,column:10},end:{line:108,column:20}},{start:{line:108,column:24},end:{line:108,column:53}}],line:108},"25":{loc:{start:{line:111,column:6},end:{line:113,column:7}},type:"if",locations:[{start:{line:111,column:6},end:{line:113,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:111},"26":{loc:{start:{line:111,column:10},end:{line:111,column:47}},type:"binary-expr",locations:[{start:{line:111,column:10},end:{line:111,column:18}},{start:{line:111,column:22},end:{line:111,column:47}}],line:111},"27":{loc:{start:{line:114,column:6},end:{line:118,column:7}},type:"if",locations:[{start:{line:114,column:6},end:{line:118,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:114},"28":{loc:{start:{line:114,column:10},end:{line:114,column:62}},type:"binary-expr",locations:[{start:{line:114,column:10},end:{line:114,column:18}},{start:{line:114,column:22},end:{line:114,column:62}}],line:114},"29":{loc:{start:{line:114,column:48},end:{line:114,column:61}},type:"binary-expr",locations:[{start:{line:114,column:48},end:{line:114,column:56}},{start:{line:114,column:60},end:{line:114,column:61}}],line:114},"30":{loc:{start:{line:116,column:10},end:{line:116,column:56}},type:"cond-expr",locations:[{start:{line:116,column:21},end:{line:116,column:51}},{start:{line:116,column:54},end:{line:116,column:56}}],line:116},"31":{loc:{start:{line:119,column:6},end:{line:123,column:7}},type:"if",locations:[{start:{line:119,column:6},end:{line:123,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:119},"32":{loc:{start:{line:119,column:10},end:{line:119,column:64}},type:"binary-expr",locations:[{start:{line:119,column:10},end:{line:119,column:15}},{start:{line:119,column:19},end:{line:119,column:64}}],line:119},"33":{loc:{start:{line:119,column:39},end:{line:119,column:50}},type:"binary-expr",locations:[{start:{line:119,column:39},end:{line:119,column:44}},{start:{line:119,column:48},end:{line:119,column:50}}],line:119},"34":{loc:{start:{line:121,column:10},end:{line:121,column:46}},type:"cond-expr",locations:[{start:{line:121,column:18},end:{line:121,column:41}},{start:{line:121,column:44},end:{line:121,column:46}}],line:121},"35":{loc:{start:{line:124,column:6},end:{line:128,column:7}},type:"if",locations:[{start:{line:124,column:6},end:{line:128,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:124},"36":{loc:{start:{line:124,column:10},end:{line:124,column:68}},type:"binary-expr",locations:[{start:{line:124,column:10},end:{line:124,column:17}},{start:{line:124,column:21},end:{line:124,column:68}}],line:124},"37":{loc:{start:{line:124,column:43},end:{line:124,column:54}},type:"binary-expr",locations:[{start:{line:124,column:43},end:{line:124,column:48}},{start:{line:124,column:52},end:{line:124,column:54}}],line:124},"38":{loc:{start:{line:126,column:10},end:{line:126,column:46}},type:"cond-expr",locations:[{start:{line:126,column:18},end:{line:126,column:41}},{start:{line:126,column:44},end:{line:126,column:46}}],line:126},"39":{loc:{start:{line:129,column:6},end:{line:258,column:7}},type:"if",locations:[{start:{line:129,column:6},end:{line:258,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:129},"40":{loc:{start:{line:130,column:8},end:{line:257,column:9}},type:"switch",locations:[{start:{line:131,column:8},end:{line:135,column:16}},{start:{line:136,column:8},end:{line:149,column:16}},{start:{line:150,column:8},end:{line:155,column:16}},{start:{line:156,column:8},end:{line:161,column:16}},{start:{line:162,column:8},end:{line:166,column:16}},{start:{line:167,column:8},end:{line:175,column:16}},{start:{line:176,column:8},end:{line:184,column:16}},{start:{line:185,column:8},end:{line:185,column:20}},{start:{line:186,column:8},end:{line:186,column:19}},{start:{line:187,column:8},end:{line:187,column:20}},{start:{line:188,column:8},end:{line:192,column:16}},{start:{line:193,column:8},end:{line:209,column:16}},{start:{line:210,column:8},end:{line:214,column:16}},{start:{line:215,column:8},end:{line:219,column:16}},{start:{line:220,column:8},end:{line:224,column:16}},{start:{line:225,column:8},end:{line:229,column:16}},{start:{line:230,column:8},end:{line:234,column:16}},{start:{line:235,column:8},end:{line:239,column:16}},{start:{line:240,column:8},end:{line:253,column:16}},{start:{line:254,column:8},end:{line:256,column:16}}],line:130},"41":{loc:{start:{line:132,column:10},end:{line:134,column:11}},type:"if",locations:[{start:{line:132,column:10},end:{line:134,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:132},"42":{loc:{start:{line:137,column:10},end:{line:148,column:11}},type:"switch",locations:[{start:{line:139,column:10},end:{line:143,column:18}},{start:{line:144,column:10},end:{line:147,column:13}}],line:137},"43":{loc:{start:{line:137,column:18},end:{line:138,column:40}},type:"binary-expr",locations:[{start:{line:137,column:18},end:{line:137,column:49}},{start:{line:138,column:14},end:{line:138,column:40}}],line:137},"44":{loc:{start:{line:140,column:12},end:{line:142,column:13}},type:"if",locations:[{start:{line:140,column:12},end:{line:142,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:140},"45":{loc:{start:{line:145,column:12},end:{line:147,column:13}},type:"if",locations:[{start:{line:145,column:12},end:{line:147,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:145},"46":{loc:{start:{line:152,column:10},end:{line:154,column:11}},type:"if",locations:[{start:{line:152,column:10},end:{line:154,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:152},"47":{loc:{start:{line:158,column:10},end:{line:160,column:11}},type:"if",locations:[{start:{line:158,column:10},end:{line:160,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:158},"48":{loc:{start:{line:163,column:10},end:{line:165,column:11}},type:"if",locations:[{start:{line:163,column:10},end:{line:165,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:163},"49":{loc:{start:{line:168,column:10},end:{line:174,column:11}},type:"if",locations:[{start:{line:168,column:10},end:{line:174,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:168},"50":{loc:{start:{line:169,column:12},end:{line:171,column:25}},type:"cond-expr",locations:[{start:{line:170,column:16},end:{line:170,column:59}},{start:{line:171,column:16},end:{line:171,column:25}}],line:169},"51":{loc:{start:{line:169,column:12},end:{line:169,column:73}},type:"binary-expr",locations:[{start:{line:169,column:12},end:{line:169,column:43}},{start:{line:169,column:47},end:{line:169,column:73}}],line:169},"52":{loc:{start:{line:177,column:10},end:{line:183,column:11}},type:"if",locations:[{start:{line:177,column:10},end:{line:183,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:177},"53":{loc:{start:{line:178,column:12},end:{line:180,column:25}},type:"cond-expr",locations:[{start:{line:179,column:16},end:{line:179,column:51}},{start:{line:180,column:16},end:{line:180,column:25}}],line:178},"54":{loc:{start:{line:189,column:10},end:{line:191,column:11}},type:"if",locations:[{start:{line:189,column:10},end:{line:191,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:189},"55":{loc:{start:{line:194,column:10},end:{line:205,column:11}},type:"if",locations:[{start:{line:194,column:10},end:{line:205,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:194},"56":{loc:{start:{line:194,column:14},end:{line:194,column:73}},type:"binary-expr",locations:[{start:{line:194,column:14},end:{line:194,column:44}},{start:{line:194,column:48},end:{line:194,column:73}}],line:194},"57":{loc:{start:{line:195,column:12},end:{line:199,column:13}},type:"if",locations:[{start:{line:195,column:12},end:{line:199,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:195},"58":{loc:{start:{line:201,column:12},end:{line:203,column:13}},type:"if",locations:[{start:{line:201,column:12},end:{line:203,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:201},"59":{loc:{start:{line:206,column:10},end:{line:208,column:11}},type:"if",locations:[{start:{line:206,column:10},end:{line:208,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:206},"60":{loc:{start:{line:211,column:10},end:{line:213,column:11}},type:"if",locations:[{start:{line:211,column:10},end:{line:213,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:211},"61":{loc:{start:{line:216,column:10},end:{line:218,column:11}},type:"if",locations:[{start:{line:216,column:10},end:{line:218,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:216},"62":{loc:{start:{line:221,column:10},end:{line:223,column:11}},type:"if",locations:[{start:{line:221,column:10},end:{line:223,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:221},"63":{loc:{start:{line:226,column:10},end:{line:228,column:11}},type:"if",locations:[{start:{line:226,column:10},end:{line:228,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:226},"64":{loc:{start:{line:231,column:10},end:{line:233,column:11}},type:"if",locations:[{start:{line:231,column:10},end:{line:233,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:231},"65":{loc:{start:{line:236,column:10},end:{line:238,column:11}},type:"if",locations:[{start:{line:236,column:10},end:{line:238,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:236},"66":{loc:{start:{line:241,column:10},end:{line:252,column:11}},type:"switch",locations:[{start:{line:243,column:10},end:{line:247,column:18}},{start:{line:248,column:10},end:{line:251,column:13}}],line:241},"67":{loc:{start:{line:241,column:18},end:{line:242,column:38}},type:"binary-expr",locations:[{start:{line:241,column:18},end:{line:241,column:49}},{start:{line:242,column:12},end:{line:242,column:38}}],line:241},"68":{loc:{start:{line:244,column:12},end:{line:246,column:13}},type:"if",locations:[{start:{line:244,column:12},end:{line:246,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:244},"69":{loc:{start:{line:249,column:12},end:{line:251,column:13}},type:"if",locations:[{start:{line:249,column:12},end:{line:251,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:249},"70":{loc:{start:{line:266,column:6},end:{line:268,column:7}},type:"if",locations:[{start:{line:266,column:6},end:{line:268,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:266},"71":{loc:{start:{line:269,column:6},end:{line:271,column:7}},type:"if",locations:[{start:{line:269,column:6},end:{line:271,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:269},"72":{loc:{start:{line:272,column:6},end:{line:274,column:7}},type:"if",locations:[{start:{line:272,column:6},end:{line:274,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:272},"73":{loc:{start:{line:280,column:13},end:{line:280,column:58}},type:"binary-expr",locations:[{start:{line:280,column:13},end:{line:280,column:46}},{start:{line:280,column:50},end:{line:280,column:58}}],line:280},"74":{loc:{start:{line:282,column:6},end:{line:341,column:12}},type:"cond-expr",locations:[{start:{line:287,column:10},end:{line:308,column:10}},{start:{line:309,column:10},end:{line:341,column:12}}],line:282},"75":{loc:{start:{line:282,column:6},end:{line:286,column:22}},type:"binary-expr",locations:[{start:{line:282,column:6},end:{line:282,column:10}},{start:{line:282,column:14},end:{line:286,column:22}}],line:282},"76":{loc:{start:{line:293,column:37},end:{line:297,column:22}},type:"binary-expr",locations:[{start:{line:293,column:37},end:{line:297,column:16}},{start:{line:297,column:20},end:{line:297,column:22}}],line:293},"77":{loc:{start:{line:303,column:17},end:{line:303,column:66}},type:"binary-expr",locations:[{start:{line:303,column:17},end:{line:303,column:22}},{start:{line:303,column:26},end:{line:303,column:60}},{start:{line:303,column:64},end:{line:303,column:66}}],line:303},"78":{loc:{start:{line:306,column:21},end:{line:306,column:60}},type:"cond-expr",locations:[{start:{line:306,column:39},end:{line:306,column:48}},{start:{line:306,column:51},end:{line:306,column:60}}],line:306},"79":{loc:{start:{line:307,column:21},end:{line:307,column:60}},type:"cond-expr",locations:[{start:{line:307,column:39},end:{line:307,column:48}},{start:{line:307,column:51},end:{line:307,column:60}}],line:307},"80":{loc:{start:{line:309,column:10},end:{line:341,column:12}},type:"cond-expr",locations:[{start:{line:310,column:12},end:{line:322,column:13}},{start:{line:323,column:12},end:{line:341,column:12}}],line:309},"81":{loc:{start:{line:320,column:33},end:{line:320,column:75}},type:"binary-expr",locations:[{start:{line:320,column:33},end:{line:320,column:38}},{start:{line:320,column:42},end:{line:320,column:75}}],line:320},"82":{loc:{start:{line:329,column:39},end:{line:333,column:24}},type:"binary-expr",locations:[{start:{line:329,column:39},end:{line:333,column:18}},{start:{line:333,column:22},end:{line:333,column:24}}],line:329},"83":{loc:{start:{line:340,column:13},end:{line:340,column:62}},type:"binary-expr",locations:[{start:{line:340,column:13},end:{line:340,column:18}},{start:{line:340,column:22},end:{line:340,column:56}},{start:{line:340,column:60},end:{line:340,column:62}}],line:340}},s:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0,"31":0,"32":0,"33":0,"34":0,"35":0,"36":0,"37":0,"38":0,"39":0,"40":0,"41":0,"42":0,"43":0,"44":0,"45":0,"46":0,"47":0,"48":0,"49":0,"50":0,"51":0,"52":0,"53":0,"54":0,"55":0,"56":0,"57":0,"58":0,"59":0,"60":0,"61":0,"62":0,"63":0,"64":0,"65":0,"66":0,"67":0,"68":0,"69":0,"70":0,"71":0,"72":0,"73":0,"74":0,"75":0,"76":0,"77":0,"78":0,"79":0,"80":0,"81":0,"82":0,"83":0,"84":0,"85":0,"86":0,"87":0,"88":0,"89":0,"90":0,"91":0,"92":0,"93":0,"94":0,"95":0,"96":0,"97":0,"98":0,"99":0,"100":0,"101":0,"102":0,"103":0,"104":0,"105":0,"106":0,"107":0,"108":0,"109":0,"110":0,"111":0,"112":0,"113":0,"114":0,"115":0,"116":0,"117":0,"118":0,"119":0,"120":0,"121":0,"122":0,"123":0,"124":0,"125":0,"126":0,"127":0,"128":0,"129":0,"130":0,"131":0},f:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0},b:{"0":[0,0,0],"1":[0,0,0],"2":[0,0],"3":[0,0],"4":[0,0],"5":[0,0],"6":[0,0],"7":[0,0],"8":[0,0],"9":[0,0],"10":[0,0],"11":[0,0],"12":[0,0],"13":[0,0],"14":[0,0],"15":[0,0],"16":[0,0],"17":[0,0],"18":[0,0],"19":[0,0],"20":[0,0],"21":[0,0],"22":[0,0],"23":[0,0],"24":[0,0],"25":[0,0],"26":[0,0],"27":[0,0],"28":[0,0],"29":[0,0],"30":[0,0],"31":[0,0],"32":[0,0],"33":[0,0],"34":[0,0],"35":[0,0],"36":[0,0],"37":[0,0],"38":[0,0],"39":[0,0],"40":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"41":[0,0],"42":[0,0],"43":[0,0],"44":[0,0],"45":[0,0],"46":[0,0],"47":[0,0],"48":[0,0],"49":[0,0],"50":[0,0],"51":[0,0],"52":[0,0],"53":[0,0],"54":[0,0],"55":[0,0],"56":[0,0],"57":[0,0],"58":[0,0],"59":[0,0],"60":[0,0],"61":[0,0],"62":[0,0],"63":[0,0],"64":[0,0],"65":[0,0],"66":[0,0],"67":[0,0],"68":[0,0],"69":[0,0],"70":[0,0],"71":[0,0],"72":[0,0],"73":[0,0],"74":[0,0],"75":[0,0],"76":[0,0],"77":[0,0,0],"78":[0,0],"79":[0,0],"80":[0,0],"81":[0,0],"82":[0,0],"83":[0,0,0]},inputSourceMap:{version:3,sources:["/Users/brett/jsoe/src/fundamentalTypes/stringType.js"],sourcesContent:["import {regexes, z} from 'zod';\nimport {$e} from '../utils/templateUtils.js';\nimport {schemaLabel} from '../utils/schemaMeta.js';\n\nconst cidrv6Schema = z.cidrv6();\n\n/**\n * @type {import('../types.js').TypeObject}\n */\nconst stringType = {\n  option: ['String'],\n  stringRegex: /^\"(?:[^\\\\\"]|\\\\\\\\|\\\\\")*\"$/u,\n  valueMatch (x) {\n    return typeof x === 'string';\n  },\n  toValue (s) {\n    return {value: s.slice(1, -1)};\n  },\n  getInput ({root}) {\n    return /** @type {HTMLTextAreaElement} */ (\n      $e(root, '[data-type=\"string\"] > textarea,input,select')\n    );\n  },\n  setValue ({root, value}) {\n    this.getInput({root}).value = value;\n  },\n  getValue ({root}) {\n    return this.getInput({root}).value;\n  },\n  viewUI ({value, specificSchemaObject}) {\n    const kind = specificSchemaObject && 'kind' in specificSchemaObject &&\n      specificSchemaObject.kind;\n    // `z.stringbool()` serializes as a string -> boolean `pipe` carrying\n    //   `truthy`/`falsy` token arrays; jsoe edits its encoded (string) side.\n    const isStringbool = specificSchemaObject &&\n      'truthy' in specificSchemaObject && 'falsy' in specificSchemaObject;\n    return ['span', {\n      dataset: {type: 'string'},\n      title: schemaLabel(specificSchemaObject) ??\n        (isStringbool\n          ? '(a string boolean)'\n          : kind === 'email'\n            ? `(an ${kind} string)`\n            : kind\n              ? `(a ${kind} string)` // url, date\n              : '(a string)')\n    }, [value]];\n  },\n  editUI ({typeNamespace, specificSchemaObject, types, value}) {\n    const stringSchemaObject = /** @type {import('zodexy').SzString} */ (\n      specificSchemaObject ?? {type: 'string'}\n    );\n    const kind = 'kind' in stringSchemaObject ? stringSchemaObject.kind : null;\n    const isConstrained = specificSchemaObject?.type === 'literal' ||\n      specificSchemaObject?.type === 'enum';\n    const minlength = stringSchemaObject?.min ?? stringSchemaObject?.length;\n    const maxlength = stringSchemaObject?.max ?? stringSchemaObject?.length;\n\n    const startsWith = stringSchemaObject?.startsWith;\n    const endsWith = stringSchemaObject?.endsWith;\n\n    const toLowerCase = stringSchemaObject?.toLowerCase;\n    const toUpperCase = stringSchemaObject?.toUpperCase;\n    const trim = stringSchemaObject?.trim;\n\n    const includes = 'includes' in stringSchemaObject &&\n      stringSchemaObject.includes;\n    const position = 'position' in stringSchemaObject\n      ? stringSchemaObject.position\n      : undefined;\n\n    const regex = 'regex' in stringSchemaObject &&\n      stringSchemaObject.regex;\n    const pattern = kind === 'email' && 'pattern' in stringSchemaObject\n      ? stringSchemaObject.pattern\n      : undefined;\n    const flags = 'flags' in stringSchemaObject\n      ? stringSchemaObject.flags\n      : undefined;\n\n    // A `z.stringbool()` codec serializes as a string -> boolean `pipe` that\n    //   carries `truthy`/`falsy` token arrays (and an optional `case`). jsoe\n    //   edits the encoded (string) side, so it is handled here as a String\n    //   whose value must be one of those recognized tokens.\n    const stringbool = /** @type {{truthy?: string[], falsy?: string[], case?: string}} */ (\n      stringSchemaObject\n    );\n    const stringboolTokens = Array.isArray(stringbool.truthy) &&\n        Array.isArray(stringbool.falsy)\n      ? [...stringbool.truthy, ...stringbool.falsy]\n      : null;\n\n    /**\n     * @param {string} value\n     */\n    const checkValue = (value) => {\n      if (stringboolTokens) {\n        const sensitive = stringbool.case === 'sensitive';\n        const compare = sensitive ? value : value.toLowerCase();\n        const matched = stringboolTokens.some((token) => {\n          return (sensitive ? token : token.toLowerCase()) === compare;\n        });\n        if (!matched) {\n          return `Value is not a recognized string boolean; expected one ` +\n            `of: ${stringboolTokens.join(', ')}`;\n        }\n      }\n      if (startsWith && !value.startsWith(startsWith)) {\n        return `Value doesn't start with expected: ${startsWith}`;\n      }\n      if (endsWith && !value.endsWith(endsWith)) {\n        return `Value doesn't end with expected: ${endsWith}`;\n      }\n      if (includes && !value.includes(includes, position ?? 0)) {\n        return `Value doesn't include the expected: ${includes}${\n          position ? ` after position: ${position}` : ''\n        }`;\n      }\n      if (regex && !(new RegExp(regex, flags ?? '')).test(value)) {\n        return `Value doesn't match regular expression: ${regex}${\n          flags ? ` with flags: ${flags}` : ''\n        }`;\n      }\n      if (pattern && !(new RegExp(pattern, flags ?? '')).test(value)) {\n        return `Value doesn't match email pattern: ${pattern}${\n          flags ? ` with flags: ${flags}` : ''\n        }`;\n      }\n      if (kind) {\n        switch (kind) {\n        case 'credit_card':\n          if (!regexes.creditCard.test(value)) {\n            return `Value doesn't match credit card pattern.`;\n          }\n          break;\n        case 'ip':\n          switch ('version' in stringSchemaObject &&\n              stringSchemaObject.version) {\n          case 'v4':\n            if (!regexes.ipv4.test(value)) {\n              return `Value doesn't match IP v4 pattern.`;\n            }\n            break;\n          default:\n            if (!regexes.ipv6.test(value)) {\n              return `Value doesn't match IP v6 pattern.`;\n            }\n          }\n          break;\n        case 'time':\n          // @ts-expect-error It is present\n          if (!regexes.time(stringSchemaObject).test(value)) {\n            return `Value does not match time/precision.`;\n          }\n          break;\n        case 'datetime':\n          // @ts-expect-error It is present\n          if (!regexes.datetime(stringSchemaObject).test(value)) {\n            return `Value does not match datetime/precision/offset/local`;\n          }\n          break;\n        case 'emoji':\n          if (!regexes.emoji().test(value)) {\n            return `Value does not match emoji pattern`;\n          }\n          break;\n        case 'uuid':\n          if (!regexes.uuid(\n            'version' in stringSchemaObject && stringSchemaObject.version\n              ? Number(stringSchemaObject.version.slice(1))\n              : undefined\n          ).test(value)) {\n            return `Value does not match uuid pattern`;\n          }\n          break;\n        case 'jwt':\n          if (!z.jwt(\n            'algorithm' in stringSchemaObject\n              ? {alg: stringSchemaObject.algorithm}\n              : undefined\n          ).safeParse(value).success) {\n            return `Value does not match jwt pattern`;\n          }\n          break;\n        case 'e164':\n        case 'xid':\n        case 'guid':\n        case 'ksuid':\n          if (!regexes[kind].test(value)) {\n            return `Value does not match ${kind} pattern`;\n          }\n          break;\n        case 'nanoid':\n          if ('length' in stringSchemaObject && stringSchemaObject.length) {\n            if (value.length !== stringSchemaObject.length) {\n              return `Nanoid value is not of the expected length: ${\n                stringSchemaObject.length\n              }`;\n            }\n\n            if (!regexes.nanoidOfLength(15).test(value)) {\n              return `Value does not match nanoid pattern`;\n            }\n            break;\n          }\n          if (!regexes.nanoid.test(value)) {\n            return `Value does not match nanoid pattern`;\n          }\n          break;\n        case 'cuid':\n          if (!regexes.cuid.test(value)) {\n            return `Value does not match cuid pattern`;\n          }\n          break;\n        case 'cuid2':\n          if (!regexes.cuid2.test(value)) {\n            return `Value does not match cuid2 pattern`;\n          }\n          break;\n        case 'ulid':\n          if (!regexes.ulid.test(value)) {\n            return `Value does not match ulid pattern`;\n          }\n          break;\n        case 'duration':\n          if (!regexes.duration.test(value)) {\n            return `Value does not match duration pattern`;\n          }\n          break;\n        case 'base64':\n          if (!regexes.base64.test(value)) {\n            return `Value does not match base64 pattern`;\n          }\n          break;\n        case 'base64url':\n          if (!regexes.base64url.test(value)) {\n            return `Value does not match base64url pattern`;\n          }\n          break;\n        case 'cidr':\n          switch ('version' in stringSchemaObject &&\n            stringSchemaObject.version) {\n          case 'v4':\n            if (!regexes.cidrv4.test(value)) {\n              return `Value doesn't match IP v4 cidr pattern.`;\n            }\n            break;\n          default:\n            if (!cidrv6Schema.safeParse(value).success) {\n              return `Value doesn't match IP v6 cidr pattern.`;\n            }\n          }\n          break;\n        default:\n          // 'email'|'url'|'date' should already be handled by the input element\n          break;\n        }\n      }\n      return null;\n    };\n\n    /**\n     * @param {string} value\n     */\n    const transform = (value) => {\n      if (toLowerCase) {\n        value = value.toLowerCase();\n      }\n      if (toUpperCase) {\n        value = value.toUpperCase();\n      }\n      if (trim) {\n        value = value.trim();\n      }\n      return value;\n    };\n\n    return ['div', {\n      dataset: {type: 'string'},\n      title: schemaLabel(specificSchemaObject) ?? 'String'\n    }, [\n      kind && [\n        // There is a `time` and `datetime-local` but they don't\n        //    support milliseconds\n        'email', 'url', 'date'\n      ].includes(kind)\n        ? ['input', {\n          $on: {\n            change () {\n              const that = /** @type {HTMLInputElement} */ (this);\n              that.value = transform(that.value);\n              const message = checkValue(that.value);\n              that.setCustomValidity(types.getValidationMessage({\n                message,\n                schema: specificSchemaObject,\n                typeSpecific: true\n              }) ?? '');\n              that.reportValidity();\n            }\n          },\n          name: `${typeNamespace}-string`,\n          type: kind,\n          value: value ?? specificSchemaObject?.defaultValue ?? '',\n\n          // Form doesn't support for date\n          minlength: kind === 'date' ? undefined : minlength,\n          maxlength: kind === 'date' ? undefined : maxlength\n        }]\n        : isConstrained\n          ? ['select', {\n            name: `${typeNamespace}-string`\n          }, Object.values(specificSchemaObject.values).filter((\n            /** @type {string} */ val\n          ) => {\n            return typeof val === 'string';\n          }).map((\n            /** @type {string} */ val\n          ) => {\n            return ['option', {\n              selected: val === (value ?? specificSchemaObject.defaultValue)\n            }, [val]];\n          })]\n          : ['textarea', {\n            $on: {\n              change () {\n                const that = /** @type {HTMLTextAreaElement} */ (this);\n                that.value = transform(that.value);\n                const message = checkValue(that.value);\n                that.setCustomValidity(types.getValidationMessage({\n                  message,\n                  schema: specificSchemaObject,\n                  typeSpecific: true\n                }) ?? '');\n                that.reportValidity();\n              }\n            },\n            name: `${typeNamespace}-string`,\n            minlength, maxlength\n          }, [\n            (value ?? specificSchemaObject?.defaultValue ?? '')\n          ]]\n    ]];\n  }\n};\n\nexport default stringType;\n"],names:[],mappings:"AAAA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAElD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE/B,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3F,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAElE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;",file:undefined},_coverageSchema:"1a1c01bbd47fc00a2c39e90264f33305004495a9",hash:"c4f0afaecba40755e575e2020125754082228c5d"};var coverage=global[gcv]||(global[gcv]={});if(!coverage[path]||coverage[path].hash!==hash){coverage[path]=coverageData;}var actualCoverage=coverage[path];{// @ts-ignore
+function cov_1cdkaudltz(){var path="/Users/brett/jsoe/src/fundamentalTypes/stringType.js";var hash="b628ccb0a48f2726dcc70462d54680db6b854411";var global=new Function("return this")();var gcv="__coverage__";var coverageData={path:"/Users/brett/jsoe/src/fundamentalTypes/stringType.js",statementMap:{"0":{start:{line:5,column:21},end:{line:5,column:31}},"1":{start:{line:10,column:19},end:{line:349,column:1}},"2":{start:{line:14,column:4},end:{line:14,column:33}},"3":{start:{line:17,column:4},end:{line:17,column:35}},"4":{start:{line:20,column:4},end:{line:22,column:6}},"5":{start:{line:25,column:4},end:{line:25,column:40}},"6":{start:{line:28,column:4},end:{line:28,column:39}},"7":{start:{line:31,column:17},end:{line:32,column:31}},"8":{start:{line:35,column:25},end:{line:36,column:73}},"9":{start:{line:37,column:4},end:{line:47,column:16}},"10":{start:{line:51,column:6},end:{line:51,column:46}},"11":{start:{line:53,column:17},end:{line:53,column:78}},"12":{start:{line:54,column:26},end:{line:55,column:43}},"13":{start:{line:56,column:22},end:{line:56,column:75}},"14":{start:{line:57,column:22},end:{line:57,column:75}},"15":{start:{line:59,column:23},end:{line:59,column:53}},"16":{start:{line:60,column:21},end:{line:60,column:49}},"17":{start:{line:62,column:24},end:{line:62,column:55}},"18":{start:{line:63,column:24},end:{line:63,column:55}},"19":{start:{line:64,column:17},end:{line:64,column:41}},"20":{start:{line:66,column:21},end:{line:67,column:33}},"21":{start:{line:68,column:21},end:{line:70,column:17}},"22":{start:{line:72,column:18},end:{line:73,column:30}},"23":{start:{line:74,column:20},end:{line:76,column:17}},"24":{start:{line:77,column:18},end:{line:79,column:17}},"25":{start:{line:86,column:6},end:{line:86,column:24}},"26":{start:{line:88,column:29},end:{line:91,column:12}},"27":{start:{line:96,column:23},end:{line:265,column:5}},"28":{start:{line:97,column:6},end:{line:107,column:7}},"29":{start:{line:98,column:26},end:{line:98,column:57}},"30":{start:{line:99,column:24},end:{line:99,column:63}},"31":{start:{line:100,column:24},end:{line:102,column:10}},"32":{start:{line:101,column:10},end:{line:101,column:71}},"33":{start:{line:103,column:8},end:{line:106,column:9}},"34":{start:{line:104,column:10},end:{line:105,column:49}},"35":{start:{line:108,column:6},end:{line:110,column:7}},"36":{start:{line:109,column:8},end:{line:109,column:66}},"37":{start:{line:111,column:6},end:{line:113,column:7}},"38":{start:{line:112,column:8},end:{line:112,column:62}},"39":{start:{line:114,column:6},end:{line:118,column:7}},"40":{start:{line:115,column:8},end:{line:117,column:11}},"41":{start:{line:119,column:6},end:{line:123,column:7}},"42":{start:{line:120,column:8},end:{line:122,column:11}},"43":{start:{line:124,column:6},end:{line:128,column:7}},"44":{start:{line:125,column:8},end:{line:127,column:11}},"45":{start:{line:129,column:6},end:{line:263,column:7}},"46":{start:{line:130,column:8},end:{line:262,column:9}},"47":{start:{line:132,column:10},end:{line:134,column:11}},"48":{start:{line:133,column:12},end:{line:133,column:62}},"49":{start:{line:135,column:10},end:{line:135,column:16}},"50":{start:{line:137,column:10},end:{line:139,column:11}},"51":{start:{line:138,column:12},end:{line:138,column:55}},"52":{start:{line:140,column:10},end:{line:140,column:16}},"53":{start:{line:142,column:10},end:{line:153,column:11}},"54":{start:{line:145,column:12},end:{line:147,column:13}},"55":{start:{line:146,column:14},end:{line:146,column:58}},"56":{start:{line:148,column:12},end:{line:148,column:18}},"57":{start:{line:150,column:12},end:{line:152,column:13}},"58":{start:{line:151,column:14},end:{line:151,column:58}},"59":{start:{line:154,column:10},end:{line:154,column:16}},"60":{start:{line:157,column:10},end:{line:159,column:11}},"61":{start:{line:158,column:12},end:{line:158,column:58}},"62":{start:{line:160,column:10},end:{line:160,column:16}},"63":{start:{line:163,column:10},end:{line:165,column:11}},"64":{start:{line:164,column:12},end:{line:164,column:74}},"65":{start:{line:166,column:10},end:{line:166,column:16}},"66":{start:{line:168,column:10},end:{line:170,column:11}},"67":{start:{line:169,column:12},end:{line:169,column:56}},"68":{start:{line:171,column:10},end:{line:171,column:16}},"69":{start:{line:173,column:10},end:{line:179,column:11}},"70":{start:{line:178,column:12},end:{line:178,column:55}},"71":{start:{line:180,column:10},end:{line:180,column:16}},"72":{start:{line:182,column:10},end:{line:188,column:11}},"73":{start:{line:187,column:12},end:{line:187,column:54}},"74":{start:{line:189,column:10},end:{line:189,column:16}},"75":{start:{line:194,column:10},end:{line:196,column:11}},"76":{start:{line:195,column:12},end:{line:195,column:58}},"77":{start:{line:197,column:10},end:{line:197,column:16}},"78":{start:{line:199,column:10},end:{line:210,column:11}},"79":{start:{line:200,column:12},end:{line:204,column:13}},"80":{start:{line:201,column:14},end:{line:203,column:17}},"81":{start:{line:206,column:12},end:{line:208,column:13}},"82":{start:{line:207,column:14},end:{line:207,column:59}},"83":{start:{line:209,column:12},end:{line:209,column:18}},"84":{start:{line:211,column:10},end:{line:213,column:11}},"85":{start:{line:212,column:12},end:{line:212,column:57}},"86":{start:{line:214,column:10},end:{line:214,column:16}},"87":{start:{line:216,column:10},end:{line:218,column:11}},"88":{start:{line:217,column:12},end:{line:217,column:55}},"89":{start:{line:219,column:10},end:{line:219,column:16}},"90":{start:{line:221,column:10},end:{line:223,column:11}},"91":{start:{line:222,column:12},end:{line:222,column:56}},"92":{start:{line:224,column:10},end:{line:224,column:16}},"93":{start:{line:226,column:10},end:{line:228,column:11}},"94":{start:{line:227,column:12},end:{line:227,column:55}},"95":{start:{line:229,column:10},end:{line:229,column:16}},"96":{start:{line:231,column:10},end:{line:233,column:11}},"97":{start:{line:232,column:12},end:{line:232,column:59}},"98":{start:{line:234,column:10},end:{line:234,column:16}},"99":{start:{line:236,column:10},end:{line:238,column:11}},"100":{start:{line:237,column:12},end:{line:237,column:57}},"101":{start:{line:239,column:10},end:{line:239,column:16}},"102":{start:{line:241,column:10},end:{line:243,column:11}},"103":{start:{line:242,column:12},end:{line:242,column:60}},"104":{start:{line:244,column:10},end:{line:244,column:16}},"105":{start:{line:246,column:10},end:{line:257,column:11}},"106":{start:{line:249,column:12},end:{line:251,column:13}},"107":{start:{line:250,column:14},end:{line:250,column:63}},"108":{start:{line:252,column:12},end:{line:252,column:18}},"109":{start:{line:254,column:12},end:{line:256,column:13}},"110":{start:{line:255,column:14},end:{line:255,column:63}},"111":{start:{line:258,column:10},end:{line:258,column:16}},"112":{start:{line:261,column:10},end:{line:261,column:16}},"113":{start:{line:264,column:6},end:{line:264,column:18}},"114":{start:{line:270,column:22},end:{line:281,column:5}},"115":{start:{line:271,column:6},end:{line:273,column:7}},"116":{start:{line:272,column:8},end:{line:272,column:36}},"117":{start:{line:274,column:6},end:{line:276,column:7}},"118":{start:{line:275,column:8},end:{line:275,column:36}},"119":{start:{line:277,column:6},end:{line:279,column:7}},"120":{start:{line:278,column:8},end:{line:278,column:29}},"121":{start:{line:280,column:6},end:{line:280,column:19}},"122":{start:{line:283,column:4},end:{line:347,column:7}},"123":{start:{line:295,column:60},end:{line:295,column:64}},"124":{start:{line:296,column:14},end:{line:296,column:49}},"125":{start:{line:297,column:30},end:{line:297,column:52}},"126":{start:{line:298,column:14},end:{line:302,column:24}},"127":{start:{line:303,column:14},end:{line:303,column:36}},"128":{start:{line:320,column:12},end:{line:320,column:43}},"129":{start:{line:324,column:12},end:{line:326,column:22}},"130":{start:{line:331,column:65},end:{line:331,column:69}},"131":{start:{line:332,column:16},end:{line:332,column:51}},"132":{start:{line:333,column:32},end:{line:333,column:54}},"133":{start:{line:334,column:16},end:{line:338,column:26}},"134":{start:{line:339,column:16},end:{line:339,column:38}}},fnMap:{"0":{name:"(anonymous_0)",decl:{start:{line:13,column:2},end:{line:13,column:3}},loc:{start:{line:13,column:17},end:{line:15,column:3}},line:13},"1":{name:"(anonymous_1)",decl:{start:{line:16,column:2},end:{line:16,column:3}},loc:{start:{line:16,column:14},end:{line:18,column:3}},line:16},"2":{name:"(anonymous_2)",decl:{start:{line:19,column:2},end:{line:19,column:3}},loc:{start:{line:19,column:20},end:{line:23,column:3}},line:19},"3":{name:"(anonymous_3)",decl:{start:{line:24,column:2},end:{line:24,column:3}},loc:{start:{line:24,column:27},end:{line:26,column:3}},line:24},"4":{name:"(anonymous_4)",decl:{start:{line:27,column:2},end:{line:27,column:3}},loc:{start:{line:27,column:20},end:{line:29,column:3}},line:27},"5":{name:"(anonymous_5)",decl:{start:{line:30,column:2},end:{line:30,column:3}},loc:{start:{line:30,column:41},end:{line:48,column:3}},line:30},"6":{name:"(anonymous_6)",decl:{start:{line:49,column:2},end:{line:49,column:3}},loc:{start:{line:49,column:63},end:{line:348,column:3}},line:49},"7":{name:"(anonymous_7)",decl:{start:{line:96,column:23},end:{line:96,column:24}},loc:{start:{line:96,column:34},end:{line:265,column:5}},line:96},"8":{name:"(anonymous_8)",decl:{start:{line:100,column:46},end:{line:100,column:47}},loc:{start:{line:100,column:57},end:{line:102,column:9}},line:100},"9":{name:"(anonymous_9)",decl:{start:{line:270,column:22},end:{line:270,column:23}},loc:{start:{line:270,column:33},end:{line:281,column:5}},line:270},"10":{name:"(anonymous_10)",decl:{start:{line:294,column:12},end:{line:294,column:13}},loc:{start:{line:294,column:22},end:{line:304,column:13}},line:294},"11":{name:"(anonymous_11)",decl:{start:{line:317,column:63},end:{line:317,column:64}},loc:{start:{line:319,column:15},end:{line:321,column:11}},line:319},"12":{name:"(anonymous_12)",decl:{start:{line:321,column:17},end:{line:321,column:18}},loc:{start:{line:323,column:15},end:{line:327,column:11}},line:323},"13":{name:"(anonymous_13)",decl:{start:{line:330,column:14},end:{line:330,column:15}},loc:{start:{line:330,column:24},end:{line:340,column:15}},line:330}},branchMap:{"0":{loc:{start:{line:31,column:17},end:{line:32,column:31}},type:"binary-expr",locations:[{start:{line:31,column:17},end:{line:31,column:37}},{start:{line:31,column:41},end:{line:31,column:71}},{start:{line:32,column:6},end:{line:32,column:31}}],line:31},"1":{loc:{start:{line:35,column:25},end:{line:36,column:73}},type:"binary-expr",locations:[{start:{line:35,column:25},end:{line:35,column:45}},{start:{line:36,column:6},end:{line:36,column:38}},{start:{line:36,column:42},end:{line:36,column:73}}],line:35},"2":{loc:{start:{line:39,column:13},end:{line:46,column:29}},type:"binary-expr",locations:[{start:{line:39,column:13},end:{line:39,column:46}},{start:{line:40,column:9},end:{line:46,column:28}}],line:39},"3":{loc:{start:{line:40,column:9},end:{line:46,column:28}},type:"cond-expr",locations:[{start:{line:41,column:12},end:{line:41,column:32}},{start:{line:42,column:12},end:{line:46,column:28}}],line:40},"4":{loc:{start:{line:42,column:12},end:{line:46,column:28}},type:"cond-expr",locations:[{start:{line:43,column:14},end:{line:43,column:35}},{start:{line:44,column:14},end:{line:46,column:28}}],line:42},"5":{loc:{start:{line:44,column:14},end:{line:46,column:28}},type:"cond-expr",locations:[{start:{line:45,column:16},end:{line:45,column:36}},{start:{line:46,column:16},end:{line:46,column:28}}],line:44},"6":{loc:{start:{line:51,column:6},end:{line:51,column:46}},type:"binary-expr",locations:[{start:{line:51,column:6},end:{line:51,column:26}},{start:{line:51,column:30},end:{line:51,column:46}}],line:51},"7":{loc:{start:{line:53,column:17},end:{line:53,column:78}},type:"cond-expr",locations:[{start:{line:53,column:48},end:{line:53,column:71}},{start:{line:53,column:74},end:{line:53,column:78}}],line:53},"8":{loc:{start:{line:54,column:26},end:{line:55,column:43}},type:"binary-expr",locations:[{start:{line:54,column:26},end:{line:54,column:66}},{start:{line:55,column:6},end:{line:55,column:43}}],line:54},"9":{loc:{start:{line:56,column:22},end:{line:56,column:75}},type:"binary-expr",locations:[{start:{line:56,column:22},end:{line:56,column:45}},{start:{line:56,column:49},end:{line:56,column:75}}],line:56},"10":{loc:{start:{line:57,column:22},end:{line:57,column:75}},type:"binary-expr",locations:[{start:{line:57,column:22},end:{line:57,column:45}},{start:{line:57,column:49},end:{line:57,column:75}}],line:57},"11":{loc:{start:{line:66,column:21},end:{line:67,column:33}},type:"binary-expr",locations:[{start:{line:66,column:21},end:{line:66,column:53}},{start:{line:67,column:6},end:{line:67,column:33}}],line:66},"12":{loc:{start:{line:68,column:21},end:{line:70,column:17}},type:"cond-expr",locations:[{start:{line:69,column:8},end:{line:69,column:35}},{start:{line:70,column:8},end:{line:70,column:17}}],line:68},"13":{loc:{start:{line:72,column:18},end:{line:73,column:30}},type:"binary-expr",locations:[{start:{line:72,column:18},end:{line:72,column:47}},{start:{line:73,column:6},end:{line:73,column:30}}],line:72},"14":{loc:{start:{line:74,column:20},end:{line:76,column:17}},type:"cond-expr",locations:[{start:{line:75,column:8},end:{line:75,column:34}},{start:{line:76,column:8},end:{line:76,column:17}}],line:74},"15":{loc:{start:{line:74,column:20},end:{line:74,column:71}},type:"binary-expr",locations:[{start:{line:74,column:20},end:{line:74,column:36}},{start:{line:74,column:40},end:{line:74,column:71}}],line:74},"16":{loc:{start:{line:77,column:18},end:{line:79,column:17}},type:"cond-expr",locations:[{start:{line:78,column:8},end:{line:78,column:32}},{start:{line:79,column:8},end:{line:79,column:17}}],line:77},"17":{loc:{start:{line:88,column:29},end:{line:91,column:12}},type:"cond-expr",locations:[{start:{line:90,column:8},end:{line:90,column:51}},{start:{line:91,column:8},end:{line:91,column:12}}],line:88},"18":{loc:{start:{line:88,column:29},end:{line:89,column:39}},type:"binary-expr",locations:[{start:{line:88,column:29},end:{line:88,column:61}},{start:{line:89,column:8},end:{line:89,column:39}}],line:88},"19":{loc:{start:{line:97,column:6},end:{line:107,column:7}},type:"if",locations:[{start:{line:97,column:6},end:{line:107,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:97},"20":{loc:{start:{line:99,column:24},end:{line:99,column:63}},type:"cond-expr",locations:[{start:{line:99,column:36},end:{line:99,column:41}},{start:{line:99,column:44},end:{line:99,column:63}}],line:99},"21":{loc:{start:{line:101,column:18},end:{line:101,column:57}},type:"cond-expr",locations:[{start:{line:101,column:30},end:{line:101,column:35}},{start:{line:101,column:38},end:{line:101,column:57}}],line:101},"22":{loc:{start:{line:103,column:8},end:{line:106,column:9}},type:"if",locations:[{start:{line:103,column:8},end:{line:106,column:9}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:103},"23":{loc:{start:{line:108,column:6},end:{line:110,column:7}},type:"if",locations:[{start:{line:108,column:6},end:{line:110,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:108},"24":{loc:{start:{line:108,column:10},end:{line:108,column:53}},type:"binary-expr",locations:[{start:{line:108,column:10},end:{line:108,column:20}},{start:{line:108,column:24},end:{line:108,column:53}}],line:108},"25":{loc:{start:{line:111,column:6},end:{line:113,column:7}},type:"if",locations:[{start:{line:111,column:6},end:{line:113,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:111},"26":{loc:{start:{line:111,column:10},end:{line:111,column:47}},type:"binary-expr",locations:[{start:{line:111,column:10},end:{line:111,column:18}},{start:{line:111,column:22},end:{line:111,column:47}}],line:111},"27":{loc:{start:{line:114,column:6},end:{line:118,column:7}},type:"if",locations:[{start:{line:114,column:6},end:{line:118,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:114},"28":{loc:{start:{line:114,column:10},end:{line:114,column:62}},type:"binary-expr",locations:[{start:{line:114,column:10},end:{line:114,column:18}},{start:{line:114,column:22},end:{line:114,column:62}}],line:114},"29":{loc:{start:{line:114,column:48},end:{line:114,column:61}},type:"binary-expr",locations:[{start:{line:114,column:48},end:{line:114,column:56}},{start:{line:114,column:60},end:{line:114,column:61}}],line:114},"30":{loc:{start:{line:116,column:10},end:{line:116,column:56}},type:"cond-expr",locations:[{start:{line:116,column:21},end:{line:116,column:51}},{start:{line:116,column:54},end:{line:116,column:56}}],line:116},"31":{loc:{start:{line:119,column:6},end:{line:123,column:7}},type:"if",locations:[{start:{line:119,column:6},end:{line:123,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:119},"32":{loc:{start:{line:119,column:10},end:{line:119,column:64}},type:"binary-expr",locations:[{start:{line:119,column:10},end:{line:119,column:15}},{start:{line:119,column:19},end:{line:119,column:64}}],line:119},"33":{loc:{start:{line:119,column:39},end:{line:119,column:50}},type:"binary-expr",locations:[{start:{line:119,column:39},end:{line:119,column:44}},{start:{line:119,column:48},end:{line:119,column:50}}],line:119},"34":{loc:{start:{line:121,column:10},end:{line:121,column:46}},type:"cond-expr",locations:[{start:{line:121,column:18},end:{line:121,column:41}},{start:{line:121,column:44},end:{line:121,column:46}}],line:121},"35":{loc:{start:{line:124,column:6},end:{line:128,column:7}},type:"if",locations:[{start:{line:124,column:6},end:{line:128,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:124},"36":{loc:{start:{line:124,column:10},end:{line:124,column:68}},type:"binary-expr",locations:[{start:{line:124,column:10},end:{line:124,column:17}},{start:{line:124,column:21},end:{line:124,column:68}}],line:124},"37":{loc:{start:{line:124,column:43},end:{line:124,column:54}},type:"binary-expr",locations:[{start:{line:124,column:43},end:{line:124,column:48}},{start:{line:124,column:52},end:{line:124,column:54}}],line:124},"38":{loc:{start:{line:126,column:10},end:{line:126,column:46}},type:"cond-expr",locations:[{start:{line:126,column:18},end:{line:126,column:41}},{start:{line:126,column:44},end:{line:126,column:46}}],line:126},"39":{loc:{start:{line:129,column:6},end:{line:263,column:7}},type:"if",locations:[{start:{line:129,column:6},end:{line:263,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:129},"40":{loc:{start:{line:130,column:8},end:{line:262,column:9}},type:"switch",locations:[{start:{line:131,column:8},end:{line:135,column:16}},{start:{line:136,column:8},end:{line:140,column:16}},{start:{line:141,column:8},end:{line:154,column:16}},{start:{line:155,column:8},end:{line:160,column:16}},{start:{line:161,column:8},end:{line:166,column:16}},{start:{line:167,column:8},end:{line:171,column:16}},{start:{line:172,column:8},end:{line:180,column:16}},{start:{line:181,column:8},end:{line:189,column:16}},{start:{line:190,column:8},end:{line:190,column:20}},{start:{line:191,column:8},end:{line:191,column:19}},{start:{line:192,column:8},end:{line:192,column:20}},{start:{line:193,column:8},end:{line:197,column:16}},{start:{line:198,column:8},end:{line:214,column:16}},{start:{line:215,column:8},end:{line:219,column:16}},{start:{line:220,column:8},end:{line:224,column:16}},{start:{line:225,column:8},end:{line:229,column:16}},{start:{line:230,column:8},end:{line:234,column:16}},{start:{line:235,column:8},end:{line:239,column:16}},{start:{line:240,column:8},end:{line:244,column:16}},{start:{line:245,column:8},end:{line:258,column:16}},{start:{line:259,column:8},end:{line:261,column:16}}],line:130},"41":{loc:{start:{line:132,column:10},end:{line:134,column:11}},type:"if",locations:[{start:{line:132,column:10},end:{line:134,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:132},"42":{loc:{start:{line:137,column:10},end:{line:139,column:11}},type:"if",locations:[{start:{line:137,column:10},end:{line:139,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:137},"43":{loc:{start:{line:142,column:10},end:{line:153,column:11}},type:"switch",locations:[{start:{line:144,column:10},end:{line:148,column:18}},{start:{line:149,column:10},end:{line:152,column:13}}],line:142},"44":{loc:{start:{line:142,column:18},end:{line:143,column:40}},type:"binary-expr",locations:[{start:{line:142,column:18},end:{line:142,column:49}},{start:{line:143,column:14},end:{line:143,column:40}}],line:142},"45":{loc:{start:{line:145,column:12},end:{line:147,column:13}},type:"if",locations:[{start:{line:145,column:12},end:{line:147,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:145},"46":{loc:{start:{line:150,column:12},end:{line:152,column:13}},type:"if",locations:[{start:{line:150,column:12},end:{line:152,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:150},"47":{loc:{start:{line:157,column:10},end:{line:159,column:11}},type:"if",locations:[{start:{line:157,column:10},end:{line:159,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:157},"48":{loc:{start:{line:163,column:10},end:{line:165,column:11}},type:"if",locations:[{start:{line:163,column:10},end:{line:165,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:163},"49":{loc:{start:{line:168,column:10},end:{line:170,column:11}},type:"if",locations:[{start:{line:168,column:10},end:{line:170,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:168},"50":{loc:{start:{line:173,column:10},end:{line:179,column:11}},type:"if",locations:[{start:{line:173,column:10},end:{line:179,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:173},"51":{loc:{start:{line:174,column:12},end:{line:176,column:25}},type:"cond-expr",locations:[{start:{line:175,column:16},end:{line:175,column:59}},{start:{line:176,column:16},end:{line:176,column:25}}],line:174},"52":{loc:{start:{line:174,column:12},end:{line:174,column:73}},type:"binary-expr",locations:[{start:{line:174,column:12},end:{line:174,column:43}},{start:{line:174,column:47},end:{line:174,column:73}}],line:174},"53":{loc:{start:{line:182,column:10},end:{line:188,column:11}},type:"if",locations:[{start:{line:182,column:10},end:{line:188,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:182},"54":{loc:{start:{line:183,column:12},end:{line:185,column:25}},type:"cond-expr",locations:[{start:{line:184,column:16},end:{line:184,column:51}},{start:{line:185,column:16},end:{line:185,column:25}}],line:183},"55":{loc:{start:{line:194,column:10},end:{line:196,column:11}},type:"if",locations:[{start:{line:194,column:10},end:{line:196,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:194},"56":{loc:{start:{line:199,column:10},end:{line:210,column:11}},type:"if",locations:[{start:{line:199,column:10},end:{line:210,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:199},"57":{loc:{start:{line:199,column:14},end:{line:199,column:73}},type:"binary-expr",locations:[{start:{line:199,column:14},end:{line:199,column:44}},{start:{line:199,column:48},end:{line:199,column:73}}],line:199},"58":{loc:{start:{line:200,column:12},end:{line:204,column:13}},type:"if",locations:[{start:{line:200,column:12},end:{line:204,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:200},"59":{loc:{start:{line:206,column:12},end:{line:208,column:13}},type:"if",locations:[{start:{line:206,column:12},end:{line:208,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:206},"60":{loc:{start:{line:211,column:10},end:{line:213,column:11}},type:"if",locations:[{start:{line:211,column:10},end:{line:213,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:211},"61":{loc:{start:{line:216,column:10},end:{line:218,column:11}},type:"if",locations:[{start:{line:216,column:10},end:{line:218,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:216},"62":{loc:{start:{line:221,column:10},end:{line:223,column:11}},type:"if",locations:[{start:{line:221,column:10},end:{line:223,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:221},"63":{loc:{start:{line:226,column:10},end:{line:228,column:11}},type:"if",locations:[{start:{line:226,column:10},end:{line:228,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:226},"64":{loc:{start:{line:231,column:10},end:{line:233,column:11}},type:"if",locations:[{start:{line:231,column:10},end:{line:233,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:231},"65":{loc:{start:{line:236,column:10},end:{line:238,column:11}},type:"if",locations:[{start:{line:236,column:10},end:{line:238,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:236},"66":{loc:{start:{line:241,column:10},end:{line:243,column:11}},type:"if",locations:[{start:{line:241,column:10},end:{line:243,column:11}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:241},"67":{loc:{start:{line:246,column:10},end:{line:257,column:11}},type:"switch",locations:[{start:{line:248,column:10},end:{line:252,column:18}},{start:{line:253,column:10},end:{line:256,column:13}}],line:246},"68":{loc:{start:{line:246,column:18},end:{line:247,column:38}},type:"binary-expr",locations:[{start:{line:246,column:18},end:{line:246,column:49}},{start:{line:247,column:12},end:{line:247,column:38}}],line:246},"69":{loc:{start:{line:249,column:12},end:{line:251,column:13}},type:"if",locations:[{start:{line:249,column:12},end:{line:251,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:249},"70":{loc:{start:{line:254,column:12},end:{line:256,column:13}},type:"if",locations:[{start:{line:254,column:12},end:{line:256,column:13}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:254},"71":{loc:{start:{line:271,column:6},end:{line:273,column:7}},type:"if",locations:[{start:{line:271,column:6},end:{line:273,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:271},"72":{loc:{start:{line:274,column:6},end:{line:276,column:7}},type:"if",locations:[{start:{line:274,column:6},end:{line:276,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:274},"73":{loc:{start:{line:277,column:6},end:{line:279,column:7}},type:"if",locations:[{start:{line:277,column:6},end:{line:279,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:277},"74":{loc:{start:{line:285,column:13},end:{line:285,column:58}},type:"binary-expr",locations:[{start:{line:285,column:13},end:{line:285,column:46}},{start:{line:285,column:50},end:{line:285,column:58}}],line:285},"75":{loc:{start:{line:287,column:6},end:{line:346,column:12}},type:"cond-expr",locations:[{start:{line:292,column:10},end:{line:313,column:10}},{start:{line:314,column:10},end:{line:346,column:12}}],line:287},"76":{loc:{start:{line:287,column:6},end:{line:291,column:22}},type:"binary-expr",locations:[{start:{line:287,column:6},end:{line:287,column:10}},{start:{line:287,column:14},end:{line:291,column:22}}],line:287},"77":{loc:{start:{line:298,column:37},end:{line:302,column:22}},type:"binary-expr",locations:[{start:{line:298,column:37},end:{line:302,column:16}},{start:{line:302,column:20},end:{line:302,column:22}}],line:298},"78":{loc:{start:{line:308,column:17},end:{line:308,column:66}},type:"binary-expr",locations:[{start:{line:308,column:17},end:{line:308,column:22}},{start:{line:308,column:26},end:{line:308,column:60}},{start:{line:308,column:64},end:{line:308,column:66}}],line:308},"79":{loc:{start:{line:311,column:21},end:{line:311,column:60}},type:"cond-expr",locations:[{start:{line:311,column:39},end:{line:311,column:48}},{start:{line:311,column:51},end:{line:311,column:60}}],line:311},"80":{loc:{start:{line:312,column:21},end:{line:312,column:60}},type:"cond-expr",locations:[{start:{line:312,column:39},end:{line:312,column:48}},{start:{line:312,column:51},end:{line:312,column:60}}],line:312},"81":{loc:{start:{line:314,column:10},end:{line:346,column:12}},type:"cond-expr",locations:[{start:{line:315,column:12},end:{line:327,column:13}},{start:{line:328,column:12},end:{line:346,column:12}}],line:314},"82":{loc:{start:{line:325,column:33},end:{line:325,column:75}},type:"binary-expr",locations:[{start:{line:325,column:33},end:{line:325,column:38}},{start:{line:325,column:42},end:{line:325,column:75}}],line:325},"83":{loc:{start:{line:334,column:39},end:{line:338,column:24}},type:"binary-expr",locations:[{start:{line:334,column:39},end:{line:338,column:18}},{start:{line:338,column:22},end:{line:338,column:24}}],line:334},"84":{loc:{start:{line:345,column:13},end:{line:345,column:62}},type:"binary-expr",locations:[{start:{line:345,column:13},end:{line:345,column:18}},{start:{line:345,column:22},end:{line:345,column:56}},{start:{line:345,column:60},end:{line:345,column:62}}],line:345}},s:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0,"31":0,"32":0,"33":0,"34":0,"35":0,"36":0,"37":0,"38":0,"39":0,"40":0,"41":0,"42":0,"43":0,"44":0,"45":0,"46":0,"47":0,"48":0,"49":0,"50":0,"51":0,"52":0,"53":0,"54":0,"55":0,"56":0,"57":0,"58":0,"59":0,"60":0,"61":0,"62":0,"63":0,"64":0,"65":0,"66":0,"67":0,"68":0,"69":0,"70":0,"71":0,"72":0,"73":0,"74":0,"75":0,"76":0,"77":0,"78":0,"79":0,"80":0,"81":0,"82":0,"83":0,"84":0,"85":0,"86":0,"87":0,"88":0,"89":0,"90":0,"91":0,"92":0,"93":0,"94":0,"95":0,"96":0,"97":0,"98":0,"99":0,"100":0,"101":0,"102":0,"103":0,"104":0,"105":0,"106":0,"107":0,"108":0,"109":0,"110":0,"111":0,"112":0,"113":0,"114":0,"115":0,"116":0,"117":0,"118":0,"119":0,"120":0,"121":0,"122":0,"123":0,"124":0,"125":0,"126":0,"127":0,"128":0,"129":0,"130":0,"131":0,"132":0,"133":0,"134":0},f:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0},b:{"0":[0,0,0],"1":[0,0,0],"2":[0,0],"3":[0,0],"4":[0,0],"5":[0,0],"6":[0,0],"7":[0,0],"8":[0,0],"9":[0,0],"10":[0,0],"11":[0,0],"12":[0,0],"13":[0,0],"14":[0,0],"15":[0,0],"16":[0,0],"17":[0,0],"18":[0,0],"19":[0,0],"20":[0,0],"21":[0,0],"22":[0,0],"23":[0,0],"24":[0,0],"25":[0,0],"26":[0,0],"27":[0,0],"28":[0,0],"29":[0,0],"30":[0,0],"31":[0,0],"32":[0,0],"33":[0,0],"34":[0,0],"35":[0,0],"36":[0,0],"37":[0,0],"38":[0,0],"39":[0,0],"40":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"41":[0,0],"42":[0,0],"43":[0,0],"44":[0,0],"45":[0,0],"46":[0,0],"47":[0,0],"48":[0,0],"49":[0,0],"50":[0,0],"51":[0,0],"52":[0,0],"53":[0,0],"54":[0,0],"55":[0,0],"56":[0,0],"57":[0,0],"58":[0,0],"59":[0,0],"60":[0,0],"61":[0,0],"62":[0,0],"63":[0,0],"64":[0,0],"65":[0,0],"66":[0,0],"67":[0,0],"68":[0,0],"69":[0,0],"70":[0,0],"71":[0,0],"72":[0,0],"73":[0,0],"74":[0,0],"75":[0,0],"76":[0,0],"77":[0,0],"78":[0,0,0],"79":[0,0],"80":[0,0],"81":[0,0],"82":[0,0],"83":[0,0],"84":[0,0,0]},inputSourceMap:{version:3,sources:["/Users/brett/jsoe/src/fundamentalTypes/stringType.js"],sourcesContent:["import {regexes, z} from 'zod';\nimport {$e} from '../utils/templateUtils.js';\nimport {schemaLabel} from '../utils/schemaMeta.js';\n\nconst cidrv6Schema = z.cidrv6();\n\n/**\n * @type {import('../types.js').TypeObject}\n */\nconst stringType = {\n  option: ['String'],\n  stringRegex: /^\"(?:[^\\\\\"]|\\\\\\\\|\\\\\")*\"$/u,\n  valueMatch (x) {\n    return typeof x === 'string';\n  },\n  toValue (s) {\n    return {value: s.slice(1, -1)};\n  },\n  getInput ({root}) {\n    return /** @type {HTMLTextAreaElement} */ (\n      $e(root, '[data-type=\"string\"] > textarea,input,select')\n    );\n  },\n  setValue ({root, value}) {\n    this.getInput({root}).value = value;\n  },\n  getValue ({root}) {\n    return this.getInput({root}).value;\n  },\n  viewUI ({value, specificSchemaObject}) {\n    const kind = specificSchemaObject && 'kind' in specificSchemaObject &&\n      specificSchemaObject.kind;\n    // `z.stringbool()` serializes as a string -> boolean `pipe` carrying\n    //   `truthy`/`falsy` token arrays; jsoe edits its encoded (string) side.\n    const isStringbool = specificSchemaObject &&\n      'truthy' in specificSchemaObject && 'falsy' in specificSchemaObject;\n    return ['span', {\n      dataset: {type: 'string'},\n      title: schemaLabel(specificSchemaObject) ??\n        (isStringbool\n          ? '(a string boolean)'\n          : kind === 'email'\n            ? `(an ${kind} string)`\n            : kind\n              ? `(a ${kind} string)` // url, date\n              : '(a string)')\n    }, [value]];\n  },\n  editUI ({typeNamespace, specificSchemaObject, types, value}) {\n    const stringSchemaObject = /** @type {import('zodexy').SzString} */ (\n      specificSchemaObject ?? {type: 'string'}\n    );\n    const kind = 'kind' in stringSchemaObject ? stringSchemaObject.kind : null;\n    const isConstrained = specificSchemaObject?.type === 'literal' ||\n      specificSchemaObject?.type === 'enum';\n    const minlength = stringSchemaObject?.min ?? stringSchemaObject?.length;\n    const maxlength = stringSchemaObject?.max ?? stringSchemaObject?.length;\n\n    const startsWith = stringSchemaObject?.startsWith;\n    const endsWith = stringSchemaObject?.endsWith;\n\n    const toLowerCase = stringSchemaObject?.toLowerCase;\n    const toUpperCase = stringSchemaObject?.toUpperCase;\n    const trim = stringSchemaObject?.trim;\n\n    const includes = 'includes' in stringSchemaObject &&\n      stringSchemaObject.includes;\n    const position = 'position' in stringSchemaObject\n      ? stringSchemaObject.position\n      : undefined;\n\n    const regex = 'regex' in stringSchemaObject &&\n      stringSchemaObject.regex;\n    const pattern = kind === 'email' && 'pattern' in stringSchemaObject\n      ? stringSchemaObject.pattern\n      : undefined;\n    const flags = 'flags' in stringSchemaObject\n      ? stringSchemaObject.flags\n      : undefined;\n\n    // A `z.stringbool()` codec serializes as a string -> boolean `pipe` that\n    //   carries `truthy`/`falsy` token arrays (and an optional `case`). jsoe\n    //   edits the encoded (string) side, so it is handled here as a String\n    //   whose value must be one of those recognized tokens.\n    const stringbool = /** @type {{truthy?: string[], falsy?: string[], case?: string}} */ (\n      stringSchemaObject\n    );\n    const stringboolTokens = Array.isArray(stringbool.truthy) &&\n        Array.isArray(stringbool.falsy)\n      ? [...stringbool.truthy, ...stringbool.falsy]\n      : null;\n\n    /**\n     * @param {string} value\n     */\n    const checkValue = (value) => {\n      if (stringboolTokens) {\n        const sensitive = stringbool.case === 'sensitive';\n        const compare = sensitive ? value : value.toLowerCase();\n        const matched = stringboolTokens.some((token) => {\n          return (sensitive ? token : token.toLowerCase()) === compare;\n        });\n        if (!matched) {\n          return `Value is not a recognized string boolean; expected one ` +\n            `of: ${stringboolTokens.join(', ')}`;\n        }\n      }\n      if (startsWith && !value.startsWith(startsWith)) {\n        return `Value doesn't start with expected: ${startsWith}`;\n      }\n      if (endsWith && !value.endsWith(endsWith)) {\n        return `Value doesn't end with expected: ${endsWith}`;\n      }\n      if (includes && !value.includes(includes, position ?? 0)) {\n        return `Value doesn't include the expected: ${includes}${\n          position ? ` after position: ${position}` : ''\n        }`;\n      }\n      if (regex && !(new RegExp(regex, flags ?? '')).test(value)) {\n        return `Value doesn't match regular expression: ${regex}${\n          flags ? ` with flags: ${flags}` : ''\n        }`;\n      }\n      if (pattern && !(new RegExp(pattern, flags ?? '')).test(value)) {\n        return `Value doesn't match email pattern: ${pattern}${\n          flags ? ` with flags: ${flags}` : ''\n        }`;\n      }\n      if (kind) {\n        switch (kind) {\n        case 'credit_card':\n          if (!regexes.creditCard.test(value)) {\n            return `Value doesn't match credit card pattern.`;\n          }\n          break;\n        case 'iban':\n          if (!regexes.iban.test(value)) {\n            return `Value doesn't match iban pattern.`;\n          }\n          break;\n        case 'ip':\n          switch ('version' in stringSchemaObject &&\n              stringSchemaObject.version) {\n          case 'v4':\n            if (!regexes.ipv4.test(value)) {\n              return `Value doesn't match IP v4 pattern.`;\n            }\n            break;\n          default:\n            if (!regexes.ipv6.test(value)) {\n              return `Value doesn't match IP v6 pattern.`;\n            }\n          }\n          break;\n        case 'time':\n          // @ts-expect-error It is present\n          if (!regexes.time(stringSchemaObject).test(value)) {\n            return `Value does not match time/precision.`;\n          }\n          break;\n        case 'datetime':\n          // @ts-expect-error It is present\n          if (!regexes.datetime(stringSchemaObject).test(value)) {\n            return `Value does not match datetime/precision/offset/local`;\n          }\n          break;\n        case 'emoji':\n          if (!regexes.emoji().test(value)) {\n            return `Value does not match emoji pattern`;\n          }\n          break;\n        case 'uuid':\n          if (!regexes.uuid(\n            'version' in stringSchemaObject && stringSchemaObject.version\n              ? Number(stringSchemaObject.version.slice(1))\n              : undefined\n          ).test(value)) {\n            return `Value does not match uuid pattern`;\n          }\n          break;\n        case 'jwt':\n          if (!z.jwt(\n            'algorithm' in stringSchemaObject\n              ? {alg: stringSchemaObject.algorithm}\n              : undefined\n          ).safeParse(value).success) {\n            return `Value does not match jwt pattern`;\n          }\n          break;\n        case 'e164':\n        case 'xid':\n        case 'guid':\n        case 'ksuid':\n          if (!regexes[kind].test(value)) {\n            return `Value does not match ${kind} pattern`;\n          }\n          break;\n        case 'nanoid':\n          if ('length' in stringSchemaObject && stringSchemaObject.length) {\n            if (value.length !== stringSchemaObject.length) {\n              return `Nanoid value is not of the expected length: ${\n                stringSchemaObject.length\n              }`;\n            }\n\n            if (!regexes.nanoidOfLength(15).test(value)) {\n              return `Value does not match nanoid pattern`;\n            }\n            break;\n          }\n          if (!regexes.nanoid.test(value)) {\n            return `Value does not match nanoid pattern`;\n          }\n          break;\n        case 'cuid':\n          if (!regexes.cuid.test(value)) {\n            return `Value does not match cuid pattern`;\n          }\n          break;\n        case 'cuid2':\n          if (!regexes.cuid2.test(value)) {\n            return `Value does not match cuid2 pattern`;\n          }\n          break;\n        case 'ulid':\n          if (!regexes.ulid.test(value)) {\n            return `Value does not match ulid pattern`;\n          }\n          break;\n        case 'duration':\n          if (!regexes.duration.test(value)) {\n            return `Value does not match duration pattern`;\n          }\n          break;\n        case 'base64':\n          if (!regexes.base64.test(value)) {\n            return `Value does not match base64 pattern`;\n          }\n          break;\n        case 'base64url':\n          if (!regexes.base64url.test(value)) {\n            return `Value does not match base64url pattern`;\n          }\n          break;\n        case 'cidr':\n          switch ('version' in stringSchemaObject &&\n            stringSchemaObject.version) {\n          case 'v4':\n            if (!regexes.cidrv4.test(value)) {\n              return `Value doesn't match IP v4 cidr pattern.`;\n            }\n            break;\n          default:\n            if (!cidrv6Schema.safeParse(value).success) {\n              return `Value doesn't match IP v6 cidr pattern.`;\n            }\n          }\n          break;\n        default:\n          // 'email'|'url'|'date' should already be handled by the input element\n          break;\n        }\n      }\n      return null;\n    };\n\n    /**\n     * @param {string} value\n     */\n    const transform = (value) => {\n      if (toLowerCase) {\n        value = value.toLowerCase();\n      }\n      if (toUpperCase) {\n        value = value.toUpperCase();\n      }\n      if (trim) {\n        value = value.trim();\n      }\n      return value;\n    };\n\n    return ['div', {\n      dataset: {type: 'string'},\n      title: schemaLabel(specificSchemaObject) ?? 'String'\n    }, [\n      kind && [\n        // There is a `time` and `datetime-local` but they don't\n        //    support milliseconds\n        'email', 'url', 'date'\n      ].includes(kind)\n        ? ['input', {\n          $on: {\n            change () {\n              const that = /** @type {HTMLInputElement} */ (this);\n              that.value = transform(that.value);\n              const message = checkValue(that.value);\n              that.setCustomValidity(types.getValidationMessage({\n                message,\n                schema: specificSchemaObject,\n                typeSpecific: true\n              }) ?? '');\n              that.reportValidity();\n            }\n          },\n          name: `${typeNamespace}-string`,\n          type: kind,\n          value: value ?? specificSchemaObject?.defaultValue ?? '',\n\n          // Form doesn't support for date\n          minlength: kind === 'date' ? undefined : minlength,\n          maxlength: kind === 'date' ? undefined : maxlength\n        }]\n        : isConstrained\n          ? ['select', {\n            name: `${typeNamespace}-string`\n          }, Object.values(specificSchemaObject.values).filter((\n            /** @type {string} */ val\n          ) => {\n            return typeof val === 'string';\n          }).map((\n            /** @type {string} */ val\n          ) => {\n            return ['option', {\n              selected: val === (value ?? specificSchemaObject.defaultValue)\n            }, [val]];\n          })]\n          : ['textarea', {\n            $on: {\n              change () {\n                const that = /** @type {HTMLTextAreaElement} */ (this);\n                that.value = transform(that.value);\n                const message = checkValue(that.value);\n                that.setCustomValidity(types.getValidationMessage({\n                  message,\n                  schema: specificSchemaObject,\n                  typeSpecific: true\n                }) ?? '');\n                that.reportValidity();\n              }\n            },\n            name: `${typeNamespace}-string`,\n            minlength, maxlength\n          }, [\n            (value ?? specificSchemaObject?.defaultValue ?? '')\n          ]]\n    ]];\n  }\n};\n\nexport default stringType;\n"],names:[],mappings:"AAAA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAElD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE/B,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3F,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,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,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAElE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;",file:undefined},_coverageSchema:"1a1c01bbd47fc00a2c39e90264f33305004495a9",hash:"b628ccb0a48f2726dcc70462d54680db6b854411"};var coverage=global[gcv]||(global[gcv]={});if(!coverage[path]||coverage[path].hash!==hash){coverage[path]=coverageData;}var actualCoverage=coverage[path];{// @ts-ignore
 cov_1cdkaudltz=function(){return actualCoverage;};}return actualCoverage;}cov_1cdkaudltz();const cidrv6Schema=(cov_1cdkaudltz().s[0]++,cidrv6());/**
  * @type {import('../types.js').TypeObject}
  */const stringType=(cov_1cdkaudltz().s[1]++,{option:['String'],stringRegex:/^"(?:[^\\"]|\\\\|\\")*"$/u,valueMatch(x){cov_1cdkaudltz().f[0]++;cov_1cdkaudltz().s[2]++;return typeof x==='string';},toValue(s){cov_1cdkaudltz().f[1]++;cov_1cdkaudltz().s[3]++;return {value:s.slice(1,-1)};},getInput({root}){cov_1cdkaudltz().f[2]++;cov_1cdkaudltz().s[4]++;return/** @type {HTMLTextAreaElement} */$e(root,'[data-type="string"] > textarea,input,select');},setValue({root,value}){cov_1cdkaudltz().f[3]++;cov_1cdkaudltz().s[5]++;this.getInput({root}).value=value;},getValue({root}){cov_1cdkaudltz().f[4]++;cov_1cdkaudltz().s[6]++;return this.getInput({root}).value;},viewUI({value,specificSchemaObject}){cov_1cdkaudltz().f[5]++;const kind=(cov_1cdkaudltz().s[7]++,(cov_1cdkaudltz().b[0][0]++,specificSchemaObject)&&(cov_1cdkaudltz().b[0][1]++,'kind'in specificSchemaObject)&&(cov_1cdkaudltz().b[0][2]++,specificSchemaObject.kind));// `z.stringbool()` serializes as a string -> boolean `pipe` carrying
@@ -31765,15 +32694,15 @@ const isStringbool=(cov_1cdkaudltz().s[8]++,(cov_1cdkaudltz().b[1][0]++,specific
 //   whose value must be one of those recognized tokens.
 const stringbool=(/** @type {{truthy?: string[], falsy?: string[], case?: string}} */cov_1cdkaudltz().s[25]++,stringSchemaObject);const stringboolTokens=(cov_1cdkaudltz().s[26]++,(cov_1cdkaudltz().b[18][0]++,Array.isArray(stringbool.truthy))&&(cov_1cdkaudltz().b[18][1]++,Array.isArray(stringbool.falsy))?(cov_1cdkaudltz().b[17][0]++,[...stringbool.truthy,...stringbool.falsy]):(cov_1cdkaudltz().b[17][1]++,null));/**
      * @param {string} value
-     */cov_1cdkaudltz().s[27]++;const checkValue=value=>{cov_1cdkaudltz().f[7]++;cov_1cdkaudltz().s[28]++;if(stringboolTokens){cov_1cdkaudltz().b[19][0]++;const sensitive=(cov_1cdkaudltz().s[29]++,stringbool.case==='sensitive');const compare=(cov_1cdkaudltz().s[30]++,sensitive?(cov_1cdkaudltz().b[20][0]++,value):(cov_1cdkaudltz().b[20][1]++,value.toLowerCase()));const matched=(cov_1cdkaudltz().s[31]++,stringboolTokens.some(token=>{cov_1cdkaudltz().f[8]++;cov_1cdkaudltz().s[32]++;return (sensitive?(cov_1cdkaudltz().b[21][0]++,token):(cov_1cdkaudltz().b[21][1]++,token.toLowerCase()))===compare;}));cov_1cdkaudltz().s[33]++;if(!matched){cov_1cdkaudltz().b[22][0]++;cov_1cdkaudltz().s[34]++;return `Value is not a recognized string boolean; expected one `+`of: ${stringboolTokens.join(', ')}`;}else {cov_1cdkaudltz().b[22][1]++;}}else {cov_1cdkaudltz().b[19][1]++;}cov_1cdkaudltz().s[35]++;if((cov_1cdkaudltz().b[24][0]++,startsWith)&&(cov_1cdkaudltz().b[24][1]++,!value.startsWith(startsWith))){cov_1cdkaudltz().b[23][0]++;cov_1cdkaudltz().s[36]++;return `Value doesn't start with expected: ${startsWith}`;}else {cov_1cdkaudltz().b[23][1]++;}cov_1cdkaudltz().s[37]++;if((cov_1cdkaudltz().b[26][0]++,endsWith)&&(cov_1cdkaudltz().b[26][1]++,!value.endsWith(endsWith))){cov_1cdkaudltz().b[25][0]++;cov_1cdkaudltz().s[38]++;return `Value doesn't end with expected: ${endsWith}`;}else {cov_1cdkaudltz().b[25][1]++;}cov_1cdkaudltz().s[39]++;if((cov_1cdkaudltz().b[28][0]++,includes)&&(cov_1cdkaudltz().b[28][1]++,!value.includes(includes,(cov_1cdkaudltz().b[29][0]++,position)??(cov_1cdkaudltz().b[29][1]++,0)))){cov_1cdkaudltz().b[27][0]++;cov_1cdkaudltz().s[40]++;return `Value doesn't include the expected: ${includes}${position?(cov_1cdkaudltz().b[30][0]++,` after position: ${position}`):(cov_1cdkaudltz().b[30][1]++,'')}`;}else {cov_1cdkaudltz().b[27][1]++;}cov_1cdkaudltz().s[41]++;if((cov_1cdkaudltz().b[32][0]++,regex)&&(cov_1cdkaudltz().b[32][1]++,!new RegExp(regex,(cov_1cdkaudltz().b[33][0]++,flags)??(cov_1cdkaudltz().b[33][1]++,'')).test(value))){cov_1cdkaudltz().b[31][0]++;cov_1cdkaudltz().s[42]++;return `Value doesn't match regular expression: ${regex}${flags?(cov_1cdkaudltz().b[34][0]++,` with flags: ${flags}`):(cov_1cdkaudltz().b[34][1]++,'')}`;}else {cov_1cdkaudltz().b[31][1]++;}cov_1cdkaudltz().s[43]++;if((cov_1cdkaudltz().b[36][0]++,pattern)&&(cov_1cdkaudltz().b[36][1]++,!new RegExp(pattern,(cov_1cdkaudltz().b[37][0]++,flags)??(cov_1cdkaudltz().b[37][1]++,'')).test(value))){cov_1cdkaudltz().b[35][0]++;cov_1cdkaudltz().s[44]++;return `Value doesn't match email pattern: ${pattern}${flags?(cov_1cdkaudltz().b[38][0]++,` with flags: ${flags}`):(cov_1cdkaudltz().b[38][1]++,'')}`;}else {cov_1cdkaudltz().b[35][1]++;}cov_1cdkaudltz().s[45]++;if(kind){cov_1cdkaudltz().b[39][0]++;cov_1cdkaudltz().s[46]++;switch(kind){case 'credit_card':cov_1cdkaudltz().b[40][0]++;cov_1cdkaudltz().s[47]++;if(!creditCard$1.test(value)){cov_1cdkaudltz().b[41][0]++;cov_1cdkaudltz().s[48]++;return `Value doesn't match credit card pattern.`;}else {cov_1cdkaudltz().b[41][1]++;}cov_1cdkaudltz().s[49]++;break;case 'ip':cov_1cdkaudltz().b[40][1]++;cov_1cdkaudltz().s[50]++;switch((cov_1cdkaudltz().b[43][0]++,'version'in stringSchemaObject)&&(cov_1cdkaudltz().b[43][1]++,stringSchemaObject.version)){case 'v4':cov_1cdkaudltz().b[42][0]++;cov_1cdkaudltz().s[51]++;if(!ipv4$1.test(value)){cov_1cdkaudltz().b[44][0]++;cov_1cdkaudltz().s[52]++;return `Value doesn't match IP v4 pattern.`;}else {cov_1cdkaudltz().b[44][1]++;}cov_1cdkaudltz().s[53]++;break;default:cov_1cdkaudltz().b[42][1]++;cov_1cdkaudltz().s[54]++;if(!ipv6$1.test(value)){cov_1cdkaudltz().b[45][0]++;cov_1cdkaudltz().s[55]++;return `Value doesn't match IP v6 pattern.`;}else {cov_1cdkaudltz().b[45][1]++;}}cov_1cdkaudltz().s[56]++;break;case 'time':cov_1cdkaudltz().b[40][2]++;cov_1cdkaudltz().s[57]++;// @ts-expect-error It is present
-if(!time$1(stringSchemaObject).test(value)){cov_1cdkaudltz().b[46][0]++;cov_1cdkaudltz().s[58]++;return `Value does not match time/precision.`;}else {cov_1cdkaudltz().b[46][1]++;}cov_1cdkaudltz().s[59]++;break;case 'datetime':cov_1cdkaudltz().b[40][3]++;cov_1cdkaudltz().s[60]++;// @ts-expect-error It is present
-if(!datetime$1(stringSchemaObject).test(value)){cov_1cdkaudltz().b[47][0]++;cov_1cdkaudltz().s[61]++;return `Value does not match datetime/precision/offset/local`;}else {cov_1cdkaudltz().b[47][1]++;}cov_1cdkaudltz().s[62]++;break;case 'emoji':cov_1cdkaudltz().b[40][4]++;cov_1cdkaudltz().s[63]++;if(!emoji$1().test(value)){cov_1cdkaudltz().b[48][0]++;cov_1cdkaudltz().s[64]++;return `Value does not match emoji pattern`;}else {cov_1cdkaudltz().b[48][1]++;}cov_1cdkaudltz().s[65]++;break;case 'uuid':cov_1cdkaudltz().b[40][5]++;cov_1cdkaudltz().s[66]++;if(!uuid$1((cov_1cdkaudltz().b[51][0]++,'version'in stringSchemaObject)&&(cov_1cdkaudltz().b[51][1]++,stringSchemaObject.version)?(cov_1cdkaudltz().b[50][0]++,Number(stringSchemaObject.version.slice(1))):(cov_1cdkaudltz().b[50][1]++,undefined)).test(value)){cov_1cdkaudltz().b[49][0]++;cov_1cdkaudltz().s[67]++;return `Value does not match uuid pattern`;}else {cov_1cdkaudltz().b[49][1]++;}cov_1cdkaudltz().s[68]++;break;case 'jwt':cov_1cdkaudltz().b[40][6]++;cov_1cdkaudltz().s[69]++;if(!jwt('algorithm'in stringSchemaObject?(cov_1cdkaudltz().b[53][0]++,{alg:stringSchemaObject.algorithm}):(cov_1cdkaudltz().b[53][1]++,undefined)).safeParse(value).success){cov_1cdkaudltz().b[52][0]++;cov_1cdkaudltz().s[70]++;return `Value does not match jwt pattern`;}else {cov_1cdkaudltz().b[52][1]++;}cov_1cdkaudltz().s[71]++;break;case 'e164':cov_1cdkaudltz().b[40][7]++;case 'xid':cov_1cdkaudltz().b[40][8]++;case 'guid':cov_1cdkaudltz().b[40][9]++;case 'ksuid':cov_1cdkaudltz().b[40][10]++;cov_1cdkaudltz().s[72]++;if(!regexes[kind].test(value)){cov_1cdkaudltz().b[54][0]++;cov_1cdkaudltz().s[73]++;return `Value does not match ${kind} pattern`;}else {cov_1cdkaudltz().b[54][1]++;}cov_1cdkaudltz().s[74]++;break;case 'nanoid':cov_1cdkaudltz().b[40][11]++;cov_1cdkaudltz().s[75]++;if((cov_1cdkaudltz().b[56][0]++,'length'in stringSchemaObject)&&(cov_1cdkaudltz().b[56][1]++,stringSchemaObject.length)){cov_1cdkaudltz().b[55][0]++;cov_1cdkaudltz().s[76]++;if(value.length!==stringSchemaObject.length){cov_1cdkaudltz().b[57][0]++;cov_1cdkaudltz().s[77]++;return `Nanoid value is not of the expected length: ${stringSchemaObject.length}`;}else {cov_1cdkaudltz().b[57][1]++;}cov_1cdkaudltz().s[78]++;if(!nanoidOfLength(15).test(value)){cov_1cdkaudltz().b[58][0]++;cov_1cdkaudltz().s[79]++;return `Value does not match nanoid pattern`;}else {cov_1cdkaudltz().b[58][1]++;}cov_1cdkaudltz().s[80]++;break;}else {cov_1cdkaudltz().b[55][1]++;}cov_1cdkaudltz().s[81]++;if(!nanoid$1.test(value)){cov_1cdkaudltz().b[59][0]++;cov_1cdkaudltz().s[82]++;return `Value does not match nanoid pattern`;}else {cov_1cdkaudltz().b[59][1]++;}cov_1cdkaudltz().s[83]++;break;case 'cuid':cov_1cdkaudltz().b[40][12]++;cov_1cdkaudltz().s[84]++;if(!cuid$1.test(value)){cov_1cdkaudltz().b[60][0]++;cov_1cdkaudltz().s[85]++;return `Value does not match cuid pattern`;}else {cov_1cdkaudltz().b[60][1]++;}cov_1cdkaudltz().s[86]++;break;case 'cuid2':cov_1cdkaudltz().b[40][13]++;cov_1cdkaudltz().s[87]++;if(!cuid2$1.test(value)){cov_1cdkaudltz().b[61][0]++;cov_1cdkaudltz().s[88]++;return `Value does not match cuid2 pattern`;}else {cov_1cdkaudltz().b[61][1]++;}cov_1cdkaudltz().s[89]++;break;case 'ulid':cov_1cdkaudltz().b[40][14]++;cov_1cdkaudltz().s[90]++;if(!ulid$1.test(value)){cov_1cdkaudltz().b[62][0]++;cov_1cdkaudltz().s[91]++;return `Value does not match ulid pattern`;}else {cov_1cdkaudltz().b[62][1]++;}cov_1cdkaudltz().s[92]++;break;case 'duration':cov_1cdkaudltz().b[40][15]++;cov_1cdkaudltz().s[93]++;if(!duration$1.test(value)){cov_1cdkaudltz().b[63][0]++;cov_1cdkaudltz().s[94]++;return `Value does not match duration pattern`;}else {cov_1cdkaudltz().b[63][1]++;}cov_1cdkaudltz().s[95]++;break;case 'base64':cov_1cdkaudltz().b[40][16]++;cov_1cdkaudltz().s[96]++;if(!base64$1.test(value)){cov_1cdkaudltz().b[64][0]++;cov_1cdkaudltz().s[97]++;return `Value does not match base64 pattern`;}else {cov_1cdkaudltz().b[64][1]++;}cov_1cdkaudltz().s[98]++;break;case 'base64url':cov_1cdkaudltz().b[40][17]++;cov_1cdkaudltz().s[99]++;if(!base64url$1.test(value)){cov_1cdkaudltz().b[65][0]++;cov_1cdkaudltz().s[100]++;return `Value does not match base64url pattern`;}else {cov_1cdkaudltz().b[65][1]++;}cov_1cdkaudltz().s[101]++;break;case 'cidr':cov_1cdkaudltz().b[40][18]++;cov_1cdkaudltz().s[102]++;switch((cov_1cdkaudltz().b[67][0]++,'version'in stringSchemaObject)&&(cov_1cdkaudltz().b[67][1]++,stringSchemaObject.version)){case 'v4':cov_1cdkaudltz().b[66][0]++;cov_1cdkaudltz().s[103]++;if(!cidrv4$1.test(value)){cov_1cdkaudltz().b[68][0]++;cov_1cdkaudltz().s[104]++;return `Value doesn't match IP v4 cidr pattern.`;}else {cov_1cdkaudltz().b[68][1]++;}cov_1cdkaudltz().s[105]++;break;default:cov_1cdkaudltz().b[66][1]++;cov_1cdkaudltz().s[106]++;if(!cidrv6Schema.safeParse(value).success){cov_1cdkaudltz().b[69][0]++;cov_1cdkaudltz().s[107]++;return `Value doesn't match IP v6 cidr pattern.`;}else {cov_1cdkaudltz().b[69][1]++;}}cov_1cdkaudltz().s[108]++;break;default:cov_1cdkaudltz().b[40][19]++;cov_1cdkaudltz().s[109]++;// 'email'|'url'|'date' should already be handled by the input element
-break;}}else {cov_1cdkaudltz().b[39][1]++;}cov_1cdkaudltz().s[110]++;return null;};/**
+     */cov_1cdkaudltz().s[27]++;const checkValue=value=>{cov_1cdkaudltz().f[7]++;cov_1cdkaudltz().s[28]++;if(stringboolTokens){cov_1cdkaudltz().b[19][0]++;const sensitive=(cov_1cdkaudltz().s[29]++,stringbool.case==='sensitive');const compare=(cov_1cdkaudltz().s[30]++,sensitive?(cov_1cdkaudltz().b[20][0]++,value):(cov_1cdkaudltz().b[20][1]++,value.toLowerCase()));const matched=(cov_1cdkaudltz().s[31]++,stringboolTokens.some(token=>{cov_1cdkaudltz().f[8]++;cov_1cdkaudltz().s[32]++;return (sensitive?(cov_1cdkaudltz().b[21][0]++,token):(cov_1cdkaudltz().b[21][1]++,token.toLowerCase()))===compare;}));cov_1cdkaudltz().s[33]++;if(!matched){cov_1cdkaudltz().b[22][0]++;cov_1cdkaudltz().s[34]++;return `Value is not a recognized string boolean; expected one `+`of: ${stringboolTokens.join(', ')}`;}else {cov_1cdkaudltz().b[22][1]++;}}else {cov_1cdkaudltz().b[19][1]++;}cov_1cdkaudltz().s[35]++;if((cov_1cdkaudltz().b[24][0]++,startsWith)&&(cov_1cdkaudltz().b[24][1]++,!value.startsWith(startsWith))){cov_1cdkaudltz().b[23][0]++;cov_1cdkaudltz().s[36]++;return `Value doesn't start with expected: ${startsWith}`;}else {cov_1cdkaudltz().b[23][1]++;}cov_1cdkaudltz().s[37]++;if((cov_1cdkaudltz().b[26][0]++,endsWith)&&(cov_1cdkaudltz().b[26][1]++,!value.endsWith(endsWith))){cov_1cdkaudltz().b[25][0]++;cov_1cdkaudltz().s[38]++;return `Value doesn't end with expected: ${endsWith}`;}else {cov_1cdkaudltz().b[25][1]++;}cov_1cdkaudltz().s[39]++;if((cov_1cdkaudltz().b[28][0]++,includes)&&(cov_1cdkaudltz().b[28][1]++,!value.includes(includes,(cov_1cdkaudltz().b[29][0]++,position)??(cov_1cdkaudltz().b[29][1]++,0)))){cov_1cdkaudltz().b[27][0]++;cov_1cdkaudltz().s[40]++;return `Value doesn't include the expected: ${includes}${position?(cov_1cdkaudltz().b[30][0]++,` after position: ${position}`):(cov_1cdkaudltz().b[30][1]++,'')}`;}else {cov_1cdkaudltz().b[27][1]++;}cov_1cdkaudltz().s[41]++;if((cov_1cdkaudltz().b[32][0]++,regex)&&(cov_1cdkaudltz().b[32][1]++,!new RegExp(regex,(cov_1cdkaudltz().b[33][0]++,flags)??(cov_1cdkaudltz().b[33][1]++,'')).test(value))){cov_1cdkaudltz().b[31][0]++;cov_1cdkaudltz().s[42]++;return `Value doesn't match regular expression: ${regex}${flags?(cov_1cdkaudltz().b[34][0]++,` with flags: ${flags}`):(cov_1cdkaudltz().b[34][1]++,'')}`;}else {cov_1cdkaudltz().b[31][1]++;}cov_1cdkaudltz().s[43]++;if((cov_1cdkaudltz().b[36][0]++,pattern)&&(cov_1cdkaudltz().b[36][1]++,!new RegExp(pattern,(cov_1cdkaudltz().b[37][0]++,flags)??(cov_1cdkaudltz().b[37][1]++,'')).test(value))){cov_1cdkaudltz().b[35][0]++;cov_1cdkaudltz().s[44]++;return `Value doesn't match email pattern: ${pattern}${flags?(cov_1cdkaudltz().b[38][0]++,` with flags: ${flags}`):(cov_1cdkaudltz().b[38][1]++,'')}`;}else {cov_1cdkaudltz().b[35][1]++;}cov_1cdkaudltz().s[45]++;if(kind){cov_1cdkaudltz().b[39][0]++;cov_1cdkaudltz().s[46]++;switch(kind){case 'credit_card':cov_1cdkaudltz().b[40][0]++;cov_1cdkaudltz().s[47]++;if(!creditCard$1.test(value)){cov_1cdkaudltz().b[41][0]++;cov_1cdkaudltz().s[48]++;return `Value doesn't match credit card pattern.`;}else {cov_1cdkaudltz().b[41][1]++;}cov_1cdkaudltz().s[49]++;break;case 'iban':cov_1cdkaudltz().b[40][1]++;cov_1cdkaudltz().s[50]++;if(!iban$1.test(value)){cov_1cdkaudltz().b[42][0]++;cov_1cdkaudltz().s[51]++;return `Value doesn't match iban pattern.`;}else {cov_1cdkaudltz().b[42][1]++;}cov_1cdkaudltz().s[52]++;break;case 'ip':cov_1cdkaudltz().b[40][2]++;cov_1cdkaudltz().s[53]++;switch((cov_1cdkaudltz().b[44][0]++,'version'in stringSchemaObject)&&(cov_1cdkaudltz().b[44][1]++,stringSchemaObject.version)){case 'v4':cov_1cdkaudltz().b[43][0]++;cov_1cdkaudltz().s[54]++;if(!ipv4$1.test(value)){cov_1cdkaudltz().b[45][0]++;cov_1cdkaudltz().s[55]++;return `Value doesn't match IP v4 pattern.`;}else {cov_1cdkaudltz().b[45][1]++;}cov_1cdkaudltz().s[56]++;break;default:cov_1cdkaudltz().b[43][1]++;cov_1cdkaudltz().s[57]++;if(!ipv6$1.test(value)){cov_1cdkaudltz().b[46][0]++;cov_1cdkaudltz().s[58]++;return `Value doesn't match IP v6 pattern.`;}else {cov_1cdkaudltz().b[46][1]++;}}cov_1cdkaudltz().s[59]++;break;case 'time':cov_1cdkaudltz().b[40][3]++;cov_1cdkaudltz().s[60]++;// @ts-expect-error It is present
+if(!time$1(stringSchemaObject).test(value)){cov_1cdkaudltz().b[47][0]++;cov_1cdkaudltz().s[61]++;return `Value does not match time/precision.`;}else {cov_1cdkaudltz().b[47][1]++;}cov_1cdkaudltz().s[62]++;break;case 'datetime':cov_1cdkaudltz().b[40][4]++;cov_1cdkaudltz().s[63]++;// @ts-expect-error It is present
+if(!datetime$1(stringSchemaObject).test(value)){cov_1cdkaudltz().b[48][0]++;cov_1cdkaudltz().s[64]++;return `Value does not match datetime/precision/offset/local`;}else {cov_1cdkaudltz().b[48][1]++;}cov_1cdkaudltz().s[65]++;break;case 'emoji':cov_1cdkaudltz().b[40][5]++;cov_1cdkaudltz().s[66]++;if(!emoji$1().test(value)){cov_1cdkaudltz().b[49][0]++;cov_1cdkaudltz().s[67]++;return `Value does not match emoji pattern`;}else {cov_1cdkaudltz().b[49][1]++;}cov_1cdkaudltz().s[68]++;break;case 'uuid':cov_1cdkaudltz().b[40][6]++;cov_1cdkaudltz().s[69]++;if(!uuid$1((cov_1cdkaudltz().b[52][0]++,'version'in stringSchemaObject)&&(cov_1cdkaudltz().b[52][1]++,stringSchemaObject.version)?(cov_1cdkaudltz().b[51][0]++,Number(stringSchemaObject.version.slice(1))):(cov_1cdkaudltz().b[51][1]++,undefined)).test(value)){cov_1cdkaudltz().b[50][0]++;cov_1cdkaudltz().s[70]++;return `Value does not match uuid pattern`;}else {cov_1cdkaudltz().b[50][1]++;}cov_1cdkaudltz().s[71]++;break;case 'jwt':cov_1cdkaudltz().b[40][7]++;cov_1cdkaudltz().s[72]++;if(!jwt('algorithm'in stringSchemaObject?(cov_1cdkaudltz().b[54][0]++,{alg:stringSchemaObject.algorithm}):(cov_1cdkaudltz().b[54][1]++,undefined)).safeParse(value).success){cov_1cdkaudltz().b[53][0]++;cov_1cdkaudltz().s[73]++;return `Value does not match jwt pattern`;}else {cov_1cdkaudltz().b[53][1]++;}cov_1cdkaudltz().s[74]++;break;case 'e164':cov_1cdkaudltz().b[40][8]++;case 'xid':cov_1cdkaudltz().b[40][9]++;case 'guid':cov_1cdkaudltz().b[40][10]++;case 'ksuid':cov_1cdkaudltz().b[40][11]++;cov_1cdkaudltz().s[75]++;if(!regexes[kind].test(value)){cov_1cdkaudltz().b[55][0]++;cov_1cdkaudltz().s[76]++;return `Value does not match ${kind} pattern`;}else {cov_1cdkaudltz().b[55][1]++;}cov_1cdkaudltz().s[77]++;break;case 'nanoid':cov_1cdkaudltz().b[40][12]++;cov_1cdkaudltz().s[78]++;if((cov_1cdkaudltz().b[57][0]++,'length'in stringSchemaObject)&&(cov_1cdkaudltz().b[57][1]++,stringSchemaObject.length)){cov_1cdkaudltz().b[56][0]++;cov_1cdkaudltz().s[79]++;if(value.length!==stringSchemaObject.length){cov_1cdkaudltz().b[58][0]++;cov_1cdkaudltz().s[80]++;return `Nanoid value is not of the expected length: ${stringSchemaObject.length}`;}else {cov_1cdkaudltz().b[58][1]++;}cov_1cdkaudltz().s[81]++;if(!nanoidOfLength(15).test(value)){cov_1cdkaudltz().b[59][0]++;cov_1cdkaudltz().s[82]++;return `Value does not match nanoid pattern`;}else {cov_1cdkaudltz().b[59][1]++;}cov_1cdkaudltz().s[83]++;break;}else {cov_1cdkaudltz().b[56][1]++;}cov_1cdkaudltz().s[84]++;if(!nanoid$1.test(value)){cov_1cdkaudltz().b[60][0]++;cov_1cdkaudltz().s[85]++;return `Value does not match nanoid pattern`;}else {cov_1cdkaudltz().b[60][1]++;}cov_1cdkaudltz().s[86]++;break;case 'cuid':cov_1cdkaudltz().b[40][13]++;cov_1cdkaudltz().s[87]++;if(!cuid$1.test(value)){cov_1cdkaudltz().b[61][0]++;cov_1cdkaudltz().s[88]++;return `Value does not match cuid pattern`;}else {cov_1cdkaudltz().b[61][1]++;}cov_1cdkaudltz().s[89]++;break;case 'cuid2':cov_1cdkaudltz().b[40][14]++;cov_1cdkaudltz().s[90]++;if(!cuid2$1.test(value)){cov_1cdkaudltz().b[62][0]++;cov_1cdkaudltz().s[91]++;return `Value does not match cuid2 pattern`;}else {cov_1cdkaudltz().b[62][1]++;}cov_1cdkaudltz().s[92]++;break;case 'ulid':cov_1cdkaudltz().b[40][15]++;cov_1cdkaudltz().s[93]++;if(!ulid$1.test(value)){cov_1cdkaudltz().b[63][0]++;cov_1cdkaudltz().s[94]++;return `Value does not match ulid pattern`;}else {cov_1cdkaudltz().b[63][1]++;}cov_1cdkaudltz().s[95]++;break;case 'duration':cov_1cdkaudltz().b[40][16]++;cov_1cdkaudltz().s[96]++;if(!duration$1.test(value)){cov_1cdkaudltz().b[64][0]++;cov_1cdkaudltz().s[97]++;return `Value does not match duration pattern`;}else {cov_1cdkaudltz().b[64][1]++;}cov_1cdkaudltz().s[98]++;break;case 'base64':cov_1cdkaudltz().b[40][17]++;cov_1cdkaudltz().s[99]++;if(!base64$1.test(value)){cov_1cdkaudltz().b[65][0]++;cov_1cdkaudltz().s[100]++;return `Value does not match base64 pattern`;}else {cov_1cdkaudltz().b[65][1]++;}cov_1cdkaudltz().s[101]++;break;case 'base64url':cov_1cdkaudltz().b[40][18]++;cov_1cdkaudltz().s[102]++;if(!base64url$1.test(value)){cov_1cdkaudltz().b[66][0]++;cov_1cdkaudltz().s[103]++;return `Value does not match base64url pattern`;}else {cov_1cdkaudltz().b[66][1]++;}cov_1cdkaudltz().s[104]++;break;case 'cidr':cov_1cdkaudltz().b[40][19]++;cov_1cdkaudltz().s[105]++;switch((cov_1cdkaudltz().b[68][0]++,'version'in stringSchemaObject)&&(cov_1cdkaudltz().b[68][1]++,stringSchemaObject.version)){case 'v4':cov_1cdkaudltz().b[67][0]++;cov_1cdkaudltz().s[106]++;if(!cidrv4$1.test(value)){cov_1cdkaudltz().b[69][0]++;cov_1cdkaudltz().s[107]++;return `Value doesn't match IP v4 cidr pattern.`;}else {cov_1cdkaudltz().b[69][1]++;}cov_1cdkaudltz().s[108]++;break;default:cov_1cdkaudltz().b[67][1]++;cov_1cdkaudltz().s[109]++;if(!cidrv6Schema.safeParse(value).success){cov_1cdkaudltz().b[70][0]++;cov_1cdkaudltz().s[110]++;return `Value doesn't match IP v6 cidr pattern.`;}else {cov_1cdkaudltz().b[70][1]++;}}cov_1cdkaudltz().s[111]++;break;default:cov_1cdkaudltz().b[40][20]++;cov_1cdkaudltz().s[112]++;// 'email'|'url'|'date' should already be handled by the input element
+break;}}else {cov_1cdkaudltz().b[39][1]++;}cov_1cdkaudltz().s[113]++;return null;};/**
      * @param {string} value
-     */cov_1cdkaudltz().s[111]++;const transform=value=>{cov_1cdkaudltz().f[9]++;cov_1cdkaudltz().s[112]++;if(toLowerCase){cov_1cdkaudltz().b[70][0]++;cov_1cdkaudltz().s[113]++;value=value.toLowerCase();}else {cov_1cdkaudltz().b[70][1]++;}cov_1cdkaudltz().s[114]++;if(toUpperCase){cov_1cdkaudltz().b[71][0]++;cov_1cdkaudltz().s[115]++;value=value.toUpperCase();}else {cov_1cdkaudltz().b[71][1]++;}cov_1cdkaudltz().s[116]++;if(trim){cov_1cdkaudltz().b[72][0]++;cov_1cdkaudltz().s[117]++;value=value.trim();}else {cov_1cdkaudltz().b[72][1]++;}cov_1cdkaudltz().s[118]++;return value;};cov_1cdkaudltz().s[119]++;return ['div',{dataset:{type:'string'},title:(cov_1cdkaudltz().b[73][0]++,schemaLabel(specificSchemaObject))??(cov_1cdkaudltz().b[73][1]++,'String')},[(cov_1cdkaudltz().b[75][0]++,kind)&&(cov_1cdkaudltz().b[75][1]++,[// There is a `time` and `datetime-local` but they don't
+     */cov_1cdkaudltz().s[114]++;const transform=value=>{cov_1cdkaudltz().f[9]++;cov_1cdkaudltz().s[115]++;if(toLowerCase){cov_1cdkaudltz().b[71][0]++;cov_1cdkaudltz().s[116]++;value=value.toLowerCase();}else {cov_1cdkaudltz().b[71][1]++;}cov_1cdkaudltz().s[117]++;if(toUpperCase){cov_1cdkaudltz().b[72][0]++;cov_1cdkaudltz().s[118]++;value=value.toUpperCase();}else {cov_1cdkaudltz().b[72][1]++;}cov_1cdkaudltz().s[119]++;if(trim){cov_1cdkaudltz().b[73][0]++;cov_1cdkaudltz().s[120]++;value=value.trim();}else {cov_1cdkaudltz().b[73][1]++;}cov_1cdkaudltz().s[121]++;return value;};cov_1cdkaudltz().s[122]++;return ['div',{dataset:{type:'string'},title:(cov_1cdkaudltz().b[74][0]++,schemaLabel(specificSchemaObject))??(cov_1cdkaudltz().b[74][1]++,'String')},[(cov_1cdkaudltz().b[76][0]++,kind)&&(cov_1cdkaudltz().b[76][1]++,[// There is a `time` and `datetime-local` but they don't
 //    support milliseconds
-'email','url','date'].includes(kind))?(cov_1cdkaudltz().b[74][0]++,['input',{$on:{change(){cov_1cdkaudltz().f[10]++;const that=(/** @type {HTMLInputElement} */cov_1cdkaudltz().s[120]++,this);cov_1cdkaudltz().s[121]++;that.value=transform(that.value);const message=(cov_1cdkaudltz().s[122]++,checkValue(that.value));cov_1cdkaudltz().s[123]++;that.setCustomValidity((cov_1cdkaudltz().b[76][0]++,types.getValidationMessage({message,schema:specificSchemaObject,typeSpecific:true}))??(cov_1cdkaudltz().b[76][1]++,''));cov_1cdkaudltz().s[124]++;that.reportValidity();}},name:`${typeNamespace}-string`,type:kind,value:(cov_1cdkaudltz().b[77][0]++,value)??(cov_1cdkaudltz().b[77][1]++,specificSchemaObject?.defaultValue)??(cov_1cdkaudltz().b[77][2]++,''),// Form doesn't support for date
-minlength:kind==='date'?(cov_1cdkaudltz().b[78][0]++,undefined):(cov_1cdkaudltz().b[78][1]++,minlength),maxlength:kind==='date'?(cov_1cdkaudltz().b[79][0]++,undefined):(cov_1cdkaudltz().b[79][1]++,maxlength)}]):(cov_1cdkaudltz().b[74][1]++,isConstrained?(cov_1cdkaudltz().b[80][0]++,['select',{name:`${typeNamespace}-string`},Object.values(specificSchemaObject.values).filter((/** @type {string} */val)=>{cov_1cdkaudltz().f[11]++;cov_1cdkaudltz().s[125]++;return typeof val==='string';}).map((/** @type {string} */val)=>{cov_1cdkaudltz().f[12]++;cov_1cdkaudltz().s[126]++;return ['option',{selected:val===((cov_1cdkaudltz().b[81][0]++,value)??(cov_1cdkaudltz().b[81][1]++,specificSchemaObject.defaultValue))},[val]];})]):(cov_1cdkaudltz().b[80][1]++,['textarea',{$on:{change(){cov_1cdkaudltz().f[13]++;const that=(/** @type {HTMLTextAreaElement} */cov_1cdkaudltz().s[127]++,this);cov_1cdkaudltz().s[128]++;that.value=transform(that.value);const message=(cov_1cdkaudltz().s[129]++,checkValue(that.value));cov_1cdkaudltz().s[130]++;that.setCustomValidity((cov_1cdkaudltz().b[82][0]++,types.getValidationMessage({message,schema:specificSchemaObject,typeSpecific:true}))??(cov_1cdkaudltz().b[82][1]++,''));cov_1cdkaudltz().s[131]++;that.reportValidity();}},name:`${typeNamespace}-string`,minlength,maxlength},[(cov_1cdkaudltz().b[83][0]++,value)??(cov_1cdkaudltz().b[83][1]++,specificSchemaObject?.defaultValue)??(cov_1cdkaudltz().b[83][2]++,'')]]))]];}});
+'email','url','date'].includes(kind))?(cov_1cdkaudltz().b[75][0]++,['input',{$on:{change(){cov_1cdkaudltz().f[10]++;const that=(/** @type {HTMLInputElement} */cov_1cdkaudltz().s[123]++,this);cov_1cdkaudltz().s[124]++;that.value=transform(that.value);const message=(cov_1cdkaudltz().s[125]++,checkValue(that.value));cov_1cdkaudltz().s[126]++;that.setCustomValidity((cov_1cdkaudltz().b[77][0]++,types.getValidationMessage({message,schema:specificSchemaObject,typeSpecific:true}))??(cov_1cdkaudltz().b[77][1]++,''));cov_1cdkaudltz().s[127]++;that.reportValidity();}},name:`${typeNamespace}-string`,type:kind,value:(cov_1cdkaudltz().b[78][0]++,value)??(cov_1cdkaudltz().b[78][1]++,specificSchemaObject?.defaultValue)??(cov_1cdkaudltz().b[78][2]++,''),// Form doesn't support for date
+minlength:kind==='date'?(cov_1cdkaudltz().b[79][0]++,undefined):(cov_1cdkaudltz().b[79][1]++,minlength),maxlength:kind==='date'?(cov_1cdkaudltz().b[80][0]++,undefined):(cov_1cdkaudltz().b[80][1]++,maxlength)}]):(cov_1cdkaudltz().b[75][1]++,isConstrained?(cov_1cdkaudltz().b[81][0]++,['select',{name:`${typeNamespace}-string`},Object.values(specificSchemaObject.values).filter((/** @type {string} */val)=>{cov_1cdkaudltz().f[11]++;cov_1cdkaudltz().s[128]++;return typeof val==='string';}).map((/** @type {string} */val)=>{cov_1cdkaudltz().f[12]++;cov_1cdkaudltz().s[129]++;return ['option',{selected:val===((cov_1cdkaudltz().b[82][0]++,value)??(cov_1cdkaudltz().b[82][1]++,specificSchemaObject.defaultValue))},[val]];})]):(cov_1cdkaudltz().b[81][1]++,['textarea',{$on:{change(){cov_1cdkaudltz().f[13]++;const that=(/** @type {HTMLTextAreaElement} */cov_1cdkaudltz().s[130]++,this);cov_1cdkaudltz().s[131]++;that.value=transform(that.value);const message=(cov_1cdkaudltz().s[132]++,checkValue(that.value));cov_1cdkaudltz().s[133]++;that.setCustomValidity((cov_1cdkaudltz().b[83][0]++,types.getValidationMessage({message,schema:specificSchemaObject,typeSpecific:true}))??(cov_1cdkaudltz().b[83][1]++,''));cov_1cdkaudltz().s[134]++;that.reportValidity();}},name:`${typeNamespace}-string`,minlength,maxlength},[(cov_1cdkaudltz().b[84][0]++,value)??(cov_1cdkaudltz().b[84][1]++,specificSchemaObject?.defaultValue)??(cov_1cdkaudltz().b[84][2]++,'')]]))]];}});
 
 function cov_qg2ca7sty(){var path="/Users/brett/jsoe/src/fundamentalTypes/arrayReferenceType.js";var hash="f5ee5ff3e921fc2891d042802a4e4189817b752e";var global=new Function("return this")();var gcv="__coverage__";var coverageData={path:"/Users/brett/jsoe/src/fundamentalTypes/arrayReferenceType.js",statementMap:{"0":{start:{line:10,column:27},end:{line:218,column:1}},"1":{start:{line:17,column:55},end:{line:17,column:59}},"2":{start:{line:18,column:17},end:{line:18,column:55}},"3":{start:{line:19,column:4},end:{line:19,column:59}},"4":{start:{line:20,column:4},end:{line:20,column:27}},"5":{start:{line:23,column:17},end:{line:23,column:22}},"6":{start:{line:24,column:4},end:{line:31,column:5}},"7":{start:{line:25,column:6},end:{line:30,column:9}},"8":{start:{line:26,column:8},end:{line:26,column:34}},"9":{start:{line:27,column:8},end:{line:29,column:9}},"10":{start:{line:28,column:10},end:{line:28,column:38}},"11":{start:{line:32,column:4},end:{line:32,column:18}},"12":{start:{line:43,column:4},end:{line:43,column:63}},"13":{start:{line:46,column:4},end:{line:46,column:40}},"14":{start:{line:49,column:25},end:{line:49,column:52}},"15":{start:{line:51,column:4},end:{line:62,column:5}},"16":{start:{line:52,column:6},end:{line:54,column:7}},"17":{start:{line:53,column:8},end:{line:53,column:28}},"18":{start:{line:55,column:6},end:{line:60,column:8}},"19":{start:{line:61,column:6},end:{line:61,column:40}},"20":{start:{line:63,column:4},end:{line:63,column:30}},"21":{start:{line:66,column:19},end:{line:66,column:23}},"22":{start:{line:67,column:18},end:{line:67,column:39}},"23":{start:{line:68,column:17},end:{line:68,column:28}},"24":{start:{line:74,column:27},end:{line:76,column:5}},"25":{start:{line:75,column:6},end:{line:75,column:37}},"26":{start:{line:78,column:4},end:{line:82,column:5}},"27":{start:{line:79,column:6},end:{line:81,column:8}},"28":{start:{line:83,column:4},end:{line:88,column:5}},"29":{start:{line:84,column:6},end:{line:87,column:8}},"30":{start:{line:90,column:19},end:{line:92,column:10}},"31":{start:{line:93,column:28},end:{line:101,column:5}},"32":{start:{line:94,column:6},end:{line:100,column:8}},"33":{start:{line:103,column:4},end:{line:142,column:5}},"34":{start:{line:104,column:6},end:{line:141,column:7}},"35":{start:{line:109,column:24},end:{line:113,column:9}},"36":{start:{line:114,column:36},end:{line:118,column:9}},"37":{start:{line:115,column:22},end:{line:117,column:11}},"38":{start:{line:119,column:31},end:{line:119,column:68}},"39":{start:{line:120,column:8},end:{line:123,column:9}},"40":{start:{line:121,column:10},end:{line:121,column:51}},"41":{start:{line:122,column:10},end:{line:122,column:22}},"42":{start:{line:124,column:8},end:{line:127,column:11}},"43":{start:{line:128,column:8},end:{line:131,column:9}},"44":{start:{line:129,column:10},end:{line:129,column:43}},"45":{start:{line:130,column:10},end:{line:130,column:22}},"46":{start:{line:133,column:8},end:{line:137,column:9}},"47":{start:{line:134,column:10},end:{line:135,column:37}},"48":{start:{line:136,column:10},end:{line:136,column:22}},"49":{start:{line:138,column:8},end:{line:138,column:21}},"50":{start:{line:140,column:8},end:{line:140,column:39}},"51":{start:{line:156,column:25},end:{line:156,column:55}},"52":{start:{line:157,column:70},end:{line:169,column:17}},"53":{start:{line:171,column:4},end:{line:176,column:5}},"54":{start:{line:172,column:6},end:{line:175,column:8}},"55":{start:{line:177,column:4},end:{line:179,column:6}},"56":{start:{line:183,column:6},end:{line:183,column:29}},"57":{start:{line:185,column:4},end:{line:192,column:7}},"58":{start:{line:186,column:6},end:{line:191,column:9}},"59":{start:{line:195,column:4},end:{line:197,column:38}},"60":{start:{line:203,column:19},end:{line:203,column:23}},"61":{start:{line:204,column:4},end:{line:216,column:7}}},fnMap:{"0":{name:"(anonymous_0)",decl:{start:{line:14,column:2},end:{line:14,column:3}},loc:{start:{line:14,column:20},end:{line:21,column:3}},line:14},"1":{name:"(anonymous_1)",decl:{start:{line:22,column:2},end:{line:22,column:3}},loc:{start:{line:22,column:33},end:{line:33,column:3}},line:22},"2":{name:"(anonymous_2)",decl:{start:{line:25,column:40},end:{line:25,column:41}},loc:{start:{line:25,column:54},end:{line:30,column:7}},line:25},"3":{name:"(anonymous_3)",decl:{start:{line:42,column:2},end:{line:42,column:3}},loc:{start:{line:42,column:20},end:{line:44,column:3}},line:42},"4":{name:"(anonymous_4)",decl:{start:{line:45,column:2},end:{line:45,column:3}},loc:{start:{line:45,column:27},end:{line:47,column:3}},line:45},"5":{name:"(anonymous_5)",decl:{start:{line:48,column:2},end:{line:48,column:3}},loc:{start:{line:48,column:43},end:{line:64,column:3}},line:48},"6":{name:"(anonymous_6)",decl:{start:{line:65,column:2},end:{line:65,column:3}},loc:{start:{line:65,column:29},end:{line:180,column:3}},line:65},"7":{name:"(anonymous_7)",decl:{start:{line:74,column:27},end:{line:74,column:28}},loc:{start:{line:74,column:40},end:{line:76,column:5}},line:74},"8":{name:"(anonymous_8)",decl:{start:{line:93,column:28},end:{line:93,column:29}},loc:{start:{line:93,column:34},end:{line:101,column:5}},line:93},"9":{name:"(anonymous_9)",decl:{start:{line:104,column:41},end:{line:104,column:42}},loc:{start:{line:104,column:58},end:{line:139,column:7}},line:104},"10":{name:"(anonymous_10)",decl:{start:{line:115,column:10},end:{line:115,column:11}},loc:{start:{line:115,column:22},end:{line:117,column:11}},line:115},"11":{name:"(anonymous_11)",decl:{start:{line:181,column:2},end:{line:181,column:3}},loc:{start:{line:181,column:46},end:{line:193,column:3}},line:181},"12":{name:"(anonymous_12)",decl:{start:{line:185,column:53},end:{line:185,column:54}},loc:{start:{line:185,column:63},end:{line:192,column:5}},line:185},"13":{name:"(anonymous_13)",decl:{start:{line:194,column:2},end:{line:194,column:3}},loc:{start:{line:194,column:19},end:{line:198,column:3}},line:194},"14":{name:"(anonymous_14)",decl:{start:{line:202,column:2},end:{line:202,column:3}},loc:{start:{line:202,column:55},end:{line:217,column:3}},line:202}},branchMap:{"0":{loc:{start:{line:24,column:4},end:{line:31,column:5}},type:"if",locations:[{start:{line:24,column:4},end:{line:31,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:24},"1":{loc:{start:{line:27,column:8},end:{line:29,column:9}},type:"if",locations:[{start:{line:27,column:8},end:{line:29,column:9}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:27},"2":{loc:{start:{line:51,column:4},end:{line:62,column:5}},type:"if",locations:[{start:{line:51,column:4},end:{line:62,column:5}}],line:51},"3":{loc:{start:{line:52,column:6},end:{line:54,column:7}},type:"if",locations:[{start:{line:52,column:6},end:{line:54,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:52},"4":{loc:{start:{line:78,column:4},end:{line:82,column:5}},type:"if",locations:[{start:{line:78,column:4},end:{line:82,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:78},"5":{loc:{start:{line:83,column:4},end:{line:88,column:5}},type:"if",locations:[{start:{line:83,column:4},end:{line:88,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:83},"6":{loc:{start:{line:90,column:19},end:{line:92,column:10}},type:"binary-expr",locations:[{start:{line:90,column:19},end:{line:90,column:26}}],line:90},"7":{loc:{start:{line:103,column:4},end:{line:142,column:5}},type:"if",locations:[{start:{line:103,column:4},end:{line:142,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:103},"8":{loc:{start:{line:104,column:6},end:{line:141,column:7}},type:"if",locations:[{start:{line:104,column:6},end:{line:141,column:7}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:104},"9":{loc:{start:{line:120,column:8},end:{line:123,column:9}},type:"if",locations:[{start:{line:120,column:8},end:{line:123,column:9}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:120},"10":{loc:{start:{line:128,column:8},end:{line:131,column:9}},type:"if",locations:[{start:{line:128,column:8},end:{line:131,column:9}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:128},"11":{loc:{start:{line:133,column:8},end:{line:137,column:9}},type:"if",locations:[{start:{line:133,column:8},end:{line:137,column:9}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:133},"12":{loc:{start:{line:157,column:70},end:{line:169,column:17}},type:"cond-expr",locations:[{start:{line:162,column:8},end:{line:162,column:15}}],line:157},"13":{loc:{start:{line:171,column:4},end:{line:176,column:5}},type:"if",locations:[{start:{line:171,column:4},end:{line:176,column:5}},{start:{line:undefined,column:undefined},end:{line:undefined,column:undefined}}],line:171},"14":{loc:{start:{line:202,column:26},end:{line:202,column:36}},type:"default-arg",locations:[{start:{line:202,column:34},end:{line:202,column:36}}],line:202}},s:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0,"31":0,"32":0,"33":0,"34":0,"35":0,"36":0,"37":0,"38":0,"39":0,"40":0,"41":0,"42":0,"43":0,"44":0,"45":0,"46":0,"47":0,"48":0,"49":0,"50":0,"51":0,"52":0,"53":0,"54":0,"55":0,"56":0,"57":0,"58":0,"59":0,"60":0,"61":0},f:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0},b:{"0":[0,0],"1":[0,0],"2":[0],"3":[0,0],"4":[0,0],"5":[0,0],"6":[0],"7":[0,0],"8":[0,0],"9":[0,0],"10":[0,0],"11":[0,0],"12":[0],"13":[0,0],"14":[0]},inputSourceMap:{version:3,sources:["/Users/brett/jsoe/src/fundamentalTypes/arrayReferenceType.js"],sourcesContent:["import Types, {getPropertyValueFromLegend} from '../types.js';\nimport {$e, $$e, DOM} from '../utils/templateUtils.js';\nimport {\n  getJSONPointerParts\n} from '../utils/jsonPointer.js';\n\n/**\n * @type {import('../types.js').TypeObject & {type: \"array\"}}\n */\nconst arrayReferenceType = {\n  option: ['Array reference'],\n  type: 'array',\n  stringRegex: /^arrayRef\\((?:\\/[^)]*|)\\)$/u,\n  toValue (s, info) {\n    const {\n      rootHolder, parent, parentPath\n    } = /** @type {import('../types.js').RootInfo} */ (info);\n    const path = s.slice(`${this.type}Ref(`.length, -1);\n    rootHolder.push([this.type, parent, parentPath, path]);\n    return {assign: false};\n  },\n  resolveReference (path, value) {\n    let parent = value;\n    if (path !== '') {\n      getJSONPointerParts(path).forEach((pathPart) => {\n        parent = parent[pathPart];\n        if (!parent) {\n          throw new Error('Bad path');\n        }\n      });\n    }\n    return parent;\n  },\n  stateDependent: {\n    structuredCloning: {\n      // after: 'sparseArrays',\n      after: 'arrayNonindexKeys',\n      contexts: ['arrayNonindexKeys', 'object', 'set']\n      // contexts: ['sparseArrays', 'object']\n    }\n  },\n  getInput ({root}) {\n    return /** @type {HTMLInputElement} */ ($e(root, 'input'));\n  },\n  setValue ({root, value}) {\n    this.getInput({root}).value = value;\n  },\n  getValue ({root, stateObj, currentPath}) {\n    const referentPath = this.getInput({root}).value;\n    /* istanbul ignore else -- ArrayRef will not be a root, so should have stateObj */\n    if (stateObj) {\n      if (!stateObj.paths) {\n        stateObj.paths = {};\n      }\n      stateObj.paths[/** @type {string} */ (currentPath)] = {\n        referentPath,\n        // Todo (low): Should be utilized along with\n        //   other validation checking\n        expectArrayReferent: this.type === 'array'\n      };\n      stateObj.handlingReference = true;\n    }\n    console.log(referentPath);\n  },\n  validate ({root, topRoot}) {\n    const {type} = this;\n    const input = this.getInput({root});\n    const path = input.value;\n\n    /**\n     * @param {string|undefined} message\n     * @returns {{valid: false, message: string|undefined}}\n     */\n    const invalidMessage = (message) => {\n      return {valid: false, message};\n    };\n\n    if (input.validity.patternMismatch) {\n      return invalidMessage(\n        'You must use a path beginning with \"/\" (or the empty string)'\n      );\n    }\n    if ((/~([^01]|$)/u).test(path)) {\n      return invalidMessage(\n        'You must use a valid JSON Pointer (with ' +\n          'tildes followed by 0 or 1)'\n      );\n    }\n\n    let referent = topRoot ||\n      /* istanbul ignore next -- Should always exist? */\n      root;\n    const isObjectOrArray = () => {\n      return [\n        'array', 'object',\n        'arrayNonindexKeys'\n        // 'sparseArrays'\n      ].includes(\n        Types.getTypeForRoot(referent)\n      );\n    };\n    let message;\n    if (path !== '') { // If empty string, referent will be topRoot\n      if (getJSONPointerParts(path).some((pathPart, i) => {\n        // Todo (low): We should also support `arrayReference` and\n        //    `objectReference`, but will need to resolve and bear\n        //    in mind that references may need to be added out of\n        //    order)\n        const legends = DOM.filterChildElements(\n          // Ensure we are only getting one array level at a time\n          /** @type {HTMLElement} */ ($e(referent, '.arrayItems')),\n          ['fieldset', 'legend']\n        );\n        const childPropertyValues = legends.map(\n          (legend) => getPropertyValueFromLegend(\n            /** @type {HTMLLegendElement} */ (legend)\n          )\n        );\n        const partMatchIndex = childPropertyValues.indexOf(pathPart);\n        if (partMatchIndex === -1) {\n          message = \"Specified path doesn't exist\";\n          return true;\n        }\n        referent = /** @type {HTMLDivElement} */ ($e(\n          /** @type {HTMLElement} */ (legends[partMatchIndex].parentElement),\n          'div[data-type]'\n        ));\n        if (referent === root) {\n          message = \"Can't reference self\";\n          return true;\n        }\n        // Condition that path isn't an object/array\n        if (!isObjectOrArray()) {\n          message = `Referent portion (at segment ${i}) is ` +\n            `not an object or array`;\n          return true;\n        }\n        return false;\n      })) {\n        return invalidMessage(message);\n      }\n    }\n    // Root can only be an object or array unless it is itself\n    // else if (!isObjectOrArray()) {\n    //   return invalidMessage('Referent is not an object or array');\n    // }\n\n    // UI prevents array/object references at root\n    // Condition to forbid path to self\n    // if (referent === root) {\n    //   return invalidMessage(\"Can't reference self\");\n    // }\n\n    // Condition to confirm that referenced element is an array or\n    //    object (or reference) with the designated `type`\n    const referentType = Types.getTypeForRoot(referent);\n    const referentBaseType = /** @type {(string|null|undefined)[]} */ ([\n      'array',\n      'arrayNonindexKeys'\n      // 'sparseArrays'\n    ]).includes(referentType)\n      ? 'array'\n      /* istanbul ignore next -- Bad ref should have been caught earlier */\n      : (\n        /* istanbul ignore next -- Bad ref should have been caught earlier */\n        referentType === 'object'\n          ? 'object'\n          /* istanbul ignore next -- Bad ref should have been caught earlier */\n          : null);\n\n    if (referentBaseType !== type) {\n      return invalidMessage(\n        'Reference must match expected reference type ' +\n          '(array or object)'\n      );\n    }\n    return {\n      valid: true\n    };\n  },\n  validateAll ({types, topRoot, avoidReport}) {\n    const type = /** @type {import('../types.js').AvailableType} */ (\n      `${this.type}Reference`\n    );\n    $$e(topRoot, `div[data-type=\"${type}\"]`).forEach((root) => {\n      types.validate({\n        type,\n        root: /** @type {HTMLDivElement} */ (root),\n        topRoot,\n        avoidReport\n      });\n    });\n  },\n  viewUI ({value}) {\n    return ['i', {\n      dataset: {type: `${this.type}Reference`}\n    }, [`${this.type}Ref(${value})`]];\n  },\n  // Note: The `value` here must not be the object itself (the\n  //    circular object/array) as the `value` usually should be,\n  //    but instead the array/object path\n  editUI ({typeNamespace, value = '' /* , topRoot */}) {\n    const {type} = this;\n    return ['div', {dataset: {type: `${type}Reference`}}, [\n      ['label', [\n        `JSON Pointer path to ${type} (leave blank for path to root) `,\n        ['input', {\n          name: `${typeNamespace}-${type}Reference`,\n          type: 'text',\n          pattern: '^(|/.*)$',\n          value\n        }]\n      ]]\n      // Todo (low): Add button to enable mode (supporting\n      //    scrolling) for clicking on desired referent element\n    ]];\n  }\n};\n\nexport default arrayReferenceType;\n"],names:[],mappings:"AAAA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEhC,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;",file:undefined},_coverageSchema:"1a1c01bbd47fc00a2c39e90264f33305004495a9",hash:"f5ee5ff3e921fc2891d042802a4e4189817b752e"};var coverage=global[gcv]||(global[gcv]={});if(!coverage[path]||coverage[path].hash!==hash){coverage[path]=coverageData;}var actualCoverage=coverage[path];{// @ts-ignore
 cov_qg2ca7sty=function(){return actualCoverage;};}return actualCoverage;}cov_qg2ca7sty();/**
@@ -32496,7 +33425,7 @@ function cov_20ohpbgcz2(){var path="/Users/brett/jsoe/src/fundamentalTypes/error
 cov_20ohpbgcz2=function(){return actualCoverage;};}return actualCoverage;}cov_20ohpbgcz2();/**
  * @type {import('../types.js').TypeObject}
  */const errorType=(cov_20ohpbgcz2().s[0]++,{option:['Error'],stringRegex:/^Error\((.*)\)$/u,valueMatch(x){cov_20ohpbgcz2().f[0]++;cov_20ohpbgcz2().s[1]++;return (cov_20ohpbgcz2().b[0][0]++,toStringTag(x)==='Error')&&(cov_20ohpbgcz2().b[0][1]++,// Exclude special errors to let it be handled elsewhere
-hasConstructorOf(x,Error));},toValue(s){cov_20ohpbgcz2().f[1]++;const obj=(cov_20ohpbgcz2().s[2]++,JSON.parse(s));const errObj=(/** @type {{revive: import('typeson-registry').Reviver}} */cov_20ohpbgcz2().s[3]++,N.error.revive(obj,{}));cov_20ohpbgcz2().s[4]++;return {value:errObj};},getInput({root}){cov_20ohpbgcz2().f[2]++;cov_20ohpbgcz2().s[5]++;// Which one to get here?
+hasConstructorOf(x,Error));},toValue(s){cov_20ohpbgcz2().f[1]++;const obj=(cov_20ohpbgcz2().s[2]++,JSON.parse(s));const errObj=(/** @type {{revive: import('typeson-registry').Reviver}} */cov_20ohpbgcz2().s[3]++,B.error.revive(obj,{}));cov_20ohpbgcz2().s[4]++;return {value:errObj};},getInput({root}){cov_20ohpbgcz2().f[2]++;cov_20ohpbgcz2().s[5]++;// Which one to get here?
 return/** @type {HTMLInputElement} */$e(root,'input:not([type])');},setValue({root,value}){cov_20ohpbgcz2().f[3]++;cov_20ohpbgcz2().s[6]++;if(typeof value.message==='string'){cov_20ohpbgcz2().b[1][0]++;cov_20ohpbgcz2().s[7]++;/** @type {HTMLInputElement} */$e(root,'input.message:not([type])').value=value.message;}else {cov_20ohpbgcz2().b[1][1]++;cov_20ohpbgcz2().s[8]++;/** @type {HTMLInputElement} */$e(root,'input.message[type=checkbox]').click();}cov_20ohpbgcz2().s[9]++;if(typeof value.name==='string'){cov_20ohpbgcz2().b[2][0]++;cov_20ohpbgcz2().s[10]++;/** @type {HTMLInputElement} */$e(root,'input.name:not([type])').value=value.name;}else {cov_20ohpbgcz2().b[2][1]++;cov_20ohpbgcz2().s[11]++;/** @type {HTMLInputElement} */$e(root,'input.name[type=checkbox]').click();}cov_20ohpbgcz2().s[12]++;if(typeof value.fileName==='string'){cov_20ohpbgcz2().b[3][0]++;cov_20ohpbgcz2().s[13]++;/** @type {HTMLInputElement} */$e(root,'input.fileName:not([type])').value=value.fileName;}else {cov_20ohpbgcz2().b[3][1]++;cov_20ohpbgcz2().s[14]++;/** @type {HTMLInputElement} */$e(root,'input.fileName[type=checkbox]').click();}cov_20ohpbgcz2().s[15]++;if(typeof value.lineNumber==='number'){cov_20ohpbgcz2().b[4][0]++;cov_20ohpbgcz2().s[16]++;/** @type {HTMLInputElement} */$e(root,'input.lineNumber[type=number]').value=value.lineNumber;}else {cov_20ohpbgcz2().b[4][1]++;cov_20ohpbgcz2().s[17]++;/** @type {HTMLInputElement} */$e(root,'input.lineNumber[type=number]').value='';}cov_20ohpbgcz2().s[18]++;if(typeof value.columnNumber==='number'){cov_20ohpbgcz2().b[5][0]++;cov_20ohpbgcz2().s[19]++;/** @type {HTMLInputElement} */$e(root,'input.columnNumber[type=number]').value=value.columnNumber;}else {cov_20ohpbgcz2().b[5][1]++;cov_20ohpbgcz2().s[20]++;/** @type {HTMLInputElement} */$e(root,'input.columnNumber[type=number]').value='';}cov_20ohpbgcz2().s[21]++;if(typeof value.stack==='string'){cov_20ohpbgcz2().b[6][0]++;cov_20ohpbgcz2().s[22]++;/** @type {HTMLTextAreaElement} */$e(root,'textarea.stack:not([type])').value=value.stack;}else {cov_20ohpbgcz2().b[6][1]++;cov_20ohpbgcz2().s[23]++;/** @type {HTMLInputElement} */$e(root,'input.stack[type=checkbox]').click();}// Return a promise that settles once the deferred `.cause` sub-editor is
 //   built and populated, so callers can await a fully-built subtree.
 cov_20ohpbgcz2().s[24]++;return (async()=>{cov_20ohpbgcz2().f[4]++;cov_20ohpbgcz2().s[25]++;await tick();cov_20ohpbgcz2().s[26]++;if(typeof value.cause!=='object'){cov_20ohpbgcz2().b[7][0]++;cov_20ohpbgcz2().s[27]++;return;}else {cov_20ohpbgcz2().b[7][1]++;}/** @type {HTMLElement} */cov_20ohpbgcz2().s[28]++;$e(root,'.cause').click();cov_20ohpbgcz2().s[29]++;await/** @type {import('../types.js').TypeObjectSetValue} */this.setValue({root:(/** @type {HTMLDivElement} */$e(root,'.causeContents')),value:value.cause});})();},getValue({root}){cov_20ohpbgcz2().f[5]++;/**
@@ -33228,7 +34157,7 @@ function cov_1k8s4p1zgp(){var path="/Users/brett/jsoe/src/fundamentalTypes/promi
 cov_1k8s4p1zgp=function(){return actualCoverage;};}return actualCoverage;}cov_1k8s4p1zgp();/**
  *
  */cov_1k8s4p1zgp().s[0]++;const getTypeson=()=>{cov_1k8s4p1zgp().f[0]++;cov_1k8s4p1zgp().s[1]++;structuredCloningJsoe.splice(// Add after userObjects
-1,0,Q);cov_1k8s4p1zgp().s[2]++;return new Typeson().register([...structuredCloningJsoe,X,z$2,functionSpec]);};/**
+1,0,G);cov_1k8s4p1zgp().s[2]++;return new Typeson().register([...structuredCloningJsoe,Y,V,functionSpec]);};/**
  * @type {import('../types.js').TypeObject}
  */const promiseType=(cov_1k8s4p1zgp().s[3]++,{option:['Promise'],regexEndings:[',',')'],stringRegexBegin:/^Promise\(/u,stringRegexEnd:/^\)/u,array:true,valueMatch(x){cov_1k8s4p1zgp().f[1]++;cov_1k8s4p1zgp().s[4]++;return toStringTag(x)==='Promise';},toValue(...args){cov_1k8s4p1zgp().f[2]++;const val=(/** @type {import('../types.js').ToValue} */cov_1k8s4p1zgp().s[5]++,arrayType.toValue.apply(this,args));cov_1k8s4p1zgp().s[6]++;return {value:Promise.resolve(val.value[0]),remnant:val.remnant};},getInput({root}){cov_1k8s4p1zgp().f[3]++;const childRoot=(/** @type {HTMLDivElement} */cov_1k8s4p1zgp().s[7]++,$e(root,'div[data-type]'));cov_1k8s4p1zgp().s[8]++;return/** @type {HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement|HTMLButtonElement} */this.types?.getFormControlForRoot(childRoot);},setValue({root,value}){cov_1k8s4p1zgp().f[4]++;cov_1k8s4p1zgp().s[9]++;// Need to wait a tick; return a promise that settles once the resolved
 //   value's child editor is built and populated.
@@ -33689,7 +34618,7 @@ let valObj;cov_pmr8wb3j7().s[147]++;try{const typeObj=(/** @type {TypeObject} */
 cov_pmr8wb3j7().s[160]++;remnant=remnant.slice(endMatch[0].length);}else {cov_pmr8wb3j7().b[66][1]++;}}else {cov_pmr8wb3j7().b[64][1]++;}cov_pmr8wb3j7().s[161]++;if(firstRun){cov_pmr8wb3j7().b[67][0]++;// Todo: should take into account `format`, e.g., to widen to
 //        allow `arbitraryJS` values; should also be using
 //        `structuredCloningFixed`
-const typeson=(cov_pmr8wb3j7().s[162]++,new Typeson().register(pe));cov_pmr8wb3j7().s[163]++;try{const topRoot=(cov_pmr8wb3j7().s[164]++,typeson.revive(value));cov_pmr8wb3j7().s[165]++;rootHolder.forEach(([type,parent,parentPath,path])=>{cov_pmr8wb3j7().f[30]++;const typeObject=(cov_pmr8wb3j7().s[166]++,this.availableTypes[(/** @type {AvailableType} */type+'Reference')]);// @ts-expect-error Reference method exists
+const typeson=(cov_pmr8wb3j7().s[162]++,new Typeson().register(fe));cov_pmr8wb3j7().s[163]++;try{const topRoot=(cov_pmr8wb3j7().s[164]++,typeson.revive(value));cov_pmr8wb3j7().s[165]++;rootHolder.forEach(([type,parent,parentPath,path])=>{cov_pmr8wb3j7().f[30]++;const typeObject=(cov_pmr8wb3j7().s[166]++,this.availableTypes[(/** @type {AvailableType} */type+'Reference')]);// @ts-expect-error Reference method exists
 const val=(cov_pmr8wb3j7().s[167]++,typeObject.resolveReference(path,topRoot));const basicType=(cov_pmr8wb3j7().s[168]++,getJSONType(val));/* istanbul ignore else -- Successful reference always an object/array? */cov_pmr8wb3j7().s[169]++;if((cov_pmr8wb3j7().b[69][0]++,basicType===type)&&(cov_pmr8wb3j7().b[69][1]++,['array','object'].includes(type))){cov_pmr8wb3j7().b[68][0]++;cov_pmr8wb3j7().s[170]++;/** @type {{[key: string]: any}} */parent[(/** @type {string|number} */parentPath)]=val;}else {}});cov_pmr8wb3j7().s[171]++;return [topRoot,remnant,beginOnly,assign];}catch(err){cov_pmr8wb3j7().s[172]++;console.log('failed Typeson revival',err);}}else {cov_pmr8wb3j7().b[67][1]++;}cov_pmr8wb3j7().s[173]++;return [value,remnant,beginOnly,assign];}else {cov_pmr8wb3j7().b[59][1]++;}cov_pmr8wb3j7().s[174]++;throw new Error('Bad parsing data');}/**
    * @param {AvailableArbitraryType} type
    * @returns {Partial<TypeObject>|string[]}
@@ -34123,8 +35052,8 @@ const schemaInstanceJSONMeta=(cov_ktihnhc2o().s[14]++,{type:'object',meta:{title
  *
  */cov_ktihnhc2o().s[15]++;
 
-function cov_rs275o34z(){var path="/Users/brett/jsoe/demo/index-schema.js";var hash="d03b7640501e6dfc9244ca51d7d34900f17f3f66";var global=new Function("return this")();var gcv="__coverage__";var coverageData={path:"/Users/brett/jsoe/demo/index-schema.js",statementMap:{"0":{start:{line:21,column:24},end:{line:23,column:8}},"1":{start:{line:25,column:22},end:{line:27,column:1}},"2":{start:{line:29,column:26},end:{line:31,column:1}},"3":{start:{line:33,column:36},end:{line:58,column:1}},"4":{start:{line:60,column:37},end:{line:89,column:1}},"5":{start:{line:91,column:37},end:{line:115,column:1}},"6":{start:{line:117,column:40},end:{line:131,column:1}},"7":{start:{line:133,column:35},end:{line:143,column:1}},"8":{start:{line:145,column:35},end:{line:154,column:1}},"9":{start:{line:156,column:35},end:{line:165,column:1}},"10":{start:{line:167,column:35},end:{line:176,column:1}},"11":{start:{line:178,column:35},end:{line:186,column:1}},"12":{start:{line:188,column:35},end:{line:199,column:1}},"13":{start:{line:201,column:35},end:{line:210,column:1}},"14":{start:{line:212,column:35},end:{line:221,column:1}},"15":{start:{line:223,column:35},end:{line:330,column:1}},"16":{start:{line:332,column:36},end:{line:341,column:1}},"17":{start:{line:343,column:36},end:{line:352,column:1}},"18":{start:{line:368,column:2},end:{line:439,column:3}},"19":{start:{line:370,column:4},end:{line:370,column:27}},"20":{start:{line:372,column:4},end:{line:372,column:30}},"21":{start:{line:374,column:4},end:{line:374,column:31}},"22":{start:{line:376,column:4},end:{line:376,column:31}},"23":{start:{line:378,column:4},end:{line:378,column:31}},"24":{start:{line:380,column:4},end:{line:380,column:31}},"25":{start:{line:382,column:4},end:{line:382,column:31}},"26":{start:{line:384,column:4},end:{line:384,column:31}},"27":{start:{line:386,column:4},end:{line:386,column:31}},"28":{start:{line:388,column:4},end:{line:388,column:31}},"29":{start:{line:390,column:4},end:{line:390,column:32}},"30":{start:{line:392,column:4},end:{line:392,column:32}},"31":{start:{line:394,column:4},end:{line:394,column:32}},"32":{start:{line:396,column:4},end:{line:396,column:33}},"33":{start:{line:398,column:4},end:{line:398,column:34}},"34":{start:{line:400,column:4},end:{line:400,column:34}},"35":{start:{line:402,column:4},end:{line:402,column:39}},"36":{start:{line:404,column:4},end:{line:404,column:40}},"37":{start:{line:406,column:4},end:{line:406,column:40}},"38":{start:{line:408,column:4},end:{line:408,column:43}},"39":{start:{line:410,column:4},end:{line:410,column:38}},"40":{start:{line:412,column:4},end:{line:412,column:38}},"41":{start:{line:414,column:4},end:{line:414,column:38}},"42":{start:{line:416,column:4},end:{line:416,column:38}},"43":{start:{line:418,column:4},end:{line:418,column:38}},"44":{start:{line:420,column:4},end:{line:420,column:38}},"45":{start:{line:422,column:4},end:{line:422,column:38}},"46":{start:{line:424,column:4},end:{line:424,column:38}},"47":{start:{line:426,column:4},end:{line:426,column:38}},"48":{start:{line:428,column:4},end:{line:428,column:39}},"49":{start:{line:430,column:4},end:{line:430,column:39}},"50":{start:{line:432,column:4},end:{line:432,column:25}},"51":{start:{line:434,column:4},end:{line:434,column:29}},"52":{start:{line:442,column:38},end:{line:473,column:2}},"53":{start:{line:476,column:2},end:{line:483,column:4}},"54":{start:{line:485,column:0},end:{line:694,column:8}},"55":{start:{line:486,column:2},end:{line:693,column:11}},"56":{start:{line:503,column:10},end:{line:503,column:65}},"57":{start:{line:512,column:10},end:{line:512,column:72}},"58":{start:{line:521,column:10},end:{line:521,column:64}},"59":{start:{line:531,column:12},end:{line:548,column:21}},"60":{start:{line:549,column:10},end:{line:549,column:51}},"61":{start:{line:550,column:10},end:{line:550,column:47}},"62":{start:{line:561,column:10},end:{line:569,column:13}},"63":{start:{line:578,column:23},end:{line:581,column:11}},"64":{start:{line:583,column:12},end:{line:583,column:75}},"65":{start:{line:584,column:10},end:{line:584,column:52}},"66":{start:{line:585,column:10},end:{line:587,column:19}},"67":{start:{line:586,column:12},end:{line:586,column:56}},"68":{start:{line:600,column:24},end:{line:614,column:11}},"69":{start:{line:615,column:24},end:{line:615,column:35}},"70":{start:{line:616,column:24},end:{line:620,column:15}},"71":{start:{line:621,column:10},end:{line:621,column:29}},"72":{start:{line:631,column:28},end:{line:648,column:8}},"73":{start:{line:650,column:6},end:{line:661,column:9}},"74":{start:{line:672,column:10},end:{line:672,column:29}},"75":{start:{line:673,column:10},end:{line:676,column:15}},"76":{start:{line:683,column:10},end:{line:683,column:29}},"77":{start:{line:684,column:10},end:{line:687,column:15}}},fnMap:{"0":{name:"getSchemaContent",decl:{start:{line:367,column:9},end:{line:367,column:25}},loc:{start:{line:367,column:35},end:{line:440,column:1}},line:367},"1":{name:"(anonymous_1)",decl:{start:{line:485,column:11},end:{line:485,column:12}},loc:{start:{line:485,column:23},end:{line:694,column:1}},line:485},"2":{name:"(anonymous_2)",decl:{start:{line:502,column:8},end:{line:502,column:9}},loc:{start:{line:502,column:17},end:{line:504,column:9}},line:502},"3":{name:"(anonymous_3)",decl:{start:{line:511,column:8},end:{line:511,column:9}},loc:{start:{line:511,column:17},end:{line:513,column:9}},line:511},"4":{name:"(anonymous_4)",decl:{start:{line:520,column:8},end:{line:520,column:9}},loc:{start:{line:520,column:17},end:{line:522,column:9}},line:520},"5":{name:"(anonymous_5)",decl:{start:{line:529,column:8},end:{line:529,column:9}},loc:{start:{line:529,column:23},end:{line:551,column:9}},line:529},"6":{name:"(anonymous_6)",decl:{start:{line:560,column:8},end:{line:560,column:9}},loc:{start:{line:560,column:23},end:{line:570,column:9}},line:560},"7":{name:"(anonymous_7)",decl:{start:{line:577,column:8},end:{line:577,column:9}},loc:{start:{line:577,column:17},end:{line:588,column:9}},line:577},"8":{name:"(anonymous_8)",decl:{start:{line:585,column:21},end:{line:585,column:22}},loc:{start:{line:585,column:27},end:{line:587,column:11}},line:585},"9":{name:"(anonymous_9)",decl:{start:{line:599,column:8},end:{line:599,column:9}},loc:{start:{line:599,column:18},end:{line:622,column:9}},line:599},"10":{name:"(anonymous_10)",decl:{start:{line:628,column:5},end:{line:628,column:6}},loc:{start:{line:628,column:11},end:{line:662,column:5}},line:628},"11":{name:"(anonymous_11)",decl:{start:{line:671,column:8},end:{line:671,column:9}},loc:{start:{line:671,column:18},end:{line:677,column:9}},line:671},"12":{name:"(anonymous_12)",decl:{start:{line:682,column:8},end:{line:682,column:9}},loc:{start:{line:682,column:18},end:{line:688,column:9}},line:682}},branchMap:{"0":{loc:{start:{line:368,column:2},end:{line:439,column:3}},type:"switch",locations:[{start:{line:369,column:2},end:{line:370,column:27}},{start:{line:371,column:2},end:{line:372,column:30}},{start:{line:373,column:2},end:{line:374,column:31}},{start:{line:375,column:2},end:{line:376,column:31}},{start:{line:377,column:2},end:{line:378,column:31}},{start:{line:379,column:2},end:{line:380,column:31}},{start:{line:381,column:2},end:{line:382,column:31}},{start:{line:383,column:2},end:{line:384,column:31}},{start:{line:385,column:2},end:{line:386,column:31}},{start:{line:387,column:2},end:{line:388,column:31}},{start:{line:389,column:2},end:{line:390,column:32}},{start:{line:391,column:2},end:{line:392,column:32}},{start:{line:393,column:2},end:{line:394,column:32}},{start:{line:395,column:2},end:{line:396,column:33}},{start:{line:397,column:2},end:{line:398,column:34}},{start:{line:399,column:2},end:{line:400,column:34}},{start:{line:401,column:2},end:{line:402,column:39}},{start:{line:403,column:2},end:{line:404,column:40}},{start:{line:405,column:2},end:{line:406,column:40}},{start:{line:407,column:2},end:{line:408,column:43}},{start:{line:409,column:2},end:{line:410,column:38}},{start:{line:411,column:2},end:{line:412,column:38}},{start:{line:413,column:2},end:{line:414,column:38}},{start:{line:415,column:2},end:{line:416,column:38}},{start:{line:417,column:2},end:{line:418,column:38}},{start:{line:419,column:2},end:{line:420,column:38}},{start:{line:421,column:2},end:{line:422,column:38}},{start:{line:423,column:2},end:{line:424,column:38}},{start:{line:425,column:2},end:{line:426,column:38}},{start:{line:427,column:2},end:{line:428,column:39}},{start:{line:429,column:2},end:{line:430,column:39}},{start:{line:431,column:2},end:{line:432,column:25}},{start:{line:433,column:2},end:{line:434,column:29}}],line:368},"1":{loc:{start:{line:540,column:31},end:{line:546,column:29}},type:"cond-expr",locations:[{start:{line:542,column:20},end:{line:545,column:19}},{start:{line:546,column:20},end:{line:546,column:29}}],line:540}},s:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0,"31":0,"32":0,"33":0,"34":0,"35":0,"36":0,"37":0,"38":0,"39":0,"40":0,"41":0,"42":0,"43":0,"44":0,"45":0,"46":0,"47":0,"48":0,"49":0,"50":0,"51":0,"52":0,"53":0,"54":0,"55":0,"56":0,"57":0,"58":0,"59":0,"60":0,"61":0,"62":0,"63":0,"64":0,"65":0,"66":0,"67":0,"68":0,"69":0,"70":0,"71":0,"72":0,"73":0,"74":0,"75":0,"76":0,"77":0},f:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0},b:{"0":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"1":[0,0]},inputSourceMap:{version:3,sources:["/Users/brett/jsoe/demo/index-schema.js"],sourcesContent:["import {jml, body, $} from '../src/vendor-imports.js';\nimport dialogs from '../src/utils/dialogs.js';\n\nimport {\n  formatAndTypeChoices\n} from '../src/formatAndTypeChoices.js';\n\nimport {\n  Types, typeChoices\n} from '../src/index.js';\n\nimport {\n  schemaInstanceJSON, schemaInstanceJSON2, schemaInstanceJSON3,\n  schemaInstanceJSON4, schemaInstanceJSON5, schemaInstanceJSON6,\n  schemaInstanceJSON7, schemaInstanceJSON8, schemaInstanceJSON9,\n  schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,\n  schemaInstanceJSONXor, schemaInstanceJSONXor2,\n  schemaInstanceJSONMeta\n} from './schema-data.js';\n\nconst zodexSchemaJSON = await (\n  await fetch('../vendor/zodexy/dist/schema.zodexy.json')\n).json();\n\nconst anySchemaJSON = {\n  type: 'any'\n};\n\nconst unknownSchemaJSON = {\n  type: 'unknown'\n};\n\nconst schemaInstanceJSONMinsMaxes = {\n  type: 'union',\n  options: [\n    {\n      type: 'number',\n      min: 400,\n      max: 700,\n      format: 'int32'\n    },\n    {\n      type: 'bigInt',\n      min: '400',\n      max: '700'\n    },\n    {\n      type: 'date',\n      min: new Date('1999-01-01').getTime(),\n      max: new Date('2001-01-01').getTime()\n    },\n    {\n      type: 'string',\n      min: 5,\n      max: 10\n    }\n  ]\n};\n\nconst schemaInstanceJSONMinsMaxes2 = {\n  type: 'union',\n  options: [\n    {\n      type: 'number',\n      min: 400,\n      minInclusive: true,\n      max: 700,\n      maxInclusive: true,\n      multipleOf: 5\n    },\n    {\n      type: 'bigInt',\n      min: '400',\n      minInclusive: true,\n      max: '700',\n      maxInclusive: true,\n      multipleOf: '5'\n    },\n    {\n      type: 'date',\n      min: new Date('1999-01-01').getTime(),\n      max: new Date('2001-01-01').getTime()\n    },\n    {\n      type: 'string',\n      length: 10\n    }\n  ]\n};\n\nconst schemaInstanceJSONMinsMaxes3 = {\n  type: 'union',\n  options: [\n    {\n      type: 'number',\n      min: 400,\n      max: 700\n    },\n    {\n      type: 'bigInt'\n    },\n    {\n      type: 'date',\n      min: new Date('1999-01-01').getTime(),\n      max: new Date('2001-01-01').getTime()\n    },\n    {\n      type: 'string',\n      startsWith: 'abc',\n      endsWith: 'xyz',\n      toLowerCase: true,\n      trim: true\n    }\n  ]\n};\n\nconst schemaInstanceJSONBigIntFormats = {\n  type: 'union',\n  options: [\n    {\n      description: 'An int64 BigInt',\n      type: 'bigInt',\n      format: 'int64'\n    },\n    {\n      description: 'A uint64 BigInt',\n      type: 'bigInt',\n      format: 'uint64'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings1 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      includes: 'GHI',\n      position: 5,\n      toUpperCase: true\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings2 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      includes: 'GHI',\n      regex: 'a[a-z]c'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings3 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      regex: 'a[a-z]c',\n      flags: 'i'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings4 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'time',\n      precision: 3\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings5 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'time'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings6 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'datetime',\n      offset: true,\n      local: true,\n      precision: 3\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings7 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'ip',\n      version: 'v4'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings8 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'ip',\n      version: 'v6'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings9 = {\n  type: 'union',\n  options: [\n    {\n      description: 'Emoji',\n      type: 'string',\n      kind: 'emoji'\n    },\n    {\n      description: 'UUID',\n      type: 'string',\n      kind: 'uuid'\n    },\n    {\n      description: 'UUID v4',\n      type: 'string',\n      kind: 'uuid',\n      version: 'v4'\n    },\n    {\n      description: 'Nanoid',\n      type: 'string',\n      kind: 'nanoid'\n    },\n    {\n      description: 'Nanoid with length',\n      type: 'string',\n      kind: 'nanoid',\n      length: 15\n    },\n    {\n      description: 'CUID',\n      type: 'string',\n      kind: 'cuid'\n    },\n    {\n      description: 'CUID2',\n      type: 'string',\n      kind: 'cuid2'\n    },\n    {\n      description: 'ULID',\n      type: 'string',\n      kind: 'ulid'\n    },\n    {\n      description: 'Duration',\n      type: 'string',\n      kind: 'duration'\n    },\n    {\n      description: 'Base64',\n      type: 'string',\n      kind: 'base64'\n    },\n\n    {\n      description: 'Base64 URL',\n      type: 'string',\n      kind: 'base64url'\n    },\n    {\n      description: 'JWT',\n      type: 'string',\n      kind: 'jwt'\n    },\n    {\n      description: 'JWT HS256',\n      type: 'string',\n      kind: 'jwt',\n      algorithm: 'HS256'\n    },\n    {\n      description: 'E.164',\n      type: 'string',\n      kind: 'e164'\n    },\n    {\n      description: 'XID',\n      type: 'string',\n      kind: 'xid'\n    },\n    {\n      description: 'GUID',\n      type: 'string',\n      kind: 'guid'\n    },\n    {\n      description: 'KSUID',\n      type: 'string',\n      kind: 'ksuid'\n    },\n    {\n      description: 'Credit card',\n      type: 'string',\n      kind: 'credit_card'\n    },\n    {\n      description: 'String boolean',\n      type: 'pipe',\n      inner: {type: 'string'},\n      outer: {type: 'boolean'},\n      truthy: ['true', '1', 'yes', 'on', 'y', 'enabled'],\n      falsy: ['false', '0', 'no', 'off', 'n', 'disabled'],\n      case: 'insensitive'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings10 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'cidr',\n      version: 'v4'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings11 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'cidr',\n      version: 'v6'\n    }\n  ]\n};\n\n// Todo: test editing, including fixing aggregate errors and aggregate error\n//         as cause (done?)\n\n// Todo: If Zod starts to do circular data, support with reference types\n// Todo: If Zod starts to allow specific types for our instanceof types, use those\n//         instead, not just for more standard semanticness, but for any\n//         additional validations\n\n/**\n * @param {string} schema\n * @throws {Error}\n * @returns {import('zodexy').SzType}\n */\nfunction getSchemaContent (schema) {\n  switch (schema) {\n  case 'Zodexy schema':\n    return zodexSchemaJSON;\n  case 'Zodexy schema instance':\n    return schemaInstanceJSON;\n  case 'Zodexy schema instance 2':\n    return schemaInstanceJSON2;\n  case 'Zodexy schema instance 3':\n    return schemaInstanceJSON3;\n  case 'Zodexy schema instance 4':\n    return schemaInstanceJSON4;\n  case 'Zodexy schema instance 5':\n    return schemaInstanceJSON5;\n  case 'Zodexy schema instance 6':\n    return schemaInstanceJSON6;\n  case 'Zodexy schema instance 7':\n    return schemaInstanceJSON7;\n  case 'Zodexy schema instance 8':\n    return schemaInstanceJSON8;\n  case 'Zodexy schema instance 9':\n    return schemaInstanceJSON9;\n  case 'Zodexy schema instance 10':\n    return schemaInstanceJSON10;\n  case 'Zodexy schema instance 11':\n    return schemaInstanceJSON11;\n  case 'Zodexy schema instance 12':\n    return schemaInstanceJSON12;\n  case 'Zodexy schema instance xor':\n    return schemaInstanceJSONXor;\n  case 'Zodexy schema instance xor 2':\n    return schemaInstanceJSONXor2;\n  case 'Zodexy schema instance meta':\n    return schemaInstanceJSONMeta;\n  case 'Zodexy schema instance mins and maxes':\n    return schemaInstanceJSONMinsMaxes;\n  case 'Zodexy schema instance mins and maxes 2':\n    return schemaInstanceJSONMinsMaxes2;\n  case 'Zodexy schema instance mins and maxes 3':\n    return schemaInstanceJSONMinsMaxes3;\n  case 'Zodexy schema instance BigInt formats':\n    return schemaInstanceJSONBigIntFormats;\n  case 'Zodexy schema instance strings 1':\n    return schemaInstanceJSONStrings1;\n  case 'Zodexy schema instance strings 2':\n    return schemaInstanceJSONStrings2;\n  case 'Zodexy schema instance strings 3':\n    return schemaInstanceJSONStrings3;\n  case 'Zodexy schema instance strings 4':\n    return schemaInstanceJSONStrings4;\n  case 'Zodexy schema instance strings 5':\n    return schemaInstanceJSONStrings5;\n  case 'Zodexy schema instance strings 6':\n    return schemaInstanceJSONStrings6;\n  case 'Zodexy schema instance strings 7':\n    return schemaInstanceJSONStrings7;\n  case 'Zodexy schema instance strings 8':\n    return schemaInstanceJSONStrings8;\n  case 'Zodexy schema instance strings 9':\n    return schemaInstanceJSONStrings9;\n  case 'Zodexy schema instance strings 10':\n    return schemaInstanceJSONStrings10;\n  case 'Zodexy schema instance strings 11':\n    return schemaInstanceJSONStrings11;\n  case 'any schema':\n    return anySchemaJSON;\n  case 'unknown schema':\n    return unknownSchemaJSON;\n  /* istanbul ignore next -- Guard */\n  default:\n    /* istanbul ignore next -- Guard */\n    throw new Error('Unexpected schema');\n  }\n}\n\nconst keyPathNotExpectedTypeChoices = await formatAndTypeChoices({\n  hasKeyPath: false,\n  typeNamespace: 'demo-keypath-not-expected',\n  schemas: [\n    'Zodexy schema', 'Zodexy schema instance', 'Zodexy schema instance 2',\n    'Zodexy schema instance 3', 'Zodexy schema instance 4',\n    'Zodexy schema instance 5', 'Zodexy schema instance 6',\n    'Zodexy schema instance 7', 'Zodexy schema instance 8',\n    'Zodexy schema instance 9', 'Zodexy schema instance 10',\n    'Zodexy schema instance 11', 'Zodexy schema instance 12',\n    'Zodexy schema instance xor', 'Zodexy schema instance xor 2',\n    'Zodexy schema instance meta',\n    'Zodexy schema instance mins and maxes',\n    'Zodexy schema instance mins and maxes 2',\n    'Zodexy schema instance mins and maxes 3',\n    'Zodexy schema instance BigInt formats',\n    'Zodexy schema instance strings 1',\n    'Zodexy schema instance strings 2',\n    'Zodexy schema instance strings 3',\n    'Zodexy schema instance strings 4',\n    'Zodexy schema instance strings 5',\n    'Zodexy schema instance strings 6',\n    'Zodexy schema instance strings 7',\n    'Zodexy schema instance strings 8',\n    'Zodexy schema instance strings 9',\n    'Zodexy schema instance strings 10',\n    'Zodexy schema instance strings 11',\n    'any schema', 'unknown schema'\n  ],\n  selectedSchema: 'Zodexy schema instance 2',\n  getSchemaContent\n});\n\nconst keyPathNotExpectedTypeChoicesFirstPreselected =\n  await formatAndTypeChoices({\n    hasKeyPath: false,\n    typeNamespace: 'demo-keypath-not-expected-no-preselected',\n    schemas: [\n      'Zodexy schema', 'Zodexy schema instance'\n    ],\n    getSchemaContent\n  });\n\nsetTimeout(function () {\n  jml('section', {role: 'main'}, [\n    ['h1', [\n      'Jsoe schema testing'\n    ]],\n    ['h2', [\n      'Format and type choices: No key path expected (type can vary at root)'\n    ]],\n\n    // Put inside form so can validate\n    ['form', {id: 'formatAndTypeChoices'}, [\n      ...keyPathNotExpectedTypeChoices.domArray\n    ]],\n\n    ['button', {\n      id: 'getType',\n      $on: {\n        click () {\n          dialogs.alert(keyPathNotExpectedTypeChoices.getType());\n        }\n      }\n    }, ['Get type']],\n\n    ['button', {\n      id: 'isValid',\n      $on: {\n        click () {\n          dialogs.alert(keyPathNotExpectedTypeChoices.validValuesSet());\n        }\n      }\n    }, ['Is valid']],\n\n    ['button', {\n      id: 'logValue',\n      $on: {\n        click () {\n          console.log(keyPathNotExpectedTypeChoices.getValue());\n        }\n      }\n    }, ['Log value']],\n\n    ['button', {\n      id: 'viewUI',\n      $on: {\n        async click () {\n          const controls =\n            (await keyPathNotExpectedTypeChoices.formats.getControlsForFormatAndValue(\n              keyPathNotExpectedTypeChoices.types,\n              keyPathNotExpectedTypeChoices.formatChoices.\n                selectedOptions[0].value,\n              keyPathNotExpectedTypeChoices.getValue(),\n              {\n                readonly: true,\n                typeNamespace: 'demo-keypath-not-expected',\n                // schemaContent: anySchemaJSON\n                schemaContent: keyPathNotExpectedTypeChoices.formatChoices.\n                  selectedOptions[0].dataset.schema\n                  ? getSchemaContent(\n                    keyPathNotExpectedTypeChoices.formatChoices.\n                      selectedOptions[0].dataset.schema\n                  )\n                  : undefined\n              }\n            )).rootUI;\n          $('#viewUIResults').firstChild?.remove();\n          $('#viewUIResults').append(controls);\n        }\n      }\n    }, ['view UI']],\n\n    ['div', {id: 'viewUIResults'}],\n\n    ['button', {\n      id: 'initializeWithValue',\n      $on: {\n        async click () {\n          await keyPathNotExpectedTypeChoices.setValue({\n            type: 'literal',\n            value: 42\n          }, {\n            schemaContent: await getSchemaContent(\n              keyPathNotExpectedTypeChoices.formatChoices.\n                selectedOptions[0].dataset.schema\n            )\n          });\n        }\n      }\n    }, ['Initialize with a value']],\n\n    ['button', {\n      id: 'showRootFormControl',\n      $on: {\n        click () {\n          const root = $(\n            '#formatAndTypeChoices > .typesHolder > ' +\n              '.typeContainer > div[data-type]'\n          );\n          const formControl =\n            keyPathNotExpectedTypeChoices.types.getFormControlForRoot(root);\n          formControl.style.backgroundColor = 'red';\n          setTimeout(() => {\n            formControl.style.backgroundColor = 'white';\n          }, 3000);\n        }\n      }\n    }, ['Show root form control']],\n\n    ['h2', [\n      'Convert structured cloning string representation to value and log'\n    ]],\n    ['input', {\n      id: 'getValueForString',\n      placeholder: 'e.g., [\"abc\", 17]',\n      $on: {\n        change () {\n          const union = {\n            type: 'union',\n            options: [\n              ...schemaInstanceJSON.options,\n              ...schemaInstanceJSON2.options,\n              ...schemaInstanceJSON3.options,\n              ...schemaInstanceJSON4.options,\n              ...schemaInstanceJSON5.options,\n              ...schemaInstanceJSON6.options,\n              ...schemaInstanceJSON7.options,\n              ...schemaInstanceJSON8.options,\n              ...schemaInstanceJSON9.options,\n              ...schemaInstanceJSON10.options\n            ]\n          };\n          const types = new Types();\n          const value = types.getValueForString(this.value, {\n            format: 'schema',\n            schemaObject: union,\n            schemaOriginal: union\n          })[0];\n          console.log(value);\n        }\n      }\n    }],\n\n    ['br'], ['br'],\n    ['h2', ['Type choices alone']],\n    (() => {\n      // Fallback from missing `schemaOriginal` to union `schemaContent`;\n      //   trigger by change event\n      const typeSelection = typeChoices({\n        format: 'schema',\n        typeNamespace: 'demo-type-choices-only',\n        schemaIdx: 1,\n        schemaContent: {\n          type: 'union',\n          options: [\n            {\n              description: 'String',\n              type: 'string'\n            },\n            {\n              description: 'Number',\n              type: 'number'\n            }\n          ]\n        }\n      });\n\n      return ['form', {\n        id: 'typeChoicesOnly',\n        $on: {\n          /* istanbul ignore next -- Guard */\n          submit (e) {\n            /* istanbul ignore next -- Guard */\n            e.preventDefault();\n          }\n        }\n      }, [\n        ...typeSelection.domArray\n      ]];\n    })(),\n\n    ['br'], ['br'],\n    ['h2', [\n      'Default to first preselected schema'\n    ]],\n    ['form', {id: 'formatAndTypeChoicesFirstPreselected'}, [\n      ...keyPathNotExpectedTypeChoicesFirstPreselected.domArray,\n      ['button', {id: 'setASchemaFormat', $on: {\n        click (e) {\n          e.preventDefault();\n          keyPathNotExpectedTypeChoicesFirstPreselected.\n            formatChoices.$setFormat({\n              schema: 'Zodexy schema instance'\n            });\n        }\n      }}, [\n        'Set a schema format'\n      ]],\n      ['button', {id: 'setABadSchemaFormat', $on: {\n        click (e) {\n          e.preventDefault();\n          keyPathNotExpectedTypeChoicesFirstPreselected.\n            formatChoices.$setFormat({\n              schema: 'non-existent schema'\n            });\n        }\n      }}, [\n        'Recovers from setting bad schema format'\n      ]]\n    ]]\n  ], body);\n}, 500);\n"],names:[],mappings:"AAAA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAExB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAER,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC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,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAA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AC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,C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CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEhC,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC;AACF;;AAEA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC;;AAEF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAErB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAElC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAElC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CA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AAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;",file:undefined},_coverageSchema:"1a1c01bbd47fc00a2c39e90264f33305004495a9",hash:"d03b7640501e6dfc9244ca51d7d34900f17f3f66"};var coverage=global[gcv]||(global[gcv]={});if(!coverage[path]||coverage[path].hash!==hash){coverage[path]=coverageData;}var actualCoverage=coverage[path];{// @ts-ignore
-cov_rs275o34z=function(){return actualCoverage;};}return actualCoverage;}cov_rs275o34z();const zodexSchemaJSON=(cov_rs275o34z().s[0]++,await(await fetch('../vendor/zodexy/dist/schema.zodexy.json')).json());const anySchemaJSON=(cov_rs275o34z().s[1]++,{type:'any'});const unknownSchemaJSON=(cov_rs275o34z().s[2]++,{type:'unknown'});const schemaInstanceJSONMinsMaxes=(cov_rs275o34z().s[3]++,{type:'union',options:[{type:'number',min:400,max:700,format:'int32'},{type:'bigInt',min:'400',max:'700'},{type:'date',min:new Date('1999-01-01').getTime(),max:new Date('2001-01-01').getTime()},{type:'string',min:5,max:10}]});const schemaInstanceJSONMinsMaxes2=(cov_rs275o34z().s[4]++,{type:'union',options:[{type:'number',min:400,minInclusive:true,max:700,maxInclusive:true,multipleOf:5},{type:'bigInt',min:'400',minInclusive:true,max:'700',maxInclusive:true,multipleOf:'5'},{type:'date',min:new Date('1999-01-01').getTime(),max:new Date('2001-01-01').getTime()},{type:'string',length:10}]});const schemaInstanceJSONMinsMaxes3=(cov_rs275o34z().s[5]++,{type:'union',options:[{type:'number',min:400,max:700},{type:'bigInt'},{type:'date',min:new Date('1999-01-01').getTime(),max:new Date('2001-01-01').getTime()},{type:'string',startsWith:'abc',endsWith:'xyz',toLowerCase:true,trim:true}]});const schemaInstanceJSONBigIntFormats=(cov_rs275o34z().s[6]++,{type:'union',options:[{description:'An int64 BigInt',type:'bigInt',format:'int64'},{description:'A uint64 BigInt',type:'bigInt',format:'uint64'}]});const schemaInstanceJSONStrings1=(cov_rs275o34z().s[7]++,{type:'union',options:[{type:'string',includes:'GHI',position:5,toUpperCase:true}]});const schemaInstanceJSONStrings2=(cov_rs275o34z().s[8]++,{type:'union',options:[{type:'string',includes:'GHI',regex:'a[a-z]c'}]});const schemaInstanceJSONStrings3=(cov_rs275o34z().s[9]++,{type:'union',options:[{type:'string',regex:'a[a-z]c',flags:'i'}]});const schemaInstanceJSONStrings4=(cov_rs275o34z().s[10]++,{type:'union',options:[{type:'string',kind:'time',precision:3}]});const schemaInstanceJSONStrings5=(cov_rs275o34z().s[11]++,{type:'union',options:[{type:'string',kind:'time'}]});const schemaInstanceJSONStrings6=(cov_rs275o34z().s[12]++,{type:'union',options:[{type:'string',kind:'datetime',offset:true,local:true,precision:3}]});const schemaInstanceJSONStrings7=(cov_rs275o34z().s[13]++,{type:'union',options:[{type:'string',kind:'ip',version:'v4'}]});const schemaInstanceJSONStrings8=(cov_rs275o34z().s[14]++,{type:'union',options:[{type:'string',kind:'ip',version:'v6'}]});const schemaInstanceJSONStrings9=(cov_rs275o34z().s[15]++,{type:'union',options:[{description:'Emoji',type:'string',kind:'emoji'},{description:'UUID',type:'string',kind:'uuid'},{description:'UUID v4',type:'string',kind:'uuid',version:'v4'},{description:'Nanoid',type:'string',kind:'nanoid'},{description:'Nanoid with length',type:'string',kind:'nanoid',length:15},{description:'CUID',type:'string',kind:'cuid'},{description:'CUID2',type:'string',kind:'cuid2'},{description:'ULID',type:'string',kind:'ulid'},{description:'Duration',type:'string',kind:'duration'},{description:'Base64',type:'string',kind:'base64'},{description:'Base64 URL',type:'string',kind:'base64url'},{description:'JWT',type:'string',kind:'jwt'},{description:'JWT HS256',type:'string',kind:'jwt',algorithm:'HS256'},{description:'E.164',type:'string',kind:'e164'},{description:'XID',type:'string',kind:'xid'},{description:'GUID',type:'string',kind:'guid'},{description:'KSUID',type:'string',kind:'ksuid'},{description:'Credit card',type:'string',kind:'credit_card'},{description:'String boolean',type:'pipe',inner:{type:'string'},outer:{type:'boolean'},truthy:['true','1','yes','on','y','enabled'],falsy:['false','0','no','off','n','disabled'],case:'insensitive'}]});const schemaInstanceJSONStrings10=(cov_rs275o34z().s[16]++,{type:'union',options:[{type:'string',kind:'cidr',version:'v4'}]});const schemaInstanceJSONStrings11=(cov_rs275o34z().s[17]++,{type:'union',options:[{type:'string',kind:'cidr',version:'v6'}]});// Todo: test editing, including fixing aggregate errors and aggregate error
+function cov_rs275o34z(){var path="/Users/brett/jsoe/demo/index-schema.js";var hash="bcdd39095cb3499e677713caa22af545903cc59e";var global=new Function("return this")();var gcv="__coverage__";var coverageData={path:"/Users/brett/jsoe/demo/index-schema.js",statementMap:{"0":{start:{line:21,column:24},end:{line:23,column:8}},"1":{start:{line:25,column:22},end:{line:27,column:1}},"2":{start:{line:29,column:26},end:{line:31,column:1}},"3":{start:{line:33,column:36},end:{line:58,column:1}},"4":{start:{line:60,column:37},end:{line:89,column:1}},"5":{start:{line:91,column:37},end:{line:115,column:1}},"6":{start:{line:117,column:40},end:{line:131,column:1}},"7":{start:{line:133,column:35},end:{line:143,column:1}},"8":{start:{line:145,column:35},end:{line:154,column:1}},"9":{start:{line:156,column:35},end:{line:165,column:1}},"10":{start:{line:167,column:35},end:{line:176,column:1}},"11":{start:{line:178,column:35},end:{line:186,column:1}},"12":{start:{line:188,column:35},end:{line:199,column:1}},"13":{start:{line:201,column:35},end:{line:210,column:1}},"14":{start:{line:212,column:35},end:{line:221,column:1}},"15":{start:{line:223,column:35},end:{line:335,column:1}},"16":{start:{line:337,column:36},end:{line:346,column:1}},"17":{start:{line:348,column:36},end:{line:357,column:1}},"18":{start:{line:373,column:2},end:{line:444,column:3}},"19":{start:{line:375,column:4},end:{line:375,column:27}},"20":{start:{line:377,column:4},end:{line:377,column:30}},"21":{start:{line:379,column:4},end:{line:379,column:31}},"22":{start:{line:381,column:4},end:{line:381,column:31}},"23":{start:{line:383,column:4},end:{line:383,column:31}},"24":{start:{line:385,column:4},end:{line:385,column:31}},"25":{start:{line:387,column:4},end:{line:387,column:31}},"26":{start:{line:389,column:4},end:{line:389,column:31}},"27":{start:{line:391,column:4},end:{line:391,column:31}},"28":{start:{line:393,column:4},end:{line:393,column:31}},"29":{start:{line:395,column:4},end:{line:395,column:32}},"30":{start:{line:397,column:4},end:{line:397,column:32}},"31":{start:{line:399,column:4},end:{line:399,column:32}},"32":{start:{line:401,column:4},end:{line:401,column:33}},"33":{start:{line:403,column:4},end:{line:403,column:34}},"34":{start:{line:405,column:4},end:{line:405,column:34}},"35":{start:{line:407,column:4},end:{line:407,column:39}},"36":{start:{line:409,column:4},end:{line:409,column:40}},"37":{start:{line:411,column:4},end:{line:411,column:40}},"38":{start:{line:413,column:4},end:{line:413,column:43}},"39":{start:{line:415,column:4},end:{line:415,column:38}},"40":{start:{line:417,column:4},end:{line:417,column:38}},"41":{start:{line:419,column:4},end:{line:419,column:38}},"42":{start:{line:421,column:4},end:{line:421,column:38}},"43":{start:{line:423,column:4},end:{line:423,column:38}},"44":{start:{line:425,column:4},end:{line:425,column:38}},"45":{start:{line:427,column:4},end:{line:427,column:38}},"46":{start:{line:429,column:4},end:{line:429,column:38}},"47":{start:{line:431,column:4},end:{line:431,column:38}},"48":{start:{line:433,column:4},end:{line:433,column:39}},"49":{start:{line:435,column:4},end:{line:435,column:39}},"50":{start:{line:437,column:4},end:{line:437,column:25}},"51":{start:{line:439,column:4},end:{line:439,column:29}},"52":{start:{line:447,column:38},end:{line:478,column:2}},"53":{start:{line:481,column:2},end:{line:488,column:4}},"54":{start:{line:490,column:0},end:{line:699,column:8}},"55":{start:{line:491,column:2},end:{line:698,column:11}},"56":{start:{line:508,column:10},end:{line:508,column:65}},"57":{start:{line:517,column:10},end:{line:517,column:72}},"58":{start:{line:526,column:10},end:{line:526,column:64}},"59":{start:{line:536,column:12},end:{line:553,column:21}},"60":{start:{line:554,column:10},end:{line:554,column:51}},"61":{start:{line:555,column:10},end:{line:555,column:47}},"62":{start:{line:566,column:10},end:{line:574,column:13}},"63":{start:{line:583,column:23},end:{line:586,column:11}},"64":{start:{line:588,column:12},end:{line:588,column:75}},"65":{start:{line:589,column:10},end:{line:589,column:52}},"66":{start:{line:590,column:10},end:{line:592,column:19}},"67":{start:{line:591,column:12},end:{line:591,column:56}},"68":{start:{line:605,column:24},end:{line:619,column:11}},"69":{start:{line:620,column:24},end:{line:620,column:35}},"70":{start:{line:621,column:24},end:{line:625,column:15}},"71":{start:{line:626,column:10},end:{line:626,column:29}},"72":{start:{line:636,column:28},end:{line:653,column:8}},"73":{start:{line:655,column:6},end:{line:666,column:9}},"74":{start:{line:677,column:10},end:{line:677,column:29}},"75":{start:{line:678,column:10},end:{line:681,column:15}},"76":{start:{line:688,column:10},end:{line:688,column:29}},"77":{start:{line:689,column:10},end:{line:692,column:15}}},fnMap:{"0":{name:"getSchemaContent",decl:{start:{line:372,column:9},end:{line:372,column:25}},loc:{start:{line:372,column:35},end:{line:445,column:1}},line:372},"1":{name:"(anonymous_1)",decl:{start:{line:490,column:11},end:{line:490,column:12}},loc:{start:{line:490,column:23},end:{line:699,column:1}},line:490},"2":{name:"(anonymous_2)",decl:{start:{line:507,column:8},end:{line:507,column:9}},loc:{start:{line:507,column:17},end:{line:509,column:9}},line:507},"3":{name:"(anonymous_3)",decl:{start:{line:516,column:8},end:{line:516,column:9}},loc:{start:{line:516,column:17},end:{line:518,column:9}},line:516},"4":{name:"(anonymous_4)",decl:{start:{line:525,column:8},end:{line:525,column:9}},loc:{start:{line:525,column:17},end:{line:527,column:9}},line:525},"5":{name:"(anonymous_5)",decl:{start:{line:534,column:8},end:{line:534,column:9}},loc:{start:{line:534,column:23},end:{line:556,column:9}},line:534},"6":{name:"(anonymous_6)",decl:{start:{line:565,column:8},end:{line:565,column:9}},loc:{start:{line:565,column:23},end:{line:575,column:9}},line:565},"7":{name:"(anonymous_7)",decl:{start:{line:582,column:8},end:{line:582,column:9}},loc:{start:{line:582,column:17},end:{line:593,column:9}},line:582},"8":{name:"(anonymous_8)",decl:{start:{line:590,column:21},end:{line:590,column:22}},loc:{start:{line:590,column:27},end:{line:592,column:11}},line:590},"9":{name:"(anonymous_9)",decl:{start:{line:604,column:8},end:{line:604,column:9}},loc:{start:{line:604,column:18},end:{line:627,column:9}},line:604},"10":{name:"(anonymous_10)",decl:{start:{line:633,column:5},end:{line:633,column:6}},loc:{start:{line:633,column:11},end:{line:667,column:5}},line:633},"11":{name:"(anonymous_11)",decl:{start:{line:676,column:8},end:{line:676,column:9}},loc:{start:{line:676,column:18},end:{line:682,column:9}},line:676},"12":{name:"(anonymous_12)",decl:{start:{line:687,column:8},end:{line:687,column:9}},loc:{start:{line:687,column:18},end:{line:693,column:9}},line:687}},branchMap:{"0":{loc:{start:{line:373,column:2},end:{line:444,column:3}},type:"switch",locations:[{start:{line:374,column:2},end:{line:375,column:27}},{start:{line:376,column:2},end:{line:377,column:30}},{start:{line:378,column:2},end:{line:379,column:31}},{start:{line:380,column:2},end:{line:381,column:31}},{start:{line:382,column:2},end:{line:383,column:31}},{start:{line:384,column:2},end:{line:385,column:31}},{start:{line:386,column:2},end:{line:387,column:31}},{start:{line:388,column:2},end:{line:389,column:31}},{start:{line:390,column:2},end:{line:391,column:31}},{start:{line:392,column:2},end:{line:393,column:31}},{start:{line:394,column:2},end:{line:395,column:32}},{start:{line:396,column:2},end:{line:397,column:32}},{start:{line:398,column:2},end:{line:399,column:32}},{start:{line:400,column:2},end:{line:401,column:33}},{start:{line:402,column:2},end:{line:403,column:34}},{start:{line:404,column:2},end:{line:405,column:34}},{start:{line:406,column:2},end:{line:407,column:39}},{start:{line:408,column:2},end:{line:409,column:40}},{start:{line:410,column:2},end:{line:411,column:40}},{start:{line:412,column:2},end:{line:413,column:43}},{start:{line:414,column:2},end:{line:415,column:38}},{start:{line:416,column:2},end:{line:417,column:38}},{start:{line:418,column:2},end:{line:419,column:38}},{start:{line:420,column:2},end:{line:421,column:38}},{start:{line:422,column:2},end:{line:423,column:38}},{start:{line:424,column:2},end:{line:425,column:38}},{start:{line:426,column:2},end:{line:427,column:38}},{start:{line:428,column:2},end:{line:429,column:38}},{start:{line:430,column:2},end:{line:431,column:38}},{start:{line:432,column:2},end:{line:433,column:39}},{start:{line:434,column:2},end:{line:435,column:39}},{start:{line:436,column:2},end:{line:437,column:25}},{start:{line:438,column:2},end:{line:439,column:29}}],line:373},"1":{loc:{start:{line:545,column:31},end:{line:551,column:29}},type:"cond-expr",locations:[{start:{line:547,column:20},end:{line:550,column:19}},{start:{line:551,column:20},end:{line:551,column:29}}],line:545}},s:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0,"31":0,"32":0,"33":0,"34":0,"35":0,"36":0,"37":0,"38":0,"39":0,"40":0,"41":0,"42":0,"43":0,"44":0,"45":0,"46":0,"47":0,"48":0,"49":0,"50":0,"51":0,"52":0,"53":0,"54":0,"55":0,"56":0,"57":0,"58":0,"59":0,"60":0,"61":0,"62":0,"63":0,"64":0,"65":0,"66":0,"67":0,"68":0,"69":0,"70":0,"71":0,"72":0,"73":0,"74":0,"75":0,"76":0,"77":0},f:{"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0},b:{"0":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"1":[0,0]},inputSourceMap:{version:3,sources:["/Users/brett/jsoe/demo/index-schema.js"],sourcesContent:["import {jml, body, $} from '../src/vendor-imports.js';\nimport dialogs from '../src/utils/dialogs.js';\n\nimport {\n  formatAndTypeChoices\n} from '../src/formatAndTypeChoices.js';\n\nimport {\n  Types, typeChoices\n} from '../src/index.js';\n\nimport {\n  schemaInstanceJSON, schemaInstanceJSON2, schemaInstanceJSON3,\n  schemaInstanceJSON4, schemaInstanceJSON5, schemaInstanceJSON6,\n  schemaInstanceJSON7, schemaInstanceJSON8, schemaInstanceJSON9,\n  schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,\n  schemaInstanceJSONXor, schemaInstanceJSONXor2,\n  schemaInstanceJSONMeta\n} from './schema-data.js';\n\nconst zodexSchemaJSON = await (\n  await fetch('../vendor/zodexy/dist/schema.zodexy.json')\n).json();\n\nconst anySchemaJSON = {\n  type: 'any'\n};\n\nconst unknownSchemaJSON = {\n  type: 'unknown'\n};\n\nconst schemaInstanceJSONMinsMaxes = {\n  type: 'union',\n  options: [\n    {\n      type: 'number',\n      min: 400,\n      max: 700,\n      format: 'int32'\n    },\n    {\n      type: 'bigInt',\n      min: '400',\n      max: '700'\n    },\n    {\n      type: 'date',\n      min: new Date('1999-01-01').getTime(),\n      max: new Date('2001-01-01').getTime()\n    },\n    {\n      type: 'string',\n      min: 5,\n      max: 10\n    }\n  ]\n};\n\nconst schemaInstanceJSONMinsMaxes2 = {\n  type: 'union',\n  options: [\n    {\n      type: 'number',\n      min: 400,\n      minInclusive: true,\n      max: 700,\n      maxInclusive: true,\n      multipleOf: 5\n    },\n    {\n      type: 'bigInt',\n      min: '400',\n      minInclusive: true,\n      max: '700',\n      maxInclusive: true,\n      multipleOf: '5'\n    },\n    {\n      type: 'date',\n      min: new Date('1999-01-01').getTime(),\n      max: new Date('2001-01-01').getTime()\n    },\n    {\n      type: 'string',\n      length: 10\n    }\n  ]\n};\n\nconst schemaInstanceJSONMinsMaxes3 = {\n  type: 'union',\n  options: [\n    {\n      type: 'number',\n      min: 400,\n      max: 700\n    },\n    {\n      type: 'bigInt'\n    },\n    {\n      type: 'date',\n      min: new Date('1999-01-01').getTime(),\n      max: new Date('2001-01-01').getTime()\n    },\n    {\n      type: 'string',\n      startsWith: 'abc',\n      endsWith: 'xyz',\n      toLowerCase: true,\n      trim: true\n    }\n  ]\n};\n\nconst schemaInstanceJSONBigIntFormats = {\n  type: 'union',\n  options: [\n    {\n      description: 'An int64 BigInt',\n      type: 'bigInt',\n      format: 'int64'\n    },\n    {\n      description: 'A uint64 BigInt',\n      type: 'bigInt',\n      format: 'uint64'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings1 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      includes: 'GHI',\n      position: 5,\n      toUpperCase: true\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings2 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      includes: 'GHI',\n      regex: 'a[a-z]c'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings3 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      regex: 'a[a-z]c',\n      flags: 'i'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings4 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'time',\n      precision: 3\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings5 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'time'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings6 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'datetime',\n      offset: true,\n      local: true,\n      precision: 3\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings7 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'ip',\n      version: 'v4'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings8 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'ip',\n      version: 'v6'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings9 = {\n  type: 'union',\n  options: [\n    {\n      description: 'Emoji',\n      type: 'string',\n      kind: 'emoji'\n    },\n    {\n      description: 'UUID',\n      type: 'string',\n      kind: 'uuid'\n    },\n    {\n      description: 'UUID v4',\n      type: 'string',\n      kind: 'uuid',\n      version: 'v4'\n    },\n    {\n      description: 'Nanoid',\n      type: 'string',\n      kind: 'nanoid'\n    },\n    {\n      description: 'Nanoid with length',\n      type: 'string',\n      kind: 'nanoid',\n      length: 15\n    },\n    {\n      description: 'CUID',\n      type: 'string',\n      kind: 'cuid'\n    },\n    {\n      description: 'CUID2',\n      type: 'string',\n      kind: 'cuid2'\n    },\n    {\n      description: 'ULID',\n      type: 'string',\n      kind: 'ulid'\n    },\n    {\n      description: 'Duration',\n      type: 'string',\n      kind: 'duration'\n    },\n    {\n      description: 'Base64',\n      type: 'string',\n      kind: 'base64'\n    },\n\n    {\n      description: 'Base64 URL',\n      type: 'string',\n      kind: 'base64url'\n    },\n    {\n      description: 'JWT',\n      type: 'string',\n      kind: 'jwt'\n    },\n    {\n      description: 'JWT HS256',\n      type: 'string',\n      kind: 'jwt',\n      algorithm: 'HS256'\n    },\n    {\n      description: 'E.164',\n      type: 'string',\n      kind: 'e164'\n    },\n    {\n      description: 'XID',\n      type: 'string',\n      kind: 'xid'\n    },\n    {\n      description: 'GUID',\n      type: 'string',\n      kind: 'guid'\n    },\n    {\n      description: 'KSUID',\n      type: 'string',\n      kind: 'ksuid'\n    },\n    {\n      description: 'Credit card',\n      type: 'string',\n      kind: 'credit_card'\n    },\n    {\n      description: 'Iban',\n      type: 'string',\n      kind: 'iban'\n    },\n    {\n      description: 'String boolean',\n      type: 'pipe',\n      inner: {type: 'string'},\n      outer: {type: 'boolean'},\n      truthy: ['true', '1', 'yes', 'on', 'y', 'enabled'],\n      falsy: ['false', '0', 'no', 'off', 'n', 'disabled'],\n      case: 'insensitive'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings10 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'cidr',\n      version: 'v4'\n    }\n  ]\n};\n\nconst schemaInstanceJSONStrings11 = {\n  type: 'union',\n  options: [\n    {\n      type: 'string',\n      kind: 'cidr',\n      version: 'v6'\n    }\n  ]\n};\n\n// Todo: test editing, including fixing aggregate errors and aggregate error\n//         as cause (done?)\n\n// Todo: If Zod starts to do circular data, support with reference types\n// Todo: If Zod starts to allow specific types for our instanceof types, use those\n//         instead, not just for more standard semanticness, but for any\n//         additional validations\n\n/**\n * @param {string} schema\n * @throws {Error}\n * @returns {import('zodexy').SzType}\n */\nfunction getSchemaContent (schema) {\n  switch (schema) {\n  case 'Zodexy schema':\n    return zodexSchemaJSON;\n  case 'Zodexy schema instance':\n    return schemaInstanceJSON;\n  case 'Zodexy schema instance 2':\n    return schemaInstanceJSON2;\n  case 'Zodexy schema instance 3':\n    return schemaInstanceJSON3;\n  case 'Zodexy schema instance 4':\n    return schemaInstanceJSON4;\n  case 'Zodexy schema instance 5':\n    return schemaInstanceJSON5;\n  case 'Zodexy schema instance 6':\n    return schemaInstanceJSON6;\n  case 'Zodexy schema instance 7':\n    return schemaInstanceJSON7;\n  case 'Zodexy schema instance 8':\n    return schemaInstanceJSON8;\n  case 'Zodexy schema instance 9':\n    return schemaInstanceJSON9;\n  case 'Zodexy schema instance 10':\n    return schemaInstanceJSON10;\n  case 'Zodexy schema instance 11':\n    return schemaInstanceJSON11;\n  case 'Zodexy schema instance 12':\n    return schemaInstanceJSON12;\n  case 'Zodexy schema instance xor':\n    return schemaInstanceJSONXor;\n  case 'Zodexy schema instance xor 2':\n    return schemaInstanceJSONXor2;\n  case 'Zodexy schema instance meta':\n    return schemaInstanceJSONMeta;\n  case 'Zodexy schema instance mins and maxes':\n    return schemaInstanceJSONMinsMaxes;\n  case 'Zodexy schema instance mins and maxes 2':\n    return schemaInstanceJSONMinsMaxes2;\n  case 'Zodexy schema instance mins and maxes 3':\n    return schemaInstanceJSONMinsMaxes3;\n  case 'Zodexy schema instance BigInt formats':\n    return schemaInstanceJSONBigIntFormats;\n  case 'Zodexy schema instance strings 1':\n    return schemaInstanceJSONStrings1;\n  case 'Zodexy schema instance strings 2':\n    return schemaInstanceJSONStrings2;\n  case 'Zodexy schema instance strings 3':\n    return schemaInstanceJSONStrings3;\n  case 'Zodexy schema instance strings 4':\n    return schemaInstanceJSONStrings4;\n  case 'Zodexy schema instance strings 5':\n    return schemaInstanceJSONStrings5;\n  case 'Zodexy schema instance strings 6':\n    return schemaInstanceJSONStrings6;\n  case 'Zodexy schema instance strings 7':\n    return schemaInstanceJSONStrings7;\n  case 'Zodexy schema instance strings 8':\n    return schemaInstanceJSONStrings8;\n  case 'Zodexy schema instance strings 9':\n    return schemaInstanceJSONStrings9;\n  case 'Zodexy schema instance strings 10':\n    return schemaInstanceJSONStrings10;\n  case 'Zodexy schema instance strings 11':\n    return schemaInstanceJSONStrings11;\n  case 'any schema':\n    return anySchemaJSON;\n  case 'unknown schema':\n    return unknownSchemaJSON;\n  /* istanbul ignore next -- Guard */\n  default:\n    /* istanbul ignore next -- Guard */\n    throw new Error('Unexpected schema');\n  }\n}\n\nconst keyPathNotExpectedTypeChoices = await formatAndTypeChoices({\n  hasKeyPath: false,\n  typeNamespace: 'demo-keypath-not-expected',\n  schemas: [\n    'Zodexy schema', 'Zodexy schema instance', 'Zodexy schema instance 2',\n    'Zodexy schema instance 3', 'Zodexy schema instance 4',\n    'Zodexy schema instance 5', 'Zodexy schema instance 6',\n    'Zodexy schema instance 7', 'Zodexy schema instance 8',\n    'Zodexy schema instance 9', 'Zodexy schema instance 10',\n    'Zodexy schema instance 11', 'Zodexy schema instance 12',\n    'Zodexy schema instance xor', 'Zodexy schema instance xor 2',\n    'Zodexy schema instance meta',\n    'Zodexy schema instance mins and maxes',\n    'Zodexy schema instance mins and maxes 2',\n    'Zodexy schema instance mins and maxes 3',\n    'Zodexy schema instance BigInt formats',\n    'Zodexy schema instance strings 1',\n    'Zodexy schema instance strings 2',\n    'Zodexy schema instance strings 3',\n    'Zodexy schema instance strings 4',\n    'Zodexy schema instance strings 5',\n    'Zodexy schema instance strings 6',\n    'Zodexy schema instance strings 7',\n    'Zodexy schema instance strings 8',\n    'Zodexy schema instance strings 9',\n    'Zodexy schema instance strings 10',\n    'Zodexy schema instance strings 11',\n    'any schema', 'unknown schema'\n  ],\n  selectedSchema: 'Zodexy schema instance 2',\n  getSchemaContent\n});\n\nconst keyPathNotExpectedTypeChoicesFirstPreselected =\n  await formatAndTypeChoices({\n    hasKeyPath: false,\n    typeNamespace: 'demo-keypath-not-expected-no-preselected',\n    schemas: [\n      'Zodexy schema', 'Zodexy schema instance'\n    ],\n    getSchemaContent\n  });\n\nsetTimeout(function () {\n  jml('section', {role: 'main'}, [\n    ['h1', [\n      'Jsoe schema testing'\n    ]],\n    ['h2', [\n      'Format and type choices: No key path expected (type can vary at root)'\n    ]],\n\n    // Put inside form so can validate\n    ['form', {id: 'formatAndTypeChoices'}, [\n      ...keyPathNotExpectedTypeChoices.domArray\n    ]],\n\n    ['button', {\n      id: 'getType',\n      $on: {\n        click () {\n          dialogs.alert(keyPathNotExpectedTypeChoices.getType());\n        }\n      }\n    }, ['Get type']],\n\n    ['button', {\n      id: 'isValid',\n      $on: {\n        click () {\n          dialogs.alert(keyPathNotExpectedTypeChoices.validValuesSet());\n        }\n      }\n    }, ['Is valid']],\n\n    ['button', {\n      id: 'logValue',\n      $on: {\n        click () {\n          console.log(keyPathNotExpectedTypeChoices.getValue());\n        }\n      }\n    }, ['Log value']],\n\n    ['button', {\n      id: 'viewUI',\n      $on: {\n        async click () {\n          const controls =\n            (await keyPathNotExpectedTypeChoices.formats.getControlsForFormatAndValue(\n              keyPathNotExpectedTypeChoices.types,\n              keyPathNotExpectedTypeChoices.formatChoices.\n                selectedOptions[0].value,\n              keyPathNotExpectedTypeChoices.getValue(),\n              {\n                readonly: true,\n                typeNamespace: 'demo-keypath-not-expected',\n                // schemaContent: anySchemaJSON\n                schemaContent: keyPathNotExpectedTypeChoices.formatChoices.\n                  selectedOptions[0].dataset.schema\n                  ? getSchemaContent(\n                    keyPathNotExpectedTypeChoices.formatChoices.\n                      selectedOptions[0].dataset.schema\n                  )\n                  : undefined\n              }\n            )).rootUI;\n          $('#viewUIResults').firstChild?.remove();\n          $('#viewUIResults').append(controls);\n        }\n      }\n    }, ['view UI']],\n\n    ['div', {id: 'viewUIResults'}],\n\n    ['button', {\n      id: 'initializeWithValue',\n      $on: {\n        async click () {\n          await keyPathNotExpectedTypeChoices.setValue({\n            type: 'literal',\n            value: 42\n          }, {\n            schemaContent: await getSchemaContent(\n              keyPathNotExpectedTypeChoices.formatChoices.\n                selectedOptions[0].dataset.schema\n            )\n          });\n        }\n      }\n    }, ['Initialize with a value']],\n\n    ['button', {\n      id: 'showRootFormControl',\n      $on: {\n        click () {\n          const root = $(\n            '#formatAndTypeChoices > .typesHolder > ' +\n              '.typeContainer > div[data-type]'\n          );\n          const formControl =\n            keyPathNotExpectedTypeChoices.types.getFormControlForRoot(root);\n          formControl.style.backgroundColor = 'red';\n          setTimeout(() => {\n            formControl.style.backgroundColor = 'white';\n          }, 3000);\n        }\n      }\n    }, ['Show root form control']],\n\n    ['h2', [\n      'Convert structured cloning string representation to value and log'\n    ]],\n    ['input', {\n      id: 'getValueForString',\n      placeholder: 'e.g., [\"abc\", 17]',\n      $on: {\n        change () {\n          const union = {\n            type: 'union',\n            options: [\n              ...schemaInstanceJSON.options,\n              ...schemaInstanceJSON2.options,\n              ...schemaInstanceJSON3.options,\n              ...schemaInstanceJSON4.options,\n              ...schemaInstanceJSON5.options,\n              ...schemaInstanceJSON6.options,\n              ...schemaInstanceJSON7.options,\n              ...schemaInstanceJSON8.options,\n              ...schemaInstanceJSON9.options,\n              ...schemaInstanceJSON10.options\n            ]\n          };\n          const types = new Types();\n          const value = types.getValueForString(this.value, {\n            format: 'schema',\n            schemaObject: union,\n            schemaOriginal: union\n          })[0];\n          console.log(value);\n        }\n      }\n    }],\n\n    ['br'], ['br'],\n    ['h2', ['Type choices alone']],\n    (() => {\n      // Fallback from missing `schemaOriginal` to union `schemaContent`;\n      //   trigger by change event\n      const typeSelection = typeChoices({\n        format: 'schema',\n        typeNamespace: 'demo-type-choices-only',\n        schemaIdx: 1,\n        schemaContent: {\n          type: 'union',\n          options: [\n            {\n              description: 'String',\n              type: 'string'\n            },\n            {\n              description: 'Number',\n              type: 'number'\n            }\n          ]\n        }\n      });\n\n      return ['form', {\n        id: 'typeChoicesOnly',\n        $on: {\n          /* istanbul ignore next -- Guard */\n          submit (e) {\n            /* istanbul ignore next -- Guard */\n            e.preventDefault();\n          }\n        }\n      }, [\n        ...typeSelection.domArray\n      ]];\n    })(),\n\n    ['br'], ['br'],\n    ['h2', [\n      'Default to first preselected schema'\n    ]],\n    ['form', {id: 'formatAndTypeChoicesFirstPreselected'}, [\n      ...keyPathNotExpectedTypeChoicesFirstPreselected.domArray,\n      ['button', {id: 'setASchemaFormat', $on: {\n        click (e) {\n          e.preventDefault();\n          keyPathNotExpectedTypeChoicesFirstPreselected.\n            formatChoices.$setFormat({\n              schema: 'Zodexy schema instance'\n            });\n        }\n      }}, [\n        'Set a schema format'\n      ]],\n      ['button', {id: 'setABadSchemaFormat', $on: {\n        click (e) {\n          e.preventDefault();\n          keyPathNotExpectedTypeChoicesFirstPreselected.\n            formatChoices.$setFormat({\n              schema: 'non-existent schema'\n            });\n        }\n      }}, [\n        'Recovers from setting bad schema format'\n      ]]\n    ]]\n  ], body);\n}, 500);\n"],names:[],mappings:"AAAA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAExB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAER,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAA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AC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC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CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,C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lB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC;AACJ,CAAC,CAAC;AACF,CAAC;;AAED,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAE1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEhC,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC;AACF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC;AACF;;AAEA,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC;AACH,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC;;AAEF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC;;AAEJ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAErB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrF,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,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AAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3E,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAElC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACzB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACf,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAEN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACjC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACxB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACpB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACnC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACZ,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAER,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACtB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACb,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC9B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACT,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;;AAER,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACX,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACN,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC3D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/D,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC/C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC7C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAClB,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC5B,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACvD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACrC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAC1C,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACd,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACR,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AAChD,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACP,CAAC,CAAC,CAAC,CAAC,CAAC;AACL,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;AACV,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC;",file:undefined},_coverageSchema:"1a1c01bbd47fc00a2c39e90264f33305004495a9",hash:"bcdd39095cb3499e677713caa22af545903cc59e"};var coverage=global[gcv]||(global[gcv]={});if(!coverage[path]||coverage[path].hash!==hash){coverage[path]=coverageData;}var actualCoverage=coverage[path];{// @ts-ignore
+cov_rs275o34z=function(){return actualCoverage;};}return actualCoverage;}cov_rs275o34z();const zodexSchemaJSON=(cov_rs275o34z().s[0]++,await(await fetch('../vendor/zodexy/dist/schema.zodexy.json')).json());const anySchemaJSON=(cov_rs275o34z().s[1]++,{type:'any'});const unknownSchemaJSON=(cov_rs275o34z().s[2]++,{type:'unknown'});const schemaInstanceJSONMinsMaxes=(cov_rs275o34z().s[3]++,{type:'union',options:[{type:'number',min:400,max:700,format:'int32'},{type:'bigInt',min:'400',max:'700'},{type:'date',min:new Date('1999-01-01').getTime(),max:new Date('2001-01-01').getTime()},{type:'string',min:5,max:10}]});const schemaInstanceJSONMinsMaxes2=(cov_rs275o34z().s[4]++,{type:'union',options:[{type:'number',min:400,minInclusive:true,max:700,maxInclusive:true,multipleOf:5},{type:'bigInt',min:'400',minInclusive:true,max:'700',maxInclusive:true,multipleOf:'5'},{type:'date',min:new Date('1999-01-01').getTime(),max:new Date('2001-01-01').getTime()},{type:'string',length:10}]});const schemaInstanceJSONMinsMaxes3=(cov_rs275o34z().s[5]++,{type:'union',options:[{type:'number',min:400,max:700},{type:'bigInt'},{type:'date',min:new Date('1999-01-01').getTime(),max:new Date('2001-01-01').getTime()},{type:'string',startsWith:'abc',endsWith:'xyz',toLowerCase:true,trim:true}]});const schemaInstanceJSONBigIntFormats=(cov_rs275o34z().s[6]++,{type:'union',options:[{description:'An int64 BigInt',type:'bigInt',format:'int64'},{description:'A uint64 BigInt',type:'bigInt',format:'uint64'}]});const schemaInstanceJSONStrings1=(cov_rs275o34z().s[7]++,{type:'union',options:[{type:'string',includes:'GHI',position:5,toUpperCase:true}]});const schemaInstanceJSONStrings2=(cov_rs275o34z().s[8]++,{type:'union',options:[{type:'string',includes:'GHI',regex:'a[a-z]c'}]});const schemaInstanceJSONStrings3=(cov_rs275o34z().s[9]++,{type:'union',options:[{type:'string',regex:'a[a-z]c',flags:'i'}]});const schemaInstanceJSONStrings4=(cov_rs275o34z().s[10]++,{type:'union',options:[{type:'string',kind:'time',precision:3}]});const schemaInstanceJSONStrings5=(cov_rs275o34z().s[11]++,{type:'union',options:[{type:'string',kind:'time'}]});const schemaInstanceJSONStrings6=(cov_rs275o34z().s[12]++,{type:'union',options:[{type:'string',kind:'datetime',offset:true,local:true,precision:3}]});const schemaInstanceJSONStrings7=(cov_rs275o34z().s[13]++,{type:'union',options:[{type:'string',kind:'ip',version:'v4'}]});const schemaInstanceJSONStrings8=(cov_rs275o34z().s[14]++,{type:'union',options:[{type:'string',kind:'ip',version:'v6'}]});const schemaInstanceJSONStrings9=(cov_rs275o34z().s[15]++,{type:'union',options:[{description:'Emoji',type:'string',kind:'emoji'},{description:'UUID',type:'string',kind:'uuid'},{description:'UUID v4',type:'string',kind:'uuid',version:'v4'},{description:'Nanoid',type:'string',kind:'nanoid'},{description:'Nanoid with length',type:'string',kind:'nanoid',length:15},{description:'CUID',type:'string',kind:'cuid'},{description:'CUID2',type:'string',kind:'cuid2'},{description:'ULID',type:'string',kind:'ulid'},{description:'Duration',type:'string',kind:'duration'},{description:'Base64',type:'string',kind:'base64'},{description:'Base64 URL',type:'string',kind:'base64url'},{description:'JWT',type:'string',kind:'jwt'},{description:'JWT HS256',type:'string',kind:'jwt',algorithm:'HS256'},{description:'E.164',type:'string',kind:'e164'},{description:'XID',type:'string',kind:'xid'},{description:'GUID',type:'string',kind:'guid'},{description:'KSUID',type:'string',kind:'ksuid'},{description:'Credit card',type:'string',kind:'credit_card'},{description:'Iban',type:'string',kind:'iban'},{description:'String boolean',type:'pipe',inner:{type:'string'},outer:{type:'boolean'},truthy:['true','1','yes','on','y','enabled'],falsy:['false','0','no','off','n','disabled'],case:'insensitive'}]});const schemaInstanceJSONStrings10=(cov_rs275o34z().s[16]++,{type:'union',options:[{type:'string',kind:'cidr',version:'v4'}]});const schemaInstanceJSONStrings11=(cov_rs275o34z().s[17]++,{type:'union',options:[{type:'string',kind:'cidr',version:'v6'}]});// Todo: test editing, including fixing aggregate errors and aggregate error
 //         as cause (done?)
 // Todo: If Zod starts to do circular data, support with reference types
 // Todo: If Zod starts to allow specific types for our instanceof types, use those

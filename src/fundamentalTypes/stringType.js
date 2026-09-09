@@ -133,6 +133,11 @@ const stringType = {
             return `Value doesn't match credit card pattern.`;
           }
           break;
+        case 'iban':
+          if (!regexes.iban.test(value)) {
+            return `Value doesn't match iban pattern.`;
+          }
+          break;
         case 'ip':
           switch ('version' in stringSchemaObject &&
               stringSchemaObject.version) {
