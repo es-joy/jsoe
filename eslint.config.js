@@ -20,7 +20,7 @@ export default [
     ]
   },
   ...(typescriptEslintEnabled
-    ? {
+    ? [{
       languageOptions: {
         parser: typescriptEslintParser,
         parserOptions: {
@@ -34,8 +34,8 @@ export default [
           tsconfigRootDir: import.meta.dirname
         }
       }
-    }
-    : {}),
+    }]
+    : []),
   ...ashNazg(['sauron', 'browser']),
   {
     name: 'JSOE/Coverage',
@@ -115,16 +115,16 @@ export default [
       // Good but slow
       ...(typescriptEslintEnabled
         ? {
-        'jsdoc/no-unnecessary-type-assertion': ['error', {
-          checkLiteralConstAssertions: true,
-          preferConstToLiteralTuples: true,
-          treatAnyAsRedundant: false,
-          typesToIgnore: [
-            `import('../types.js').SuperTypeObject`
-          ]
-        }]
-      }
-      : {})
+          'jsdoc/no-unnecessary-type-assertion': ['error', {
+            checkLiteralConstAssertions: true,
+            preferConstToLiteralTuples: true,
+            treatAnyAsRedundant: false,
+            typesToIgnore: [
+              `import('../types.js').SuperTypeObject`
+            ]
+          }]
+        }
+        : {})
     }
   }
 ];

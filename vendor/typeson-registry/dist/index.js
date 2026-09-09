@@ -1051,6 +1051,26 @@ const filelist = {
     }
 };
 
+/* globals IDBKeyRange -- Polyfill needed */
+
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const idbkeyrange = {
+    idbkeyrange: {
+        test (x) {
+            return toStringTag(x) === 'IDBKeyRange';
+        },
+        replace ({lower, upper, lowerOpen, upperOpen}) {
+            return {lower, upper, lowerOpen, upperOpen};
+        },
+        revive ({lower, upper, lowerOpen, upperOpen}) {
+            return IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen);
+        }
+    }
+};
+
 /* globals document, OffscreenCanvas, createImageBitmap -- Polyfills */
 // `ImageBitmap` is browser / DOM specific. It also can only work
 //  same-domain (or CORS)
@@ -1432,10 +1452,18 @@ const promise = {
 const quotaexceedederror = {
     quotaexceedederror: {
         test (x) { return toStringTag(x) === 'QuotaExceededError'; },
-        replace ({message, quota, requested}) {
-            return {message, quota, requested};
+        replace ({
+            message, quota, requested,
+            cause, stack, fileName, lineNumber, columnNumber
+        }) {
+            return {
+                message, quota, requested,
+                cause, stack, fileName, lineNumber, columnNumber
+            };
         },
-        revive ({message, quota, requested}) {
+        revive (obj) {
+            const {message, quota, requested} = obj;
+
             /** @type {{quota?: number, requested?: number}} */
             const options = {};
             if (quota !== null && quota !== undefined) {
@@ -1444,7 +1472,26 @@ const quotaexceedederror = {
             if (requested !== null && requested !== undefined) {
                 options.requested = requested;
             }
-            return new QuotaExceededError(message, options);
+            const e = /**
+                       * @type {{
+                       *   name: string,
+                       *   cause: Error,
+                       *   stack: string,
+                       *   fileName?: string,
+                       *   lineNumber?: import('typeson').Integer,
+                       *   columnNumber?: import('typeson').Integer
+                       * }}
+                       */ (
+                    new QuotaExceededError(message, options)
+                );
+
+            e.cause = obj.cause;
+            e.stack = obj.stack;
+            e.fileName = obj.fileName;
+            e.lineNumber = obj.lineNumber;
+            e.columnNumber = obj.columnNumber;
+
+            return e;
         }
     }
 };
@@ -1824,15 +1871,41 @@ const webtransporterror = {
         test (x) { return toStringTag(x) === 'WebTransportError'; },
         // Note that we can't support the `source` property (defaults
         //   to `stream` instead of `session`)
-        replace ({message, streamErrorCode}) {
-            return {message, streamErrorCode};
+        replace ({
+            message, streamErrorCode,
+            cause, stack, fileName, lineNumber, columnNumber
+        }) {
+            return {
+                message, streamErrorCode,
+                cause, stack, fileName, lineNumber, columnNumber
+            };
         },
-        revive ({message, streamErrorCode}) {
+        revive (obj) {
+            const {message, streamErrorCode} = obj;
             // TS lib still models the older two-argument
             //   `(message, options)` form; browsers implement a single
             //   `init` object (which also carries `message`).
-            // @ts-expect-error - More recent API
-            return new WebTransportError({message, streamErrorCode});
+            const e = /**
+                       * @type {{
+                       *   name: string,
+                       *   cause: Error,
+                       *   stack: string,
+                       *   fileName?: string,
+                       *   lineNumber?: import('typeson').Integer,
+                       *   columnNumber?: import('typeson').Integer
+                       * }}
+                       */ (
+                    // @ts-expect-error - More recent API
+                    new WebTransportError({message, streamErrorCode})
+                );
+
+            e.cause = obj.cause;
+            e.stack = obj.stack;
+            e.fileName = obj.fileName;
+            e.lineNumber = obj.lineNumber;
+            e.columnNumber = obj.columnNumber;
+
+            return e;
         }
     }
 };
@@ -2256,5 +2329,5 @@ const universal = [
     //   built-in into ecmasript standard.
 ];
 
-export { c as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, audiodata, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, encodedaudiochunk, encodedvideochunk, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, hasConstructorOf, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, quotaexceedederror, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningForStorage, structuredCloningThrowing, symbol, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject, videoframe, webtransporterror };
+export { c as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, audiodata, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, encodedaudiochunk, encodedvideochunk, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, hasConstructorOf, idbkeyrange, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, quotaexceedederror, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningForStorage, structuredCloningThrowing, symbol, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject, videoframe, webtransporterror };
 //# sourceMappingURL=index.js.map
