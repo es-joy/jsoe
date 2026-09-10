@@ -949,8 +949,9 @@ const schema = {
     case 'properties':
       // Like `object`, but `z.properties()` has no `catchall` and does not
       //   strip unknown keys: a property outside the declared shape is passed
-      //   through untyped (leaving `currentSchema` unset falls back to the
-      //   value's own runtime type below).
+      //   through untyped, so - as with a `looseRecord`'s non-conforming entry
+      //   - its control is offered the unconstrained type choice rather than
+      //   being pinned to a declared property's schema.
       currentSchema = /** @type {import('zodexy').SzProperties} */ (
         parentSchema
       ).properties[
@@ -958,6 +959,9 @@ const schema = {
       ];
       if (!currentSchema) {
         mustBeOptional = true;
+        currentSchema = /** @type {import('zodexy').SzType} */ (
+          {type: 'unknown'}
+        );
       }
       break;
     case 'array':

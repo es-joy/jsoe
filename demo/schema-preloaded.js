@@ -236,12 +236,13 @@ setTimeout(function () {
         {abc: 2, xy: 'passthrough'}
       ], schemaInstanceJSON12),
 
-      // `z.properties()`. `.innerItem:nth-of-type(1)` is the described branch
-      //   loaded with a value that also carries `extra`, a key outside the
-      //   declared shape: `properties` (unlike `object`) does not strip it, so
-      //   it renders with the value's own runtime type (a string control).
-      //   `.innerItem:nth-of-type(2)` is the branch with no `description`, whose
-      //   container heading is therefore labelled "Properties".
+      // `z.properties()` renders through the `object` UI. `.innerItem:nth-of-
+      //   type(1)` is the described branch (required `count`, optional `label`)
+      //   loaded with an extra `extra` key outside the declared shape:
+      //   `properties` (unlike `object`) does not strip it, so it renders as a
+      //   free, unconstrained property. `.innerItem:nth-of-type(2)` is the
+      //   branch with no `description`, whose container heading is therefore
+      //   labelled "Properties".
       ...getTypeChoices([
         {count: 3, label: 'hi', extra: 'kept'},
         {flag: true}

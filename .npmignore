@@ -5,3 +5,5 @@ instrumented
 .github
 cypress.config.ts
 demo
+.agents
+skills-lock.json

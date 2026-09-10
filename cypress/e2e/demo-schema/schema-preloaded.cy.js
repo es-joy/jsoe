@@ -1255,16 +1255,22 @@
           const sel = 'section:nth-of-type(14) > .innerItem:nth-of-type(1) ' +
             arraySels;
 
-          // `z.properties()` (unlike `object`) does not strip `extra`; with no
-          //   schema of its own it renders with the value's own runtime type
-          //   (a string control), and no declared property's schema is imposed
-          //   on it - the sole number control stays the one for `count`.
-          cy.get(sel + 'input[type=number]').should('have.length', 1);
+          // `count` (declared) and `label` (declared, optional) are fieldsets
+          //   1 and 2; `extra` is not in the shape. `z.properties()` (unlike
+          //   `object`) does not strip it, so it is rendered as fieldset 3: a
+          //   free property whose control is the unconstrained type choice,
+          //   defaulting here to the value's own runtime type (a string), with
+          //   no declared property's schema (e.g. a number widget) imposed.
           cy.get(
-            sel + 'textarea[name="demo-type-choices-only-initial-value-string"]'
-          ).should(($tas) => {
-            expect([...$tas].map((t) => t.value)).to.include('kept');
-          });
+            sel + 'fieldset:nth-of-type(3) input[data-prop="true"]'
+          ).should('have.value', 'extra');
+          cy.get(
+            sel + 'fieldset:nth-of-type(3) ' +
+            'textarea[name="demo-type-choices-only-initial-value-string"]'
+          ).should('have.value', 'kept');
+          cy.get(
+            sel + 'fieldset:nth-of-type(3) input[type=number]'
+          ).should('not.exist');
         }
       );
 

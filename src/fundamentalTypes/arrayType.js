@@ -1628,9 +1628,17 @@ const arrayType = {
           specificSchemaObject
         )?.element;
       }
-      return /** @type {import('zodexy').SzObject} */ (
+      const propSchema = /** @type {import('zodexy').SzObject} */ (
         specificSchemaObject
       )?.properties?.[/** @type {string} */ (propName)];
+      if (!propSchema && specificSchemaObject?.type === 'properties') {
+        // `z.properties()` has no `catchall` and does not strip keys outside
+        //   its declared shape; such a key is passed through untyped, so its
+        //   control is offered the unconstrained type choice (as a
+        //   `looseRecord`'s non-conforming entry is).
+        return /** @type {import('zodexy').SzType} */ ({type: 'unknown'});
+      }
+      return propSchema;
     };
 
     /**

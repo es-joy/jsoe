@@ -6,3 +6,5 @@ cypress/downloads
 cypress/screenshots
 # instrumented # Disable for now for Cypress Cloud
 /dist
+.agents
+skills-lock.json

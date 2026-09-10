@@ -64,7 +64,7 @@
     ]
   },
   "dependencies": {
-    "@node-static/node-static": "^0.9.1",
+    "@node-static/node-static": "^0.9.2",
     "acorn": "^8.18.0",
     "jamilih": "0.69.1",
     "mime": "^4.1.0",

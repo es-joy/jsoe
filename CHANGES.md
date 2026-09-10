@@ -5,12 +5,38 @@
 - feat: add `properties` schema support: a zodexy `{type: 'properties'}` node
     (Zod 4.5+ `z.properties()`) is now edited, viewed, and preloaded through the
     same `object` UI, differing from `object` in that it has no `catchall` and
-    does not strip properties outside its declared shape (extra keys are passed
-    through untyped). Where it would otherwise be an indistinguishable "Object"
-    with no `meta` label of its own - the type pull-down entry and the
-    edit-mode container heading's tooltip - it is named "Properties". An
-    intersection of two `properties` nodes merges their declared property
-    schemas, as an intersection of two `object` nodes does.
+    does not strip properties outside its declared shape.
+    - `{type: 'properties'}` maps to the fundamental `object` type
+        (`zodexToStructuredCloningTypeMap`), so it reuses the object editor;
+        `getTypesForSchema` handles it alongside `object`.
+    - A preloaded key that is *not* in the declared shape is kept (not
+        stripped) and rendered as a free property offered the unconstrained
+        type choice, the same treatment a `looseRecord`'s non-conforming entry
+        gets. This required returning `{type: 'unknown'}` for such a key from
+        both `convertFromTypeson` (`formats/schema.js`) and `getChildSchema`
+        (`fundamentalTypes/arrayType.js`): with no declared schema and no
+        `catchall` to fall back to, `convertFromTypeson` previously returned
+        the value's bare runtime type while `getChildSchema` returned
+        `undefined`, so the property's type-chooser was built with no
+        `schemaContent` at all — the "unschema'd" path — which rendered an
+        extra, stray control (e.g. a number widget beside the string input).
+        `{type: 'unknown'}` instead expands to the full candidate-type set and
+        the lossless-match pass picks exactly the one control matching the
+        value, with the type-choice `<select>` offered for changing it.
+    - Because it renders as an `object`, a `properties` node would otherwise be
+        an indistinguishable "Object" in the type pull-down (`types.js`
+        `getOptionForType`) and the edit-mode container-heading tooltip
+        (`arrayType.js`); it is now named "Properties" when the schema carries
+        no `meta` label of its own. `xor`-branch labels
+        (`typeChoices.js` `deriveXorBranchLabel`) likewise treat it as a
+        property bag.
+    - A new `isPropertyBagType` helper (`object` or `properties`) lets
+        `mergeSchema` merge the declared property schemas of two intersected
+        `properties` nodes — the previous `type !== 'object'` guard returned
+        early and silently dropped the right branch's properties — and lets
+        `isValueValidationRequired` treat `properties` like `object` (its
+        per-property controls already carry their own schemas, so no
+        value-level reparse is needed).
 - feat: add `iban` string kind
 
 ## 0.26.1
