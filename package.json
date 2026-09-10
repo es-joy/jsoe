@@ -48,8 +48,9 @@
     "instrument": "NODE_OPTIONS=--max-old-space-size=8192 run-s -c instrument-remove instrument-add copy-index rollup",
     "coveradge": "coveradge badges/coverage-badge.svg",
     "cypress:log": "ELECTRON_ENABLE_LOGGING=1 cypress run; npm run report",
-    "cypress": "cypress run --browser chome --spec cypress/e2e/all.cy.js; npm run report && npm run coveradge",
-    "cypress:record": "cypress run --browser chome --record --parallel",
+    "cypress": "rm -Rf .nyc_output && cypress run --browser chrome --spec cypress/e2e/all.cy.js; npm run report && npm run coveradge",
+    "cypress:record": "cypress run --browser chrome --record --parallel",
+    "cypress:sample-spec": "rm -Rf .nyc_output && cypress run --browser chrome --spec cypress/e2e/subTypes/true.cy.js; npm run report && npm run coveradge",
     "report": "nyc report",
     "test": "npm run eslint && npm run rollup && npm run cypress"
   },

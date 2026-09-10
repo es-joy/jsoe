@@ -9,6 +9,7 @@ export default [
   {
     name: 'JSOE/Ignores',
     ignores: [
+      '.agents',
       'coverage',
       'instrumented',
       'ignore',

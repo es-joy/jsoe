@@ -2,6 +2,7 @@
 // the project's config changing)
 
 import codeCoverageTask from '@cypress/code-coverage/task';
+// import useBabelrc from '@cypress/code-coverage/use-babelrc';
 
 // Reenable to see logs (also in e2e.ts)
 // import cypressTerminalReport from
@@ -28,7 +29,7 @@ const exprt = (on, config) => {
   // });
 
   // E.g.:
-  // on('file:preprocessor', require('@cypress/code-coverage/use-babelrc.js'));
+  // on('file:preprocessor', useBabelrc);
   // From https://github.com/cypress-io/code-coverage
 
   return config;
