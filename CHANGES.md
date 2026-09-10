@@ -12,17 +12,9 @@
     - A preloaded key that is *not* in the declared shape is kept (not
         stripped) and rendered as a free property offered the unconstrained
         type choice, the same treatment a `looseRecord`'s non-conforming entry
-        gets. This required returning `{type: 'unknown'}` for such a key from
-        both `convertFromTypeson` (`formats/schema.js`) and `getChildSchema`
-        (`fundamentalTypes/arrayType.js`): with no declared schema and no
-        `catchall` to fall back to, `convertFromTypeson` previously returned
-        the value's bare runtime type while `getChildSchema` returned
-        `undefined`, so the property's type-chooser was built with no
-        `schemaContent` at all — the "unschema'd" path — which rendered an
-        extra, stray control (e.g. a number widget beside the string input).
-        `{type: 'unknown'}` instead expands to the full candidate-type set and
-        the lossless-match pass picks exactly the one control matching the
-        value, with the type-choice `<select>` offered for changing it.
+        gets. `convertFromTypeson` (`formats/schema.js`) and `getChildSchema`
+        (`fundamentalTypes/arrayType.js`) return `{type: 'unknown'}` for such a
+        key. See the related `fix:` below for why.
     - Because it renders as an `object`, a `properties` node would otherwise be
         an indistinguishable "Object" in the type pull-down (`types.js`
         `getOptionForType`) and the edit-mode container-heading tooltip
@@ -37,6 +29,18 @@
         `isValueValidationRequired` treat `properties` like `object` (its
         per-property controls already carry their own schemas, so no
         value-level reparse is needed).
+- fix: a preloaded property outside an `object` schema's declared shape, when
+    the schema has no `catchall`, is now edited through the unconstrained type
+    choice (`{type: 'unknown'}`) instead of an "unschema'd" control. Previously
+    `convertFromTypeson` returned the value's bare runtime type while
+    `getChildSchema` returned `undefined`, so the type-chooser was built with
+    no `schemaContent` and could render an extra, stray control (e.g. a number
+    widget beside the string input). `{type: 'unknown'}` expands to the full
+    candidate-type set, so the lossless-match pass picks the single control
+    matching the value and still offers the `<select>` to change it — the same
+    handling `properties` and a `looseRecord`'s non-conforming entry get. A
+    strict `object` still strips the key on parse; this governs only how it is
+    edited.
 - feat: add `iban` string kind
 
 ## 0.26.1

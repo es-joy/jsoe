@@ -1628,14 +1628,24 @@ const arrayType = {
           specificSchemaObject
         )?.element;
       }
-      const propSchema = /** @type {import('zodexy').SzObject} */ (
+      const objectSchema = /** @type {import('zodexy').SzObject} */ (
         specificSchemaObject
-      )?.properties?.[/** @type {string} */ (propName)];
-      if (!propSchema && specificSchemaObject?.type === 'properties') {
-        // `z.properties()` has no `catchall` and does not strip keys outside
-        //   its declared shape; such a key is passed through untyped, so its
-        //   control is offered the unconstrained type choice (as a
-        //   `looseRecord`'s non-conforming entry is).
+      );
+      const schemaType = specificSchemaObject?.type;
+      const propSchema = objectSchema?.properties?.[/** @type {string} */ (
+        propName
+      )];
+      if (
+        !propSchema &&
+        (schemaType === 'properties' ||
+          (schemaType === 'object' && !objectSchema.catchall))
+      ) {
+        // A key outside the declared shape of a `z.properties()` (which keeps
+        //   it) or a `catchall`-less `z.object()` (which strips it on parse but
+        //   still shows it while editing): offer the unconstrained type choice
+        //   rather than an unschema'd control, as a `looseRecord`'s
+        //   non-conforming entry gets. An `object` `catchall` takes precedence
+        //   (handled where the per-property schema is chosen elsewhere).
         return /** @type {import('zodexy').SzType} */ ({type: 'unknown'});
       }
       return propSchema;

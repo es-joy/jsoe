@@ -934,32 +934,23 @@ const schema = {
 
     switch (parentSchema?.type) {
     case 'object':
+    case 'properties':
+      // A key outside the declared shape: an `object` pins it to its
+      //   `catchall` if it has one; otherwise (and always for `properties`,
+      //   which has no `catchall`) its control is offered the unconstrained
+      //   type choice - as a `looseRecord`'s non-conforming entry is - rather
+      //   than the bare "unschema'd" fallback. A strict `object` will still
+      //   strip the key on parse; this only governs how it is edited.
       currentSchema = /** @type {import('zodexy').SzObject} */ (
         parentSchema
       ).properties[
         /** @type {string} */ (arrayOrObjectPropertyName)
       ];
       if (!currentSchema) {
+        mustBeOptional = true;
         currentSchema = /** @type {import('zodexy').SzObject} */ (
           parentSchema
-        ).catchall;
-        mustBeOptional = true;
-      }
-      break;
-    case 'properties':
-      // Like `object`, but `z.properties()` has no `catchall` and does not
-      //   strip unknown keys: a property outside the declared shape is passed
-      //   through untyped, so - as with a `looseRecord`'s non-conforming entry
-      //   - its control is offered the unconstrained type choice rather than
-      //   being pinned to a declared property's schema.
-      currentSchema = /** @type {import('zodexy').SzProperties} */ (
-        parentSchema
-      ).properties[
-        /** @type {string} */ (arrayOrObjectPropertyName)
-      ];
-      if (!currentSchema) {
-        mustBeOptional = true;
-        currentSchema = /** @type {import('zodexy').SzType} */ (
+        ).catchall ?? /** @type {import('zodexy').SzType} */ (
           {type: 'unknown'}
         );
       }
