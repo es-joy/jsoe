@@ -1226,6 +1226,63 @@
       );
     });
 
+    describe('Group `properties`', function () {
+      // `schemaInstanceJSON13`: a union of two `z.properties()` branches - one
+      //   with a `description`, one without.
+      it('Described branch: declared properties use their schemas', function () {
+        const sel = 'section:nth-of-type(14) > .innerItem:nth-of-type(1) ' +
+          arraySels;
+
+        cy.get(sel + '[data-type="object"] span').should(($span) => {
+          expect($span.attr('title')).to.equal('Described properties');
+        });
+
+        // The required declared property `count` -> its number schema
+        cy.get(sel + 'b.objectItem[title="count"]').should(
+          'have.text', 'A count'
+        );
+        cy.get(sel + 'input[type=number]').should('have.value', '3');
+
+        // The optional declared property `label` -> its string schema
+        cy.get(
+          sel + 'div[data-type="string"][title="An optional label"] textarea'
+        ).should('have.value', 'hi');
+      });
+
+      it(
+        'Described branch: a key outside the declared shape is kept, untyped',
+        function () {
+          const sel = 'section:nth-of-type(14) > .innerItem:nth-of-type(1) ' +
+            arraySels;
+
+          // `z.properties()` (unlike `object`) does not strip `extra`; with no
+          //   schema of its own it renders with the value's own runtime type
+          //   (a string control), and no declared property's schema is imposed
+          //   on it - the sole number control stays the one for `count`.
+          cy.get(sel + 'input[type=number]').should('have.length', 1);
+          cy.get(
+            sel + 'textarea[name="demo-type-choices-only-initial-value-string"]'
+          ).should(($tas) => {
+            expect([...$tas].map((t) => t.value)).to.include('kept');
+          });
+        }
+      );
+
+      it('Undescribed branch: the heading is labelled "Properties"', function () {
+        const sel = 'section:nth-of-type(14) > .innerItem:nth-of-type(2) ' +
+          arraySels;
+
+        cy.get(sel + '[data-type="object"] span').should(($span) => {
+          expect($span.attr('title')).to.equal('Properties');
+        });
+
+        cy.get(sel + 'b.objectItem[title="flag"]').should('have.text', 'A flag');
+        cy.get(sel + '[data-type="boolean"] input:checked').should(
+          'have.value', 'true'
+        );
+      });
+    });
+
     describe('Group 13', function () {
       it('Selects object with type selector', function () {
         const sel1 = 'form ' + (arraySels

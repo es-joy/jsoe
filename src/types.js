@@ -721,6 +721,13 @@ class Types {
     // `record`/`tuple` are not shown as their own pull-down entries; they render
     //   as `Object`/`Array` (their schema, incl. child descriptions, informs the
     //   layout — see `arrayType.js`).
+    // `z.properties()` likewise renders through the `object` type/UI; when the
+    //   schema supplies no label of its own, name it "Properties" so it is not
+    //   shown as an indistinguishable "Object".
+    if (type === 'object' && schemaContent?.type === 'properties') {
+      optInfo[0] = 'Properties';
+    }
+
     const schemaContentLabel = resolveSchemaMeta(schemaContent).label;
     if (schemaContentLabel) {
       optInfo[0] = `${optInfo[0]} (${schemaContentLabel})`;

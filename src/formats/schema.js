@@ -43,6 +43,10 @@ const zodexToStructuredCloningTypeMap = new Map([
   ['array', 'arrayNonindexKeys'],
 
   ['object', 'object'],
+  // `z.properties()` (Zod 4.5+) is a bare named-property shape: like `object`
+  //   but with no `catchall`/`symbols` and, in Zod, no unknown-key stripping.
+  //   jsoe edits it through the same `object` UI, keyed off the schema `type`.
+  ['properties', 'object'],
 
   ['tuple', 'array'],
   ['record', 'object'],
@@ -381,6 +385,17 @@ function mergeMeta (target, source) {
 }
 
 /**
+ * Whether a schema node carries a fixed bag of named property schemas under
+ * `properties` - `object` and `z.properties()`. Both are merged the same way
+ * across an intersection and both drive the `object` editor UI.
+ * @param {ZodexSchema['type']|undefined} type
+ * @returns {boolean}
+ */
+function isPropertyBagType (type) {
+  return type === 'object' || type === 'properties';
+}
+
+/**
  * @param {ZodexSchema} leftItem
  * @param {ZodexSchema} rightItem
  * @throws {Error}
@@ -412,7 +427,7 @@ function mergeSchema (leftItem, rightItem) {
         );
       } else if (Object.hasOwn(newLeftObj, prop)) {
         if (newLeftObj[prop] !== val && !deepEqual(newLeftObj[prop], val)) {
-          if (leftItem.type === 'object') {
+          if (isPropertyBagType(leftItem.type)) {
             throw new Error(
               'Duplicate property ' + prop + ' of value ' +
               JSON.stringify(val) + ' and ' +
@@ -450,12 +465,14 @@ function mergeSchema (leftItem, rightItem) {
     }
   }
 
-  if (leftItem.type !== 'object' || rightItem.type !== 'object') {
+  if (!isPropertyBagType(leftItem.type) || !isPropertyBagType(rightItem.type)) {
     delete newLeftObj.error;
     return newLeftObj;
   }
 
-  for (const [prop, val] of Object.entries(rightItem.properties)) {
+  for (const [prop, val] of Object.entries(
+    /** @type {import('zodexy').SzObject} */ (rightItem).properties
+  )) {
     if (typeof newLeftObj.properties !== 'string' &&
         Object.hasOwn(newLeftObj.properties, prop)) {
       if (deepEqual(newLeftObj.properties[prop], val)) {
@@ -594,6 +611,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
         originalJSON
       );
     }
+    case 'properties':
     case 'object': {
       const set = new Set();
       // const {properties} = schemaObject;
@@ -859,7 +877,9 @@ const schema = {
     if (['record', 'looseRecord', 'tuple'].includes(schemaObject.type)) {
       return true;
     }
-    return schemaObject.type !== 'object' &&
+    // `properties` is a named-property shape like `object`: the per-property
+    //   controls carry their own schemas, so no value-level reparse is needed.
+    return !isPropertyBagType(schemaObject.type) &&
       intersectionSchemas.has(schemaObject);
   },
   validateValue (types, schemaObject, value) {
@@ -923,6 +943,20 @@ const schema = {
         currentSchema = /** @type {import('zodexy').SzObject} */ (
           parentSchema
         ).catchall;
+        mustBeOptional = true;
+      }
+      break;
+    case 'properties':
+      // Like `object`, but `z.properties()` has no `catchall` and does not
+      //   strip unknown keys: a property outside the declared shape is passed
+      //   through untyped (leaving `currentSchema` unset falls back to the
+      //   value's own runtime type below).
+      currentSchema = /** @type {import('zodexy').SzProperties} */ (
+        parentSchema
+      ).properties[
+        /** @type {string} */ (arrayOrObjectPropertyName)
+      ];
+      if (!currentSchema) {
         mustBeOptional = true;
       }
       break;

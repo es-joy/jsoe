@@ -9,6 +9,7 @@ import {
   schemaInstanceJSON6, schemaInstanceJSON7,
   schemaInstanceJSON8, schemaInstanceJSON9,
   schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
+  schemaInstanceJSON13,
   makeNoneditableType
 } from './schema-data.js';
 
@@ -238,6 +239,17 @@ setTimeout(function () {
         {abc: 1},
         {abc: 2, xy: 'passthrough'}
       ], schemaInstanceJSON12),
+
+      // `z.properties()`. `.innerItem:nth-of-type(1)` is the described branch
+      //   loaded with a value that also carries `extra`, a key outside the
+      //   declared shape: `properties` (unlike `object`) does not strip it, so
+      //   it renders with the value's own runtime type (a string control).
+      //   `.innerItem:nth-of-type(2)` is the branch with no `description`, whose
+      //   container heading is therefore labelled "Properties".
+      ...getTypeChoices([
+        {count: 3, label: 'hi', extra: 'kept'},
+        {flag: true}
+      ], schemaInstanceJSON13),
       ...(() => {
         const schema = {
           type: 'union',

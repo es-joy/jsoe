@@ -2,6 +2,15 @@
 
 ## 0.27.0 (unreleased)
 
+- feat: add `properties` schema support: a zodexy `{type: 'properties'}` node
+    (Zod 4.5+ `z.properties()`) is now edited, viewed, and preloaded through the
+    same `object` UI, differing from `object` in that it has no `catchall` and
+    does not strip properties outside its declared shape (extra keys are passed
+    through untyped). Where it would otherwise be an indistinguishable "Object"
+    with no `meta` label of its own - the type pull-down entry and the
+    edit-mode container heading's tooltip - it is named "Properties". An
+    intersection of two `properties` nodes merges their declared property
+    schemas, as an intersection of two `object` nodes does.
 - feat: add `iban` string kind
 
 ## 0.26.1

@@ -2612,10 +2612,16 @@ const arrayType = {
           }
         }, /** @type {import('jamilih').JamilihChildren} */ ([
           [specificSchemaObject ? 'span' : 'b', {
-            title: schemaLabel(specificSchemaObject) ?? (DOM.initialCaps(
-              /** @type {import('../types.js').AvailableType} */
-              (itemType)
-            ).replace(/s$/u, ''))
+            title: schemaLabel(specificSchemaObject) ?? (
+              // `z.properties()` renders through the `object` UI; without a
+              //   `meta` label of its own, name it "Properties" rather than an
+              //   indistinguishable "Object".
+              specificSchemaObject?.type === 'properties'
+                ? 'Properties'
+                : DOM.initialCaps(
+                  /** @type {import('../types.js').AvailableType} */
+                  (itemType)
+                ).replace(/s$/u, ''))
           }, [
             specificSchemaObject
               ? '—'
