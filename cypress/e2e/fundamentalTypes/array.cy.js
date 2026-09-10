@@ -1621,7 +1621,7 @@ describe('Object spec (schema)', function () {
         'have.text', 'test456'
       );
       cy.get(
-        '#viewUIResults fieldset:nth-of-type(3) i[data-type="true"]'
+        '#viewUIResults fieldset:nth-of-type(3) i[data-type="boolean"]'
       ).should(
         'have.text', 'true'
       );

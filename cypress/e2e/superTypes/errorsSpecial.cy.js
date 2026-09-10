@@ -219,7 +219,7 @@ describe('Special Errors spec', () => {
       'errors'
     );
     cy.on('uncaught:exception', (err /* , runnable */) => {
-      if (err?.message.includes('Bad error type')) {
+      if (err?.message.includes('Not yet instantiated')) {
         // returning false here prevents Cypress from
         // failing the test
         return false;
