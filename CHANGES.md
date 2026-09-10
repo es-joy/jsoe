@@ -1,6 +1,6 @@
 # CHANGES TO `@es-joy/jsoe`
 
-## 0.27.0 (unreleased)
+## 0.27.0
 
 - feat: add `properties` schema support: a zodexy `{type: 'properties'}` node
     (Zod 4.5+ `z.properties()`) is now edited, viewed, and preloaded through the
