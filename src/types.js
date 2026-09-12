@@ -438,17 +438,28 @@ class Types {
   /**
    * @param {{
    *   useZodexyErrorMessages?: boolean,
-   *   useZodexyErrorMessagesInTypes?: boolean
+   *   useZodexyErrorMessagesInTypes?: boolean,
+   *   allowUnsafeEval?: boolean,
+   *   showRawTypesonControls?: boolean
    * }} [cfg]
    */
   constructor ({
     useZodexyErrorMessages = false,
-    useZodexyErrorMessagesInTypes = false
+    useZodexyErrorMessagesInTypes = false,
+    allowUnsafeEval = false,
+    showRawTypesonControls = true
   } = {}) {
     this.formats = new Formats(); // Todo: Make customizable and test
 
     this.useZodexyErrorMessages = useZodexyErrorMessages;
     this.useZodexyErrorMessagesInTypes = useZodexyErrorMessagesInTypes;
+    // Gates the eval-mode sub-feature of the raw Typeson edit/view buttons
+    //   (`src/utils/rawTypesonEditor.js`); disabled by default since eval'ing
+    //   arbitrary user-supplied text is inherently unsafe.
+    this.allowUnsafeEval = allowUnsafeEval;
+    // Master on/off switch for the raw Typeson edit/view buttons themselves;
+    //   when `false` neither button is rendered anywhere in the tree.
+    this.showRawTypesonControls = showRawTypesonControls;
     /** @type {WeakMap<RootElement, import('./formats/schema.js').ZodexSchema>} */
     this.schemasForRoots = new WeakMap();
 

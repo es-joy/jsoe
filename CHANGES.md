@@ -1,5 +1,38 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.28.0
+
+- feat: add raw Typeson/JSON6 "View raw"/"Edit raw" buttons to every
+    object/array-family control (`object`, `array`, `set`, `map`, `record`,
+    `tuple`, `filelist`), including the root control
+    - New `Types` constructor options: `showRawTypesonControls` (default
+        `true`) shows or hides the buttons entirely; `allowUnsafeEval`
+        (default `false`) additionally offers editing/seeding the same value
+        as literal, `eval`'d JS source instead of Typeson/JSON6
+    - New `src/utils/rawTypesonEditor.js` opens a dialog with a
+        syntax-highlighted (CodeMirror 6) editor; Save re-populates the
+        control's children via the same walk `structuredCloning`'s `iterate`
+        already uses for building them, then re-validates. A schema-driven
+        control's raw edit is also checked against its own schema before
+        being accepted
+    - New dependencies `json-6` (parsing only — its own `stringify` has a
+        string-value-quoting bug, worked around locally) and CodeMirror 6,
+        vendored for the bundler-less demo pages
+    - Eval-mode source reconstruction covers `Date`/`RegExp`/`Map`/`Set`/
+        `Symbol`/boxed primitives/the `Error` family (including `cause` and
+        `AggregateError`'s nested errors)/`DOMException`/`DOMRect`/`DOMPoint`/
+        `DOMMatrix`/`ArrayBuffer`/`DataView`/typed arrays (including
+        `Float16Array`)/`Blob`/`File`/`FileList`/`-0`; a `Promise` or an
+        unrecognized class instance throws a clear error instead of silently
+        producing a same-shaped-but-wrong value
+    - New demo: `demo/index-unsafe-eval.html`
+- fix: resetting an object/array-family control's legend numbering
+    (`$resetItemIndex`, used after a raw-value replace) now resets to the
+    container's own true starting baseline instead of an array-specific
+    `-1`, so replacing a container's content without changing its property
+    count keeps each unchanged property's legend number the same as before
+    the edit
+
 ## 0.27.0
 
 - feat: add `properties` schema support: a zodexy `{type: 'properties'}` node

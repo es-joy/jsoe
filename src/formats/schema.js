@@ -194,13 +194,15 @@ const dezerializerCodecs = {
 };
 
 /**
+ * Exported for reuse by `src/utils/rawTypesonEditor.js`, which must enforce
+ *   the same schema conformance check before accepting a raw-edited value.
  * @param {InstanceType<typeof import('../types.js').default>} types
  * @param {ZodexSchema} schemaObject
  * @param {ZodexSchema} originalShape
  * @param {unknown} value
  * @returns {ReturnType<ReturnType<typeof dezerialize>['safeParse']>}
  */
-function parseValue (types, schemaObject, originalShape, value) {
+export function parseValue (types, schemaObject, originalShape, value) {
   return dezerialize(schemaObject, {
     checks: getChecks(types),
     codecs: dezerializerCodecs,

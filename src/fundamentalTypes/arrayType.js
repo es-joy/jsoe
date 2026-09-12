@@ -7,6 +7,7 @@ import {
   schemaLabel, lastTypeChild, deprecatedClassSuffix
 } from '../utils/schemaMeta.js';
 import dialogs from '../utils/dialogs.js';
+import {openRawEditorDialog} from '../utils/rawTypesonEditor.js';
 import {
   resolveJSONPointer, getJSONPointerParts, reduceJSONPointerParts
 } from '../utils/jsonPointer.js';
@@ -428,6 +429,13 @@ const arrayType = {
       specificSchemaObject?.type === 'looseRecord';
     const tupleMode = specificSchemaObject?.type === 'tuple';
 
+    // See `docs/proposals/raw-typeson-edit-view.md` §1 for the scope
+    //   rationale (why `filelist` is included, why record/tuple count).
+    const isRawEditable = types.showRawTypesonControls &&
+      ((type === 'object' || type === 'array' ||
+        type === 'set' || type === 'map' || type === 'filelist') ||
+        recordMode || tupleMode);
+
     /**
      * @param {{
      *   itemIndex: number,
@@ -660,6 +668,31 @@ const arrayType = {
           target
         ).textContent = arrayContents.hidden ? '+' : '-';
       }}}, ['-']],
+      ...(isRawEditable
+        ? /** @type {import('jamilih').JamilihArray[]} */ ([
+          nbsp.repeat(2),
+          ['button', {
+            class: 'viewRawTypeson',
+            $on: {click (/** @type {Event} */ e) {
+              e.preventDefault();
+              openRawEditorDialog({
+                types,
+                format: /** @type {import('../formats.js').AvailableFormat} */ (
+                  format
+                ),
+                type: /** @type {import('../types.js').AvailableArbitraryType} */ (
+                  type
+                ),
+                root: /** @type {HTMLDivElement} */ (div),
+                topRoot: /** @type {HTMLDivElement} */ (topRoot),
+                typeNamespace,
+                specificSchemaObject,
+                readonly: true
+              });
+            }}
+          }, ['View raw']]
+        ])
+        : []),
       ['div', {class: 'arrayContents'}, [
         !recordMode && this.array
           ? ['div', {
@@ -723,6 +756,13 @@ const arrayType = {
     const recordMode = specificSchemaObject?.type === 'record' ||
       specificSchemaObject?.type === 'looseRecord';
     const tupleMode = specificSchemaObject?.type === 'tuple';
+
+    // See `docs/proposals/raw-typeson-edit-view.md` §1 for the scope
+    //   rationale (why `filelist` is included, why record/tuple count).
+    const isRawEditable = types.showRawTypesonControls &&
+      ((type === 'object' || type === 'array' ||
+        type === 'set' || type === 'map' || type === 'filelist') ||
+        recordMode || tupleMode);
 
     // A `record` refines `object` but, for legend numbering/reordering, behaves
     //   like the array-based types did when it was its own (`array: true`) type.
@@ -2358,6 +2398,34 @@ const arrayType = {
       ).textContent = arrayContents.hidden ? '+' : '-';
     }}}, ['-']];
 
+    const rawEditButton = isRawEditable
+      ? [
+        nbsp.repeat(2),
+        ['button', {
+          class: 'editRawTypeson',
+          $on: {click (/** @type {Event} */ e) {
+            e.preventDefault();
+            openRawEditorDialog({
+              types,
+              format: /** @type {import('../formats.js').AvailableFormat} */ (
+                format
+              ),
+              type: /** @type {import('../types.js').AvailableArbitraryType} */ (
+                type
+              ),
+              root: /** @type {HTMLDivElement} */ (div),
+              // By click time `topRoot ||= div` below has already run if
+              //   this control is itself the root.
+              topRoot: /** @type {HTMLDivElement} */ (topRoot),
+              typeNamespace,
+              specificSchemaObject,
+              readonly: false
+            });
+          }}
+        }, ['Edit raw']]
+      ]
+      : [];
+
     const arrayContents = /** @type {import('jamilih').JamilihArray} */ (
       ['div', {class: 'arrayContents'}, [
         arrayContentsFirstChild,
@@ -2433,7 +2501,8 @@ const arrayType = {
      *   $getTypeChoices: () => HTMLSelectElement & {
      *     $setType: import('../typeChoices.js').SetType,
      *     $getTypeRoot: import('../formatAndTypeChoices.js').TypeRootGetter
-     *   }
+     *   },
+     *   $resetItemIndex: () => void
      * }} DivArrayOrObjectHolder
      */
 
@@ -2586,6 +2655,40 @@ const arrayType = {
               );
             },
             /**
+             * Resets the `itemIndex`/legend-numbering counter back to its
+             *   empty-container baseline (`itemAdjust - 1`, the same value
+             *   it's initialized to before any item is ever added — *not*
+             *   the `-1` the "x All" button below hardcodes, which is only
+             *   correct for arrays; an object's baseline is `0`). Exposed so
+             *   a caller that repopulates this container's children from
+             *   outside this closure (bypassing the normal per-item
+             *   add/remove handlers that keep `itemIndex` in sync as they
+             *   go) — currently only
+             *   `src/utils/rawTypesonEditor.js`'s `commitValueToContainer`,
+             *   after a raw-value edit replaces every child — ends up with
+             *   exactly the same numbering a fresh container holding the
+             *   same new items would have, rather than continuing from
+             *   wherever the replaced content had left off (or, using the
+             *   wrong baseline, starting one lower than a fresh container
+             *   would: a single-property object's only property would be
+             *   renumbered from "1" to "0" by a bulk edit that didn't even
+             *   change its key, for example).
+             * @this {DivArrayOrObjectHolder}
+             * @returns {void}
+             */
+            $resetItemIndex () {
+              if (sparse) {
+                decrementItemIndex(
+                  /**
+                   * @type {HTMLDivElement & {
+                   *   $getPropertyInputs: GetPropertyInputs
+                    }} */ (this.$getArrayItems())
+                );
+              } else {
+                itemIndex = itemAdjust - 1;
+              }
+            },
+            /**
              * @this {DivArrayOrObjectHolder}
              * @returns {HTMLSelectElement & {
              *   $setType: import('../typeChoices.js').SetType,
@@ -2684,6 +2787,7 @@ const arrayType = {
             }]
             : '',
           minusButton,
+          ...rawEditButton,
           arrayContents
         ]))
       );

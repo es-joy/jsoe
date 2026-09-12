@@ -66,17 +66,44 @@ import deepEqual from 'fast-deep-equal/es6/index.js';
  */
 
 /**
- * @typedef {HTMLSelectElement & {
+ * The `$`-methods every type-choices control exposes, whether it's a real
+ *   `<select>` (`TypeChoicesElementAPI`) or the `xor` radio group's
+ *   `<fieldset>` standing in for one (`TypeChoicesControl` — see its comment
+ *   for why that one is *not* typed as `HTMLSelectElement`).
+ * @typedef {{
  *   $addAndValidateEditUI: AddAndValidateEditUI,
+ *   $addTypeAndEditUI: AddTypeAndEditUI,
  *   $setStyles: SetStyles,
  *   $getTypeRoot: GetTypeRoot,
  *   $getContainer: () => HTMLElement,
  *   $getTopRoot: () => HTMLDivElement,
  *   $addEditUI: AddEditUI,
  *   $validate: Validate,
+ *   $setType: SetType,
  *   $setTypeNoEditUI: SetTypeNoEditUI,
+ *   $getValue: GetValue,
  *   $whenReady: WhenReady
- * }} TypeChoicesElementAPI
+ * }} TypeChoicesAPIMethods
+ */
+
+/**
+ * @typedef {HTMLSelectElement & TypeChoicesAPIMethods} TypeChoicesElementAPI
+ */
+
+/**
+ * The type-choices control surface downstream code actually relies on:
+ *   the `$`-methods, plus the `value`/`selectedIndex`/`selectedOptions`
+ *   surface a real `<select>` provides natively. Deliberately *not* typed as
+ *   `HTMLSelectElement`, because `buildXorTypeChoices` below returns a real
+ *   `<fieldset>` with that surface shimmed on via `Object.defineProperties`
+ *   (and the `$`-methods copied by reference from the parallel `<select>`)
+ *   rather than an actual `<select>` — asserting `HTMLSelectElement` there
+ *   would be a false claim, not just a loose one.
+ * @typedef {HTMLElement & TypeChoicesAPIMethods & {
+ *   value: string,
+ *   selectedIndex: number,
+ *   selectedOptions: ArrayLike<{value: string, dataset?: {idx?: string}}>
+ * }} TypeChoicesControl
  */
 
 /**
@@ -126,7 +153,7 @@ import deepEqual from 'fast-deep-equal/es6/index.js';
  *   schemaContent?: import('./formatAndTypeChoices.js').ZodexSchema,
  * }} cfg
  * @returns {{
- *   domArray: [select: HTMLElement, typeContainer: HTMLElement],
+ *   domArray: [select: TypeChoicesControl, typeContainer: HTMLElement],
  *   getValue: GetValue,
  *   getType: GetType,
  *   validValuesSet: ValidValuesSet,
@@ -200,9 +227,9 @@ function deriveXorBranchLabel (schemaObj, optText, idx) {
  *   types: InstanceType<typeof import('./types.js').default>,
  *   typeContainer: HTMLElement,
  *   xorSchema: import('zodexy').SzUnion|undefined,
- *   selectEl: HTMLSelectElement
+ *   selectEl: TypeChoicesElementAPI
  * }} cfg
- * @returns {HTMLSelectElement}
+ * @returns {TypeChoicesControl}
  */
 function buildXorTypeChoices ({
   typeNamespace, keySelectClass, typeOptions, schemaObjs, types,
@@ -359,7 +386,9 @@ function buildXorTypeChoices ({
     }
   });
 
-  return /** @type {HTMLSelectElement} */ (/** @type {unknown} */ (fieldset));
+  return /** @type {TypeChoicesControl} */ (
+    /** @type {unknown} */ (fieldset)
+  );
 }
 
 /**
@@ -437,7 +466,7 @@ export const buildTypeChoices = ({
   //   match indicator to value changes inside it
   const typeContainer = jml('div', {class: 'typeContainer'});
 
-  const selectEl = /** @type {HTMLSelectElement} */ (jml('select', {
+  const selectEl = /** @type {TypeChoicesElementAPI} */ (jml('select', {
     hidden: requireObject || typeOptions.length === 1,
     class: `typeChoices-${typeNamespace}${keySelectClass
       ? ' ' + keySelectClass

@@ -1,6 +1,7 @@
 # Proposal: raw Typeson/JSON6 edit & view buttons on object/array controls
 
-Status: draft
+Status: implemented (see "Implementation notes" at the end for corrections
+found while building it)
 
 ## Goal
 
@@ -163,10 +164,20 @@ file's diff small. Exports:
   (`/pattern/flags`), a function's own `toString()` (mirroring
   `functionSpec.replace` in `structuredCloning.js:20-22`, which already does
   exactly this for functions) — recursing into plain objects/arrays
-  structurally. Scope this to the same value shapes `structuredCloningJsoe`
-  already covers; it's new, hand-rolled code (no extra dependency needed —
-  each case is a one-line template), kept in this module specifically so it
-  never gets confused with the Typeson-tagged serializer.
+  structurally. A `Blob`/`File` gets the same treatment: its content is read
+  via `Blob#arrayBuffer()`, base64-encoded (chunked to avoid blowing the
+  argument-count limit `String.fromCodePoint(...bytes)` would hit spread over
+  a whole large file at once), and emitted as
+  `new Blob([Uint8Array.from(atob("..."), (c) => c.charCodeAt(0))], {type})`
+  (`new File([...], name, {type, lastModified})` for a `File`) — real,
+  independently-evaluable JS source, not Typeson's tagged form. This is the
+  one branch that's genuinely asynchronous (reading a `Blob`'s bytes always
+  returns a promise), which is why the whole function is `async` despite
+  every other branch being synchronous work. Scope the rest to the same
+  value shapes `structuredCloningJsoe` already covers; it's new, hand-rolled
+  code (no extra dependency needed — each case is a one-line template), kept
+  in this module specifically so it never gets confused with the
+  Typeson-tagged serializer.
 - `openRawEditorDialog({types, format, root, type, topRoot, readonly})` —
   builds the modal using the existing `src/utils/dialogs.js` helpers
   (`makeSubmitDialog` for edit mode, `makeDialog`/`alert`-style for read-only
@@ -285,11 +296,16 @@ matching CSS rule in `src/jsoe.css`). Add one small `.jsoe-raw-editor` rule to
 
 1. `npm test` (unit) and the Cypress suite to confirm no regressions in
    existing object/array editing flows.
-2. Manually run the demo (`demo/index.html` or `demo/index-schema.html`) after
-   adding the CodeMirror import-map entries, exercise "View raw"/"Edit raw" at
-   root and on a nested object/array, and confirm the unsafe-eval mode is
-   hidden by default and appears only when the demo is changed to construct
-   `new Types({allowUnsafeEval: true})`.
+2. Manually run the demo (`demo/index.html` or `demo/index-schema.html`),
+   exercise "View raw"/"Edit raw" at root and on a nested object/array, and
+   confirm the eval mode is absent (these pages construct a plain
+   `new Types()`). `demo/index-unsafe-eval.html` (+ its `-instrumented`
+   pair) is a dedicated demo for the opposite case: it constructs
+   `new Types({allowUnsafeEval: true})`, and its "Initialize with an object
+   containing a Date" button seeds a value so opening that object's
+   "Edit raw" button immediately shows the "Typeson (JSON6)"/"JS (eval)"
+   mode selector, letting you toggle between them and see the Date rendered
+   as Typeson-tagged JSON vs. real `new Date(...)` source.
 3. Confirm `new Types({showRawTypesonControls: false})` renders no "Edit raw"/
    "View raw" buttons anywhere in the tree (root or nested), and that the
    default (option omitted) still shows them.
@@ -303,3 +319,257 @@ One new dependency pair (`json-6`, CodeMirror 6) plus their vendoring, two new
 to both `viewUI` and `editUI` in `src/fundamentalTypes/arrayType.js`. No
 existing behavior changes when the buttons are unused; `showRawTypesonControls`
 lets integrators opt out entirely.
+
+## Implementation notes (corrections found while building)
+
+Three things in this proposal turned out to be wrong or incomplete once
+actually implemented and exercised against real Typeson output and a real
+browser:
+
+1. **Object/array type objects have no `setValue`.** `types.setValue({type,
+   root, value})` (§4's original plan for "Save") is a silent no-op for
+   `object`/`array`/`set`/`map`/`filelist` — only leaf types implement
+   `setValue`; a container's children are always attached one at a time via
+   `$addAndSetArrayElement`, driven by walking a Typeson `encapsulateAsync`
+   pass (`src/formats/structuredCloning.js`'s `encapsulateObserver`/
+   `iterate`). "Save" therefore needed a real `commitValueToContainer`
+   helper that reuses that exact walk, scoped to just the edited container,
+   rather than a single `setValue` call.
+
+   Reusing it required one small, behavior-preserving change to
+   `encapsulateObserver` in `src/formats/structuredCloning.js`: the branch
+   that registers a walked value's root as an attachment point
+   (`parents['']`) previously only ran `if (!stateObj.rootUI)` — i.e. only
+   when building a brand-new root. Changed to `if (!parents[''])`, with the
+   `getUIForModeAndType` call to build a *new* root now nested inside and
+   conditioned on `!stateObj.rootUI` — so a caller can pre-seed
+   `stateObj.rootUI` with an *existing* element (our control's own root) and
+   still have it correctly registered, letting the same walk populate an
+   existing container's children instead of only ever building a fresh one.
+   This matters because the edited container's root element must keep its
+   identity — other code (crucially, the root of the whole form) may already
+   hold a reference to it.
+
+   That in turn surfaced a second gap: the container's own
+   `itemIndex`/legend-numbering counter, closed over since it was first
+   built, wasn't reset by any of this, so manually adding an item afterward
+   (the "+ Item" button) could get a legend number continuing from the
+   *replaced* content instead of the new content (data was never affected,
+   only the numbering shown for a subsequently-added item). Fixed by adding
+   `$resetItemIndex()` — a new `$custom` method on the container alongside
+   `$addAndSetArrayElement`/`$getArrayItems` in `arrayType.js` —
+   `commitValueToContainer` calls it right after clearing the old children
+   and before repopulating. (One subtlety found while writing this:
+   `arrayNonindexKeys`, being sparse, already self-heals `itemIndex` by
+   recomputing it from the live DOM on every "+ Item" click, so it doesn't
+   exercise this bug — plain `object`/`array`, which just do `itemIndex++`
+   obliviously, do.)
+
+   The first version of this fix reset to `-1` unconditionally, copying the
+   existing "x All" button's hardcoded reset value — which is only correct
+   for arrays (whose baseline really is `-1`); an *object*'s baseline is `0`
+   (`itemAdjust - 1`, the exact value `itemIndex` is initialized to before
+   any item is ever added). Manual testing on `demo/index-unsafe-eval.html`
+   caught the resulting regression directly: adding a single property (shown
+   as "1", correctly) and then changing only its *value* via a raw eval edit
+   — never touching its name or the property count — renumbered it to "0".
+   `$resetItemIndex()` now resets to `itemAdjust - 1` (matching the
+   container's own true starting baseline) rather than the array-specific
+   `-1`, so repopulating N unchanged properties leaves them numbered exactly
+   as a fresh container holding those same N properties would be — which,
+   for an edit that doesn't change the property count, is identical to what
+   they were numbered before the edit.
+
+2. **`json-6`'s `stringify` has a real bug beyond the key-sorting one**,
+   found by actually round-tripping values: it runs the same
+   identifier-unquoting logic it correctly uses for object *keys* on string
+   *values* too, so `{b: "hello"}` stringified to `{b: hello}` — a bareword
+   that parses back as an identifier reference, not the string, and wasn't
+   even re-parseable by the package's own `JSON6.parse`. `getTypesonTextForValue`
+   therefore does not call `JSON6.stringify` at all; it uses a small
+   hand-rolled `stringifyJSON6` (in `src/utils/rawTypesonEditor.js`) that
+   unquotes identifier-shaped keys but always fully quotes string values via
+   `JSON.stringify`. `JSON6.parse` (used to read the text back) is unaffected
+   and works correctly. A fix for the value-quoting bug (not the key-sorting
+   one, which stays a separate future PR per the maintainer's fork owner) was
+   prepared as a commit on the `fix/stringify-value-quoting` branch in the
+   local `json-6` fork checkout, with accompanying test cases, ready to
+   submit upstream — jsoe's own code keeps its local workaround regardless of
+   whether/when that lands, since a published jsoe cannot assume a consumer's
+   copy of `json-6` is patched.
+
+3. **`typeson.encapsulateAsync(value)` throws `TypeError: Async method
+   requested but sync result obtained`** for a value with no actually-async
+   parts (no `Blob`/`File`/`Promise`) unless called with
+   `{throwOnBadSyncType: false}` — exactly the option
+   `src/formats/structuredCloning.js`'s own `iterate()` already passes.
+   `getTypesonTextForValue` now passes the same option.
+
+4. **`npm run tsc-cypress` had four pre-existing failures**, unrelated to this
+   feature but fixed at the source rather than left as "pre-existing" once
+   noticed, since they were genuine gaps rather than acceptable noise:
+   - A test's `/** @type {import('zodexy').SzUnion} */` cast on a 2-option
+     union literal silently relied on `SzUnion`'s default generic, which is a
+     1-element tuple (`SzUnion<[SzType]> `); parametrized it explicitly as
+     `SzUnion<[SzType, SzType]>` to match the actual literal.
+   - `src/typeChoices.js`'s `TypeChoicesElementAPI` typedef was missing three
+     methods (`$setType`, `$getValue`, `$addTypeAndEditUI`) that the
+     `$custom` object backing every type-choices `<select>` genuinely
+     implements — a real gap in the type, not a test-only issue. Added them.
+   - That in turn exposed a second, more interesting gap: `domArray`'s
+     `select` slot (and `buildXorTypeChoices`'s return) were typed as
+     `TypeChoicesElementAPI`, i.e. `HTMLSelectElement & {...methods}` — but
+     `buildXorTypeChoices` actually returns a real `<fieldset>` with
+     `value`/`selectedIndex`/`selectedOptions` shimmed on via
+     `Object.defineProperties` and the `$`-methods copied over by reference,
+     standing in for a `<select>` for the `xor` (exclusive union) case —
+     never an actual `HTMLSelectElement`. Asserting `HTMLSelectElement` there
+     was a false claim that merely happened not to be exercised strictly
+     enough to fail until the missing-methods gap above was fixed and
+     `tsc-cypress` type-checked deeper. Fixed by splitting the `$`-methods
+     out into their own `TypeChoicesAPIMethods` type, keeping
+     `TypeChoicesElementAPI` (`HTMLSelectElement & TypeChoicesAPIMethods`)
+     for the real `<select>`, and adding `TypeChoicesControl`
+     (`HTMLElement & TypeChoicesAPIMethods & {value, selectedIndex,
+     selectedOptions}`) — accurately describing only the shimmed surface
+     downstream code actually relies on — for anywhere a `xor` fieldset can
+     stand in for the select (`domArray`, `buildXorTypeChoices`'s
+     parameter/return).
+   - A `getUIForModeAndType` test call was missing the required `value`/
+     `hasValue` properties; added `value: undefined, hasValue: false`,
+     matching how another test in the same file already builds an
+     unseeded control.
+   - Separately, `cypress/e2e/util-unit-tests/rawTypesonEditor.cy.js`
+     originally imported `Types` via `#jsoe/index.js`'s re-export, which
+     `tsc-cypress` treated as a nominally different `Types` declaration than
+     the one `commitValueToContainer`'s own JSDoc references via a relative
+     `'../types.js'` path — surfacing as a confusing
+     "Type 'Types' is missing ... from type 'Types'" error. Importing
+     `Types` directly from `#jsoe/types.js` instead (matching the existing
+     convention in `cypress/e2e/src/types.cy.js`) resolved it.
+
+   `npm run tsc-cypress` is now fully clean, with no remaining pre-existing
+   errors.
+
+5. **`getEvalSeedTextForValue` originally fell through to an unquoted
+   `String(value)` or a same-shaped-but-wrong `{}` literal for several value
+   shapes it didn't explicitly recognize**, rather than either reconstructing
+   them correctly or failing clearly. A follow-up pass ("low-hanging fruit")
+   added explicit handling for the easy/mechanical cases:
+   - `Symbol` — previously emitted a bare, unquoted, unparseable
+     `Symbol(desc)`-as-identifier-reference; now emits real
+     `Symbol("desc")`/`Symbol.for("key")` source, using the same
+     `String(sym).slice(7, -1)` convention `src/fundamentalTypes/symbolType.js`
+     itself uses (not `.description`, which is `undefined` for a
+     no-description `Symbol()`).
+   - Boxed primitives (`new String(...)`/`new Number(...)`/`new Boolean(...)`/
+     boxed `BigInt`) — previously treated identically to their primitive
+     forms (losing the boxing); now emit the equivalent `new` expression
+     (`Object(5n)` for boxed `BigInt`, matching typeson-registry's own
+     `bigintObject` revive convention).
+   - `DOMException`, `DOMRect`/`DOMRectReadOnly`, `DOMPoint`/
+     `DOMPointReadOnly`, `DOMMatrix`/`DOMMatrixReadOnly` — each now emits its
+     real constructor call with its own field values (a `DOMMatrix` branches
+     on `m.is2D` to emit either the 6-number or 16-number constructor form,
+     matching `src/superTypes/dommatrixType.js`).
+   - `ArrayBuffer`, `DataView`, and all typed array types (including
+     `Float16Array`, added after being noticed missing from the initial
+     `typedArrayTagNames` list) — bytes are copied synchronously (no async
+     read needed, unlike `Blob`/`File`) and base64-encoded via a new shared
+     `bytesToBase64` helper, emitted as `Uint8Array.from(atob("..."), (c) =>
+     c.charCodeAt(0)).buffer` (bare for `ArrayBuffer`) or wrapped in `new
+     DataView(...)`/`new Int8Array(...)`/etc.
+   - `FileList` — treated as a plain array of `File`s for eval-source
+     purposes (spread into a real array first), consistent with §1's finding
+     that jsoe's own filelist control never requires a genuine
+     `instanceof FileList`.
+   - `Promise` and any value whose prototype isn't `Object.prototype`/`null`
+     (an unrecognized class instance) now throw a clear, named `TypeError`
+     instead of silently falling through to a same-shaped-but-wrong `{}` or
+     unquoted `String(value)` — eval mode has no way to reconstruct a
+     pending/settled `Promise`'s state or an arbitrary class's behavior, and a
+     loud failure pointing at the Typeson/JSON6 mode instead is far better
+     than a value that looks right but silently isn't.
+
+   Two of these surfaced their own bugs only once actually run (type-checking
+   alone didn't catch either, since both are about which *string* ends up in
+   the output, not its type):
+   - `Object.prototype.toString` (and thus this codebase's own `toStringTag`
+     helper) reports **every** `Error` subclass — `TypeError`, `RangeError`,
+     `AggregateError`, etc. — as `[object Error]`; this is a spec'd
+     `[[ErrorData]]`-internal-slot check, not a `Symbol.toStringTag` lookup,
+     so it can't be worked around by reading a tag property. A `new
+     TypeError('bad type')` was therefore being re-emitted as `new
+     Error('bad type')`, silently downgrading the reconstructed error's own
+     type. Fixed by recovering the real constructor name from
+     `err.constructor.name` instead of `tag`, falling back to plain `Error`
+     only when that name isn't one eval mode actually knows how to
+     name-construct (guards against a user-defined `class MyError extends
+     Error {}`, which isn't globally nameable this way).
+   - The same tag-collapsing issue affected the unrecognized-class-instance
+     error message: `toStringTag` reports a generic `Object` for most
+     user-defined classes (they don't set their own `Symbol.toStringTag`), so
+     the thrown message read "...cannot represent a Object value..." instead
+     of naming the actual class. Fixed by preferring
+     `value.constructor?.name` over `tag` when building that message.
+
+   Both were caught by running the corresponding new Cypress tests (not by
+   type-checking, which was clean throughout) — `expected [TypeError: bad
+   type] to be an instance of TypeError` and a message-content assertion
+   expecting `/Whatever/u` that got the generic `Object` text instead.
+
+Validated: `npx eslint .`, `npx tsc`, `npm run tsc:ts7` (TypeScript 7 nightly),
+and `npm run tsc-cypress` are all clean. `cypress/e2e/util-unit-tests/rawTypesonEditor.cy.js`
+(22 tests, run against a real Chrome via Cypress, all passing) covers:
+- Typeson/JSON6 and eval-mode round-tripping, including Date/RegExp/Map/Set,
+  quoted-vs-unquoted keys, hand-edited JSON6 syntax (comments) being accepted
+  back, a `File` and a plain `Blob` each round-tripping through eval with
+  their real binary content (name/type/`lastModified` and bytes all
+  verified, via `evaled.text()`), and a cyclic value failing clearly in eval
+  mode;
+- The low-hanging-fruit eval-mode fixes above: a plain and a registered
+  `Symbol` round-tripping to the same symbol (via `Symbol.for`); boxed
+  `String`/`Number`/`Boolean`/`BigInt` round-tripping as real boxed objects;
+  a `TypeError` and an `AggregateError` (with `cause`, and with its nested
+  `errors` array) round-tripping as their real, specific constructors, not a
+  generic `Error`; `DOMException`/`DOMRect`/`DOMPoint`/`DOMMatrix`
+  round-tripping their fields and `instanceof`; `ArrayBuffer`/`DataView`/a
+  typed array round-tripping their real bytes; a `FileList` (built via a real
+  `DataTransfer`) round-tripping as a plain array of `File`s; and a `Promise`
+  and a user-defined class instance each throwing a clear, correctly-named
+  error instead of silently producing a wrong value;
+- `commitValueToContainer`'s `$resetItemIndex` fix, two ways: (1) builds a
+  real 3-property object control, replaces it via `commitValueToContainer`
+  with a single property, then clicks the real "+ Item" button and asserts
+  both the repopulated property's own legend number and the new manually-
+  added property's legend number match what a fresh container with that
+  many properties would show; (2) the exact regression manual testing
+  found — a single manually-added property (legend "1") whose *value* alone
+  is changed via `commitValueToContainer` (reading the live value via
+  `types.getValueForRoot`, exactly as `openRawEditorDialog` does, and
+  writing back the same key with a new value) keeps showing "1" afterward;
+- `allowUnsafeEval` gating, driven through the real "Edit raw" button and
+  dialog: the eval-mode `<select>` is absent by default, present when
+  `allowUnsafeEval: true`, and switching to it reseeds the editor with real
+  JS constructor source (`new Date(`) instead of Typeson-tagged data
+  (`$types`).
+
+The existing 59-test `cypress/e2e/fundamentalTypes/array.cy.js` suite still
+passes unchanged throughout, confirming no regression to existing
+object/array/tuple/record behavior.
+
+One environment quirk worth noting for future tests in this file: none of
+these specs call `cy.visit()` (matching this directory's existing style,
+e.g. `dialogs.cy.js`), which means there is no application document for
+`cy.get(cssSelector)` to search — elements appended via a plain
+`document.body.append(...)` are invisible to it and any `cy.get()` call
+against a selector will simply time out. The fix used throughout is to hold
+the actual element reference (via `.as('alias')`) and query relative to it
+with `cy.wrap(...)`/`cy.get('@alias').find(...)`, which operate on that
+specific element's own subtree directly rather than searching a page. A
+related wrinkle: action commands like `.click()`/`.select()` refuse to act on
+elements outside cypress's (here, blank/unused) viewport; `{force: true}` is
+disallowed by this repo's lint config (`sonarjs/no-forced-browser-interaction`),
+so these tests instead call `.invoke('click')` or manually set `.value` and
+dispatch a `change` event, matching the plain-DOM-interaction style
+`dialogs.cy.js` already uses for its own dialogs.

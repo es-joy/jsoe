@@ -274,23 +274,30 @@ const encapsulateObserver = (stateObj) => {
     // console.log('but could set to', schema);
     // console.log('arrayOrObjectPropertyName', arrayOrObjectPropertyName);
 
-    if (!stateObj.rootUI) {
-      // console.log('vvvv0', newType, newValue);
-      stateObj.rootUI = types?.getUIForModeAndType({
-        readonly,
-        typeNamespace,
-        type: newType,
-        bringIntoFocus: false,
-        buildTypeChoices,
-        format,
-        specificSchemaObject: schema,
-        schemaContent,
-        value: newValue,
-        hasValue: true,
-        // Not currently in use but may be convenient for a
-        //     type wanting the serialized data
-        replaced
-      });
+    if (!parents['']) {
+      // A caller repopulating an *existing* container in place (e.g. the raw
+      //   Typeson/JSON6 editor replacing one control's children after a
+      //   bulk edit, `src/utils/rawTypesonEditor.js`) pre-seeds
+      //   `stateObj.rootUI` with that container so it is reused here instead
+      //   of a fresh one being built.
+      if (!stateObj.rootUI) {
+        // console.log('vvvv0', newType, newValue);
+        stateObj.rootUI = types?.getUIForModeAndType({
+          readonly,
+          typeNamespace,
+          type: newType,
+          bringIntoFocus: false,
+          buildTypeChoices,
+          format,
+          specificSchemaObject: schema,
+          schemaContent,
+          value: newValue,
+          hasValue: true,
+          // Not currently in use but may be convenient for a
+          //     type wanting the serialized data
+          replaced
+        });
+      }
       parents[''] = /**
                      * @type {HTMLElement &
                      *   {$addAndSetArrayElement: AddAndSetArrayElement}}

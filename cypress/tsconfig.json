@@ -10,5 +10,5 @@
     "types": ["cypress", "cypress-axe", "node"],
     "noEmit": true
   },
-  "include": ["**/*.ts", "**/*.js", "../typings/CypressPlugins.d.ts", "../typings/sceditor.d.ts"]
+  "include": ["**/*.ts", "**/*.js", "../typings/CypressPlugins.d.ts", "../typings/sceditor.d.ts", "../typings/json-6.d.ts"]
 }

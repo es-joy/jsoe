@@ -15,6 +15,6 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src/**/*.js", "typings/sceditor.d.ts"],
+  "include": ["src/**/*.js", "typings/sceditor.d.ts", "typings/json-6.d.ts"],
   "exclude": ["node_modules", "src/deepEqual.js", "src/formats/schema.js", "./src/index.ts", "./dist/**/*.js"]
 }

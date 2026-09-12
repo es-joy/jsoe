@@ -62,39 +62,43 @@ describe('`typeChoices`', function () {
   });
 
   it('uses the supplied specific schema when setting type programmatically', function () {
-    const schemaContent = /** @type {import('zodexy').SzUnion} */ ({
-      $defs: {
-        secondOnly: {
-          type: 'string'
-        }
-      },
-      type: 'union',
-      options: [
-        {
-          meta: {title: 'First branch'},
-          type: 'object',
-          properties: {
-            type: {
-              type: 'literal',
-              values: ['first']
-            }
+    const schemaContent = /**
+                           * @type {import('zodexy').SzUnion<[
+                           *   import('zodexy').SzType, import('zodexy').SzType
+                           * ]>}
+                           */ ({
+        $defs: {
+          secondOnly: {
+            type: 'string'
           }
         },
-        {
-          meta: {title: 'Second branch'},
-          type: 'object',
-          properties: {
-            type: {
-              type: 'literal',
-              values: ['second']
-            },
-            secondOnly: {
-              $ref: '#/$defs/secondOnly'
+        type: 'union',
+        options: [
+          {
+            meta: {title: 'First branch'},
+            type: 'object',
+            properties: {
+              type: {
+                type: 'literal',
+                values: ['first']
+              }
+            }
+          },
+          {
+            meta: {title: 'Second branch'},
+            type: 'object',
+            properties: {
+              type: {
+                type: 'literal',
+                values: ['second']
+              },
+              secondOnly: {
+                $ref: '#/$defs/secondOnly'
+              }
             }
           }
-        }
-      ]
-    });
+        ]
+      });
     const [, secondSchema] = [...getTypesForSchema(
       schemaContent,
       schemaContent
@@ -105,9 +109,11 @@ describe('`typeChoices`', function () {
       schemaContent
     });
     document.body.append(...choice.domArray);
-    const select = /** @type {typeof choice.domArray[0]} */ (
-      document.querySelector('.typeChoices-specific-schema')
-    );
+    const select = /**
+                    * @type {import('../../../src/typeChoices.js').TypeChoicesElementAPI}
+                    */ (
+        document.querySelector('.typeChoices-specific-schema')
+      );
 
     select.$setType({
       type: 'object',
@@ -339,7 +345,9 @@ describe('RegExp type validation', function () {
       readonly: false,
       typeNamespace: 'regexp-validation',
       type: 'regexp',
-      format: 'structuredCloning'
+      format: 'structuredCloning',
+      value: undefined,
+      hasValue: false
     }));
     document.body.append(root);
     const input = /** @type {HTMLInputElement} */ (
