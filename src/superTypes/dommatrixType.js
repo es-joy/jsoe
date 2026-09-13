@@ -348,7 +348,7 @@ const dommatrixType = {
         $on: {
           click (e) {
             const {target} = e;
-            /* istanbul ignore if */
+            /* istanbul ignore if -- Guard */
             if (/** @type {HTMLInputElement} */ (target).type !== 'radio') {
               return;
             }

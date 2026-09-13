@@ -19,7 +19,7 @@ const regexpType = {
     return toStringTag(x) === 'RegExp';
   },
   toValue (s) {
-    /* istanbul ignore if */
+    /* istanbul ignore if -- TS */
     if (typeof this.stringRegex !== 'function') {
       throw new TypeError('Guard for TS');
     }

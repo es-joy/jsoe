@@ -127,7 +127,7 @@ const blobHTMLType = {
         jml('textarea', {name: `${typeNamespace}-blobHTML`})
       );
     textarea.sceditorInstance = {
-      /* istanbul ignore next */
+      /* istanbul ignore next -- Guard */
       val () {
         throw new Error('Not yet instantiated');
       }

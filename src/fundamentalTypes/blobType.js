@@ -117,7 +117,7 @@ function binaryButton (value, editable) {
                 ['textarea', {
                   class: 'view-binary'
                 }, [
-                  /* istanbul ignore next */
+                  /* istanbul ignore next -- Guard */
                   /** @type {string|null} */ (reader.result) ?? ''
                 ]]
               ]]
@@ -127,11 +127,11 @@ function binaryButton (value, editable) {
         // Seems not feasible to accurately simulate
         reader.addEventListener(
           'error',
-          /* istanbul ignore next */
+          /* istanbul ignore next -- See comment above */
           async function () {
-            /* istanbul ignore next */
+            /* istanbul ignore nex -- See comment abovet */
             console.error(reader.error);
-            /* istanbul ignore next */
+            /* istanbul ignore next -- See comment above */
             await dialogs.alert(/** @type {string} */ (
               /** @type {DOMException} */ (reader.error).message
             ));
@@ -205,7 +205,7 @@ const blobType = {
               'Text source',
               ['br'],
               ['textarea', {class: 'view-text'}, [
-                /* istanbul ignore next */
+                /* istanbul ignore next -- Guard */
                 /** @type {string|null} */ (reader.result) ?? ''
               ]]
             ]));
@@ -213,11 +213,11 @@ const blobType = {
           // Seems not feasible to accurately simulate
           reader.addEventListener(
             'error',
-            /* istanbul ignore next */
+            /* istanbul ignore next -- See comment above */
             function () {
-              /* istanbul ignore next */
+              /* istanbul ignore next -- See comment above */
               console.error(reader.error);
-              /* istanbul ignore next */
+              /* istanbul ignore next -- See comment above */
               div.append(
                 /** @type {DOMException} */ (reader.error).message
               );
@@ -400,7 +400,7 @@ const blobType = {
               blob
             ).slice(8, -1) === 'Blob'
               ? /** @type {Blob} */ (blob)
-              /* istanbul ignore next */
+              /* istanbul ignore next -- Guard */
               : undefined;
           }
         }
@@ -619,7 +619,7 @@ const blobType = {
 
                 if (constraints) {
                   const mediaStream = await getUserMedia(constraints);
-                  /* istanbul ignore if */
+                  /* istanbul ignore if -- Should be present */
                   if (!mediaStream) {
                     await dialogs.alert('Error getting user media');
                     return;
@@ -667,7 +667,7 @@ const blobType = {
                   const mediaStream = await startScreenCapture(
                     screenShareConstraints
                   );
-                  /* istanbul ignore if */
+                  /* istanbul ignore if -- Should be present */
                   if (!mediaStream) {
                     await dialogs.alert('Error getting user media');
                     return;
@@ -747,7 +747,7 @@ const blobType = {
                     'video.previewMedia'
                   ));
 
-                /* istanbul ignore if */
+                /* istanbul ignore if -- Should be present */
                 if (!previewMedia.srcObject) {
                   dialogs.alert('No stream found to record');
                   return;
@@ -782,11 +782,11 @@ const blobType = {
 
                 try {
                   mediaRecorder.start();
-                /* istanbul ignore next */
+                /* istanbul ignore next -- Should not err */
                 } catch {
-                  /* istanbul ignore next */
+                  /* istanbul ignore next -- Should not err */
                   dialogs.alert('Error starting media recorder');
-                  /* istanbul ignore next */
+                  /* istanbul ignore next -- Should not err */
                   return;
                 }
                 mediaRecorder.addEventListener('stop', () => {
@@ -923,7 +923,7 @@ const blobType = {
                   ($e(videoContainer, 'img.photo'));
 
                 canvas.toBlob((blob) => {
-                  /* istanbul ignore if */
+                  /* istanbul ignore if -- Should not err */
                   if (!blob) {
                     dialogs.alert('Error converting canvas to Blob');
                     return;

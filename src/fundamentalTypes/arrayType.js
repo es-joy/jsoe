@@ -267,7 +267,7 @@ const arrayType = {
     return {value: retObj, remnant: stringVal};
   },
   getValue ({root, stateObj, currentPath = ''}) {
-    /* istanbul ignore if */
+    /* istanbul ignore if -- TS guard */
     if (!stateObj) {
       throw new Error('TS guard'); // TS guard
     }
@@ -1420,7 +1420,7 @@ const arrayType = {
                   const method = latest ? 'after' : 'before';
                   // Ensure move *after* splice that will occur after this
                   setTimeout(() => {
-                    /* istanbul ignore if */
+                    /* istanbul ignore if -- Should be present */
                     if (!nearest) {
                       return;
                     }
@@ -2762,7 +2762,7 @@ const arrayType = {
                  * @this {HTMLInputElement}
                  */
                 change () {
-                  /* istanbul ignore if */
+                  /* istanbul ignore if -- TS */
                   if (!this.files) {
                     return;
                   }

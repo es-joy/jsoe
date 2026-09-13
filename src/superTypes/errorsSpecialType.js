@@ -36,7 +36,7 @@ if (typeof AggregateError !== 'undefined') {
   specialErrorsMap.set('AggregateError', AggregateError);
 }
 
-/* istanbul ignore next 5 */
+/* istanbul ignore next 5 -- May not exist */
 // @ts-expect-error Only use if available
 if (typeof InternalError !== 'undefined') {
   // @ts-expect-error Only use if available

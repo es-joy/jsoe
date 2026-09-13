@@ -232,7 +232,7 @@ function binaryButton (
                 ['textarea', {
                   class: 'view-binary'
                 }, [
-                  /* istanbul ignore next */
+                  /* istanbul ignore next -- Guard */
                   /** @type {string|null} */ (reader.result) ?? ''
                 ]]
               ]]
@@ -242,11 +242,11 @@ function binaryButton (
         // Seems not feasible to accurately simulate
         reader.addEventListener(
           'error',
-          /* istanbul ignore next */
+          /* istanbul ignore next -- Should not err */
           async function () {
-            /* istanbul ignore next */
+            /* istanbul ignore next -- Should not err */
             console.error(reader.error);
-            /* istanbul ignore next */
+            /* istanbul ignore next -- Should not err */
             await dialogs.alert(/** @type {string} */ (
               /** @type {DOMException} */ (reader.error).message
             ));
@@ -341,7 +341,7 @@ const fileType = {
               'Text source',
               ['br'],
               ['textarea', {class: 'view-text'}, [
-                /* istanbul ignore next */
+                /* istanbul ignore next -- Guard */
                 /** @type {string|null} */ (reader.result) ?? ''
               ]]
             ]));
@@ -349,11 +349,11 @@ const fileType = {
           // Seems not feasible to accurately simulate
           reader.addEventListener(
             'error',
-            /* istanbul ignore next */
+            /* istanbul ignore next -- Should not err */
             function () {
-              /* istanbul ignore next */
+              /* istanbul ignore next -- Should not err */
               console.error(reader.error);
-              /* istanbul ignore next */
+              /* istanbul ignore next -- Should not err */
               div.append(
                 /** @type {DOMException} */ (reader.error).message
               );
@@ -882,7 +882,7 @@ const fileType = {
 
                 if (constraints) {
                   const mediaStream = await getUserMedia(constraints);
-                  /* istanbul ignore if */
+                  /* istanbul ignore if -- Should be present */
                   if (!mediaStream) {
                     await dialogs.alert('Error getting user media');
                     return;
@@ -930,7 +930,7 @@ const fileType = {
                   const mediaStream = await startScreenCapture(
                     screenShareConstraints
                   );
-                  /* istanbul ignore if */
+                  /* istanbul ignore if -- Should not err */
                   if (!mediaStream) {
                     await dialogs.alert('Error getting user media');
                     return;
@@ -1010,7 +1010,7 @@ const fileType = {
                     'video.previewMedia'
                   ));
 
-                /* istanbul ignore if */
+                /* istanbul ignore if -- Should not err */
                 if (!previewMedia.srcObject) {
                   dialogs.alert('No stream found to record');
                   return;
@@ -1044,7 +1044,7 @@ const fileType = {
 
                 try {
                   mediaRecorder.start();
-                } catch /* istanbul ignore next */ {
+                } catch /* istanbul ignore next -- Should not err */ {
                   dialogs.alert('Error starting media recorder');
                   return;
                 }
@@ -1195,7 +1195,7 @@ const fileType = {
                   ($e(videoContainer, 'img.photo'));
 
                 canvas.toBlob((blob) => {
-                  /* istanbul ignore if */
+                  /* istanbul ignore if -- Should not err */
                   if (!blob) {
                     dialogs.alert('Error converting canvas to Blob');
                     return;

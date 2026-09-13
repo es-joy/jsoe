@@ -77,9 +77,9 @@ async function getUserMedia (constraints) {
   try {
     stream = await navigator.mediaDevices.getUserMedia(constraints);
   } catch (err) {
-    /* istanbul ignore next */
+    /* istanbul ignore next -- Should be present */
     console.error('err', err);
-    /* istanbul ignore next */
+    /* istanbul ignore next -- Should be present */
     return null;
   }
   return stream;
@@ -96,7 +96,7 @@ async function startScreenCapture (displayMediaOptions) {
     captureStream =
       await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
   } catch (err) {
-    /* istanbul ignore next */
+    /* istanbul ignore next -- Should not err */
     console.error(`Error: ${err}`);
   }
   return captureStream;
