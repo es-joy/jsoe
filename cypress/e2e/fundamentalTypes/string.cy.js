@@ -645,6 +645,32 @@ describe('String spec - Misc. (schemas)', () => {
     });
   });
 
+  it('checks currency codes', () => {
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance strings 9'
+    );
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'String (Currency code)'
+    );
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      'USD'
+    ).then((elem) => {
+      expect(elem[0].checkValidity()).to.equal(true);
+    });
+
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      '15'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value doesn't match currency code pattern.`
+      );
+    });
+  });
+
   it('checks iban', () => {
     cy.get('.formatChoices:first').select(
       'Schema: Zodexy schema instance strings 9'

@@ -324,6 +324,11 @@ const schemaInstanceJSONStrings9 = {
       kind: 'iban'
     },
     {
+      description: 'Currency code',
+      type: 'string',
+      kind: 'currency_code'
+    },
+    {
       description: 'String boolean',
       type: 'pipe',
       inner: {type: 'string'},
