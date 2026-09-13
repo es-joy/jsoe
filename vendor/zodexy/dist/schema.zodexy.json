@@ -711,23 +711,6 @@
             }
           },
           {
-            "meta": { "title": "Properties" },
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "literal",
-                "values": ["properties"]
-              },
-              "properties": {
-                "type": "record",
-                "key": { "type": "string" },
-                "value": {
-                  "$ref": "#/$defs/reference-or-type"
-                }
-              }
-            }
-          },
-          {
             "meta": { "title": "Union" },
             "type": "object",
             "properties": {

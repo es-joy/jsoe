@@ -330,7 +330,7 @@ function generateChecks(doc, ctx, schema, accessor) {
                 generatePropertyCheck(doc, ctx, def, currentAccessor);
                 break;
             case "properties":
-                generatePropertiesChecks(doc, ctx, def, currentAccessor, false);
+                generatePropertiesChecks(doc, ctx, def, currentAccessor);
                 break;
             case "overwrite": {
                 // Overwrite transforms the value - create new variable for transformed result
@@ -458,15 +458,13 @@ function generateMimeTypeCheck(doc, ctx, def, accessor) {
     }
 }
 // asserts each named property in place; children compile assert-only because z.properties never rebuilds its input
-function generatePropertiesChecks(doc, ctx, def, accessor, schemaRole) {
-    // a custom `when` gates the assertion at runtime; inside a union a wrongly-run branch is absorbed as a branch failure rather than falling back, so refuse at codegen the way the check role does
+function generatePropertiesChecks(doc, ctx, def, accessor) {
+    // a custom `when` gates the assertion at runtime; inside a union a wrongly-run branch is absorbed as a branch failure rather than falling back, so refuse at codegen
     if (def.when) {
         throw new ZodCompileUnsupportedError(`check with a custom "when" condition`);
     }
-    // matches the runtime gate for whichever role this is: a schema rejects a primitive outright, a check only a nullish value
-    doc.write(schemaRole
-        ? `if (${accessor} === null || (typeof ${accessor} !== "object" && typeof ${accessor} !== "function")) return INVALID;`
-        : `if (${accessor} == null) return INVALID;`);
+    // matches the runtime gate: the base schema already typed the value, so only a nullish one is rejected
+    doc.write(`if (${accessor} == null) return INVALID;`);
     const shape = def.shape;
     for (const key of Reflect.ownKeys(shape)) {
         // a symbol has no source literal, so it is hoisted as a constant
@@ -817,10 +815,6 @@ function generateCheck(doc, ctx, schema, accessor, needsValue = true) {
         case "custom":
             typeAccessor = generateCustomCheck(doc, ctx, schema, accessor);
             break;
-        case "properties":
-            generatePropertiesChecks(doc, ctx, schema._zod.def, accessor, true);
-            typeAccessor = accessor;
-            break;
         case "transform":
             typeAccessor = generateTransformCheck(doc, ctx, schema, accessor);
             break;
@@ -979,9 +973,9 @@ function generateObjectCheck(doc, ctx, schema, accessor, buildsValue = true) {
         }
     }
     // else: strip mode (no catchall) - unknown keys ignored, only include known keys
-    // Shape keys in declared order, then unknown keys in for...in order. A middle-rung key is included iff present on the input, else iff its output is not undefined.
+    // defaulted required outputs keep their keys even when undefined
     const outputVar = newVar(ctx);
-    const hasConditionalKeys = allKeys.some((k) => mayOutputUndefined(propShape[k]) || dropsWhenAbsent(propShape[k]));
+    const hasConditionalKeys = allKeys.some((k) => mayOmitUndefined(propShape[k]) || dropsWhenAbsent(propShape[k]));
     // Assert mode: every declared key is validated above, so the output literal and the unknown-key copy are pure waste. A `never` catchall already emitted its rejection loop; a schema catchall still has to validate the values it would otherwise have stored.
     if (!buildsValue) {
         if (unknownKeysMode === "schema") {
@@ -1011,7 +1005,7 @@ function generateObjectCheck(doc, ctx, schema, accessor, buildsValue = true) {
             if (dropsWhenAbsent(propShape[k])) {
                 doc.write(`if (${kx} in ${accessor}) ${outputVar}[${kx}] = ${out};`);
             }
-            else if (mayOutputUndefined(propShape[k])) {
+            else if (mayOmitUndefined(propShape[k])) {
                 doc.write(`if (${out} !== undefined || ${kx} in ${accessor}) ${outputVar}[${kx}] = ${out};`);
             }
             else {
@@ -1154,9 +1148,10 @@ function fastPathAcceptsAbsence(schema) {
 function dropsWhenAbsent(schema) {
     return schema._zod.optin === "optional" && schema._zod.optout === "optional";
 }
-// Whether a schema's success-path output can be `undefined`. Object output
-// assembly gives such props the runtime's value-or-presence inclusion rule;
-// everything else keeps the unconditional object-literal slot.
+function mayOmitUndefined(schema) {
+    return (schema._zod.optin !== "defaulted" || schema._zod.optout === "optional") && mayOutputUndefined(schema);
+}
+// whether a schema's success-path output can be undefined
 function mayOutputUndefined(schema) {
     const def = schema._zod.def;
     switch (def.type) {

@@ -41,7 +41,7 @@ export interface ParsePayload<T = unknown> {
 }
 export type CheckFn<T> = (input: ParsePayload<T>) => util.MaybeAsync<void>;
 export interface $ZodTypeDef {
-    type: "string" | "number" | "int" | "boolean" | "bigint" | "symbol" | "null" | "undefined" | "void" | "never" | "any" | "unknown" | "date" | "object" | "record" | "file" | "array" | "tuple" | "union" | "intersection" | "map" | "set" | "enum" | "literal" | "nullable" | "optional" | "nonoptional" | "success" | "transform" | "default" | "prefault" | "catch" | "nan" | "pipe" | "readonly" | "template_literal" | "promise" | "lazy" | "function" | "custom" | "properties";
+    type: "string" | "number" | "int" | "boolean" | "bigint" | "symbol" | "null" | "undefined" | "void" | "never" | "any" | "unknown" | "date" | "object" | "record" | "file" | "array" | "tuple" | "union" | "intersection" | "map" | "set" | "enum" | "literal" | "nullable" | "optional" | "nonoptional" | "success" | "transform" | "default" | "prefault" | "catch" | "nan" | "pipe" | "readonly" | "template_literal" | "promise" | "lazy" | "function" | "custom";
     error?: errors.$ZodErrorMap<never> | undefined;
     checks?: checks.$ZodCheck<never>[];
 }
@@ -1010,7 +1010,7 @@ export interface $ZodPrefaultDef<T extends SomeType = $ZodType> extends $ZodType
     /** The default value. May be a getter. */
     defaultValue: core.input<T>;
 }
-export interface $ZodPrefaultInternals<T extends SomeType = $ZodType> extends $ZodTypeInternals<util.NoUndefined<core.output<T>>, core.input<T> | undefined> {
+export interface $ZodPrefaultInternals<T extends SomeType = $ZodType> extends $ZodTypeInternals<core.output<T>, core.input<T> | undefined> {
     def: $ZodPrefaultDef<T>;
     optin: "defaulted";
     optout?: "optional" | undefined;
@@ -1267,22 +1267,5 @@ export interface $ZodCustom<O = unknown, I = unknown> extends $ZodType {
     _zod: $ZodCustomInternals<O, I>;
 }
 export declare const $ZodCustom: core.$constructor<$ZodCustom>;
-export interface $ZodPropertiesDef<Shape extends $ZodShape = $ZodShape> extends $ZodTypeDef, checks.$ZodCheckDef {
-    type: "properties";
-    check: "properties";
-    shape: Shape;
-}
-export interface $ZodPropertiesInternals<Shape extends $ZodShape = $ZodShape> extends $ZodTypeInternals<$InferObjectInput<Shape, {}>, $InferObjectInput<Shape, {}>>, checks.$ZodCheckInternals<{
-    -readonly [k in keyof Shape]: util.Widen<core.input<Shape[k]>>;
-}> {
-    def: $ZodPropertiesDef<Shape>;
-    isst: errors.$ZodIssueInvalidType;
-    issc: errors.$ZodIssue;
-}
-export interface $ZodProperties<Shape extends $ZodShape = $ZodShape> extends $ZodType {
-    _zod: $ZodPropertiesInternals<Shape>;
-    [Symbol.iterator](): Iterator<this>;
-}
-export declare const $ZodProperties: core.$constructor<$ZodProperties>;
-export type $ZodTypes = $ZodString | $ZodNumber | $ZodBigInt | $ZodBoolean | $ZodDate | $ZodSymbol | $ZodUndefined | $ZodNullable | $ZodNull | $ZodAny | $ZodUnknown | $ZodNever | $ZodVoid | $ZodArray | $ZodObject | $ZodUnion | $ZodIntersection | $ZodTuple | $ZodRecord | $ZodMap | $ZodSet | $ZodLiteral | $ZodEnum | $ZodFunction | $ZodPromise | $ZodLazy | $ZodOptional | $ZodDefault | $ZodPrefault | $ZodTemplateLiteral | $ZodCustom | $ZodProperties | $ZodTransform | $ZodNonOptional | $ZodReadonly | $ZodNaN | $ZodPipe | $ZodSuccess | $ZodCatch | $ZodFile;
+export type $ZodTypes = $ZodString | $ZodNumber | $ZodBigInt | $ZodBoolean | $ZodDate | $ZodSymbol | $ZodUndefined | $ZodNullable | $ZodNull | $ZodAny | $ZodUnknown | $ZodNever | $ZodVoid | $ZodArray | $ZodObject | $ZodUnion | $ZodIntersection | $ZodTuple | $ZodRecord | $ZodMap | $ZodSet | $ZodLiteral | $ZodEnum | $ZodFunction | $ZodPromise | $ZodLazy | $ZodOptional | $ZodDefault | $ZodPrefault | $ZodTemplateLiteral | $ZodCustom | $ZodTransform | $ZodNonOptional | $ZodReadonly | $ZodNaN | $ZodPipe | $ZodSuccess | $ZodCatch | $ZodFile;
 export type $ZodStringFormatTypes = $ZodGUID | $ZodUUID | $ZodEmail | $ZodURL | $ZodEmoji | $ZodNanoID | $ZodCUID | $ZodCUID2 | $ZodULID | $ZodXID | $ZodKSUID | $ZodISODateTime | $ZodISODate | $ZodISOTime | $ZodISODuration | $ZodIPv4 | $ZodIPv6 | $ZodMAC | $ZodCIDRv4 | $ZodCIDRv6 | $ZodBase64 | $ZodBase64URL | $ZodE164 | $ZodCreditCard | $ZodIBAN | $ZodJWT | $ZodCustomStringFormat<"hex"> | $ZodCustomStringFormat<util.HashFormat> | $ZodCustomStringFormat<"hostname">;

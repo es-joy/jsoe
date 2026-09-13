@@ -216,8 +216,8 @@ export type $ZodCheckPropertyParams = CheckParams<checks.$ZodCheckProperty, "pro
 export declare function _property<K extends string, T extends schemas.$ZodType>(property: K, schema: T, params?: string | $ZodCheckPropertyParams): checks.$ZodCheckProperty<{
     [k in K]: util.Widen<core.input<T>>;
 }>;
-export type $ZodPropertiesParams = CheckTypeParams<schemas.$ZodProperties, "shape" | "when">;
-export declare function _properties<Shape extends schemas.$ZodShape>(Class: util.SchemaClass<schemas.$ZodProperties>, shape: Shape, params?: string | $ZodPropertiesParams): schemas.$ZodProperties<Shape>;
+export type $ZodCheckPropertiesParams = CheckParams<checks.$ZodCheckProperties, "shape" | "when">;
+export declare function _properties<Shape extends schemas.$ZodShape>(shape: Shape, params?: string | $ZodCheckPropertiesParams): checks.$ZodCheckProperties<Shape>;
 export type $ZodCheckMimeTypeParams = CheckParams<checks.$ZodCheckMimeType, "mime" | "when">;
 export declare function _mime(types: util.MimeTypes[], params?: string | $ZodCheckMimeTypeParams): checks.$ZodCheckMimeType;
 export declare function _overwrite<T>(tx: (input: T) => T): checks.$ZodCheckOverwrite<T>;

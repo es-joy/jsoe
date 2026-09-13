@@ -918,13 +918,6 @@ export const ZodMiniCustom = /*@__PURE__*/ core.$constructor("ZodMiniCustom", (i
     core.$ZodCustom.init(inst, def);
     ZodMiniType.init(inst, def);
 });
-export const ZodMiniProperties = /*@__PURE__*/ core.$constructor("ZodMiniProperties", (inst, def) => {
-    core.$ZodProperties.init(inst, def);
-    ZodMiniType.init(inst, def);
-});
-export function properties(shape, params) {
-    return core._properties(ZodMiniProperties, shape, params);
-}
 // custom checks
 // @__NO_SIDE_EFFECTS__
 export function check(fn, params) {

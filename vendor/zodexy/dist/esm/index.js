@@ -295,26 +295,6 @@ var dezerializers = {
     opts.pathToSchema.set(opts.path, i);
     return getCustomChecks(i, shape, opts);
   }),
-  properties: ((shape, opts) => {
-    const i = z.properties(
-      {
-        ...Object.fromEntries(
-          Object.entries(shape.properties).map(([key, value]) => {
-            return [
-              key,
-              checkRef(value, opts) || d(value, {
-                ...opts,
-                path: opts.path + "/properties/" + key
-              })
-            ];
-          })
-        )
-      },
-      getError(shape, opts)
-    );
-    opts.pathToSchema.set(opts.path, i);
-    return getCustomChecks(i, shape, opts);
-  }),
   object: ((shape, opts) => {
     let i = z.object(
       {
@@ -645,7 +625,7 @@ function dezerialize(shape, opts = {}) {
 import { z as z2 } from "zod";
 
 // zodexySchema.ts
-var zodexySchema_default = "https://github.com/brettz9/zodexy/releases/tag/v0.31.0";
+var zodexySchema_default = "https://github.com/brettz9/zodexy/releases/tag/v0.31.1";
 
 // zerialize.ts
 var PRIMITIVES = {
@@ -1217,18 +1197,6 @@ var zerializers = {
   readonly: (def, opts) => ({
     ...s(def.innerType, opts, true),
     readonly: true
-  }),
-  properties: (def, opts) => ({
-    type: "properties",
-    properties: Object.fromEntries(
-      Object.entries(def.shape).map(([key, schema]) => [
-        key,
-        s(schema, {
-          ...opts,
-          currentPath: [...opts.currentPath, "properties", key]
-        })
-      ])
-    )
   }),
   custom: (_def, opts, schema) => {
     const Constructor = schema._zod.bag.Class;

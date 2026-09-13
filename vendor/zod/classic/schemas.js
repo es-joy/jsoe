@@ -1455,14 +1455,6 @@ export const ZodCustom = /*@__PURE__*/ core.$constructor("ZodCustom", (inst, def
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => processors.customProcessor(inst, ctx, json, params);
 });
-export const ZodProperties = /*@__PURE__*/ core.$constructor("ZodProperties", (inst, def) => {
-    _ensureDefaultMemoizer();
-    core.$ZodProperties.init(inst, def);
-    ZodType.init(inst, def);
-});
-export function properties(shape, params) {
-    return core._properties(ZodProperties, shape, params);
-}
 // custom checks
 export function check(fn) {
     const ch = new core.$ZodCheck({
@@ -1490,7 +1482,7 @@ export const ZodInstanceOf = /*@__PURE__*/ core.$constructor("ZodInstanceOf", (i
 }, {
     properties(shape, params) {
         // asserts in place, so the narrowed output type is truthful without a wrapper
-        return this.check(properties(shape, params));
+        return this.check(core._properties(shape, params));
     },
 });
 function _instanceof(cls, params = {}) {

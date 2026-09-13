@@ -688,9 +688,8 @@ export function _property(property, schema, params) {
     });
 }
 // @__NO_SIDE_EFFECTS__
-export function _properties(Class, shape, params) {
-    return new Class({
-        type: "properties",
+export function _properties(shape, params) {
+    return new checks.$ZodCheckProperties({
         check: "properties",
         shape,
         ...util.normalizeParams(params),
