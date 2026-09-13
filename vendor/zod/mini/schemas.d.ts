@@ -147,6 +147,7 @@ export declare const ZodMiniCustomStringFormat: core.$constructor<ZodMiniCustomS
 export declare function stringFormat<Format extends string>(format: Format, fnOrRegex: ((arg: string) => util.MaybeAsync<unknown>) | RegExp, _params?: string | core.$ZodStringFormatParams): ZodMiniCustomStringFormat<Format>;
 export declare function hostname(_params?: string | core.$ZodStringFormatParams): ZodMiniCustomStringFormat<"hostname">;
 export declare function hex(_params?: string | core.$ZodStringFormatParams): ZodMiniCustomStringFormat<"hex">;
+export declare function currencyCode(_params?: string | core.$ZodStringFormatParams): ZodMiniCustomStringFormat<"currency_code">;
 export declare function hash<Alg extends util.HashAlgorithm, Enc extends util.HashEncoding = "hex">(alg: Alg, params?: {
     enc?: Enc;
 } & core.$ZodStringFormatParams): ZodMiniCustomStringFormat<`${Alg}_${Enc}`>;

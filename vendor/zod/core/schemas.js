@@ -209,15 +209,37 @@ export const $ZodEmail = /*@__PURE__*/ core.$constructor("$ZodEmail", (inst, def
 });
 /** The `://` guard rejected the input before the URL constructor saw it. */
 export const URL_BAD_FORMAT = 1;
-/** The URL constructor rejected the input. */
+/** The URL parser rejected the input. */
 export const URL_UNPARSEABLE = 2;
-/** Parses a URL for `$ZodURL`, applying the one guard the URL constructor cannot express. Returns the parsed URL, or a code naming the stage that rejected it — the runtime needs that distinction to pick an issue note, and compiled code only needs to know it is not a URL. */
+export function canParseURL(input) {
+    try {
+        if (typeof URL !== "undefined" && typeof URL.canParse === "function")
+            return URL.canParse(input);
+        new URL(input);
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
+export function validateURL(trimmed, def) {
+    if (!("normalize" in def) && !("hostname" in def) && !("protocol" in def)) {
+        return canParseURL(trimmed) || URL_UNPARSEABLE;
+    }
+    return parseURLObject(trimmed, def);
+}
+/** Parses a URL while preserving the non-normalizing HTTP guard. */
 export function parseURLObject(trimmed, def) {
     // When normalize is off, require :// for http/https URLs. This prevents strings like "http:example.com" or "https:/path" from being silently accepted
     if (!def.normalize && def.protocol?.source === regexes.httpProtocol.source && !/^https?:\/\//i.test(trimmed)) {
         return URL_BAD_FORMAT;
     }
     try {
+        if (typeof URL !== "undefined") {
+            const URLStatic = URL;
+            if (typeof URLStatic.parse === "function")
+                return URLStatic.parse(trimmed) ?? URL_UNPARSEABLE;
+        }
         // @ts-ignore
         return new URL(trimmed);
     }
@@ -244,7 +266,7 @@ export const $ZodURL = /*@__PURE__*/ core.$constructor("$ZodURL", (inst, def) =>
         try {
             // Trim whitespace from input
             const trimmed = payload.value.trim();
-            const url = parseURLObject(trimmed, def);
+            const url = validateURL(trimmed, def);
             if (url === URL_BAD_FORMAT) {
                 payload.issues.push({
                     code: "invalid_format",
@@ -264,6 +286,10 @@ export const $ZodURL = /*@__PURE__*/ core.$constructor("$ZodURL", (inst, def) =>
                     inst,
                     continue: !def.abort,
                 });
+                return;
+            }
+            if (url === true) {
+                payload.value = stripTabAndNewline(trimmed);
                 return;
             }
             if (def.hostname && !urlHostnameOk(url, def.hostname)) {
@@ -363,14 +389,7 @@ const ipv6Alphabet = /^[0-9a-fA-F:.]+$/;
 export function isValidIPv6(value) {
     if (!ipv6Alphabet.test(value))
         return false;
-    try {
-        // @ts-ignore
-        new URL(`http://[${value}]`);
-        return true;
-    }
-    catch {
-        return false;
-    }
+    return canParseURL(`http://[${value}]`);
 }
 export const $ZodIPv6 = /*@__PURE__*/ core.$constructor("$ZodIPv6", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.ipv6);

@@ -27,6 +27,7 @@ var STRING_KINDS = /* @__PURE__ */ new Set([
   "e164",
   "jwt",
   "credit_card",
+  "currency_code",
   "iban",
   "ipv4",
   "ipv6",
@@ -153,6 +154,8 @@ var dezerializers = {
         s2 = "length" in shape ? z.nanoid({ length: shape.length }) : z.nanoid();
       } else if (shape.kind === "credit_card") {
         s2 = z.creditCard();
+      } else if (shape.kind === "currency_code") {
+        s2 = z.currencyCode();
       } else if (shape.kind !== "json_string") {
         s2 = z[shape.kind]();
       }
@@ -625,7 +628,7 @@ function dezerialize(shape, opts = {}) {
 import { z as z2 } from "zod";
 
 // zodexySchema.ts
-var zodexySchema_default = "https://github.com/brettz9/zodexy/releases/tag/v0.31.1";
+var zodexySchema_default = "https://github.com/brettz9/zodexy/releases/tag/v0.32.0";
 
 // zerialize.ts
 var PRIMITIVES = {

@@ -2,7 +2,7 @@ import { $ZodAsyncError } from "./core.js";
 import { Doc } from "./doc.js";
 import { isBackEdge, isRecursiveSchema } from "./memoizer.js";
 import * as regexes from "./regexes.js";
-import { isValidBase64, isValidBase64URL, isValidCIDRv6, isValidCreditCard, isValidIBAN, isValidIPv6, isValidJWT, mergeValues, parseURLObject, stripTabAndNewline, urlHostnameOk, urlProtocolOk, } from "./schemas.js";
+import { isValidBase64, isValidBase64URL, isValidCIDRv6, isValidCreditCard, isValidIBAN, isValidIPv6, isValidJWT, mergeValues, stripTabAndNewline, urlHostnameOk, urlProtocolOk, validateURL, } from "./schemas.js";
 import * as util from "./util.js";
 /** @internal Sentinel the compiled fast path returns when validation fails. */
 export const INVALID = Symbol.for("zod.compile.invalid");
@@ -577,8 +577,7 @@ const PATTERN_IS_COMPLETE = new Set([
     "uuid",
     "xid",
 ]);
-// Returns the accessor holding the (possibly normalized) value after the check — url/normalize formats produce a new value like overwrite does. Never assigns to the incoming accessor: it may be a `const` or a property expression on user input.
-function generateStringFormatCheck(doc, ctx, def, accessor) {
+function generateStringFormatCheck(doc, ctx, def, accessor, needsValue = true) {
     // Some string formats do runtime validation beyond their advertised pattern. For cheap pure utility checks, hoist the runtime function and call it so the fast path stays correct without cloning the utility logic into codegen.
     const fmt = def.format;
     if (fmt === "base64") {
@@ -624,7 +623,7 @@ function generateStringFormatCheck(doc, ctx, def, accessor) {
         formatDef.hostname !== undefined ||
         formatDef.protocol !== undefined) {
         // Same three predicates the runtime calls, in the same order, so there is no second URL implementation to drift. Which options exist is known now, so the calls the runtime makes conditionally are emitted conditionally instead.
-        const parseConst = addConstant(ctx, parseURLObject);
+        const parseConst = addConstant(ctx, validateURL);
         const defConst = addConstant(ctx, def);
         const trimVar = newVar(ctx);
         const urlVar = newVar(ctx);
@@ -639,6 +638,8 @@ function generateStringFormatCheck(doc, ctx, def, accessor) {
             const protocolConst = addConstant(ctx, urlProtocolOk);
             doc.write(`if (!${protocolConst}(${urlVar}, ${defConst}.protocol)) return INVALID;`);
         }
+        if (!needsValue)
+            return null;
         const outputVar = newVar(ctx);
         const outputExpr = formatDef.normalize ? `${urlVar}.href` : `${addConstant(ctx, stripTabAndNewline)}(${trimVar})`;
         doc.write(`const ${outputVar} = ${outputExpr};`);
@@ -703,7 +704,7 @@ function generateCheck(doc, ctx, schema, accessor, needsValue = true) {
     let typeAccessor;
     switch (type) {
         case "string":
-            typeAccessor = generateStringCheck(doc, ctx, schema, accessor);
+            typeAccessor = generateStringCheck(doc, ctx, schema, accessor, buildsValue);
             break;
         case "number":
             typeAccessor = generateNumberCheck(doc, schema, accessor);
@@ -832,13 +833,13 @@ function generateCheck(doc, ctx, schema, accessor, needsValue = true) {
     // Generate checks after the type-specific validation (may transform value)
     return generateChecks(doc, ctx, schema, typeAccessor);
 }
-function generateStringCheck(doc, ctx, schema, accessor) {
+function generateStringCheck(doc, ctx, schema, accessor, needsValue = true) {
     doc.write(`if (typeof ${accessor} !== "string") return INVALID;`);
     // z.email() carries its format on the def, z.string().email() in def.checks; both route here so the format table has no second copy to drift from.
     const def = schema._zod.def;
     if (def.format === undefined)
         return accessor;
-    return generateStringFormatCheck(doc, ctx, def, accessor);
+    return generateStringFormatCheck(doc, ctx, def, accessor, needsValue);
 }
 function generateNumberCheck(doc, schema, accessor) {
     // Runtime z.number() rejects NaN and ±Infinity. Number.isFinite covers both.
