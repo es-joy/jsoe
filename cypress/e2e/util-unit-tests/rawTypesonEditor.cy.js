@@ -453,9 +453,18 @@ describe('rawTypesonEditor', function () {
   //   comment) — so it's located the same way: a plain `document` query,
   //   retried via `cy.wrap(null).should(...)` until it appears, rather than
   //   `cy.get('dialog[open]')`.
+  //
+  //   The retried condition itself waits for the CodeMirror editor to be
+  //   mounted (not just for `dialog[open]` to exist) so this helper can
+  //   never hand back a dialog callers then have to wait on separately;
+  //   splitting that into two commands previously let an alias be taken
+  //   the instant `dialog[open]` appeared, before asserting on the editor
+  //   inside it, which is a needless (if usually instant) race.
   const getOpenDialog = () => {
     return cy.wrap(null).should(() => {
-      expect(document.querySelector('dialog[open]')).to.exist;
+      expect(
+        document.querySelector('dialog[open] .jsoe-raw-editor .cm-content')
+      ).to.exist;
     }).then(() => {
       return /** @type {HTMLDialogElement} */ (
         document.querySelector('dialog[open]')

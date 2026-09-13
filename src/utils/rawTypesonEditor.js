@@ -613,11 +613,22 @@ export async function openRawEditorDialog ({
     ['div', {class: editorClass}]
   ];
 
+  // `dialogs.js`'s default `remove` behavior detaches the `<dialog>` from
+  //   the document on close, but never tears down the `EditorView` mounted
+  //   into it; left as-is, every "Edit raw"/"View raw" use leaks a live
+  //   `EditorView` (and its internal `ResizeObserver`/DOM observers) bound
+  //   to an already-detached subtree. Destroy it alongside the dialog.
+  const close = () => {
+    view.destroy();
+  };
+
   const dialog = readonly
     // @ts-expect-error TS bug
-    ? dialogs.makeCancelDialog({children})
+    ? dialogs.makeCancelDialog({children, close})
     : dialogs.makeSubmitDialog({
       submitText: 'Save',
+      // @ts-expect-error TS bug
+      close,
       async submit ({dialog: dlg}) {
         const text = view.state.doc.toString();
         showError(dlg, '');
@@ -652,7 +663,6 @@ export async function openRawEditorDialog ({
         }
         dlg.close();
       },
-      // @ts-expect-error TS bug
       children
     });
 
