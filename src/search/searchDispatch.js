@@ -21,6 +21,11 @@ import mapSearchType from './fundamentalTypes/mapSearchType.js';
 import promiseSearchType from './fundamentalTypes/promiseSearchType.js';
 import catchSearchType from './fundamentalTypes/catchSearchType.js';
 import functionSearchType from './fundamentalTypes/functionSearchType.js';
+import fileSearchType from './fundamentalTypes/fileSearchType.js';
+import blobSearchType from './fundamentalTypes/blobSearchType.js';
+import unionSearchType from './unions/unionSearchType.js';
+import xorSearchType from './unions/xorSearchType.js';
+import discriminatedUnionSearchType from './unions/discriminatedUnionSearchType.js';
 
 /**
  * @typedef {import('./queryTree.js').QueryNode} QueryNode
@@ -107,8 +112,8 @@ const availableSearchTypes = {
   map: mapSearchType,
   set: setSearchType,
   filelist: filelistSearchType,
-  file: stubSearchType('file'),
-  blob: stubSearchType('blob'),
+  file: fileSearchType,
+  blob: blobSearchType,
   error: stubSearchType('error'),
   domexception: stubSearchType('domexception'),
   promise: promiseSearchType,
@@ -131,9 +136,9 @@ const availableSearchTypes = {
   buffersource: stubSearchType('buffersource'),
 
   // unions
-  union: stubSearchType('union'),
-  xor: stubSearchType('xor'),
-  discriminatedUnion: stubSearchType('discriminatedUnion'),
+  union: unionSearchType,
+  xor: xorSearchType,
+  discriminatedUnion: discriminatedUnionSearchType,
 
   // string-shape alias (§3)
   templateLiteral: stringSearchType,

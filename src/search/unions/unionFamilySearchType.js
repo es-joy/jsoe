@@ -1,0 +1,159 @@
+import {jml} from '../../vendor-imports.js';
+import {buildPathLabel, findOwnControl} from '../searchUtils.js';
+import {makeTypeOfLeaf, combineAnd} from '../queryTreeBuilders.js';
+import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
+import {getSearchSchemaType, getSearchTypeObject} from '../searchDispatch.js';
+
+/**
+ * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
+ */
+
+/**
+ * @param {HTMLElement} el
+ * @returns {el is HTMLSelectElement}
+ */
+function isSelectElement (el) {
+  return el.nodeName.toLowerCase() === 'select';
+}
+
+/**
+ * @typedef {{
+ *   discriminator?: string,
+ *   options: import('../../formats/schema.js').ZodexSchema[]
+ * }} UnionLikeSchemaObject
+ */
+
+/**
+ * Shared implementation behind `unionSearchType.js`, `xorSearchType.js` and
+ * `discriminatedUnionSearchType.js`: all three share the exact same
+ * "has type &lt;type pull-down&gt;" shape (README) - `SzUnion`/`SzXor` carry
+ * only `options`, `SzDiscriminatedUnion` additionally carries a
+ * `discriminator` field name (`zodexy`'s schema types), so `discriminated`
+ * is the only behavioral difference. Picking a branch also renders that
+ * branch's own recursively-built search widget below the pull-down (not
+ * just "is type X" - "X matches Y" too), matching every other composite
+ * built so far.
+ *
+ * Each `<option>` carries its branch's search-dispatch key and (for a
+ * discriminated union) its discriminator value as `data-*` attributes,
+ * since `getQuery()` runs as a `$define` mixin method installed once on the
+ * tag's shared prototype - the branch metadata needs to be read back off
+ * the currently-selected `<option>` itself at query time, not closed over
+ * from this factory's one-time call.
+ * @param {{tagName: string, discriminated: boolean}} cfg
+ * @returns {SearchTypeObject}
+ */
+export function makeUnionFamilySearchType ({tagName, discriminated}) {
+  return {
+    buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+      const label = buildPathLabel(schemaObject, path);
+      const name = `${typeNamespace}-${tagName}`;
+      const unionLikeSchemaObject = /** @type {UnionLikeSchemaObject} */ (
+        /** @type {unknown} */ (schemaObject)
+      );
+      const {options} = unionLikeSchemaObject;
+      const discriminator = discriminated
+        ? unionLikeSchemaObject.discriminator
+        : undefined;
+
+      const branches = options.map((option, idx) => {
+        const searchType = getSearchSchemaType(option);
+        let discriminatorValue;
+        if (discriminator) {
+          const discSchema = /** @type {{properties?: {[key: string]: any}}} */ (
+            option
+          ).properties?.[discriminator];
+          if (discSchema?.type === 'literal') {
+            [discriminatorValue] = discSchema.values;
+          }
+        }
+        const optLabel = discriminatorValue === undefined
+          ? (buildPathLabel(option, `${path}/${idx}`) || searchType)
+          : String(discriminatorValue);
+        return {idx, option, searchType, discriminatorValue, optLabel};
+      });
+
+      return [tagName, {
+        dataset: {searchPath: path, searchKind: tagName},
+        title: label,
+        $define: {
+          /** @this {HTMLElement} */
+          getQuery () {
+            const searchPath = this.dataset.searchPath ?? '';
+            const select = /** @type {HTMLSelectElement|undefined} */ (
+              findOwnControl(this, 'select.jsoeSearchTypeOf')
+            );
+            if (!select || select.value === '') {
+              return undefined;
+            }
+            const selectedOption = select.selectedOptions[0];
+            const searchType = selectedOption?.dataset.searchType ?? '';
+            const rawDiscriminatorValue = selectedOption?.dataset.discriminatorValue;
+            const typeOfLeaf = makeTypeOfLeaf(
+              searchPath,
+              searchType,
+              rawDiscriminatorValue === undefined
+                ? undefined
+                : JSON.parse(rawDiscriminatorValue)
+            );
+            const branchEl = findSearchElement(this, searchPath);
+            const branchQuery = branchEl && hasGetQuery(branchEl)
+              ? branchEl.getQuery()
+              : undefined;
+            return combineAnd([typeOfLeaf, branchQuery]);
+          }
+        }
+      }, [
+        ['span', {class: 'searchLabel'}, [label]],
+        ['label', [
+          'Has type: ',
+          ['select', {
+            name,
+            class: 'jsoeSearchTypeOf',
+            $on: {
+              change () {
+                if (!isSelectElement(this)) {
+                  return;
+                }
+                const container = this.closest(tagName)?.querySelector(
+                  '.searchUnionBranch'
+                );
+                if (!container) {
+                  return;
+                }
+                container.textContent = '';
+                if (this.value === '') {
+                  return;
+                }
+                const branch = branches[Number(this.value)];
+                const branchArr = getSearchTypeObject(branch.option).buildUI({
+                  schemaObject: branch.option,
+                  path,
+                  typeNamespace,
+                  topRoot,
+                  types
+                });
+                container.append(/** @type {HTMLElement} */ (jml(...branchArr)));
+              }
+            }
+          }, [
+            ['option', {value: ''}, ['(any)']],
+            ...branches.map(({idx, searchType, discriminatorValue, optLabel}) => (
+              ['option', {
+                value: String(idx),
+                dataset: {
+                  searchType,
+                  ...(discriminatorValue === undefined
+                    ? {}
+                    : {discriminatorValue: JSON.stringify(discriminatorValue)})
+                }
+              }, [optLabel]]
+            ))
+          ]]
+        ]],
+        ['div', {class: 'searchUnionBranch'}]
+      ]];
+    },
+    getQuery: getQueryViaElement
+  };
+}
