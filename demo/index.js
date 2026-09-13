@@ -10,6 +10,14 @@ import {
 
 const types = new Types();
 
+/**
+ * @param {HTMLElement} el
+ * @returns {el is HTMLInputElement}
+ */
+function isInputElement (el) {
+  return el.nodeName.toLowerCase() === 'input';
+}
+
 const keyPathNotExpectedTypeChoices = await formatAndTypeChoices({
   hasKeyPath: false,
   typeNamespace: 'demo-keypath-not-expected'
@@ -42,7 +50,9 @@ setTimeout(async function () {
       id: 'isValid',
       $on: {
         click () {
-          dialogs.alert(keyPathNotExpectedTypeChoices.validValuesSet());
+          dialogs.alert(String(
+            keyPathNotExpectedTypeChoices.validValuesSet()
+          ));
         }
       }
     }, ['Is valid']],
@@ -63,14 +73,19 @@ setTimeout(async function () {
           const controls =
             (await keyPathNotExpectedTypeChoices.formats.getControlsForFormatAndValue(
               keyPathNotExpectedTypeChoices.types,
-              $('#formatAndTypeChoices .formatChoices').value,
+              /** @type {import('../src/formats.js').AvailableFormat} */
+              (/** @type {HTMLSelectElement} */
+                ($('#formatAndTypeChoices .formatChoices')).value),
               keyPathNotExpectedTypeChoices.getValue(),
               {
                 readonly: true
               }
             )).rootUI;
-          $('#viewUIResults').firstChild?.remove();
-          $('#viewUIResults').append(controls);
+
+          /** @type {HTMLElement} */
+          ($('#viewUIResults')).firstChild?.remove();
+          /** @type {HTMLElement} */
+          ($('#viewUIResults')).append(controls);
         }
       }
     }, ['view UI']],
@@ -134,7 +149,7 @@ setTimeout(async function () {
           id: 'typeChoicesOnly-isValid',
           $on: {
             click () {
-              dialogs.alert(typeSelection.validValuesSet());
+              dialogs.alert(String(typeSelection.validValuesSet()));
             }
           }
         }, ['Is valid']],
@@ -143,7 +158,9 @@ setTimeout(async function () {
           id: 'validateInitialType',
           $on: {
             click () {
-              dialogs.alert(typeSelection.domArray[0].$validate());
+              dialogs.alert(String(
+                typeSelection.domArray[0].$validate()
+              ));
             }
           }
         }, [
@@ -183,7 +200,7 @@ setTimeout(async function () {
       'Convert arbitrary value to a readonly menu'
     ]],
 
-    types.getControlsForFormatAndValue(
+    await types.getControlsForFormatAndValue(
       'structuredCloning',
       new Date('1999-01-01'), {
         readonly: true
@@ -198,6 +215,9 @@ setTimeout(async function () {
       placeholder: 'e.g., ["abc", 17]',
       $on: {
         change () {
+          if (!isInputElement(this)) {
+            return;
+          }
           const types = new Types();
           const value = types.getValueForString(this.value, {
             format: 'structuredCloning'

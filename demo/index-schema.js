@@ -18,18 +18,29 @@ import {
   schemaInstanceJSONMeta
 } from './schema-data.js';
 
+/**
+ * @param {HTMLElement} el
+ * @returns {el is HTMLInputElement}
+ */
+function isInputElement (el) {
+  return el.nodeName.toLowerCase() === 'input';
+}
+
 const zodexSchemaJSON = await (
   await fetch('../vendor/zodexy/dist/schema.zodexy.json')
 ).json();
 
+/** @type {import('zodexy').SzAny} */
 const anySchemaJSON = {
   type: 'any'
 };
 
+/** @type {import('zodexy').SzUnknown} */
 const unknownSchemaJSON = {
   type: 'unknown'
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONMinsMaxes = {
   type: 'union',
   options: [
@@ -57,6 +68,7 @@ const schemaInstanceJSONMinsMaxes = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONMinsMaxes2 = {
   type: 'union',
   options: [
@@ -88,6 +100,7 @@ const schemaInstanceJSONMinsMaxes2 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONMinsMaxes3 = {
   type: 'union',
   options: [
@@ -114,6 +127,7 @@ const schemaInstanceJSONMinsMaxes3 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONBigIntFormats = {
   type: 'union',
   options: [
@@ -130,6 +144,7 @@ const schemaInstanceJSONBigIntFormats = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings1 = {
   type: 'union',
   options: [
@@ -142,6 +157,7 @@ const schemaInstanceJSONStrings1 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings2 = {
   type: 'union',
   options: [
@@ -153,6 +169,7 @@ const schemaInstanceJSONStrings2 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings3 = {
   type: 'union',
   options: [
@@ -164,6 +181,7 @@ const schemaInstanceJSONStrings3 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings4 = {
   type: 'union',
   options: [
@@ -175,6 +193,7 @@ const schemaInstanceJSONStrings4 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings5 = {
   type: 'union',
   options: [
@@ -185,6 +204,7 @@ const schemaInstanceJSONStrings5 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings6 = {
   type: 'union',
   options: [
@@ -198,6 +218,7 @@ const schemaInstanceJSONStrings6 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings7 = {
   type: 'union',
   options: [
@@ -209,6 +230,7 @@ const schemaInstanceJSONStrings7 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings8 = {
   type: 'union',
   options: [
@@ -220,6 +242,7 @@ const schemaInstanceJSONStrings8 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings9 = {
   type: 'union',
   options: [
@@ -339,6 +362,7 @@ const schemaInstanceJSONStrings9 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings10 = {
   type: 'union',
   options: [
@@ -350,6 +374,7 @@ const schemaInstanceJSONStrings10 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONStrings11 = {
   type: 'union',
   options: [
@@ -372,12 +397,12 @@ const schemaInstanceJSONStrings11 = {
 /**
  * @param {string} schema
  * @throws {Error}
- * @returns {import('zodexy').SzType}
+ * @returns {Promise<import('zodexy').SzType>}
  */
-function getSchemaContent (schema) {
+async function getSchemaContent (schema) {
   switch (schema) {
   case 'Zodexy schema':
-    return zodexSchemaJSON;
+    return await zodexSchemaJSON;
   case 'Zodexy schema instance':
     return schemaInstanceJSON;
   case 'Zodexy schema instance 2':
@@ -519,7 +544,9 @@ setTimeout(function () {
       id: 'isValid',
       $on: {
         click () {
-          dialogs.alert(keyPathNotExpectedTypeChoices.validValuesSet());
+          dialogs.alert(String(
+            keyPathNotExpectedTypeChoices.validValuesSet()
+          ));
         }
       }
     }, ['Is valid']],
@@ -540,8 +567,9 @@ setTimeout(function () {
           const controls =
             (await keyPathNotExpectedTypeChoices.formats.getControlsForFormatAndValue(
               keyPathNotExpectedTypeChoices.types,
-              keyPathNotExpectedTypeChoices.formatChoices.
-                selectedOptions[0].value,
+              /** @type {import('../src/formats.js').AvailableFormat} */
+              (keyPathNotExpectedTypeChoices.formatChoices.
+                selectedOptions[0].value),
               keyPathNotExpectedTypeChoices.getValue(),
               {
                 readonly: true,
@@ -549,15 +577,17 @@ setTimeout(function () {
                 // schemaContent: anySchemaJSON
                 schemaContent: keyPathNotExpectedTypeChoices.formatChoices.
                   selectedOptions[0].dataset.schema
-                  ? getSchemaContent(
+                  ? await getSchemaContent(
                     keyPathNotExpectedTypeChoices.formatChoices.
                       selectedOptions[0].dataset.schema
                   )
                   : undefined
               }
             )).rootUI;
-          $('#viewUIResults').firstChild?.remove();
-          $('#viewUIResults').append(controls);
+          /** @type {HTMLElement} */
+          ($('#viewUIResults')).firstChild?.remove();
+          /** @type {HTMLElement} */
+          ($('#viewUIResults')).append(controls);
         }
       }
     }, ['view UI']],
@@ -573,8 +603,9 @@ setTimeout(function () {
             value: 42
           }, {
             schemaContent: await getSchemaContent(
-              keyPathNotExpectedTypeChoices.formatChoices.
-                selectedOptions[0].dataset.schema
+              /** @type {string} */
+              (keyPathNotExpectedTypeChoices.formatChoices.
+                selectedOptions[0].dataset.schema)
             )
           });
         }
@@ -585,12 +616,12 @@ setTimeout(function () {
       id: 'showRootFormControl',
       $on: {
         click () {
-          const root = $(
+          const root = /** @type {HTMLDivElement} */ ($(
             '#formatAndTypeChoices > .typesHolder > ' +
               '.typeContainer > div[data-type]'
-          );
-          const formControl =
-            keyPathNotExpectedTypeChoices.types.getFormControlForRoot(root);
+          ));
+          const formControl = /** @type {HTMLElement} */
+            (keyPathNotExpectedTypeChoices.types.getFormControlForRoot(root));
           formControl.style.backgroundColor = 'red';
           setTimeout(() => {
             formControl.style.backgroundColor = 'white';
@@ -607,6 +638,10 @@ setTimeout(function () {
       placeholder: 'e.g., ["abc", 17]',
       $on: {
         change () {
+          if (!isInputElement(this)) {
+            return;
+          }
+          /** @type {import('zodexy').SzUnion<any>} */
           const union = {
             type: 'union',
             options: [

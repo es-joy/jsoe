@@ -20,7 +20,7 @@ const zodexSchemaJSON = await (
 
 /**
  * @param {any[]} values
- * @param {import('zodexy').SzType} schema
+ * @param {import('zodexy').SzUnion} schema
  * @returns {import('jamilih').JamilihChildren}
  */
 function getTypeChoices (values, schema) {
@@ -235,6 +235,7 @@ setTimeout(function () {
         {abc: 2, xy: 'passthrough'}
       ], schemaInstanceJSON12),
       ...(() => {
+        /** @type {import('zodexy').SzUnion<any>} */
         const schema = {
           type: 'union',
           options: [
@@ -270,6 +271,7 @@ setTimeout(function () {
         }).domArray;
       })(),
       ...(() => {
+        /** @type {import('zodexy').SzUnion<any>} */
         const schema = {
           type: 'union',
           options: [

@@ -1,3 +1,4 @@
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON = {
   type: 'union',
   options: [
@@ -24,6 +25,7 @@ const schemaInstanceJSON = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON2 = {
   type: 'union',
   options: [
@@ -293,6 +295,7 @@ const schemaInstanceJSON2 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON3 = {
   type: 'union',
   options: [
@@ -317,6 +320,7 @@ const schemaInstanceJSON3 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON4 = {
   type: 'union',
   options: [
@@ -333,6 +337,7 @@ const schemaInstanceJSON4 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON5 = {
   type: 'union',
   options: [
@@ -347,6 +352,7 @@ const schemaInstanceJSON5 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON6 = {
   type: 'union',
   options: [
@@ -373,6 +379,7 @@ const schemaInstanceJSON6 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON7 = {
   type: 'union',
   options: [
@@ -477,6 +484,7 @@ const schemaInstanceJSON7 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON8 = {
   type: 'union',
   options: [
@@ -500,6 +508,7 @@ const schemaInstanceJSON8 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON9 = {
   type: 'union',
   options: [
@@ -550,6 +559,7 @@ const schemaInstanceJSON9 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON10 = {
   type: 'union',
   options: [
@@ -568,6 +578,7 @@ const schemaInstanceJSON10 = {
   ]
 };
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON11 = {
   type: 'union',
   options: [
@@ -590,6 +601,7 @@ const schemaInstanceJSON11 = {
 //   what surfaces the difference: the strict `record` rejects a non-conforming
 //   key, whereas the `looseRecord` passes such an entry through untouched (its
 //   `value` schema is not imposed on it).
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSON12 = {
   type: 'union',
   options: [
@@ -625,6 +637,7 @@ const schemaInstanceJSON12 = {
 // `xor` (exclusive union): exactly one branch may match. The `string` and the
 //   email `string` overlap deliberately: a value like `a@b.com` satisfies both
 //   branches, so it is valid under `union` but invalid under `xor`.
+/** @type {import('zodexy').SzXor<any>} */
 const schemaInstanceJSONXor = {
   type: 'xor',
   options: [
@@ -647,6 +660,7 @@ const schemaInstanceJSONXor = {
 // `xor` of object branches: the shape best suited to a per-branch radio group.
 //   Branches carry a `description` for the branch label and differ by which
 //   properties they define.
+/** @type {import('zodexy').SzXor<any>} */
 const schemaInstanceJSONXor2 = {
   type: 'xor',
   options: [
@@ -680,6 +694,7 @@ const schemaInstanceJSONXor2 = {
 // Exercises Zodexy `meta`: `meta.title` as the visible label, `meta.description`
 //   as tooltip-only long text, plus `id`, `deprecated`, a custom key, and the
 //   reserved `jsoe` directive namespace, all surfaced through the info toggle.
+/** @type {import('zodexy').SzObject} */
 const schemaInstanceJSONMeta = {
   type: 'object',
   meta: {

@@ -6,7 +6,7 @@ allowBuilds:
   unrs-resolver: true
 
 minimumReleaseAgeExclude:
-  - jamilih@0.68.0 || 0.68.1 || 0.69.0
+  - jamilih@0.68.0 || 0.68.1 || 0.69.0 || 0.70.1 || 0.70.2
   - cypress@15.20.1 || 15.21.0 || 16.0.0
   - '@es-joy/jsdoccomment@0.95.0 || 0.95.1'
   - '@typescript-eslint/types@8.67.0 || 8.69.0'

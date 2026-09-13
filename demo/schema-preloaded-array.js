@@ -20,7 +20,7 @@ const zodexSchemaJSON = await (
 
 /**
  * @param {any[]} values
- * @param {import('zodexy').SzType} schema
+ * @param {import('zodexy').SzUnion} schema
  * @returns {import('jamilih').JamilihChildren}
  */
 function getTypeChoices (values, schema) {

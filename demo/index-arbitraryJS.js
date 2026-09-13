@@ -8,8 +8,16 @@ import {
 } from '../src/index.js';
 
 /**
+ * @param {HTMLElement} el
+ * @returns {el is HTMLInputElement}
+ */
+function isInputElement (el) {
+  return el.nodeName.toLowerCase() === 'input';
+}
+
+/**
  * @param {any[]} values
- * @param {import('zodexy').SzType} schema
+ * @param {import('zodexy').SzUnion} schema
  * @returns {import('jamilih').JamilihChildren}
  */
 function getTypeChoices (values, schema) {
@@ -29,6 +37,7 @@ function getTypeChoices (values, schema) {
   })]];
 }
 
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONArbitraryJS = {
   type: 'union',
   options: [
@@ -68,6 +77,7 @@ const schemaInstanceJSONArbitraryJS = {
 // Todo: We could prevent UI from allowing 'never' types to be added (we are
 //   using a Set not a Tuple for args, so no built-in checks available
 //   currently)
+/** @type {import('zodexy').SzUnion<any>} */
 const schemaInstanceJSONArbitraryJS2 = {
   type: 'union',
   options: [
@@ -95,14 +105,14 @@ const schemaInstanceJSONArbitraryJS2 = {
 /**
  * @param {string} schema
  * @throws {Error}
- * @returns {import('zodexy').SzType}
+ * @returns {Promise<import('zodexy').SzType>}
  */
-function getSchemaContent (schema) {
+async function getSchemaContent (schema) {
   switch (schema) {
   case 'Zodexy arbitrary JS schema':
-    return schemaInstanceJSONArbitraryJS;
+    return await schemaInstanceJSONArbitraryJS;
   case 'Zodexy arbitrary JS schema 2':
-    return schemaInstanceJSONArbitraryJS2;
+    return await schemaInstanceJSONArbitraryJS2;
   /* istanbul ignore next -- Guard */
   default:
     /* istanbul ignore next -- Guard */
@@ -145,7 +155,9 @@ jml('section', {role: 'main'}, [
     id: 'isValid',
     $on: {
       click () {
-        dialogs.alert(keyPathNotExpectedTypeChoices.validValuesSet());
+        dialogs.alert(String(
+          keyPathNotExpectedTypeChoices.validValuesSet()
+        ));
       }
     }
   }, ['Is valid']],
@@ -166,7 +178,13 @@ jml('section', {role: 'main'}, [
         const controls =
           (await keyPathNotExpectedTypeChoices.formats.getControlsForFormatAndValue(
             keyPathNotExpectedTypeChoices.types,
-            $('#formatAndTypeChoices .formatChoices').value,
+            /** @type {import('../src/formats.js').AvailableFormat} */
+            (
+              /**
+               * @type {HTMLSelectElement}
+               */
+              ($('#formatAndTypeChoices .formatChoices')).value
+            ),
             keyPathNotExpectedTypeChoices.getValue(),
             {
               readonly: true,
@@ -179,8 +197,8 @@ jml('section', {role: 'main'}, [
                 : undefined
             }
           )).rootUI;
-        $('#viewUIResults').firstChild?.remove();
-        $('#viewUIResults').append(controls);
+        $('#viewUIResults')?.firstChild?.remove();
+        $('#viewUIResults')?.append(controls);
       }
     }
   }, ['view UI']],
@@ -200,12 +218,15 @@ jml('section', {role: 'main'}, [
     id: 'showRootFormControl',
     $on: {
       click () {
-        const root = $(
+        const root = /** @type {HTMLDivElement} */ ($(
           '#formatAndTypeChoices > .typesHolder > ' +
             '.typeContainer > div[data-type]'
-        );
+        ));
         const formControl =
           keyPathNotExpectedTypeChoices.types.getFormControlForRoot(root);
+        if (!formControl) {
+          return;
+        }
         formControl.style.backgroundColor = 'red';
         setTimeout(() => {
           formControl.style.backgroundColor = 'white';
@@ -222,6 +243,9 @@ jml('section', {role: 'main'}, [
     placeholder: 'e.g., ["abc", 17]',
     $on: {
       change () {
+        if (!isInputElement(this)) {
+          return;
+        }
         const types = new Types();
         const value = types.getValueForString(this.value, {
           format: 'arbitraryJS'
@@ -240,6 +264,12 @@ jml('section', {role: 'main'}, [
       setValue: true,
       value: [
         Promise.resolve('aaa'),
+        /**
+         * @param {unknown} a
+         * @param {unknown} b
+         * @param {unknown} c
+         * @returns {void}
+         */
         function (a, b, c) {
           console.log(a, b, c);
         }
@@ -271,6 +301,12 @@ jml('section', {role: 'main'}, [
     const typeSelectionFunction = typeChoices({
       format: 'arbitraryJS',
       setValue: true,
+      /**
+       * @param {unknown} a
+       * @param {unknown} b
+       * @param {unknown} c
+       * @returns {void}
+       */
       value (a, b, c) {
         console.log(a, b, c);
       },
@@ -294,6 +330,12 @@ jml('section', {role: 'main'}, [
       ...getTypeChoices([
         Symbol('abcd'),
         Promise.resolve(135),
+        /**
+         * @param {unknown} a
+         * @param {unknown} b
+         * @param {unknown} c
+         * @returns {void}
+         */
         function (a, b, c) {
           console.log(a, b, c);
         }

@@ -14,6 +14,22 @@ import {
 
 const types = new Types();
 
+/**
+ * @param {Element|null} el
+ * @returns {el is HTMLFormElement}
+ */
+function isFormElement (el) {
+  return Boolean(el && el.nodeName.toLowerCase() === 'form');
+}
+
+/**
+ * @param {HTMLElement} el
+ * @returns {el is HTMLInputElement}
+ */
+function isInputElement (el) {
+  return el.nodeName.toLowerCase() === 'input';
+}
+
 const keyPathNotExpectedTypeChoices = await formatAndTypeChoices({
   hasKeyPath: false,
   typeNamespace: 'demo-keypath-not-expected'
@@ -46,7 +62,9 @@ setTimeout(async function () {
       id: 'isValid',
       $on: {
         click () {
-          dialogs.alert(keyPathNotExpectedTypeChoices.validValuesSet());
+          dialogs.alert(String(
+            keyPathNotExpectedTypeChoices.validValuesSet()
+          ));
         }
       }
     }, ['Is valid']],
@@ -67,7 +85,8 @@ setTimeout(async function () {
           const controls =
             (await keyPathNotExpectedTypeChoices.formats.getControlsForFormatAndValue(
               keyPathNotExpectedTypeChoices.types,
-              $('#useIndexedDBKey').checked
+              /** @type {HTMLInputElement} */
+              ($('#useIndexedDBKey')).checked
                 ? 'indexedDBKey'
                 : 'structuredCloning',
               keyPathNotExpectedTypeChoices.getValue(),
@@ -75,8 +94,10 @@ setTimeout(async function () {
                 readonly: true
               }
             )).rootUI;
-          $('#viewUIResults').firstChild?.remove();
-          $('#viewUIResults').append(controls);
+          /** @type {HTMLElement} */
+          ($('#viewUIResults')).firstChild?.remove();
+          /** @type {HTMLElement} */
+          ($('#viewUIResults')).append(controls);
         }
       }
     }, ['view UI']],
@@ -96,6 +117,13 @@ setTimeout(async function () {
       id: 'initializeWithComplexValue',
       $on: {
         async click () {
+          /**
+           * @type {{
+           *   bbb: {ccc?: unknown},
+           *   xxx: {yyy: unknown[]},
+           *   zzz?: unknown
+           * }}
+           */
           const a = {
             bbb: {},
             xxx: {yyy: []}
@@ -112,9 +140,9 @@ setTimeout(async function () {
       $on: {
         click () {
           const a = makeNoneditableType();
-          const root = $(
+          const root = /** @type {HTMLDivElement} */ ($(
             '#formatAndTypeChoices div[data-type="resurrectable"]'
-          );
+          ));
           keyPathNotExpectedTypeChoices.types.setValue({
             type: 'resurrectable',
             root,
@@ -172,12 +200,13 @@ setTimeout(async function () {
       id: 'showRootFormControl',
       $on: {
         click () {
-          const root = $(
+          const root = /** @type {HTMLDivElement} */ ($(
             '#formatAndTypeChoices > .typesHolder > ' +
               '.typeContainer > div[data-type]'
+          ));
+          const formControl = /** @type {HTMLElement} */ (
+            keyPathNotExpectedTypeChoices.types.getFormControlForRoot(root)
           );
-          const formControl =
-            keyPathNotExpectedTypeChoices.types.getFormControlForRoot(root);
           formControl.style.backgroundColor = 'red';
           setTimeout(() => {
             formControl.style.backgroundColor = 'white';
@@ -206,11 +235,12 @@ setTimeout(async function () {
       id: 'showFormControlFromRootAncestor',
       $on: {
         click () {
-          const formControl =
+          const formControl = /** @type {HTMLElement} */ (
             keyPathNotExpectedTypeChoices.types.getFormControlFromRootAncestor(
               '#formatAndTypeChoices > .typesHolder > ' +
                 '.typeContainer'
-            );
+            )
+          );
           formControl.style.backgroundColor = 'red';
           setTimeout(() => {
             formControl.style.backgroundColor = 'initial';
@@ -269,7 +299,7 @@ setTimeout(async function () {
           id: 'typeChoicesOnly-isValid',
           $on: {
             click () {
-              dialogs.alert(typeSelection.validValuesSet());
+              dialogs.alert(String(typeSelection.validValuesSet()));
             }
           }
         }, ['Is valid']],
@@ -278,7 +308,9 @@ setTimeout(async function () {
           id: 'validateInitialType',
           $on: {
             click () {
-              dialogs.alert(typeSelection.domArray[0].$validate());
+              dialogs.alert(String(
+                typeSelection.domArray[0].$validate()
+              ));
             }
           }
         }, [
@@ -310,6 +342,12 @@ setTimeout(async function () {
     ]],
 
     (() => {
+      /** @type {[unknown, unknown][]} */
+      const heterogeneousMapEntries = [
+        [null, 3],
+        [true, new Map([[false, 5]])],
+        [new Map([[6, 4]]), 7]
+      ];
       const badDate = new Date('Bad date');
       const cause = new Error('some cause');
       const error = new Error('msg');
@@ -318,11 +356,16 @@ setTimeout(async function () {
 
       // eslint-disable-next-line unicorn/error-message -- Testing empty
       const error2 = new Error();
-      error2.message = undefined; // Needed to force (at least in Chrome)
+      // @ts-expect-error Needed to force (at least in Chrome)
+      error2.message = undefined;
+      // @ts-expect-error Firefox-only property
       error2.fileName = 'abc';
+      // @ts-expect-error Testing empty
       error2.name = undefined;
       error2.stack = undefined;
+      // @ts-expect-error Firefox-only property
       error2.lineNumber = 10;
+      // @ts-expect-error Firefox-only property
       error2.columnNumber = 20;
 
       const typeError = new TypeError('msg');
@@ -331,11 +374,16 @@ setTimeout(async function () {
 
       // eslint-disable-next-line unicorn/error-message -- Testing empty
       const error3 = new TypeError();
-      error3.message = undefined; // Needed to force (at least in Chrome)
+      // @ts-expect-error Needed to force (at least in Chrome)
+      error3.message = undefined;
+      // @ts-expect-error Firefox-only property
       error3.fileName = 'abc';
+      // @ts-expect-error Testing empty
       error3.name = undefined;
       error3.stack = undefined;
+      // @ts-expect-error Firefox-only property
       error3.lineNumber = 10;
+      // @ts-expect-error Firefox-only property
       error3.columnNumber = 20;
 
       const aggregate1 = new RangeError('agg err1');
@@ -363,11 +411,7 @@ setTimeout(async function () {
           NaN,
           -0,
           new Blob(['<b>Testing</b>'], {type: 'text/html'}),
-          new Map([
-            [null, 3],
-            [true, new Map([[false, 5]])],
-            [new Map([[6, 4]]), 7]
-          ]),
+          new Map(heterogeneousMapEntries),
           error,
           error2,
           error3,
@@ -502,11 +546,15 @@ setTimeout(async function () {
       id: 'validValuesSet',
       $on: {
         click () {
-          dialogs.alert(Types.validValuesSet({
-            form: this.previousElementSibling,
+          const form = this.previousElementSibling;
+          if (!isFormElement(form)) {
+            return;
+          }
+          dialogs.alert(String(Types.validValuesSet({
+            form,
             typeNamespace: 'demo-type-choices-only-initial-value',
             keySelectClass: 'only-initial'
-          }));
+          })));
         }
       }
     }, [
@@ -566,9 +614,14 @@ setTimeout(async function () {
       placeholder: 'e.g., ["abc", 17]',
       $on: {
         change () {
+          if (!isInputElement(this)) {
+            return;
+          }
           const types = new Types();
           const value = types.getValueForString(this.value, {
-            format: $('#useIndexedDBKey').checked
+            format: /** @type {HTMLInputElement} */ (
+              $('#useIndexedDBKey')
+            ).checked
               ? 'indexedDBKey'
               : 'structuredCloning'
           })[0];
