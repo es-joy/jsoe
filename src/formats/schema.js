@@ -35,6 +35,7 @@ const zodexToStructuredCloningTypeMap = new Map([
   ['string', 'string'],
   ['date', 'date'],
   ['file', 'file'],
+  ['symbol', 'symbol'],
   ['undefined', 'undef'],
   ['void', 'undef'],
   ['null', 'null'],

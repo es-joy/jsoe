@@ -34,8 +34,7 @@ const schemaInstanceJSONArbitraryJS = {
   options: [
     {
       description: 'A symbol',
-      type: 'any',
-      checks: [{name: 'symbol'}]
+      type: 'symbol'
     },
     {
       description: 'A Promise',
