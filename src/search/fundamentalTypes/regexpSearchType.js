@@ -1,4 +1,4 @@
-import {buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery, buildMultiSelect} from '../searchUtils.js';
+import {buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery, buildMultiSelect, readMultiSelect} from '../searchUtils.js';
 import {makeMultiSelectLeaf, combineAnd} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
@@ -18,7 +18,6 @@ const regexpSearchType = {
   buildUI ({schemaObject, path, typeNamespace}) {
     const label = buildPathLabel(schemaObject, path);
     const name = `${typeNamespace}-regexp`;
-    const flagsName = `${name}-flags`;
     return ['jsoe-search-regexp', {
       dataset: {searchPath: path, searchKind: 'regexp'},
       title: label,
@@ -26,13 +25,8 @@ const regexpSearchType = {
         /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';
-          const sourceLeaf = readLiteralRegexQuery(this, {name, path: searchPath});
-          const select = /** @type {HTMLSelectElement|null} */ (
-            this.querySelector(`select[name="${CSS.escape(flagsName)}"]`)
-          );
-          const selectedFlags = [...(select?.selectedOptions ?? [])].map(
-            (opt) => opt.value
-          );
+          const sourceLeaf = readLiteralRegexQuery(this, searchPath);
+          const selectedFlags = readMultiSelect(this);
           const flagsLeaf = selectedFlags.length
             ? makeMultiSelectLeaf(searchPath, {$in: selectedFlags})
             : undefined;
@@ -44,7 +38,7 @@ const regexpSearchType = {
       buildLiteralRegexControls({name}),
       ['label', [
         'Flags: ',
-        buildMultiSelect({name: flagsName, options: regexpType.allowedFlags})
+        buildMultiSelect({name: `${name}-flags`, options: regexpType.allowedFlags})
       ]]
     ]];
   },

@@ -20,7 +20,7 @@ const booleanSearchType = {
       $define: {
         /** @this {HTMLElement} */
         getQuery () {
-          const value = readTriStateSelect(this, name);
+          const value = readTriStateSelect(this);
           return value === undefined
             ? undefined
             : makeBooleanEqualsLeaf(this.dataset.searchPath ?? '', value);

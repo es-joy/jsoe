@@ -1,25 +1,10 @@
-import {buildPathLabel, buildRangeInputsPair, buildTriStateSelect, readTriStateSelect} from '../searchUtils.js';
+import {buildPathLabel, buildRangeInputsPair, readRangeInputsPair, buildTriStateSelect, readTriStateSelect} from '../searchUtils.js';
 import {makeRangeLeaf, makeIntegerCheckLeaf, combineAnd} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
  */
-
-/**
- * @param {HTMLElement} el
- * @param {string} name
- * @returns {{gte: string, lte: string}}
- */
-function readRange (el, name) {
-  const gte = /** @type {HTMLInputElement|null} */ (
-    el.querySelector(`input[name="${CSS.escape(name)}-gte"]`)
-  )?.value ?? '';
-  const lte = /** @type {HTMLInputElement|null} */ (
-    el.querySelector(`input[name="${CSS.escape(name)}-lte"]`)
-  )?.value ?? '';
-  return {gte, lte};
-}
 
 /**
  * OR Ranges/Is Not Range, Is/Is Not Integer (README).
@@ -36,14 +21,14 @@ const numberSearchType = {
         /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';
-          const {gte, lte} = readRange(this, name);
+          const {gte, lte} = readRangeInputsPair(this);
           const rangeLeaf = gte === '' && lte === ''
             ? undefined
             : makeRangeLeaf(searchPath, 'number', {
               ...(gte === '' ? {} : {$gte: Number(gte)}),
               ...(lte === '' ? {} : {$lte: Number(lte)})
             });
-          const isInteger = readTriStateSelect(this, `${name}-integer`);
+          const isInteger = readTriStateSelect(this);
           const integerLeaf = isInteger === undefined
             ? undefined
             : makeIntegerCheckLeaf(searchPath, isInteger);

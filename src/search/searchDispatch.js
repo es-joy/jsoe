@@ -14,6 +14,13 @@ import enumSearchType from './fundamentalTypes/enumSearchType.js';
 import arraySearchType from './fundamentalTypes/arraySearchType.js';
 import setSearchType from './fundamentalTypes/setSearchType.js';
 import objectSearchType from './fundamentalTypes/objectSearchType.js';
+import filelistSearchType from './fundamentalTypes/filelistSearchType.js';
+import tupleSearchType from './subTypes/tupleSearchType.js';
+import recordSearchType from './subTypes/recordSearchType.js';
+import mapSearchType from './fundamentalTypes/mapSearchType.js';
+import promiseSearchType from './fundamentalTypes/promiseSearchType.js';
+import catchSearchType from './fundamentalTypes/catchSearchType.js';
+import functionSearchType from './fundamentalTypes/functionSearchType.js';
 
 /**
  * @typedef {import('./queryTree.js').QueryNode} QueryNode
@@ -97,21 +104,21 @@ const availableSearchTypes = {
   array: arraySearchType,
   arrayNonindexKeys: arraySearchType,
   object: objectSearchType,
-  map: stubSearchType('map'),
+  map: mapSearchType,
   set: setSearchType,
-  filelist: stubSearchType('filelist'),
+  filelist: filelistSearchType,
   file: stubSearchType('file'),
   blob: stubSearchType('blob'),
   error: stubSearchType('error'),
   domexception: stubSearchType('domexception'),
-  promise: stubSearchType('promise'),
-  function: stubSearchType('function'),
+  promise: promiseSearchType,
+  function: functionSearchType,
   enum: enumSearchType,
 
   // subTypes
-  tuple: stubSearchType('tuple'),
-  record: stubSearchType('record'),
-  looseRecord: stubSearchType('record'),
+  tuple: tupleSearchType,
+  record: recordSearchType,
+  looseRecord: recordSearchType,
   blobHTML: stubSearchType('blobHTML'),
 
   // superTypes
@@ -130,6 +137,11 @@ const availableSearchTypes = {
 
   // string-shape alias (§3)
   templateLiteral: stringSearchType,
+
+  // `getSchemaType` has no case for `catch` at all (unlike `promise`/
+  //   `function`, already in `zodexToStructuredCloningTypeMap`), so it's
+  //   added as its own extra case in `getSearchSchemaType` below
+  catch: catchSearchType,
 
   // escape hatch, also the fallback for any unrecognized/not-yet-supported
   //   schema shape (see `getSearchTypeObject`)
@@ -170,6 +182,14 @@ export function getSearchSchemaType (schemaObject) {
   //   these schema types.
   if (['templateLiteral', 'enum'].includes(schemaObject.type)) {
     return schemaObject.type;
+  }
+
+  // `getSchemaType` (`src/formats/schema.js`) has no `catch` case at all -
+  //   its `zodexToStructuredCloningTypeMap` never mapped it, unlike
+  //   `promise`/`function` - so it's added here rather than there, matching
+  //   how tuple/record/union already extend the search-only shape space.
+  if (schemaObject.type === 'catch') {
+    return 'catch';
   }
 
   return /** @type {string} */ (

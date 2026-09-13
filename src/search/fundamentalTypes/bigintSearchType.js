@@ -1,4 +1,4 @@
-import {buildPathLabel, buildRangeInputsPair} from '../searchUtils.js';
+import {buildPathLabel, buildRangeInputsPair, readRangeInputsPair} from '../searchUtils.js';
 import {makeRangeLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
 
@@ -39,12 +39,7 @@ const bigintSearchType = {
       $define: {
         /** @this {HTMLElement} */
         getQuery () {
-          const gteStr = /** @type {HTMLInputElement|null} */ (
-            this.querySelector(`input[name="${CSS.escape(name)}-gte"]`)
-          )?.value ?? '';
-          const lteStr = /** @type {HTMLInputElement|null} */ (
-            this.querySelector(`input[name="${CSS.escape(name)}-lte"]`)
-          )?.value ?? '';
+          const {gte: gteStr, lte: lteStr} = readRangeInputsPair(this);
           const $gte = parseBigIntBound(gteStr);
           const $lte = parseBigIntBound(lteStr);
           if ($gte === undefined && $lte === undefined) {

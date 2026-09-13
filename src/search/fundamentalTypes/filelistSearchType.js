@@ -8,30 +8,42 @@ import {getSearchTypeObject} from '../searchDispatch.js';
  */
 
 /**
- * Has length/size of &lt;number&gt;; Is/Is not sparse (README), plus - by
- * recursing into the element schema's own search widget (search plan §6
- * build order) - "the array contains at least one element matching Y",
- * expressed via a `*` path segment (`queryTree.js`) so no dedicated wrapper
- * leaf kind is needed: the two constraints simply combine with `$and`.
+ * @typedef {{
+ *   type: 'array',
+ *   element: import('../../formats/schema.js').ZodexSchema,
+ *   minLength?: number,
+ *   maxLength?: number
+ * }} FilelistOutputSchema
+ */
+
+/**
+ * Has length/size of &lt;number&gt; (README, grouped with array/set/
+ * tuple-with-rest) - no sparse toggle, matching `setSearchType.js`. A
+ * `FileList` schema serializes as `{type: 'codec', name: 'filelist',
+ * output: {type: 'array', element: {type: 'file', ...}}}`
+ * (`src/formats/schema.js`'s `codec`/`filelist` handling); the length
+ * bounds and element schema both live on that `output` array shape, whose
+ * element recurses into `fileSearchType.js` under the same `*` path-segment
+ * convention `arraySearchType.js` uses.
  * @type {SearchTypeObject}
  */
-const arraySearchType = {
+const filelistSearchType = {
   buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
     const label = buildPathLabel(schemaObject, path);
-    const name = `${typeNamespace}-array`;
-    const arraySchemaObject = /** @type {import('zodexy').SzArray} */ (
-      schemaObject
+    const name = `${typeNamespace}-filelist`;
+    const outputSchema = /** @type {FilelistOutputSchema} */ (
+      /** @type {{output: unknown}} */ (schemaObject).output
     );
     const elementPath = `${path}/*`;
-    const elementArr = getSearchTypeObject(arraySchemaObject.element).buildUI({
-      schemaObject: arraySchemaObject.element,
+    const elementArr = getSearchTypeObject(outputSchema.element).buildUI({
+      schemaObject: outputSchema.element,
       path: elementPath,
       typeNamespace,
       topRoot,
       types
     });
-    return ['jsoe-search-array', {
-      dataset: {searchPath: path, searchKind: 'array'},
+    return ['jsoe-search-filelist', {
+      dataset: {searchPath: path, searchKind: 'filelist'},
       title: label,
       $define: {
         /** @this {HTMLElement} */
@@ -49,12 +61,12 @@ const arraySearchType = {
       ['span', {class: 'searchLabel'}, [label]],
       ...buildLengthSizeControls({
         name,
-        min: arraySchemaObject.minLength,
-        max: arraySchemaObject.maxLength,
-        includeSparse: true
+        min: outputSchema.minLength,
+        max: outputSchema.maxLength,
+        includeSparse: false
       }),
-      ['div', {class: 'searchArrayElement'}, [
-        ['span', ['Element matches: ']],
+      ['div', {class: 'searchFilelistElement'}, [
+        ['span', ['File matches: ']],
         elementArr
       ]]
     ]];
@@ -62,4 +74,4 @@ const arraySearchType = {
   getQuery: getQueryViaElement
 };
 
-export default arraySearchType;
+export default filelistSearchType;

@@ -18,13 +18,26 @@
  * rather than Mongo's field-keyed document shape.
  *
  * A path segment of `*` (e.g. `#/tags/*`) means "any element of the array
- * at this point" - `arraySearchType.js`/`setSearchType.js` use it when
- * recursing into their element/value schema's own search widget, so a
- * single nested leaf expresses "the array contains at least one element
- * matching this" (Mongo's `$elemMatch` is the natural translation target
- * for a host walking a path that contains this segment) without needing a
- * dedicated wrapper leaf kind - the array's own `lengthSize` leaf and the
- * recursed element leaf simply combine via `$and`.
+ * at this point" - `arraySearchType.js`/`setSearchType.js`/`filelistSearchType.js`
+ * (element/value length/count constraint aside) and `tupleSearchType.js`'s
+ * `rest` portion use it when recursing into their element/value schema's
+ * own search widget, so a single nested leaf expresses "the collection
+ * contains at least one element matching this" (Mongo's `$elemMatch` is the
+ * natural translation target for a host walking a path that contains this
+ * segment) without needing a dedicated wrapper leaf kind - the collection's
+ * own `lengthSize` leaf and the recursed element leaf simply combine via
+ * `$and`. `recordSearchType.js`/`mapSearchType.js` similarly recurse into
+ * their `key`/`value` schemas at `*key`/`*value` segments, feeding the
+ * results into a single `mapRecordJoint` leaf (below) rather than combining
+ * via `$and`, since a host needs to know whether the two must match the
+ * same entry. `functionSearchType.js` recurses into its `input`/`output`
+ * schemas at `*args`/`*output` segments (the former itself a tuple, so its
+ * own per-position segments nest under `*args`), combined via `$and`.
+ * `promiseSearchType.js`/`catchSearchType.js` recurse into their wrapped
+ * value/`innerType` at the same path (there being exactly one value, no
+ * segment to add) and wrap the result in a `passThrough` leaf (below)
+ * rather than returning it bare, so the tree keeps visible that the leaf
+ * was reached through one of these transparent wrappers.
  */
 
 /**

@@ -1,4 +1,4 @@
-import {buildPathLabel} from './searchUtils.js';
+import {buildPathLabel, buildCheckbox, readCheckbox} from './searchUtils.js';
 
 /**
  * Locates a built search element by the JSON-Pointer path it was built for.
@@ -71,9 +71,7 @@ export function makePresenceOnlySearchType ({tagName}) {
         $define: {
           /** @this {HTMLElement} */
           getQuery () {
-            const checked = Boolean(/** @type {HTMLInputElement|null} */ (
-              this.querySelector(`input[name="${CSS.escape(name)}"]`)
-            )?.checked);
+            const checked = readCheckbox(this);
             return checked
               ? {kind: 'presence', path: this.dataset.searchPath ?? '', $exists: true}
               : undefined;
@@ -81,10 +79,7 @@ export function makePresenceOnlySearchType ({tagName}) {
         }
       }, [
         ['span', {class: 'searchLabel'}, [label]],
-        ['label', [
-          `Require ${label} present: `,
-          ['input', {type: 'checkbox', name}]
-        ]]
+        buildCheckbox({name, label: `Require ${label} present`})
       ]];
     },
     getQuery: getQueryViaElement

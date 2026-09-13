@@ -25,12 +25,38 @@ export function buildPathLabel (schemaObject, path) {
 }
 
 /**
+ * Finds a control belonging directly to `root`'s own widget - as opposed to
+ * one belonging to a search widget recursively nested inside it (e.g.
+ * `arraySearchType.js`'s own "size" input vs. a nested array-of-arrays'
+ * element widget's own "size" input, both reachable from `root` via a plain
+ * `querySelectorAll`). A match only counts if the nearest ancestor of the
+ * match carrying `data-search-path` is `root` itself; every search element
+ * carries that attribute (`searchElementUtils.js`'s `findSearchElement`), so
+ * this reliably stops at the first nested search element's boundary.
+ *
+ * This is also why every `build*`/`read*` pair below reads its class-based
+ * selector back through this helper rather than a raw
+ * `root.querySelector(...)`: a fixed class name is safe to reuse across
+ * every instance of a given control on the page precisely because lookups
+ * are always scoped this way, and - unlike a `name` built from a
+ * `typeNamespace` closed over inside a `$define` mixin, which is installed
+ * once on the shared custom-element prototype the first time a tag is
+ * defined - nothing here depends on a per-instance closure at all.
+ * @param {HTMLElement} root
+ * @param {string} selector
+ * @returns {HTMLElement|undefined}
+ */
+export function findOwnControl (root, selector) {
+  return /** @type {HTMLElement[]} */ (
+    [...root.querySelectorAll(selector)]
+  ).find((el) => el.closest('[data-search-path]') === root);
+}
+
+/**
  * A "from"/"to" pair of native inputs sharing one `type`, for the OR-range/
  * Is-Not-Range README affordance (number/bigint/buffersource; `date` uses
  * `dateType.js`'s own `buildDateInputControl` instead, since a
- * `datetime-local` input needs its own ISO-slicing). The two inputs are
- * named `${name}-gte`/`${name}-lte` so a leaf's `getQuery` can read them
- * back without any further disambiguation.
+ * `datetime-local` input needs its own ISO-slicing).
  * @param {{
  *   name: string,
  *   type?: string,
@@ -46,13 +72,28 @@ export function buildRangeInputsPair ({
   return [
     ['label', [
       'From: ',
-      ['input', {name: `${name}-gte`, type, min, max, step}]
+      ['input', {name: `${name}-gte`, class: 'jsoeSearchRangeGte', type, min, max, step}]
     ]],
     ['label', [
       'To: ',
-      ['input', {name: `${name}-lte`, type, min, max, step}]
+      ['input', {name: `${name}-lte`, class: 'jsoeSearchRangeLte', type, min, max, step}]
     ]]
   ];
+}
+
+/**
+ * Reads back a `buildRangeInputsPair`.
+ * @param {HTMLElement} el
+ * @returns {{gte: string, lte: string}}
+ */
+export function readRangeInputsPair (el) {
+  const gte = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, 'input.jsoeSearchRangeGte')
+  )?.value ?? '';
+  const lte = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, 'input.jsoeSearchRangeLte')
+  )?.value ?? '';
+  return {gte, lte};
 }
 
 /**
@@ -66,10 +107,22 @@ export function buildRangeInputsPair ({
  * @returns {JamilihArray}
  */
 export function buildMultiSelect ({name, options}) {
-  return ['select', {name, multiple: true}, options.map((opt) => {
+  return ['select', {name, multiple: true, class: 'jsoeSearchMultiSelect'}, options.map((opt) => {
     const [value, title] = Array.isArray(opt) ? opt : [opt, opt];
     return ['option', {value}, [title]];
   })];
+}
+
+/**
+ * Reads back a `buildMultiSelect` into the selected values, `[]` if none.
+ * @param {HTMLElement} el
+ * @returns {string[]}
+ */
+export function readMultiSelect (el) {
+  const select = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(el, 'select.jsoeSearchMultiSelect')
+  );
+  return [...(select?.selectedOptions ?? [])].map((opt) => opt.value);
 }
 
 /**
@@ -80,14 +133,16 @@ export function buildMultiSelect ({name, options}) {
  * only the fixed per-property toggle it adds each time, so the "any" state
  * (no constraint entered) is distinguishable from an explicit "has"/
  * "doesn't have" - matching `SearchTypeObject.getQuery`'s
- * `undefined`-means-"no constraint" convention.
+ * `undefined`-means-"no constraint" convention. Shares `readTriStateSelect`
+ * with `buildTriStateSelect` below - same three-value shape, just different
+ * option labels.
  * @param {{name: string, propertyName: string}} cfg
  * @returns {JamilihArray}
  */
 export function buildHasPropertyToggle ({name, propertyName}) {
   return ['label', [
     `Has property "${propertyName}": `,
-    ['select', {name}, [
+    ['select', {name, class: 'jsoeSearchTriState'}, [
       ['option', {value: ''}, ['(any)']],
       ['option', {value: 'true'}, ['Has']],
       ['option', {value: 'false'}, ['Doesn’t have']]
@@ -105,7 +160,7 @@ export function buildHasPropertyToggle ({name, propertyName}) {
  * @returns {JamilihArray}
  */
 export function buildTriStateSelect ({name, trueLabel, falseLabel}) {
-  return ['select', {name}, [
+  return ['select', {name, class: 'jsoeSearchTriState'}, [
     ['option', {value: ''}, ['(any)']],
     ['option', {value: 'true'}, [trueLabel]],
     ['option', {value: 'false'}, [falseLabel]]
@@ -113,14 +168,14 @@ export function buildTriStateSelect ({name, trueLabel, falseLabel}) {
 }
 
 /**
- * Reads back a `buildTriStateSelect`, `''` (any) mapping to `undefined`.
+ * Reads back a `buildTriStateSelect`/`buildHasPropertyToggle`, `''` (any)
+ * mapping to `undefined`.
  * @param {HTMLElement} el
- * @param {string} name
  * @returns {boolean|undefined}
  */
-export function readTriStateSelect (el, name) {
-  const select = /** @type {HTMLSelectElement|null} */ (
-    el.querySelector(`select[name="${CSS.escape(name)}"]`)
+export function readTriStateSelect (el) {
+  const select = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(el, 'select.jsoeSearchTriState')
   );
   if (!select || select.value === '') {
     return undefined;
@@ -129,29 +184,29 @@ export function readTriStateSelect (el, name) {
 }
 
 /**
- * A single "Require this path to be present" checkbox - the only search
- * affordance the README grants `undefined`/`void`/`null`/`NaN` (they have
- * "no variants to allow for distinct search"), since existence only becomes
- * a meaningful question once the path is optional or nested in a union.
- * @param {{name: string}} cfg
+ * A single checkbox - the only search affordance the README grants
+ * `undefined`/`void`/`null`/`NaN` ("Require present"; they have "no
+ * variants to allow for distinct search", since existence only becomes a
+ * meaningful question once the path is optional or nested in a union), and
+ * also used by `recordSearchType.js` for its "require same entry" toggle.
+ * @param {{name: string, label: string}} cfg
  * @returns {JamilihArray}
  */
-export function buildPresenceCheckbox ({name}) {
+export function buildCheckbox ({name, label}) {
   return ['label', [
-    'Require present: ',
-    ['input', {type: 'checkbox', name}]
+    `${label}: `,
+    ['input', {type: 'checkbox', name, class: 'jsoeSearchCheckbox'}]
   ]];
 }
 
 /**
- * Reads back a `buildPresenceCheckbox`.
+ * Reads back a `buildCheckbox`.
  * @param {HTMLElement} el
- * @param {string} name
  * @returns {boolean}
  */
-export function readPresenceCheckbox (el, name) {
-  return Boolean(/** @type {HTMLInputElement|null} */ (
-    el.querySelector(`input[name="${CSS.escape(name)}"]`)
+export function readCheckbox (el) {
+  return Boolean(/** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, 'input.jsoeSearchCheckbox')
   )?.checked);
 }
 
@@ -169,7 +224,7 @@ export function buildLiteralRegexControls ({name}) {
   return ['span', [
     ['label', [
       'Mode: ',
-      ['select', {name: `${name}-mode`}, [
+      ['select', {name: `${name}-mode`, class: 'jsoeSearchMode'}, [
         ['option', {value: 'literal'}, ['One of (comma-separated)']],
         ['option', {value: 'regex'}, ['Matches regex']],
         ['option', {value: 'notContains'}, ['Does not contain']]
@@ -177,7 +232,7 @@ export function buildLiteralRegexControls ({name}) {
     ]],
     ['label', [
       'Value: ',
-      ['input', {type: 'text', name: `${name}-value`}]
+      ['input', {type: 'text', name: `${name}-value`, class: 'jsoeSearchValue'}]
     ]]
   ]];
 }
@@ -186,17 +241,17 @@ export function buildLiteralRegexControls ({name}) {
  * Reads back `buildLiteralRegexControls` into the corresponding
  * `literalSet`/`regex`/`notContains` leaf.
  * @param {HTMLElement} el
- * @param {{name: string, path: string}} cfg
+ * @param {string} path
  * @returns {import('./queryTree.js').QueryLiteralSetLeaf|
  *   import('./queryTree.js').QueryRegexLeaf|
  *   import('./queryTree.js').QueryNotContainsLeaf|undefined}
  */
-export function readLiteralRegexQuery (el, {name, path}) {
-  const mode = /** @type {HTMLSelectElement|null} */ (
-    el.querySelector(`select[name="${CSS.escape(name)}-mode"]`)
+export function readLiteralRegexQuery (el, path) {
+  const mode = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(el, 'select.jsoeSearchMode')
   )?.value;
-  const value = /** @type {HTMLInputElement|null} */ (
-    el.querySelector(`input[name="${CSS.escape(name)}-value"]`)
+  const value = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, 'input.jsoeSearchValue')
   )?.value;
   if (!value) {
     return undefined;
@@ -235,7 +290,10 @@ export function buildLengthSizeControls ({name, min, max, includeSparse}) {
   if (!fixed) {
     controls.push(['label', [
       'Has length/size of: ',
-      ['input', {type: 'number', name: `${name}-size`, min, max, step: 1}]
+      ['input', {
+        type: 'number', name: `${name}-size`, class: 'jsoeSearchSize',
+        min, max, step: 1
+      }]
     ]]);
   }
   if (includeSparse) {
@@ -253,14 +311,14 @@ export function buildLengthSizeControls ({name, min, max, includeSparse}) {
  * Reads back `buildLengthSizeControls` into one `lengthSize` leaf, or
  * `undefined` if neither the size nor the sparse control was set.
  * @param {HTMLElement} el
- * @param {{name: string, path: string}} cfg
+ * @param {string} path
  * @returns {import('./queryTree.js').QueryLengthSizeLeaf|undefined}
  */
-export function readLengthSizeQuery (el, {name, path}) {
-  const sizeStr = /** @type {HTMLInputElement|null} */ (
-    el.querySelector(`input[name="${CSS.escape(name)}-size"]`)
+export function readLengthSizeQuery (el, path) {
+  const sizeStr = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, 'input.jsoeSearchSize')
   )?.value;
-  const sparseCheck = readTriStateSelect(el, `${name}-sparse`);
+  const sparseCheck = readTriStateSelect(el);
   if (!sizeStr && sparseCheck === undefined) {
     return undefined;
   }

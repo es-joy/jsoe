@@ -24,9 +24,7 @@ const symbolSearchType = {
       $define: {
         /** @this {HTMLElement} */
         getQuery () {
-          return readLiteralRegexQuery(this, {
-            name, path: this.dataset.searchPath ?? ''
-          });
+          return readLiteralRegexQuery(this, this.dataset.searchPath ?? '');
         }
       }
     }, [

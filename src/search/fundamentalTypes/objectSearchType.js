@@ -37,21 +37,20 @@ function buildHasPropertyRow ({
     schemaObject: propSchema, path: childPath, typeNamespace, topRoot, types
   });
   return /** @type {HTMLElement} */ (jml('jsoe-search-has-property', {
-    dataset: {
-      searchPath: childPath, searchKind: 'hasProperty', propertyName,
-      inputName: name
-    },
+    dataset: {searchPath: childPath, searchKind: 'hasProperty', propertyName},
     $define: {
-      // Reads `name`/`childPath` off `this.dataset` rather than closing
-      //   over the outer parameters: `$define`'s mixin is installed once on
-      //   the shared prototype the first time this tag is defined, so every
-      //   later `<jsoe-search-has-property>` instance must read its own
-      //   per-row state off `this`.
+      // Reads `childPath` off `this.dataset` rather than closing over the
+      //   outer `path`/`propertyName`: `$define`'s mixin is installed once
+      //   on the shared prototype the first time this tag is defined, so
+      //   every later `<jsoe-search-has-property>` instance must read its
+      //   own per-row state off `this`. `readTriStateSelect`/
+      //   `findSearchElement` are themselves closure-free (class- and
+      //   `dataset`-driven; see `searchUtils.js`'s `findOwnControl`), so no
+      //   further per-instance state needs storing here.
       /** @this {HTMLElement} */
       getQuery () {
         const searchPath = this.dataset.searchPath ?? '';
-        const inputName = this.dataset.inputName ?? '';
-        const existsCheck = readTriStateSelect(this, inputName);
+        const existsCheck = readTriStateSelect(this);
         const existsLeaf = existsCheck === undefined
           ? undefined
           : makeHasPropertyLeaf(searchPath, existsCheck);

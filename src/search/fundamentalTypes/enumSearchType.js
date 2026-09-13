@@ -1,4 +1,4 @@
-import {buildPathLabel, buildMultiSelect} from '../searchUtils.js';
+import {buildPathLabel, buildMultiSelect, readMultiSelect} from '../searchUtils.js';
 import {makeMultiSelectLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
 
@@ -41,12 +41,7 @@ const enumSearchType = {
       $define: {
         /** @this {HTMLElement} */
         getQuery () {
-          const select = /** @type {HTMLSelectElement|null} */ (
-            this.querySelector(`select[name="${CSS.escape(name)}"]`)
-          );
-          const selected = [...(select?.selectedOptions ?? [])].map(
-            (opt) => opt.value
-          );
+          const selected = readMultiSelect(this);
           return selected.length
             ? makeMultiSelectLeaf(this.dataset.searchPath ?? '', {$in: selected})
             : undefined;
