@@ -1,5 +1,9 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.28.2
+
+- fix: ensure `type: "symbol"` schema can be used
+
 ## 0.28.1
 
 - fix: remove properties (dropped from zod)
