@@ -57,7 +57,7 @@ JSDoc-only typedefs; leaf `path` values reuse the existing JSON-Pointer conventi
 ```
 
 Leaf kinds, discriminated by `kind`, each carrying a JSON-Pointer `path`:
-- `hasProperty` (object); `lengthSize` (array/set/tuple-with-rest/filelist, +`sparseCheck` for array sparse/not-sparse)
+- `hasProperty` (object); `lengthSize` (array/set/tuple-with-rest/filelist, +`sparseCheck` for array sparse/not-sparse) — if the schema has a minimum or maximum on length, enforce that in input box and show no box if the length is exactly fixed.
 - `range` (number/NumberObject/bigint/date/buffersource, with `valueType` distinguishing them and `negate: true` covering every README "Is Not Range" variant — one leaf kind instead of a doubled leaf surface), `integerCheck`
 - `literalSet`/`regex`/`notContains` (string/StringObject/Blob/File/regexp-source/symbol-description)
 - `multiSelect` (enum, SpecialNumber's Infinity/-Infinity/NaN), `keyValueEnum` (native enum key-vs-value)
@@ -82,6 +82,12 @@ export function getSearchSchemaType (schemaObject) {
   if (['union', 'xor', 'discriminatedUnion'].includes(schemaObject.type)) {
     return schemaObject.type;
   }
+
+  // An `enum` control can show a multiple-select list and template literal parts might justify their own search controls, so need to detect these schema types.
+  if (['templateLiteral', 'enum'].includes(schemaObject.type)) {
+    return schemaObject.type;
+  }
+
   return getSchemaType(schemaObject); // inherits stringbool/codec/instanceof/checks handling verbatim
 }
 ```
@@ -104,7 +110,7 @@ No dispatcher-level `instanceof` branch is added. Because the walker only ever r
 
 New `src/search/index.js` exports `buildSearchChoices({schemaContent, typeNamespace, topRoot, types})`, re-exported from `src/index.js` alongside the existing `Types`/`Formats`/`typeChoices`/`formatAndTypeChoices`/`getTypesForSchema` exports (`src/index.js:13-27`). Mirrors `buildTypeChoices`'s (`src/typeChoices.js:395`) `whenReady`/pull-based convention rather than inventing a push/callback API: returns `{container, $getQuery, whenReady}`, where `$getQuery()` reads the live DOM into a `QueryAnd` on demand (same shape as `typeChoices.js`'s `$getValue`), and a host that wants live updates wraps it in its own `container.addEventListener('input', ...)` since `container` is a plain `HTMLDivElement`.
 
-`buildSearchChoices` recurses via `getSearchTypeObject(...).buildUI(...)`, starting at `path = '#/'` — it does **not** route through `getTypesForSchema` (`src/formats/schema.js:581-864`), because that function flattens union members into one flat Set of leaf types for a type-choice dropdown, whereas search needs union branches to stay distinguishable nested sub-widgets for the "has type" affordance.
+`buildSearchChoices` recurses via `getSearchTypeObject(...).buildUI(...)`, starting at `path = '#/'` — it does **not** route through `getTypesForSchema` (`src/formats/schema.js:581-864`), because that function flattens union members into one flat Set of leaf types for a type-choice dropdown, whereas search needs union branches to stay distinguishable nested sub-widgets for the "has type" affordance. Intersections could be mergeable if of the same type, however (though their constraints should still apply to the search control--e.g., a minlength on a string).
 
 ### 6. Build order
 
