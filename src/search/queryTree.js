@@ -16,6 +16,15 @@
  * jsoe-specific leaf kinds have no Mongo equivalent and stay custom, and
  * every leaf keeps jsoe's own `kind`-discriminated, path-carrying shape
  * rather than Mongo's field-keyed document shape.
+ *
+ * A path segment of `*` (e.g. `#/tags/*`) means "any element of the array
+ * at this point" - `arraySearchType.js`/`setSearchType.js` use it when
+ * recursing into their element/value schema's own search widget, so a
+ * single nested leaf expresses "the array contains at least one element
+ * matching this" (Mongo's `$elemMatch` is the natural translation target
+ * for a host walking a path that contains this segment) without needing a
+ * dedicated wrapper leaf kind - the array's own `lengthSize` leaf and the
+ * recursed element leaf simply combine via `$and`.
  */
 
 /**

@@ -213,3 +213,61 @@ export function readLiteralRegexQuery (el, {name, path}) {
     $in: value.split(',').map((v) => v.trim()).filter(Boolean)
   };
 }
+
+/**
+ * Has length/size of &lt;number&gt; (README; array/set/tuple-with-rest/
+ * filelist), + "Is/Is not sparse" for arrays only. Returns `[]` (no
+ * control) when the schema pins an exact length/size, since searching on a
+ * constant is uninteresting - the schema's `min`/`max` otherwise become the
+ * input's HTML `min`/`max` attributes.
+ * @param {{
+ *   name: string,
+ *   min?: number,
+ *   max?: number,
+ *   includeSparse?: boolean
+ * }} cfg
+ * @returns {JamilihArray[]}
+ */
+export function buildLengthSizeControls ({name, min, max, includeSparse}) {
+  const fixed = min !== undefined && min === max;
+  /** @type {JamilihArray[]} */
+  const controls = [];
+  if (!fixed) {
+    controls.push(['label', [
+      'Has length/size of: ',
+      ['input', {type: 'number', name: `${name}-size`, min, max, step: 1}]
+    ]]);
+  }
+  if (includeSparse) {
+    controls.push(['label', [
+      'Sparse: ',
+      buildTriStateSelect({
+        name: `${name}-sparse`, trueLabel: 'Sparse', falseLabel: 'Not sparse'
+      })
+    ]]);
+  }
+  return controls;
+}
+
+/**
+ * Reads back `buildLengthSizeControls` into one `lengthSize` leaf, or
+ * `undefined` if neither the size nor the sparse control was set.
+ * @param {HTMLElement} el
+ * @param {{name: string, path: string}} cfg
+ * @returns {import('./queryTree.js').QueryLengthSizeLeaf|undefined}
+ */
+export function readLengthSizeQuery (el, {name, path}) {
+  const sizeStr = /** @type {HTMLInputElement|null} */ (
+    el.querySelector(`input[name="${CSS.escape(name)}-size"]`)
+  )?.value;
+  const sparseCheck = readTriStateSelect(el, `${name}-sparse`);
+  if (!sizeStr && sparseCheck === undefined) {
+    return undefined;
+  }
+  return {
+    kind: 'lengthSize',
+    path,
+    ...(sizeStr ? {$size: Number(sizeStr)} : {}),
+    ...(sparseCheck === undefined ? {} : {sparseCheck})
+  };
+}

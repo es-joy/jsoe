@@ -11,6 +11,9 @@ import undefinedSearchType from './fundamentalTypes/undefinedSearchType.js';
 import nullSearchType from './fundamentalTypes/nullSearchType.js';
 import nanSearchType from './fundamentalTypes/nanSearchType.js';
 import enumSearchType from './fundamentalTypes/enumSearchType.js';
+import arraySearchType from './fundamentalTypes/arraySearchType.js';
+import setSearchType from './fundamentalTypes/setSearchType.js';
+import objectSearchType from './fundamentalTypes/objectSearchType.js';
 
 /**
  * @typedef {import('./queryTree.js').QueryNode} QueryNode
@@ -91,11 +94,11 @@ const availableSearchTypes = {
   undef: undefinedSearchType,
   null: nullSearchType,
   nan: nanSearchType,
-  array: stubSearchType('array'),
-  arrayNonindexKeys: stubSearchType('array'),
-  object: stubSearchType('object'),
+  array: arraySearchType,
+  arrayNonindexKeys: arraySearchType,
+  object: objectSearchType,
   map: stubSearchType('map'),
-  set: stubSearchType('set'),
+  set: setSearchType,
   filelist: stubSearchType('filelist'),
   file: stubSearchType('file'),
   blob: stubSearchType('blob'),

@@ -37,6 +37,21 @@ export function getQueryViaElement ({root, path}) {
 }
 
 /**
+ * Type-predicate guard distinguishing a built search element (leaf or
+ * container, either answers to `.getQuery()`) from a plain DOM node - used
+ * by container elements (e.g. `objectSearchType.js`'s `<jsoe-search-object>`)
+ * that walk `this.children` polymorphically (search plan §8) without
+ * knowing which children are search elements and which are plain layout
+ * (a controls `<div>`, etc.).
+ * @param {Element} el
+ * @returns {el is SearchElement}
+ */
+export function hasGetQuery (el) {
+  return typeof (/** @type {{getQuery?: unknown}} */ (el)).getQuery ===
+    'function';
+}
+
+/**
  * Factory for the README's "no variants to allow for distinct search"
  * leaves (`undefined`/`void`, `null`, `NaN`): the only meaningful question
  * is whether the path is present at all, which only matters once the path
