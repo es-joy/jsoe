@@ -7,7 +7,7 @@
     "target": "es2020",
     "lib": ["es2023", "dom"],
     "skipLibCheck": true,
-    "types": ["cypress", "cypress-axe", "node"],
+    "types": ["node"],
     "noEmit": true
   },
   "include": ["**/*.ts", "**/*.js", "../typings/CypressPlugins.d.ts", "../typings/sceditor.d.ts", "../typings/json-6.d.ts"]
