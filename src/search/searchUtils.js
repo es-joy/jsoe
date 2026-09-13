@@ -57,8 +57,17 @@ export function findOwnControl (root, selector) {
  * Is-Not-Range README affordance (number/bigint/buffersource; `date` uses
  * `dateType.js`'s own `buildDateInputControl` instead, since a
  * `datetime-local` input needs its own ISO-slicing).
+ *
+ * `key` distinguishes multiple range pairs *within one widget* (e.g.
+ * `domrectSearchType.js`'s `x`/`y`/`width`/`height` dimensions, or
+ * `errorSearchType.js`'s `lineNumber`/`columnNumber`): `findOwnControl`
+ * already isolates one widget's controls from another's, but can't tell
+ * apart two same-class controls belonging to the *same* widget, so those
+ * need distinct classes. Leave it at the default `''` for the common case
+ * of a widget with only one range pair.
  * @param {{
  *   name: string,
+ *   key?: string,
  *   type?: string,
  *   min?: string|number,
  *   max?: string|number,
@@ -67,31 +76,33 @@ export function findOwnControl (root, selector) {
  * @returns {JamilihArray[]}
  */
 export function buildRangeInputsPair ({
-  name, type = 'number', min, max, step
+  name, key = '', type = 'number', min, max, step
 }) {
   return [
     ['label', [
       'From: ',
-      ['input', {name: `${name}-gte`, class: 'jsoeSearchRangeGte', type, min, max, step}]
+      ['input', {name: `${name}-gte`, class: `jsoeSearchRangeGte--${key}`, type, min, max, step}]
     ]],
     ['label', [
       'To: ',
-      ['input', {name: `${name}-lte`, class: 'jsoeSearchRangeLte', type, min, max, step}]
+      ['input', {name: `${name}-lte`, class: `jsoeSearchRangeLte--${key}`, type, min, max, step}]
     ]]
   ];
 }
 
 /**
- * Reads back a `buildRangeInputsPair`.
+ * Reads back a `buildRangeInputsPair` - pass the same `key` it was built
+ * with.
  * @param {HTMLElement} el
+ * @param {string} [key]
  * @returns {{gte: string, lte: string}}
  */
-export function readRangeInputsPair (el) {
+export function readRangeInputsPair (el, key = '') {
   const gte = /** @type {HTMLInputElement|undefined} */ (
-    findOwnControl(el, 'input.jsoeSearchRangeGte')
+    findOwnControl(el, `input.jsoeSearchRangeGte--${key}`)
   )?.value ?? '';
   const lte = /** @type {HTMLInputElement|undefined} */ (
-    findOwnControl(el, 'input.jsoeSearchRangeLte')
+    findOwnControl(el, `input.jsoeSearchRangeLte--${key}`)
   )?.value ?? '';
   return {gte, lte};
 }
@@ -142,7 +153,7 @@ export function readMultiSelect (el) {
 export function buildHasPropertyToggle ({name, propertyName}) {
   return ['label', [
     `Has property "${propertyName}": `,
-    ['select', {name, class: 'jsoeSearchTriState'}, [
+    ['select', {name, class: 'jsoeSearchTriState--'}, [
       ['option', {value: ''}, ['(any)']],
       ['option', {value: 'true'}, ['Has']],
       ['option', {value: 'false'}, ['Doesn’t have']]
@@ -156,11 +167,16 @@ export function buildHasPropertyToggle ({name, propertyName}) {
  * false" (README) and `numberSearchType.js`'s "Is/Is Not Integer" both read
  * back through this same three-way convention rather than each rolling
  * their own.
- * @param {{name: string, trueLabel: string, falseLabel: string}} cfg
+ *
+ * `key` distinguishes multiple tri-states *within one widget* (e.g.
+ * `dommatrixSearchType.js`'s "Is/Is not Readonly" and "Is/Is not 3d" side
+ * by side); see `buildRangeInputsPair`'s doc for why. Leave it at the
+ * default `''` for the common case of a widget with only one tri-state.
+ * @param {{name: string, key?: string, trueLabel: string, falseLabel: string}} cfg
  * @returns {JamilihArray}
  */
-export function buildTriStateSelect ({name, trueLabel, falseLabel}) {
-  return ['select', {name, class: 'jsoeSearchTriState'}, [
+export function buildTriStateSelect ({name, key = '', trueLabel, falseLabel}) {
+  return ['select', {name, class: `jsoeSearchTriState--${key}`}, [
     ['option', {value: ''}, ['(any)']],
     ['option', {value: 'true'}, [trueLabel]],
     ['option', {value: 'false'}, [falseLabel]]
@@ -168,14 +184,15 @@ export function buildTriStateSelect ({name, trueLabel, falseLabel}) {
 }
 
 /**
- * Reads back a `buildTriStateSelect`/`buildHasPropertyToggle`, `''` (any)
- * mapping to `undefined`.
+ * Reads back a `buildTriStateSelect`/`buildHasPropertyToggle` - pass the
+ * same `key` it was built with. `''` (any) maps to `undefined`.
  * @param {HTMLElement} el
+ * @param {string} [key]
  * @returns {boolean|undefined}
  */
-export function readTriStateSelect (el) {
+export function readTriStateSelect (el, key = '') {
   const select = /** @type {HTMLSelectElement|undefined} */ (
-    findOwnControl(el, 'select.jsoeSearchTriState')
+    findOwnControl(el, `select.jsoeSearchTriState--${key}`)
   );
   if (!select || select.value === '') {
     return undefined;
@@ -217,14 +234,19 @@ export function readCheckbox (el) {
  * `stringSearchType.js`, `symbolSearchType.js`, and `regexpSearchType.js`
  * (for its source) each build their own custom element around, since the
  * query semantics are identical and only the label/target facet differs.
- * @param {{name: string}} cfg
+ *
+ * `key` distinguishes multiple literal/regex controls *within one widget*
+ * (e.g. `errorSearchType.js`'s `message`/`name`/`fileName`/`stack`); see
+ * `buildRangeInputsPair`'s doc for why. Leave it at the default `''` for
+ * the common case of a widget with only one such control.
+ * @param {{name: string, key?: string}} cfg
  * @returns {JamilihArray}
  */
-export function buildLiteralRegexControls ({name}) {
+export function buildLiteralRegexControls ({name, key = ''}) {
   return ['span', [
     ['label', [
       'Mode: ',
-      ['select', {name: `${name}-mode`, class: 'jsoeSearchMode'}, [
+      ['select', {name: `${name}-mode`, class: `jsoeSearchMode--${key}`}, [
         ['option', {value: 'literal'}, ['One of (comma-separated)']],
         ['option', {value: 'regex'}, ['Matches regex']],
         ['option', {value: 'notContains'}, ['Does not contain']]
@@ -232,26 +254,28 @@ export function buildLiteralRegexControls ({name}) {
     ]],
     ['label', [
       'Value: ',
-      ['input', {type: 'text', name: `${name}-value`, class: 'jsoeSearchValue'}]
+      ['input', {type: 'text', name: `${name}-value`, class: `jsoeSearchValue--${key}`}]
     ]]
   ]];
 }
 
 /**
  * Reads back `buildLiteralRegexControls` into the corresponding
- * `literalSet`/`regex`/`notContains` leaf.
+ * `literalSet`/`regex`/`notContains` leaf - pass the same `key` it was
+ * built with.
  * @param {HTMLElement} el
  * @param {string} path
+ * @param {string} [key]
  * @returns {import('./queryTree.js').QueryLiteralSetLeaf|
  *   import('./queryTree.js').QueryRegexLeaf|
  *   import('./queryTree.js').QueryNotContainsLeaf|undefined}
  */
-export function readLiteralRegexQuery (el, path) {
+export function readLiteralRegexQuery (el, path, key = '') {
   const mode = /** @type {HTMLSelectElement|undefined} */ (
-    findOwnControl(el, 'select.jsoeSearchMode')
+    findOwnControl(el, `select.jsoeSearchMode--${key}`)
   )?.value;
   const value = /** @type {HTMLInputElement|undefined} */ (
-    findOwnControl(el, 'input.jsoeSearchValue')
+    findOwnControl(el, `input.jsoeSearchValue--${key}`)
   )?.value;
   if (!value) {
     return undefined;

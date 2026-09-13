@@ -26,6 +26,15 @@ import blobSearchType from './fundamentalTypes/blobSearchType.js';
 import unionSearchType from './unions/unionSearchType.js';
 import xorSearchType from './unions/xorSearchType.js';
 import discriminatedUnionSearchType from './unions/discriminatedUnionSearchType.js';
+import errorSearchType from './fundamentalTypes/errorSearchType.js';
+import errorsSpecialSearchType from './superTypes/errorsSpecialSearchType.js';
+import domexceptionSearchType from './fundamentalTypes/domexceptionSearchType.js';
+import domrectSearchType from './superTypes/domrectSearchType.js';
+import dompointSearchType from './superTypes/dompointSearchType.js';
+import dommatrixSearchType from './superTypes/dommatrixSearchType.js';
+import SpecialRealNumberSearchType from './superTypes/SpecialRealNumberSearchType.js';
+import buffersourceSearchType from './superTypes/buffersourceSearchType.js';
+import blobHTMLSearchType from './subTypes/blobHTMLSearchType.js';
 
 /**
  * @typedef {import('./queryTree.js').QueryNode} QueryNode
@@ -114,8 +123,8 @@ const availableSearchTypes = {
   filelist: filelistSearchType,
   file: fileSearchType,
   blob: blobSearchType,
-  error: stubSearchType('error'),
-  domexception: stubSearchType('domexception'),
+  error: errorSearchType,
+  domexception: domexceptionSearchType,
   promise: promiseSearchType,
   function: functionSearchType,
   enum: enumSearchType,
@@ -124,16 +133,16 @@ const availableSearchTypes = {
   tuple: tupleSearchType,
   record: recordSearchType,
   looseRecord: recordSearchType,
-  blobHTML: stubSearchType('blobHTML'),
+  blobHTML: blobHTMLSearchType,
 
   // superTypes
-  domrect: stubSearchType('domrect'),
-  dompoint: stubSearchType('dompoint'),
-  dommatrix: stubSearchType('dommatrix'),
-  errors: stubSearchType('errors'),
+  domrect: domrectSearchType,
+  dompoint: dompointSearchType,
+  dommatrix: dommatrixSearchType,
+  errors: errorsSpecialSearchType,
   SpecialNumber: stubSearchType('SpecialNumber'),
-  SpecialRealNumber: stubSearchType('SpecialRealNumber'),
-  buffersource: stubSearchType('buffersource'),
+  SpecialRealNumber: SpecialRealNumberSearchType,
+  buffersource: buffersourceSearchType,
 
   // unions
   union: unionSearchType,

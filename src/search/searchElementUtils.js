@@ -1,4 +1,10 @@
-import {buildPathLabel, buildCheckbox, readCheckbox} from './searchUtils.js';
+import {
+  buildPathLabel, buildCheckbox, readCheckbox,
+  buildLiteralRegexControls, readLiteralRegexQuery,
+  buildRangeInputsPair, readRangeInputsPair,
+  buildTriStateSelect, readTriStateSelect
+} from './searchUtils.js';
+import {combineAnd, makeRangeLeaf, makeDomShapeLeaf} from './queryTreeBuilders.js';
 
 /**
  * Locates a built search element by the JSON-Pointer path it was built for.
@@ -81,6 +87,202 @@ export function makePresenceOnlySearchType ({tagName}) {
         ['span', {class: 'searchLabel'}, [label]],
         buildCheckbox({name, label: `Require ${label} present`})
       ]];
+    },
+    getQuery: getQueryViaElement
+  };
+}
+
+/**
+ * The Error family's fixed known properties (`errorType.js`'s own
+ * `setValue`/`getValue` hard-code this same set - `message`/`name`/
+ * `fileName`/`stack` as strings, `lineNumber`/`columnNumber` as numbers -
+ * since a `checked`-type schema like `error`/`errors` carries no structural
+ * detail of its own to derive property names/types from, unlike `object`).
+ * @type {string[]}
+ */
+const errorStringProps = ['message', 'name', 'fileName', 'stack'];
+
+/** @type {string[]} */
+const errorNumberProps = ['lineNumber', 'columnNumber'];
+
+/**
+ * @param {{label: string, name: string}} cfg
+ * @returns {import('./searchUtils.js').JamilihArray[]}
+ */
+function buildErrorFamilyChildren ({label, name}) {
+  /** @type {import('./searchUtils.js').JamilihArray[]} */
+  const children = [['span', {class: 'searchLabel'}, [label]]];
+  errorStringProps.forEach((prop) => {
+    children.push(['div', {class: `errorProp-${prop}`}, [
+      ['span', [`${prop}: `]],
+      buildLiteralRegexControls({name: `${name}-${prop}`, key: prop})
+    ]]);
+  });
+  errorNumberProps.forEach((prop) => {
+    children.push(['div', {class: `errorProp-${prop}`}, [
+      ['span', [`${prop}: `]],
+      ...buildRangeInputsPair({name: `${name}-${prop}`, key: prop})
+    ]]);
+  });
+  return children;
+}
+
+/**
+ * Factory for `errorSearchType.js`/`errorsSpecialSearchType.js`, offering
+ * literal/regex search of child string properties, numeric of number
+ * children (README) - one `buildLiteralRegexControls`/`buildRangeInputsPair` pair
+ * per known property (`key`-distinguished so they coexist in one widget;
+ * see those helpers' docs), combined via `$and`. `.cause` (a recursive,
+ * arbitrarily-typed property) and `errorsSpecial`'s `AggregateError.errors`
+ * array are deliberately left out of this pass - the README's bullet asks
+ * only for the flat string/number children, and open-ended recursion into
+ * an arbitrary `cause` chain is a materially bigger feature than "the same
+ * shape, twice more".
+ * @param {{tagName: string}} cfg
+ * @returns {import('./searchDispatch.js').SearchTypeObject}
+ */
+export function makeErrorFamilySearchType ({tagName}) {
+  return {
+    buildUI ({schemaObject, path, typeNamespace}) {
+      const label = buildPathLabel(schemaObject, path);
+      const name = `${typeNamespace}-${tagName}`;
+      return [tagName, {
+        dataset: {searchPath: path, searchKind: tagName},
+        title: label,
+        $define: {
+          /** @this {HTMLElement} */
+          getQuery () {
+            const searchPath = this.dataset.searchPath ?? '';
+            const stringLeaves = errorStringProps.map((prop) => (
+              readLiteralRegexQuery(this, `${searchPath}/${prop}`, prop)
+            ));
+            const numberLeaves = errorNumberProps.map((prop) => {
+              const {gte, lte} = readRangeInputsPair(this, prop);
+              if (gte === '' && lte === '') {
+                return undefined;
+              }
+              return makeRangeLeaf(`${searchPath}/${prop}`, 'number', {
+                ...(gte === '' ? {} : {$gte: Number(gte)}),
+                ...(lte === '' ? {} : {$lte: Number(lte)})
+              });
+            });
+            return combineAnd([...stringLeaves, ...numberLeaves]);
+          }
+        }
+      }, buildErrorFamilyChildren({label, name})];
+    },
+    getQuery: getQueryViaElement
+  };
+}
+
+/**
+ * @param {{
+ *   label: string, name: string, dimensionKeys: string[],
+ *   includeReadonly: boolean, includeDimensionCheck: boolean
+ * }} cfg
+ * @returns {import('./searchUtils.js').JamilihArray[]}
+ */
+function buildDomShapeChildren ({
+  label, name, dimensionKeys, includeReadonly, includeDimensionCheck
+}) {
+  /** @type {import('./searchUtils.js').JamilihArray[]} */
+  const children = [['span', {class: 'searchLabel'}, [label]]];
+  dimensionKeys.forEach((dim) => {
+    children.push(['div', {class: `domShapeDimension-${dim}`}, [
+      ['span', [`${dim}: `]],
+      ...buildRangeInputsPair({name: `${name}-${dim}`, key: dim})
+    ]]);
+  });
+  if (includeReadonly) {
+    children.push(['label', [
+      'Readonly: ',
+      buildTriStateSelect({
+        name: `${name}-readonly`, key: 'readonly',
+        trueLabel: 'Readonly', falseLabel: 'Not readonly'
+      })
+    ]]);
+  }
+  if (includeDimensionCheck) {
+    children.push(['label', [
+      '3d: ',
+      buildTriStateSelect({
+        name: `${name}-dimension`, key: 'dimension',
+        trueLabel: '3d', falseLabel: 'Not 3d'
+      })
+    ]]);
+  }
+  return children;
+}
+
+/**
+ * Factory for `domrectSearchType.js`/`dompointSearchType.js`/
+ * `dommatrixSearchType.js`: numeric search ranges for children; "Is/Is not
+ * Readonly"; DOMMatrix: "Is/Is not 3d" (README) - one `buildRangeInputsPair`
+ * per known dimension (`key`-distinguished so they coexist in one widget;
+ * `dimensionKeys` covers DOMMatrix's 2D (`a`-`f`) *and* 3D (`m11`-`m44`)
+ * shapes at once rather than switching the control set on an "Is/Is not 3d"
+ * answer that's itself just another optional search constraint, not a
+ * schema fact - `domrect`/`dompoint`/`dommatrix` are all "checked" types
+ * with no structural schema to derive dimension names from in the first
+ * place, same reasoning as `makeErrorFamilySearchType`), combined into one
+ * `domShape` leaf (`queryTree.js`) rather than separate leaves via `$and`.
+ * @param {{
+ *   tagName: string,
+ *   dimensionKeys: string[],
+ *   includeReadonly?: boolean,
+ *   includeDimensionCheck?: boolean
+ * }} cfg
+ * @returns {import('./searchDispatch.js').SearchTypeObject}
+ */
+export function makeDomShapeSearchType ({
+  tagName, dimensionKeys, includeReadonly = false, includeDimensionCheck = false
+}) {
+  return {
+    buildUI ({schemaObject, path, typeNamespace}) {
+      const label = buildPathLabel(schemaObject, path);
+      const name = `${typeNamespace}-${tagName}`;
+      return [tagName, {
+        dataset: {searchPath: path, searchKind: tagName},
+        title: label,
+        $define: {
+          /** @this {HTMLElement} */
+          getQuery () {
+            const searchPath = this.dataset.searchPath ?? '';
+            /** @type {{[dim: string]: import('./queryTree.js').QueryRangeLeaf}} */
+            const dimensions = {};
+            dimensionKeys.forEach((dim) => {
+              const {gte, lte} = readRangeInputsPair(this, dim);
+              if (gte === '' && lte === '') {
+                return;
+              }
+              dimensions[dim] = makeRangeLeaf(`${searchPath}/${dim}`, 'number', {
+                ...(gte === '' ? {} : {$gte: Number(gte)}),
+                ...(lte === '' ? {} : {$lte: Number(lte)})
+              });
+            });
+            const readonlyCheck = includeReadonly
+              ? readTriStateSelect(this, 'readonly')
+              : undefined;
+            const dimensionCheck = includeDimensionCheck
+              ? readTriStateSelect(this, 'dimension')
+              : undefined;
+            if (
+              readonlyCheck === undefined && dimensionCheck === undefined &&
+              Object.keys(dimensions).length === 0
+            ) {
+              return undefined;
+            }
+            return makeDomShapeLeaf(searchPath, dimensions, {
+              ...(readonlyCheck === undefined ? {} : {readonlyCheck}),
+              ...(dimensionCheck === undefined
+                ? {}
+                : {dimensionCheck: dimensionCheck ? 3 : 2})
+            });
+          }
+        }
+      }, buildDomShapeChildren({
+        label, name, dimensionKeys, includeReadonly, includeDimensionCheck
+      })];
     },
     getQuery: getQueryViaElement
   };

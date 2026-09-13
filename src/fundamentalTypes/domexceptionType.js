@@ -5,6 +5,46 @@ import {schemaLabel} from '../utils/schemaMeta.js';
 let domExceptionNameId = 0;
 
 /**
+ * The standard predefined `DOMException` names, shared with
+ * `src/search/fundamentalTypes/domexceptionSearchType.js`'s "pull-down of
+ * name for DOMException" (README) so the two lists can't drift apart.
+ * @type {string[]}
+ */
+export const domExceptionNames = [
+  'IndexSizeError',
+  'HierarchyRequestError',
+  'WrongDocumentError',
+  'InvalidCharacterError',
+  'NoModificationAllowedError',
+  'NotFoundError',
+  'NotSupportedError',
+  'InvalidStateError',
+  'InUseAttributeError',
+  'SyntaxError',
+  'InvalidModificationError',
+  'NamespaceError',
+  'InvalidAccessError',
+  'TypeMismatchError',
+  'SecurityError',
+  'NetworkError',
+  'AbortError',
+  'URLMismatchError',
+  'QuotaExceededError',
+  'TimeoutError',
+  'InvalidNodeTypeError',
+  'DataCloneError',
+  'EncodingError',
+  'NotReadableError',
+  'UnknownError',
+  'ConstraintError',
+  'DataError',
+  'TransactionInactiveError',
+  'ReadOnlyErrorVersionError',
+  'OperationError',
+  'NotAllowedError'
+];
+
+/**
  * @type {import('../types.js').TypeObject}
  */
 const domexceptionType = {
@@ -72,39 +112,7 @@ const domexceptionType = {
       ['datalist', {
         id: `domExceptionNames-${domExceptionNameId}`,
         class: 'predefinedNames'
-      }, [
-        'IndexSizeError',
-        'HierarchyRequestError',
-        'WrongDocumentError',
-        'InvalidCharacterError',
-        'NoModificationAllowedError',
-        'NotFoundError',
-        'NotSupportedError',
-        'InvalidStateError',
-        'InUseAttributeError',
-        'SyntaxError',
-        'InvalidModificationError',
-        'NamespaceError',
-        'InvalidAccessError',
-        'TypeMismatchError',
-        'SecurityError',
-        'NetworkError',
-        'AbortError',
-        'URLMismatchError',
-        'QuotaExceededError',
-        'TimeoutError',
-        'InvalidNodeTypeError',
-        'DataCloneError',
-        'EncodingError',
-        'NotReadableError',
-        'UnknownError',
-        'ConstraintError',
-        'DataError',
-        'TransactionInactiveError',
-        'ReadOnlyErrorVersionError',
-        'OperationError',
-        'NotAllowedError'
-      ].map((name) => {
+      }, domExceptionNames.map((name) => {
         return ['option', [name]];
       })],
       ['br'],
