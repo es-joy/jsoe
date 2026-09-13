@@ -143,7 +143,7 @@ function isStringboolSchema (schemaObject) {
  * @param {ZodexSchema} schemaObject
  * @returns {import('../types.js').AvailableArbitraryType|undefined}
  */
-function getSchemaType (schemaObject) {
+export function getSchemaType (schemaObject) {
   if (isStringboolSchema(schemaObject)) {
     return 'string';
   }
