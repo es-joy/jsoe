@@ -193,9 +193,7 @@ function deriveXorBranchLabel (schemaObj, optText, idx) {
       return String(values[0]);
     }
   }
-  if (schemaObj &&
-    (schemaObj.type === 'object' || schemaObj.type === 'properties')
-  ) {
+  if (schemaObj && schemaObj.type === 'object') {
     const {properties} = /** @type {import('zodexy').SzObject} */ (schemaObj);
     const keys = properties && typeof properties === 'object'
       ? Object.keys(properties)

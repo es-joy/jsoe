@@ -622,41 +622,6 @@ const schemaInstanceJSON12 = {
   ]
 };
 
-// `z.properties()` (a bare named-property shape): renders through the same UI
-//   as `object` but, unlike `object`, does not strip keys outside its declared
-//   shape - they are passed through untyped. The first branch carries a
-//   `description`; the second deliberately has none, so its type-choice entry
-//   and container heading are labelled "Properties" rather than "Object".
-const schemaInstanceJSON13 = {
-  type: 'union',
-  options: [
-    {
-      description: 'Described properties',
-      type: 'properties',
-      properties: {
-        count: {
-          description: 'A count',
-          type: 'number'
-        },
-        label: {
-          description: 'An optional label',
-          type: 'string',
-          isOptional: true
-        }
-      }
-    },
-    {
-      type: 'properties',
-      properties: {
-        flag: {
-          description: 'A flag',
-          type: 'boolean'
-        }
-      }
-    }
-  ]
-};
-
 // `xor` (exclusive union): exactly one branch may match. The `string` and the
 //   email `string` overlap deliberately: a value like `a@b.com` satisfies both
 //   branches, so it is valid under `union` but invalid under `xor`.
@@ -775,7 +740,6 @@ export {
   schemaInstanceJSON4, schemaInstanceJSON5, schemaInstanceJSON6,
   schemaInstanceJSON7, schemaInstanceJSON8, schemaInstanceJSON9,
   schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
-  schemaInstanceJSON13,
   schemaInstanceJSONXor, schemaInstanceJSONXor2,
   schemaInstanceJSONMeta,
   makeNoneditableType

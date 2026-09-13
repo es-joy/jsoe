@@ -1,5 +1,9 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.28.1
+
+- fix: remove properties (dropped from zod)
+
 ## 0.28.0
 
 - feat: add raw Typeson/JSON6 "View raw"/"Edit raw" buttons to every

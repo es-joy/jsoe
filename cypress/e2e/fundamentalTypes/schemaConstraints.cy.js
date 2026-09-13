@@ -194,36 +194,3 @@ describe('`looseRecord` accepts non-conforming keys a `record` rejects', () => {
     }
   );
 });
-
-describe('`properties` schemas render through the object editor', () => {
-  beforeEach(() => {
-    cy.visit('http://127.0.0.1:8087/demo/index-schema-instrumented.html', {
-      onBeforeLoad (win) {
-        cy.stub(win.console, 'log').as('consoleLog');
-      }
-    });
-    cy.get('.formatChoices:first').select(
-      'Schema: Zodexy schema instance 13'
-    );
-  });
-
-  const sel = '#formatAndTypeChoices ';
-
-  it('names each `z.properties()` branch in the type pull-down', () => {
-    // A branch with a `description` -> "Properties (<description>)"; a branch
-    //   without one -> plain "Properties" (rather than an indistinguishable
-    //   "Object", which is the fundamental type `properties` maps onto).
-    cy.get(typeChoices + ' option').then(($opts) => {
-      const texts = [...$opts].map((o) => o.textContent);
-      expect(texts).to.include('Properties (Described properties)');
-      expect(texts).to.include('Properties');
-    });
-  });
-
-  it('builds the object editor for a `properties` branch', () => {
-    cy.get(typeChoices).select('Properties (Described properties)');
-    cy.get(sel + '[data-type="object"]').should('exist');
-    // The declared property `count` carries its schema label
-    cy.get(sel + 'b.objectItem[title="count"]').should('have.text', 'A count');
-  });
-});

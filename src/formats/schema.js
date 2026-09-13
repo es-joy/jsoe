@@ -43,10 +43,6 @@ const zodexToStructuredCloningTypeMap = new Map([
   ['array', 'arrayNonindexKeys'],
 
   ['object', 'object'],
-  // `z.properties()` (Zod 4.5+) is a bare named-property shape: like `object`
-  //   but with no `catchall`/`symbols` and, in Zod, no unknown-key stripping.
-  //   jsoe edits it through the same `object` UI, keyed off the schema `type`.
-  ['properties', 'object'],
 
   ['tuple', 'array'],
   ['record', 'object'],
@@ -388,13 +384,12 @@ function mergeMeta (target, source) {
 
 /**
  * Whether a schema node carries a fixed bag of named property schemas under
- * `properties` - `object` and `z.properties()`. Both are merged the same way
- * across an intersection and both drive the `object` editor UI.
+ * `properties` - i.e., `object`.
  * @param {ZodexSchema['type']|undefined} type
  * @returns {boolean}
  */
 function isPropertyBagType (type) {
-  return type === 'object' || type === 'properties';
+  return type === 'object';
 }
 
 /**
@@ -613,7 +608,6 @@ export function getTypesForSchema (schemaObject, originalJSON) {
         originalJSON
       );
     }
-    case 'properties':
     case 'object': {
       const set = new Set();
       // const {properties} = schemaObject;
@@ -936,13 +930,12 @@ const schema = {
 
     switch (parentSchema?.type) {
     case 'object':
-    case 'properties':
       // A key outside the declared shape: an `object` pins it to its
-      //   `catchall` if it has one; otherwise (and always for `properties`,
-      //   which has no `catchall`) its control is offered the unconstrained
-      //   type choice - as a `looseRecord`'s non-conforming entry is - rather
-      //   than the bare "unschema'd" fallback. A strict `object` will still
-      //   strip the key on parse; this only governs how it is edited.
+      //   `catchall` if it has one; otherwise its control is offered the
+      //   unconstrained type choice - as a `looseRecord`'s non-conforming
+      //   entry is - rather than the bare "unschema'd" fallback. A strict
+      //   `object` will still strip the key on parse; this only governs how
+      //   it is edited.
       currentSchema = /** @type {import('zodexy').SzObject} */ (
         parentSchema
       ).properties[

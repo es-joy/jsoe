@@ -1226,69 +1226,6 @@
       );
     });
 
-    describe('Group `properties`', function () {
-      // `schemaInstanceJSON13`: a union of two `z.properties()` branches - one
-      //   with a `description`, one without.
-      it('Described branch: declared properties use their schemas', function () {
-        const sel = 'section:nth-of-type(14) > .innerItem:nth-of-type(1) ' +
-          arraySels;
-
-        cy.get(sel + '[data-type="object"] span').should(($span) => {
-          expect($span.attr('title')).to.equal('Described properties');
-        });
-
-        // The required declared property `count` -> its number schema
-        cy.get(sel + 'b.objectItem[title="count"]').should(
-          'have.text', 'A count'
-        );
-        cy.get(sel + 'input[type=number]').should('have.value', '3');
-
-        // The optional declared property `label` -> its string schema
-        cy.get(
-          sel + 'div[data-type="string"][title="An optional label"] textarea'
-        ).should('have.value', 'hi');
-      });
-
-      it(
-        'Described branch: a key outside the declared shape is kept, untyped',
-        function () {
-          const sel = 'section:nth-of-type(14) > .innerItem:nth-of-type(1) ' +
-            arraySels;
-
-          // `count` (declared) and `label` (declared, optional) are fieldsets
-          //   1 and 2; `extra` is not in the shape. `z.properties()` (unlike
-          //   `object`) does not strip it, so it is rendered as fieldset 3: a
-          //   free property whose control is the unconstrained type choice,
-          //   defaulting here to the value's own runtime type (a string), with
-          //   no declared property's schema (e.g. a number widget) imposed.
-          cy.get(
-            sel + 'fieldset:nth-of-type(3) input[data-prop="true"]'
-          ).should('have.value', 'extra');
-          cy.get(
-            sel + 'fieldset:nth-of-type(3) ' +
-            'textarea[name="demo-type-choices-only-initial-value-string"]'
-          ).should('have.value', 'kept');
-          cy.get(
-            sel + 'fieldset:nth-of-type(3) input[type=number]'
-          ).should('not.exist');
-        }
-      );
-
-      it('Undescribed branch: the heading is labelled "Properties"', function () {
-        const sel = 'section:nth-of-type(14) > .innerItem:nth-of-type(2) ' +
-          arraySels;
-
-        cy.get(sel + '[data-type="object"] span').should(($span) => {
-          expect($span.attr('title')).to.equal('Properties');
-        });
-
-        cy.get(sel + 'b.objectItem[title="flag"]').should('have.text', 'A flag');
-        cy.get(sel + '[data-type="boolean"] input:checked').should(
-          'have.value', 'true'
-        );
-      });
-    });
-
     describe('Group 13', function () {
       it('Selects object with type selector', function () {
         const sel1 = 'form ' + (arraySels

@@ -1671,21 +1671,19 @@ const arrayType = {
       const objectSchema = /** @type {import('zodexy').SzObject} */ (
         specificSchemaObject
       );
-      const schemaType = specificSchemaObject?.type;
       const propSchema = objectSchema?.properties?.[/** @type {string} */ (
         propName
       )];
       if (
         !propSchema &&
-        (schemaType === 'properties' ||
-          (schemaType === 'object' && !objectSchema.catchall))
+        specificSchemaObject?.type === 'object' && !objectSchema.catchall
       ) {
-        // A key outside the declared shape of a `z.properties()` (which keeps
-        //   it) or a `catchall`-less `z.object()` (which strips it on parse but
-        //   still shows it while editing): offer the unconstrained type choice
-        //   rather than an unschema'd control, as a `looseRecord`'s
-        //   non-conforming entry gets. An `object` `catchall` takes precedence
-        //   (handled where the per-property schema is chosen elsewhere).
+        // A key outside the declared shape of a `catchall`-less `z.object()`
+        //   (which strips it on parse but still shows it while editing):
+        //   offer the unconstrained type choice rather than an unschema'd
+        //   control, as a `looseRecord`'s non-conforming entry gets. An
+        //   `object` `catchall` takes precedence (handled where the
+        //   per-property schema is chosen elsewhere).
         return /** @type {import('zodexy').SzType} */ ({type: 'unknown'});
       }
       return propSchema;
@@ -2733,16 +2731,10 @@ const arrayType = {
           }
         }, /** @type {import('jamilih').JamilihChildren} */ ([
           [specificSchemaObject ? 'span' : 'b', {
-            title: schemaLabel(specificSchemaObject) ?? (
-              // `z.properties()` renders through the `object` UI; without a
-              //   `meta` label of its own, name it "Properties" rather than an
-              //   indistinguishable "Object".
-              specificSchemaObject?.type === 'properties'
-                ? 'Properties'
-                : DOM.initialCaps(
-                  /** @type {import('../types.js').AvailableType} */
-                  (itemType)
-                ).replace(/s$/u, ''))
+            title: schemaLabel(specificSchemaObject) ?? DOM.initialCaps(
+              /** @type {import('../types.js').AvailableType} */
+              (itemType)
+            ).replace(/s$/u, '')
           }, [
             specificSchemaObject
               ? '—'
