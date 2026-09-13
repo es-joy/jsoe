@@ -14,6 +14,30 @@ export function makeAndNode (nodes) {
 }
 
 /**
+ * Combines the leaves a single widget contributes (e.g. a number leaf's
+ * range plus its separate "Is/Is Not Integer" check) into one `QueryNode`:
+ * drops any `undefined` (no constraint entered there), returns `undefined`
+ * if nothing is left, the bare node if only one is left, else an `$and` of
+ * the rest - so a widget with several independent controls still honors
+ * `getQuery`'s "`undefined` means no constraint" convention without every
+ * such widget re-implementing this collapsing logic itself.
+ * @param {(import('./queryTree.js').QueryNode|undefined)[]} nodes
+ * @returns {import('./queryTree.js').QueryNode|undefined}
+ */
+export function combineAnd (nodes) {
+  const filtered = /** @type {import('./queryTree.js').QueryNode[]} */ (
+    nodes.filter((node) => node !== undefined)
+  );
+  if (filtered.length === 0) {
+    return undefined;
+  }
+  if (filtered.length === 1) {
+    return filtered[0];
+  }
+  return makeAndNode(filtered);
+}
+
+/**
  * @param {import('./queryTree.js').QueryNode[]} nodes
  * @returns {import('./queryTree.js').QueryOr}
  */

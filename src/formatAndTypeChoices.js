@@ -36,7 +36,7 @@ import {$e, DOM} from './utils/templateUtils.js';
  * @callback SetFormat
  * @param {{
  *   valueFormat?: import('./formats.js').AvailableFormat,
- *   autoTrigger: boolean,
+ *   autoTrigger?: boolean,
  *   schema?: string
  * }} cfg
  * @returns {Promise<void>}
@@ -117,7 +117,7 @@ export const getFormatAndSchemaChoices = ({
 /**
  * @callback SetValue
  * @param {import('./formats.js').StructuredCloneValue} value
- * @param {import('./types.js').StateObject} stateObj
+ * @param {import('./types.js').StateObject} [stateObj]
  * @returns {Promise<void>}
  */
 
@@ -156,8 +156,8 @@ export const getFormatAndSchemaChoices = ({
  *   formatChoices: FormatChoices,
  *   typesHolder: TypesHolder,
  *   domArray: [formatChoices: FormatChoices, typesHolder: TypesHolder],
- *   getValue: (stateObj: import('./types.js').StateObject,
- *     currentPath: string) => import('./formats.js').StructuredCloneValue,
+ *   getValue: (stateObj?: import('./types.js').StateObject,
+ *     currentPath?: string) => import('./formats.js').StructuredCloneValue,
  *   getType: () => string,
  *   validValuesSet: () => boolean,
  *   setValue: SetValue,

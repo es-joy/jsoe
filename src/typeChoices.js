@@ -29,7 +29,7 @@ import deepEqual from 'fast-deep-equal/es6/index.js';
  */
 /**
  * @callback Validate
- * @param {{avoidReport?: boolean}} cfg
+ * @param {{avoidReport?: boolean}} [cfg]
  * @returns {boolean}
  */
 /**
@@ -127,7 +127,7 @@ import deepEqual from 'fast-deep-equal/es6/index.js';
 /**
  * @callback SetValue
  * @param {import('./formats.js').StructuredCloneValue} value
- * @param {import('./types.js').StateObject} stateObj
+ * @param {import('./types.js').StateObject} [stateObj]
  * @returns {Promise<void>}
  */
 

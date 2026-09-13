@@ -1,0 +1,63 @@
+import {buildPathLabel, buildMultiSelect} from '../searchUtils.js';
+import {makeMultiSelectLeaf} from '../queryTreeBuilders.js';
+import {getQueryViaElement} from '../searchElementUtils.js';
+
+/**
+ * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
+ */
+
+/**
+ * Enum, Native Enum: multiple select (README). The value-editing side has
+ * no dedicated `enumType.js` (`getSchemaType` resolves `enum` to whatever
+ * its underlying value type is), but search needs the actual allowed
+ * values listed, so this is one of the search-only dedicated modules
+ * (search plan §1).
+ *
+ * The README's further "native enum also can search key vs. value" is not
+ * implemented by this pass - only the plain multi-select-of-values
+ * affordance every enum gets either way. A native enum whose keys differ
+ * from its values (unlike a plain `z.enum([...])`, where they're the same)
+ * still gets a usable widget here, just not that extra key-vs-value mode
+ * yet; `values`'s keys are shown alongside their value as a hint.
+ * @type {SearchTypeObject}
+ */
+const enumSearchType = {
+  buildUI ({schemaObject, path, typeNamespace}) {
+    const label = buildPathLabel(schemaObject, path);
+    const name = `${typeNamespace}-enum`;
+    const {values} = /** @type {import('zodexy').SzEnum} */ (
+      schemaObject
+    );
+    const options = Object.entries(values).map(([key, value]) => {
+      const strValue = String(value);
+      return /** @type {[string, string]} */ ([
+        strValue,
+        key === strValue ? strValue : `${strValue} (${key})`
+      ]);
+    });
+    return ['jsoe-search-enum', {
+      dataset: {searchPath: path, searchKind: 'enum'},
+      title: label,
+      $define: {
+        /** @this {HTMLElement} */
+        getQuery () {
+          const select = /** @type {HTMLSelectElement|null} */ (
+            this.querySelector(`select[name="${CSS.escape(name)}"]`)
+          );
+          const selected = [...(select?.selectedOptions ?? [])].map(
+            (opt) => opt.value
+          );
+          return selected.length
+            ? makeMultiSelectLeaf(this.dataset.searchPath ?? '', {$in: selected})
+            : undefined;
+        }
+      }
+    }, [
+      ['span', {class: 'searchLabel'}, [label]],
+      buildMultiSelect({name, options})
+    ]];
+  },
+  getQuery: getQueryViaElement
+};
+
+export default enumSearchType;

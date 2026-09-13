@@ -146,7 +146,7 @@ class Formats {
    * @param {import('./types.js').default} types
    * @param {AvailableFormat} format
    * @param {StructuredCloneValue} record
-   * @param {import('./types.js').StateObject} stateObj
+   * @param {import('./types.js').StateObject} [stateObj]
    * @returns {Promise<Required<import('./types.js').StateObject>>}
    */
   async getControlsForFormatAndValue (types, format, record, stateObj) {

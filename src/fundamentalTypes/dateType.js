@@ -9,6 +9,38 @@ import {schemaLabel} from '../utils/schemaMeta.js';
  */
 
 /**
+ * The `<input type="datetime-local">` construction shared between this
+ * type's own `editUI` and the search subsystem's date-range widget
+ * (`src/search/fundamentalTypes/dateSearchType.js` calls this twice, once
+ * per range endpoint).
+ * @param {{
+ *   name: string,
+ *   value?: Date|string,
+ *   notANum?: boolean,
+ *   dateSchemaObject?: import('zodexy').SzDate
+ * }} cfg
+ * @returns {import('../types.js').JamilihArray}
+ */
+export function buildDateInputControl ({
+  name, value = '', notANum = false, dateSchemaObject
+}) {
+  return ['input', {
+    name,
+    type: 'datetime-local',
+    // Required yyyy-MM-dd format
+    value: !value || notANum
+      ? ''
+      : /** @type {Date} */ (value).toISOString().slice(0, -8),
+    min: dateSchemaObject?.min
+      ? new Date(dateSchemaObject.min).toISOString().slice(0, -8)
+      : undefined,
+    max: dateSchemaObject?.max
+      ? new Date(dateSchemaObject.max).toISOString().slice(0, -8)
+      : undefined
+  }];
+}
+
+/**
  * @type {import('../types.js').TypeObject & {
  *   dateRegex: RegExp,
  *   isInvalid: (cfg: {root: HTMLDivElement}) => boolean,
@@ -176,20 +208,9 @@ const dateType = {
         hidden: notANum
       }, [
         'Date: ',
-        ['input', {
-          name: `${typeNamespace}-date`,
-          type: 'datetime-local',
-          // Required yyyy-MM-dd format
-          value: !val || notANum
-            ? ''
-            : val.toISOString().slice(0, -8),
-          min: dateSchemaObject?.min
-            ? new Date(dateSchemaObject.min).toISOString().slice(0, -8)
-            : undefined,
-          max: dateSchemaObject?.max
-            ? new Date(dateSchemaObject.max).toISOString().slice(0, -8)
-            : undefined
-        }]
+        buildDateInputControl({
+          name: `${typeNamespace}-date`, value: val, notANum, dateSchemaObject
+        })
       ]],
       invalid
     ]];

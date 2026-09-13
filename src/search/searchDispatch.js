@@ -1,5 +1,17 @@
 import {getSchemaType} from '../formats/schema.js';
 
+import dateSearchType from './fundamentalTypes/dateSearchType.js';
+import numberSearchType from './fundamentalTypes/numberSearchType.js';
+import bigintSearchType from './fundamentalTypes/bigintSearchType.js';
+import stringSearchType from './fundamentalTypes/stringSearchType.js';
+import regexpSearchType from './fundamentalTypes/regexpSearchType.js';
+import booleanSearchType from './fundamentalTypes/booleanSearchType.js';
+import symbolSearchType from './fundamentalTypes/symbolSearchType.js';
+import undefinedSearchType from './fundamentalTypes/undefinedSearchType.js';
+import nullSearchType from './fundamentalTypes/nullSearchType.js';
+import nanSearchType from './fundamentalTypes/nanSearchType.js';
+import enumSearchType from './fundamentalTypes/enumSearchType.js';
+
 /**
  * @typedef {import('./queryTree.js').QueryNode} QueryNode
  */
@@ -65,20 +77,20 @@ const noneditableSearchType = stubSearchType('noneditable');
  */
 const availableSearchTypes = {
   // fundamentalTypes
-  date: stubSearchType('date'),
-  number: stubSearchType('number'),
-  NumberObject: stubSearchType('number'),
-  bigint: stubSearchType('bigint'),
-  bigintObject: stubSearchType('bigint'),
-  string: stubSearchType('string'),
-  StringObject: stubSearchType('string'),
-  regexp: stubSearchType('regexp'),
-  boolean: stubSearchType('boolean'),
-  BooleanObject: stubSearchType('boolean'),
-  symbol: stubSearchType('symbol'),
-  undef: stubSearchType('undef'),
-  null: stubSearchType('null'),
-  nan: stubSearchType('nan'),
+  date: dateSearchType,
+  number: numberSearchType,
+  NumberObject: numberSearchType,
+  bigint: bigintSearchType,
+  bigintObject: bigintSearchType,
+  string: stringSearchType,
+  StringObject: stringSearchType,
+  regexp: regexpSearchType,
+  boolean: booleanSearchType,
+  BooleanObject: booleanSearchType,
+  symbol: symbolSearchType,
+  undef: undefinedSearchType,
+  null: nullSearchType,
+  nan: nanSearchType,
   array: stubSearchType('array'),
   arrayNonindexKeys: stubSearchType('array'),
   object: stubSearchType('object'),
@@ -91,7 +103,7 @@ const availableSearchTypes = {
   domexception: stubSearchType('domexception'),
   promise: stubSearchType('promise'),
   function: stubSearchType('function'),
-  enum: stubSearchType('enum'),
+  enum: enumSearchType,
 
   // subTypes
   tuple: stubSearchType('tuple'),
@@ -114,7 +126,7 @@ const availableSearchTypes = {
   discriminatedUnion: stubSearchType('discriminatedUnion'),
 
   // string-shape alias (§3)
-  templateLiteral: stubSearchType('string'),
+  templateLiteral: stringSearchType,
 
   // escape hatch, also the fallback for any unrecognized/not-yet-supported
   //   schema shape (see `getSearchTypeObject`)

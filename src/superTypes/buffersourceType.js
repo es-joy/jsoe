@@ -72,26 +72,26 @@ const getMinMaxForTypedArray = (typedArray) => {
 };
 
 /**
- * @typedef {"Int8Array"|"Uint8Array"|"Uint8ClampedArray"|
- *   "Int16Array"|"Uint16Array"|"Int32Array"|"Uint32Array"|
- *   "Float32Array"|"Float64Array"|"BigInt64Array"|
- *   "BigUint64Array"} TypedArray
+ * @typedef {"Int8Array"|"Uint8Array"|"Uint8ClampedArray"
+ *   |"Int16Array"|"Uint16Array"|"Int32Array"|"Uint32Array"
+ *   |"Float32Array"|"Float64Array"|"BigInt64Array"
+ *   |"BigUint64Array"} TypedArray
  */
 
 /**
- * @typedef {Int8Array|Uint8Array|Uint8ClampedArray|
- *   Int16Array|Uint16Array|Int32Array|Uint32Array|
- *   Float32Array|Float64Array|BigInt64Array|
- *   BigUint64Array} TypedArrayInstance
+ * @typedef {Int8Array|Uint8Array|Uint8ClampedArray
+ *   |Int16Array|Uint16Array|Int32Array|Uint32Array
+ *   |Float32Array|Float64Array|BigInt64Array
+ *   |BigUint64Array} TypedArrayInstance
  */
 
 /**
  * @param {TypedArray} prop
- * @returns {Int8ArrayConstructor|Uint8ArrayConstructor|
- *   Uint8ClampedArrayConstructor|Int16ArrayConstructor|
- *   Uint16ArrayConstructor|Int32ArrayConstructor|Uint32ArrayConstructor|
- *   Float32ArrayConstructor|Float64ArrayConstructor|
- *   BigInt64ArrayConstructor|BigUint64ArrayConstructor}
+ * @returns {Int8ArrayConstructor|Uint8ArrayConstructor
+ *   |Uint8ClampedArrayConstructor|Int16ArrayConstructor
+ *   |Uint16ArrayConstructor|Int32ArrayConstructor|Uint32ArrayConstructor
+ *   |Float32ArrayConstructor|Float64ArrayConstructor
+ *   |BigInt64ArrayConstructor|BigUint64ArrayConstructor}
  */
 const getTypedArray = (prop) => {
   switch (prop) {
@@ -164,7 +164,6 @@ const buffersourceType = {
       dataViewByteOffset,
       dataViewByteLength, length
     } = o;
-    // @ts-expect-error Ok
     const buffer = new ArrayBuffer(byteLength, {maxByteLength});
 
     let typedArray, TypedArray;
@@ -471,7 +470,6 @@ const buffersourceType = {
             );
 
             const buffer = new ArrayBuffer(
-              // @ts-expect-error New ArrayBuffer argument
               byteLengthVal, maxByteLength ? {maxByteLength} : undefined
             );
 
