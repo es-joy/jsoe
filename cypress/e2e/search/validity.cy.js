@@ -46,6 +46,21 @@ describe('search: form validity', () => {
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
 
+  it('is invalid the moment a range widget exists, before any interaction, and valid once given a bound', () => {
+    cy.get(sel + 'select.addPropertySelect').select('number');
+    cy.get(sel + 'button').contains('Add').click();
+    // Neither input has been touched yet - `connectedCallback` (not just the
+    // `input`/`change` handlers) must be the thing setting the initial
+    // custom validity, or this would wrongly read "Valid".
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    const numberSel = sel + 'jsoe-search-number[data-search-path="#/number"] ';
+    cy.get(numberSel + 'input.jsoeSearchRangeGte--').type('10');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+  });
+
   it('goes invalid when a range\'s end is before its start, valid once fixed', () => {
     cy.get(sel + 'select.addPropertySelect').select('number');
     cy.get(sel + 'button').contains('Add').click();
@@ -61,8 +76,26 @@ describe('search: form validity', () => {
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
 
-  it('goes invalid when a date range\'s end is before its start, valid once fixed', () => {
+  it('is invalid the moment the bigint range widget exists, before any interaction', () => {
+    cy.get(sel + 'select.addPropertySelect').select('bigint');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    const bigintSel = sel + 'jsoe-search-bigint[data-search-path="#/bigint"] ';
+    cy.get(bigintSel + 'input.jsoeSearchRangeGte--').type('10');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+  });
+
+  it('is invalid on load (no interaction), and invalid when a date range\'s end is before its start, valid once fixed', () => {
     const dateSel = '#section-date ';
+    // The date demo section has no opt-out (unlike a required object
+    // property's checkbox) - it's a standalone `buildSearchChoices` root, so
+    // its own range starts invalid the moment the page loads.
+    cy.get(dateSel + '.checkValidityButton').click();
+    cy.get(dateSel + '.validityResult').should('have.text', 'Invalid');
+
     cy.get(dateSel + 'input[name$="-gte"]').type('2025-06-01T00:00');
     cy.get(dateSel + 'input[name$="-lte"]').type('2024-06-01T00:00');
     cy.get(dateSel + '.checkValidityButton').click();

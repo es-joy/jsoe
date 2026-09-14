@@ -1,4 +1,7 @@
-import {buildPathLabel, buildLengthSizeControls, readLengthSizeQuery} from '../searchUtils.js';
+import {
+  buildPathLabel, buildLengthSizeControls, readLengthSizeQuery,
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset
+} from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
@@ -11,7 +14,9 @@ import {buildSearchWidget} from '../searchDispatch.js';
  * Has length/size of &lt;number&gt; (README) - no sparse toggle: unlike
  * `array`, a `Set` cannot have holes. Also recurses into the value schema's
  * own search widget (as `arraySearchType.js` does for its element), via the
- * same `*` path-segment convention (`queryTree.js`).
+ * same `*` path-segment convention (`queryTree.js`), wrapped in the same
+ * `buildOptInFieldset` `arraySearchType.js` uses and for the same reason -
+ * a length/size-only search should stay valid.
  * @type {SearchTypeObject}
  */
 const setSearchType = {
@@ -35,11 +40,15 @@ const setSearchType = {
       title: label,
       $define: {
         /** @this {HTMLElement} */
+        connectedCallback () {
+          wireOptInFieldset(this);
+        },
+        /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';
           const lengthLeaf = readLengthSizeQuery(this, searchPath);
           const elementEl = findSearchElement(this, `${searchPath}/*`);
-          const elementLeaf = elementEl && hasGetQuery(elementEl)
+          const elementLeaf = readOptInChecked(this) && elementEl && hasGetQuery(elementEl)
             ? elementEl.getQuery()
             : undefined;
           return combineAnd([lengthLeaf, elementLeaf]);
@@ -53,10 +62,9 @@ const setSearchType = {
         max: setSchemaObject.maxSize,
         includeSparse: false
       }),
-      ['div', {class: 'searchSetElement'}, [
-        ['span', ['Element matches: ']],
-        elementArr
-      ]]
+      ...buildOptInFieldset({
+        name: `${name}-element`, label: 'Element matches', children: [elementArr]
+      })
     ]];
   },
   getQuery: getQueryViaElement

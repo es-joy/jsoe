@@ -33,6 +33,13 @@ function readInputs (el) {
  * validation entirely), and if both ends are filled with "To" before
  * "From", that's invalid too. `datetime-local` values (`YYYY-MM-DDTHH:mm`)
  * compare correctly as plain strings, so no `Date` parsing is needed here.
+ * Also called (with `this` as the `<jsoe-search-date>` root itself, which
+ * `this.closest('jsoe-search-date')` still resolves to - `closest` checks
+ * the element itself first) from the widget's own `connectedCallback`
+ * below, the same reason `searchUtils.js`'s `syncRangeValidity` gives: the
+ * `input`/`change` events wired below only fire from the user's first
+ * interaction, so a freshly-built pair would otherwise stay "valid" until
+ * then.
  * @this {HTMLElement}
  * @returns {void}
  */
@@ -80,6 +87,10 @@ const dateSearchType = {
       dataset: {searchPath: path, searchKind: 'date'},
       title: label,
       $define: {
+        /** @this {HTMLElement} */
+        connectedCallback () {
+          validateRange.call(this);
+        },
         /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';

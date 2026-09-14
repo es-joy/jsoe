@@ -2,7 +2,7 @@ import {jml} from '../../vendor-imports.js';
 import {escapeJSONPointer} from '../../utils/jsonPointer.js';
 import {
   buildPathLabel, buildHasPropertyToggle, readTriStateSelect, findOwnControl,
-  buildCheckbox, readCheckbox
+  buildCheckbox, readCheckbox, buildAtLeastOneSentinel, syncAtLeastOneCheck
 } from '../searchUtils.js';
 import {combineAnd, makeHasPropertyLeaf} from '../queryTreeBuilders.js';
 import {
@@ -13,6 +13,27 @@ import {buildSearchWidget} from '../searchDispatch.js';
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
  */
+
+/**
+ * An object with zero active rows (nothing added from the pull-down, and no
+ * required property opted into) expresses no constraint at all - the same
+ * "no absent values" reasoning as every other leaf's own required control,
+ * just with nothing native to hang a `required` attribute directly off of,
+ * since what counts as "active" is a dynamically-changing count of child
+ * rows rather than one fixed input. `searchUtils.js`'s
+ * `buildAtLeastOneSentinel`/`syncAtLeastOneCheck` stand in for that.
+ * @param {Element} root - a `jsoe-search-object` element
+ * @returns {void}
+ */
+function syncObjectValidity (root) {
+  const addedRowCount = root.querySelectorAll(':scope > jsoe-search-has-property').length;
+  const checkedRequiredCount = [
+    ...root.querySelectorAll(
+      ':scope > jsoe-search-required-property > label > input.jsoeSearchCheckbox'
+    )
+  ].filter((checkbox) => /** @type {HTMLInputElement} */ (checkbox).checked).length;
+  syncAtLeastOneCheck(root, () => addedRowCount + checkedRequiredCount > 0);
+}
 
 /**
  * One added property's row: the fixed "has property" tri-state toggle
@@ -86,7 +107,11 @@ function buildHasPropertyRow ({
           if (option) {
             option.disabled = false;
           }
+          const objectRoot = row.closest('jsoe-search-object');
           row.remove();
+          if (objectRoot) {
+            syncObjectValidity(/** @type {HTMLElement} */ (objectRoot));
+          }
         }
       }
     }, ['Remove']],
@@ -178,6 +203,10 @@ function buildRequiredPropertyRow ({
     if (fieldset) {
       fieldset.disabled = !checkbox.checked;
     }
+    const objectRoot = row.closest('jsoe-search-object');
+    if (objectRoot) {
+      syncObjectValidity(/** @type {HTMLElement} */ (objectRoot));
+    }
   });
 
   return row;
@@ -231,6 +260,12 @@ const objectSearchType = {
       title: label,
       $define: {
         /** @this {HTMLElement} */
+        connectedCallback () {
+          if (propertyEntries.length > 0) {
+            syncObjectValidity(this);
+          }
+        },
+        /** @this {HTMLElement} */
         getQuery () {
           const rows = [...this.children].filter(hasGetQuery);
           return combineAnd(rows.map((row) => row.getQuery()));
@@ -277,11 +312,15 @@ const objectSearchType = {
                 option.disabled = true;
               }
               select.value = '';
+              syncObjectValidity(/** @type {HTMLElement} */ (container));
             }
           }
         }, ['Add']]
       ]],
-      ...requiredArr
+      ...requiredArr,
+      // Placed last purely for markup order; a plain rendered-but-off-
+      // screen input, so its position among siblings has no visual effect.
+      ...(propertyEntries.length > 0 ? [buildAtLeastOneSentinel()] : [])
     ]];
   },
   getQuery: getQueryViaElement

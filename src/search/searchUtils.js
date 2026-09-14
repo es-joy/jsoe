@@ -53,6 +53,46 @@ export function findOwnControl (root, selector) {
 }
 
 /**
+ * The `buildRangeInputsPair` cross-validation check, factored out so a
+ * consuming widget's own `$define.connectedCallback` (custom elements,
+ * search plan §8) can also call it - the `input`/`change` events
+ * `buildRangeInputsPair` wires below only fire from the user's *first*
+ * interaction, so a freshly-built pair with both ends still empty would
+ * otherwise stay "valid" by the browser's reckoning (no `setCustomValidity`
+ * call has ever run yet) until then, contradicting the "leaving both blank
+ * is invalid" rule documented below. `connectedCallback` is a native
+ * Custom Elements lifecycle method (invoked once per instance the moment it
+ * connects to the document), so calling this from there closes that gap
+ * without needing any build-time live element reference.
+ * @param {Element} root
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function syncRangeValidity (root, key = '') {
+  const gteEl = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(root, `input.jsoeSearchRangeGte--${key}`)
+  );
+  const lteEl = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(root, `input.jsoeSearchRangeLte--${key}`)
+  );
+  if (!gteEl || !lteEl) {
+    return;
+  }
+  const bothEmpty = gteEl.value === '' && lteEl.value === '';
+  const outOfOrder = gteEl.value !== '' && lteEl.value !== '' &&
+    Number(lteEl.value) < Number(gteEl.value);
+  const emptyMessage = 'Enter at least one bound (From or To).';
+  gteEl.setCustomValidity(bothEmpty ? emptyMessage : '');
+  let lteMessage = '';
+  if (bothEmpty) {
+    lteMessage = emptyMessage;
+  } else if (outOfOrder) {
+    lteMessage = 'End of range must not be less than the start of the range.';
+  }
+  lteEl.setCustomValidity(lteMessage);
+}
+
+/**
  * A "from"/"to" pair of native inputs sharing one `type`, for the OR-range/
  * Is-Not-Range README affordance (number/bigint/buffersource; `date` uses
  * `dateType.js`'s own `buildDateInputControl` instead, since a
@@ -77,10 +117,13 @@ export function findOwnControl (root, selector) {
  * `objectSearchType.js` required-property's opt-in `<fieldset disabled>`
  * (or, for `dateSearchType.js`'s own equivalent pair, its own
  * "Invalid date" fieldset) is unaffected either way, since a disabled field
- * is excluded from constraint validation entirely. `dateSearchType.js`'s
- * own `datetime-local` pair needs the same two checks but isn't built
- * through this helper (`buildDateInputControl` handles its own
- * ISO-slicing), so it wires an equivalent handler itself.
+ * is excluded from constraint validation entirely. Every caller must also
+ * call `syncRangeValidity` from its own `connectedCallback` (see that
+ * function's doc) so the initial both-blank state is actually invalid from
+ * the moment the widget exists, not just after the user's first keystroke.
+ * `dateSearchType.js`'s own `datetime-local` pair needs the same two checks
+ * but isn't built through this helper (`buildDateInputControl` handles its
+ * own ISO-slicing), so it wires an equivalent handler itself.
  * @param {{
  *   name: string,
  *   key?: string,
@@ -95,39 +138,18 @@ export function buildRangeInputsPair ({
   name, key = '', type = 'number', min, max, step
 }) {
   /**
-   * `this` is whichever of the pair fired the event - looked up fresh via
-   * `findOwnControl` rather than closed over, so it stays correct however
-   * many `buildRangeInputsPair` pairs (of possibly-differing `key`s) end up
-   * sharing the same widget.
+   * `this` is whichever of the pair fired the event - `syncRangeValidity`
+   * looks up both fresh via `findOwnControl` rather than closing over
+   * either, so it stays correct however many `buildRangeInputsPair` pairs
+   * (of possibly-differing `key`s) end up sharing the same widget.
    * @this {HTMLElement}
    * @returns {void}
    */
   function validateRange () {
     const root = this.closest('[data-search-path]');
-    if (!root) {
-      return;
+    if (root) {
+      syncRangeValidity(root, key);
     }
-    const gteEl = /** @type {HTMLInputElement|undefined} */ (
-      findOwnControl(root, `input.jsoeSearchRangeGte--${key}`)
-    );
-    const lteEl = /** @type {HTMLInputElement|undefined} */ (
-      findOwnControl(root, `input.jsoeSearchRangeLte--${key}`)
-    );
-    if (!gteEl || !lteEl) {
-      return;
-    }
-    const bothEmpty = gteEl.value === '' && lteEl.value === '';
-    const outOfOrder = gteEl.value !== '' && lteEl.value !== '' &&
-      Number(lteEl.value) < Number(gteEl.value);
-    const emptyMessage = 'Enter at least one bound (From or To).';
-    gteEl.setCustomValidity(bothEmpty ? emptyMessage : '');
-    let lteMessage = '';
-    if (bothEmpty) {
-      lteMessage = emptyMessage;
-    } else if (outOfOrder) {
-      lteMessage = 'End of range must not be less than the start of the range.';
-    }
-    lteEl.setCustomValidity(lteMessage);
   }
   return [
     ['label', [
@@ -168,14 +190,27 @@ export function readRangeInputsPair (el, key = '') {
  * A `<select multiple>` populated from a fixed candidate list - used by
  * `enum`/`multiSelect`/`literalSet` leaf controls (README: "multiple
  * select").
+ *
+ * `required`, when set, makes leaving *every* option unselected invalid -
+ * `<select multiple required>` is natively satisfied by one or more
+ * selections, no custom validity code needed. `enumSearchType.js` passes
+ * this (an enum widget has nothing else to constrain, so an empty selection
+ * is never a meaningful "no constraint" state - same "no absent values"
+ * reasoning as `buildLiteralRegexControls`'s Value input); other callers
+ * (`regexpSearchType.js`'s Flags, `SpecialRealNumberSearchType.js`) leave it
+ * at the default `false`, since an empty selection there legitimately means
+ * "no constraint on this facet" alongside a widget that has other facets.
  * @param {{
  *   name: string,
- *   options: (string|[value: string, title: string])[]
+ *   options: (string|[value: string, title: string])[],
+ *   required?: boolean
  * }} cfg
  * @returns {JamilihArray}
  */
-export function buildMultiSelect ({name, options}) {
-  return ['select', {name, multiple: true, class: 'jsoeSearchMultiSelect'}, options.map((opt) => {
+export function buildMultiSelect ({name, options, required = false}) {
+  return ['select', {
+    name, multiple: true, required, class: 'jsoeSearchMultiSelect'
+  }, options.map((opt) => {
     const [value, title] = Array.isArray(opt) ? opt : [opt, opt];
     return ['option', {value}, [title]];
   })];
@@ -317,14 +352,25 @@ export function readCheckbox (el) {
  * `src/search/index.js`) until either a value is entered or (for an
  * `objectSearchType.js` has-property row) the row is removed via its own
  * "Remove" button.
- * @param {{name: string, key?: string}} cfg
+ *
+ * `onModeChange`, when given, wires the mode select's own `change` event
+ * too (in addition to whatever the caller reads back via
+ * `readLiteralRegexQuery` at `getQuery` time) - `regexpSearchType.js` uses
+ * it to show/hide its Flags multi-select, which only makes sense while
+ * "Matches regex" is the chosen mode.
+ * @param {{
+ *   name: string, key?: string, onModeChange?: (this: HTMLElement) => void
+ * }} cfg
  * @returns {JamilihArray}
  */
-export function buildLiteralRegexControls ({name, key = ''}) {
+export function buildLiteralRegexControls ({name, key = '', onModeChange}) {
   return ['span', [
     ['label', [
       'Mode: ',
-      ['select', {name: `${name}-mode`, class: `jsoeSearchMode--${key}`}, [
+      ['select', {
+        name: `${name}-mode`, class: `jsoeSearchMode--${key}`,
+        $on: onModeChange ? {change: onModeChange} : undefined
+      }, [
         ['option', {value: 'literal'}, ['One of (comma-separated)']],
         ['option', {value: 'regex'}, ['Matches regex']],
         ['option', {value: 'notContains'}, ['Does not contain']]
@@ -433,4 +479,114 @@ export function readLengthSizeQuery (el, path) {
     ...(sizeStr ? {$size: Number(sizeStr)} : {}),
     ...(sparseCheck === undefined ? {} : {sparseCheck})
   };
+}
+
+/**
+ * Wraps arbitrary markup - a recursed child search widget's array, or a
+ * fixed facet's own controls (`buildLiteralRegexControls`'s output, say) -
+ * in an opt-in "Search on this" checkbox around a disabled `<fieldset>`.
+ * For a facet that's one of *several* independent, individually-optional
+ * constraints within a parent widget (array/set/tuple/filelist's element
+ * match(es); map/record's key/value; `fileSearchType.js`'s name/content-
+ * type), this keeps that facet's own `required` controls (if it has any)
+ * from forcing the *whole* form invalid just by the facet existing -
+ * generalizes `objectSearchType.js`'s original required-property row (see
+ * that file's history) into a shared helper once enough call sites needed
+ * the identical checkbox+fieldset shape.
+ *
+ * `key` distinguishes multiple opt-in fieldsets *within one widget* (e.g.
+ * `mapSearchType.js`'s "key" and "value"); see `buildRangeInputsPair`'s doc
+ * for why. Leave it at the default `''` for a widget with only one.
+ *
+ * Call `wireOptInFieldset` once, right after this is built into real DOM
+ * (e.g. inside a `jml(...)` caller, same as `objectSearchType.js`'s rows
+ * do), to actually connect the checkbox to the fieldset's `disabled` state -
+ * this function only builds the static markup (default unchecked/disabled).
+ * @param {{
+ *   name: string, key?: string, label: string, children: JamilihArray[]
+ * }} cfg
+ * @returns {JamilihArray[]}
+ */
+export function buildOptInFieldset ({name, key = '', label, children}) {
+  return [
+    ['label', [
+      `${label}: `,
+      ['input', {type: 'checkbox', name, class: `jsoeSearchOptIn--${key}`}]
+    ]],
+    ['fieldset', {disabled: true, class: `jsoeSearchOptInFieldset--${key}`}, children]
+  ];
+}
+
+/**
+ * Reads back a `buildOptInFieldset`'s checkbox - pass the same `key` it was
+ * built with.
+ * @param {Element} root
+ * @param {string} [key]
+ * @returns {boolean}
+ */
+export function readOptInChecked (root, key = '') {
+  return Boolean(/** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(root, `input.jsoeSearchOptIn--${key}`)
+  )?.checked);
+}
+
+/**
+ * Connects a `buildOptInFieldset`'s checkbox to toggle its own fieldset's
+ * `disabled` state - call once, synchronously, right after both are live
+ * DOM nodes (see that function's doc). Pass the same `key` it was built
+ * with.
+ * @param {Element} root
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function wireOptInFieldset (root, key = '') {
+  const checkbox = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(root, `input.jsoeSearchOptIn--${key}`)
+  );
+  const fieldset = /** @type {HTMLFieldSetElement|undefined} */ (
+    findOwnControl(root, `fieldset.jsoeSearchOptInFieldset--${key}`)
+  );
+  checkbox?.addEventListener('change', () => {
+    if (fieldset) {
+      fieldset.disabled = !checkbox.checked;
+    }
+  });
+}
+
+/**
+ * A visually-hidden but still-rendered (and so still constraint-validation-
+ * eligible - see `jsoe.css`'s `.searchAtLeastOneSentinel`, the same
+ * "visually-hidden" pattern used for accessibility, which keeps an element
+ * off-screen without `display: none`/`hidden` triggering the Constraint
+ * Validation API's own "not rendered" exemption) sentinel control, for a
+ * widget with several independent optional facets where leaving *every one*
+ * unconfigured should be invalid even though no single facet is itself
+ * always required (`mapSearchType.js`/`recordSearchType.js`'s key/value,
+ * `fileSearchType.js`'s name/content-type). Pair with `syncAtLeastOneCheck`.
+ * @returns {JamilihArray}
+ */
+export function buildAtLeastOneSentinel () {
+  return ['input', {
+    type: 'text', class: 'searchAtLeastOneSentinel', tabindex: -1,
+    'aria-hidden': 'true'
+  }];
+}
+
+/**
+ * Sets a `buildAtLeastOneSentinel`'s custom validity from a live check -
+ * call once at `connectedCallback` time for the initial state (a freshly-
+ * built widget has satisfied none of its facets yet) and again whenever a
+ * facet that could change the answer does (an opt-in checkbox toggling, a
+ * recursed child's own `input`/`change`).
+ * @param {Element} root
+ * @param {() => boolean} isSatisfied
+ * @returns {void}
+ */
+export function syncAtLeastOneCheck (root, isSatisfied) {
+  const sentinel = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(root, 'input.searchAtLeastOneSentinel')
+  );
+  sentinel?.setCustomValidity(
+    isSatisfied() ? '' : 'Configure at least one of this widget’s facets.'
+  );
 }

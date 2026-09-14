@@ -1,4 +1,7 @@
-import {buildPathLabel, buildLengthSizeControls, readLengthSizeQuery} from '../searchUtils.js';
+import {
+  buildPathLabel, buildLengthSizeControls, readLengthSizeQuery,
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset
+} from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
@@ -12,7 +15,14 @@ import {buildSearchWidget} from '../searchDispatch.js';
  * recursing into the element schema's own search widget (search plan §6
  * build order) - "the array contains at least one element matching Y",
  * expressed via a `*` path segment (`queryTree.js`) so no dedicated wrapper
- * leaf kind is needed: the two constraints simply combine with `$and`.
+ * leaf kind is needed: the two constraints simply combine with `$and`. The
+ * element match is wrapped in `buildOptInFieldset` (default unchecked/
+ * disabled) so a length/size-only search - or no constraint at all - stays
+ * valid: unlike the length/size inputs (plain, un-`required` numbers), the
+ * recursed element widget can itself carry `required` controls (e.g. a
+ * `string` element's Value), which would otherwise force this whole array
+ * invalid just for existing, whether or not the user actually wants an
+ * element constraint.
  * @type {SearchTypeObject}
  */
 const arraySearchType = {
@@ -36,11 +46,15 @@ const arraySearchType = {
       title: label,
       $define: {
         /** @this {HTMLElement} */
+        connectedCallback () {
+          wireOptInFieldset(this);
+        },
+        /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';
           const lengthLeaf = readLengthSizeQuery(this, searchPath);
           const elementEl = findSearchElement(this, `${searchPath}/*`);
-          const elementLeaf = elementEl && hasGetQuery(elementEl)
+          const elementLeaf = readOptInChecked(this) && elementEl && hasGetQuery(elementEl)
             ? elementEl.getQuery()
             : undefined;
           return combineAnd([lengthLeaf, elementLeaf]);
@@ -54,10 +68,9 @@ const arraySearchType = {
         max: arraySchemaObject.maxLength,
         includeSparse: true
       }),
-      ['div', {class: 'searchArrayElement'}, [
-        ['span', ['Element matches: ']],
-        elementArr
-      ]]
+      ...buildOptInFieldset({
+        name: `${name}-element`, label: 'Element matches', children: [elementArr]
+      })
     ]];
   },
   getQuery: getQueryViaElement

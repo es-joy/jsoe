@@ -1,4 +1,6 @@
-import {buildPathLabel, buildRangeInputsPair, readRangeInputsPair} from '../searchUtils.js';
+import {
+  buildPathLabel, buildRangeInputsPair, readRangeInputsPair, syncRangeValidity
+} from '../searchUtils.js';
 import {makeRangeLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
 
@@ -37,6 +39,10 @@ const bigintSearchType = {
       dataset: {searchPath: path, searchKind: 'bigint'},
       title: label,
       $define: {
+        /** @this {HTMLElement} */
+        connectedCallback () {
+          syncRangeValidity(this);
+        },
         /** @this {HTMLElement} */
         getQuery () {
           const {gte: gteStr, lte: lteStr} = readRangeInputsPair(this);

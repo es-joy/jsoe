@@ -32,7 +32,7 @@ const SpecialRealNumberSearchType = {
     }, [
       ['span', {class: 'searchLabel'}, [label]],
       buildMultiSelect({
-        name, options: ['Infinity', '-Infinity', '-0']
+        name, options: ['Infinity', '-Infinity', '-0'], required: true
       })
     ]];
   },

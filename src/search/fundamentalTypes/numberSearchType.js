@@ -1,4 +1,7 @@
-import {buildPathLabel, buildRangeInputsPair, readRangeInputsPair, buildTriStateSelect, readTriStateSelect} from '../searchUtils.js';
+import {
+  buildPathLabel, buildRangeInputsPair, readRangeInputsPair, buildTriStateSelect,
+  readTriStateSelect, syncRangeValidity
+} from '../searchUtils.js';
 import {makeRangeLeaf, makeIntegerCheckLeaf, combineAnd} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
 
@@ -18,6 +21,10 @@ const numberSearchType = {
       dataset: {searchPath: path, searchKind: 'number'},
       title: label,
       $define: {
+        /** @this {HTMLElement} */
+        connectedCallback () {
+          syncRangeValidity(this);
+        },
         /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';

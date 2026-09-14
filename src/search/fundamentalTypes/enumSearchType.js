@@ -19,6 +19,10 @@ import {getQueryViaElement} from '../searchElementUtils.js';
  * from its values (unlike a plain `z.enum([...])`, where they're the same)
  * still gets a usable widget here, just not that extra key-vs-value mode
  * yet; `values`'s keys are shown alongside their value as a hint.
+ * `buildMultiSelect`'s `required` leaves the whole selection invalid until
+ * at least one value is picked, natively (no build-time-empty gap like
+ * `buildRangeInputsPair`'s custom validity needed a `connectedCallback`
+ * for - `<select multiple required>` is evaluated by the browser itself).
  * @type {SearchTypeObject}
  */
 const enumSearchType = {
@@ -49,7 +53,7 @@ const enumSearchType = {
       }
     }, [
       ['span', {class: 'searchLabel'}, [label]],
-      buildMultiSelect({name, options})
+      buildMultiSelect({name, options, required: true})
     ]];
   },
   getQuery: getQueryViaElement

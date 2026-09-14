@@ -1,7 +1,7 @@
 import {
   buildPathLabel, buildCheckbox, readCheckbox,
   buildLiteralRegexControls, readLiteralRegexQuery,
-  buildRangeInputsPair, readRangeInputsPair,
+  buildRangeInputsPair, readRangeInputsPair, syncRangeValidity,
   buildTriStateSelect, readTriStateSelect
 } from './searchUtils.js';
 import {combineAnd, makeRangeLeaf, makeDomShapeLeaf} from './queryTreeBuilders.js';
@@ -151,6 +151,10 @@ export function makeErrorFamilySearchType ({tagName}) {
         title: label,
         $define: {
           /** @this {HTMLElement} */
+          connectedCallback () {
+            errorNumberProps.forEach((prop) => syncRangeValidity(this, prop));
+          },
+          /** @this {HTMLElement} */
           getQuery () {
             const searchPath = this.dataset.searchPath ?? '';
             const stringLeaves = errorStringProps.map((prop) => (
@@ -245,6 +249,10 @@ export function makeDomShapeSearchType ({
         dataset: {searchPath: path, searchKind: tagName},
         title: label,
         $define: {
+          /** @this {HTMLElement} */
+          connectedCallback () {
+            dimensionKeys.forEach((dim) => syncRangeValidity(this, dim));
+          },
           /** @this {HTMLElement} */
           getQuery () {
             const searchPath = this.dataset.searchPath ?? '';

@@ -1,4 +1,7 @@
-import {buildPathLabel, buildLengthSizeControls, readLengthSizeQuery} from '../searchUtils.js';
+import {
+  buildPathLabel, buildLengthSizeControls, readLengthSizeQuery,
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset
+} from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';

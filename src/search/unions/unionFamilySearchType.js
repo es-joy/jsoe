@@ -110,6 +110,14 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
           ['select', {
             name,
             class: 'jsoeSearchTypeOf',
+            // The "(any)" placeholder's `value: ''` below is exactly what
+            // native `required` treats as "nothing selected", so choosing
+            // any real branch already satisfies it - no custom validity
+            // code needed. A union/xor/discriminatedUnion has no other
+            // possible constraint (unlike `mapSearchType.js`'s key/value or
+            // `objectSearchType.js`'s properties), so this alone is "no
+            // absent values" for the whole widget, not just one facet of it.
+            required: true,
             $on: {
               change () {
                 if (!isSelectElement(this)) {

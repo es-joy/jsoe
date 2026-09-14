@@ -1,4 +1,6 @@
-import {buildPathLabel, buildRangeInputsPair, readRangeInputsPair} from '../searchUtils.js';
+import {
+  buildPathLabel, buildRangeInputsPair, readRangeInputsPair, syncRangeValidity
+} from '../searchUtils.js';
 import {makeRangeLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
 
@@ -24,6 +26,10 @@ const buffersourceSearchType = {
       dataset: {searchPath: path, searchKind: 'buffersource'},
       title: label,
       $define: {
+        /** @this {HTMLElement} */
+        connectedCallback () {
+          syncRangeValidity(this);
+        },
         /** @this {HTMLElement} */
         getQuery () {
           const {gte, lte} = readRangeInputsPair(this);

@@ -321,16 +321,39 @@ video.recordedMedia {
   margin-block-end: 0.2em;
 }
 
-/* `objectSearchType.js`'s required-property row wraps its recursed widget
-   in a `<fieldset disabled>` (native constraint-validation opt-out for the
-   whole subtree, toggled by the row's own "Search on this property"
-   checkbox) purely for that behavior, not for its default border/padding -
-   which would otherwise double up with the child widget's own
-   `[data-search-kind]` box drawn just inside it. */
-fieldset.searchRequiredPropertyFieldset {
+/* `objectSearchType.js`'s required-property row, and `searchUtils.js`'s
+   shared `buildOptInFieldset` (array/set/tuple/filelist's element match(es),
+   map/record's key/value, file's name/content-type), both wrap a recursed
+   widget in a `<fieldset disabled>` (native constraint-validation opt-out
+   for the whole subtree, toggled by an "opt in" checkbox) purely for that
+   behavior, not for its default border/padding - which would otherwise
+   double up with the child widget's own `[data-search-kind]` box drawn just
+   inside it. `[class^=...]` matches `buildOptInFieldset`'s `key`-suffixed
+   class regardless of `key`. */
+fieldset.searchRequiredPropertyFieldset,
+fieldset[class^="jsoeSearchOptInFieldset--"] {
   border: none;
   margin: 0;
   padding: 0;
+}
+
+/* `searchUtils.js`'s `buildAtLeastOneSentinel` - kept off-screen without
+   `display: none`/the `hidden` attribute, which would exempt it from the
+   Constraint Validation API entirely (the same reason `[hidden]` needed a
+   `display: none` override above for `objectSearchType.js`'s "Doesn't
+   have" case, just the opposite problem: there, hiding needed to *win*;
+   here, hiding must *not* affect validity). Standard "visually-hidden"
+   technique - present and rendered, just clipped to nothing. */
+.searchAtLeastOneSentinel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Inline control pairs built by `searchUtils.js` (a "Mode:"/"Value:" pair
