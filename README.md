@@ -161,6 +161,8 @@ Supported supertypes include:
 1. Import CSV as array
 1. **Schema-driven search**
     1. Might allow search on `.cause` and `AggregateError.errors` in the future
+    1. Might allow "Edit as raw" as JSON6 (edit query object directly)
+    1. Need to allow multiple OR'd conditions (e.g., for string) like "matches regex" and "does not contain"
 
     1. Objects: "Has property &lt;property pull-down>" (avoid listing required)
     1. Arrays, Set, FileList, tuple with rest: "Has length/size of &lt;number>"; arrays: "Is/Is not sparse"
