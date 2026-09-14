@@ -1,5 +1,6 @@
 import {buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery} from '../searchUtils.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
+import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -29,7 +30,7 @@ const symbolSearchType = {
       }
     }, [
       ['span', {class: 'searchLabel'}, [`${label} (description)`]],
-      buildLiteralRegexControls({name})
+      buildLiteralRegexControls({name, flagOptions: regexpType.allowedFlags})
     ]];
   },
   getQuery: getQueryViaElement

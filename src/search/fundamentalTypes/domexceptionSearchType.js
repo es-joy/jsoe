@@ -6,6 +6,7 @@ import {
 } from '../searchUtils.js';
 import {makeMultiSelectLeaf, combineAnd} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
+import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -70,7 +71,9 @@ const domexceptionSearchType = {
       ]],
       ...buildOptInFieldset({
         name: `${name}-message`, key: 'message', label: 'Message',
-        children: [buildLiteralRegexControls({name: `${name}-message`, key: 'message'})]
+        children: [buildLiteralRegexControls({
+          name: `${name}-message`, key: 'message', flagOptions: regexpType.allowedFlags
+        })]
       }),
       buildAtLeastOneSentinel()
     ]];

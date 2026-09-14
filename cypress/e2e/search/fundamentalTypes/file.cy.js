@@ -20,6 +20,21 @@ describe('search: file spec', () => {
     });
   });
 
+  it('allows flags on the content-type regex', () => {
+    const propSel = sel + '[data-search-path="#/file"] ';
+    cy.get(propSel + 'input.jsoeSearchOptIn--type').check();
+    cy.get(propSel + 'select.jsoeSearchMode--type').select('regex');
+    cy.get(propSel + 'input.jsoeSearchValue--type').type('^application/pdf$');
+    cy.get(propSel + 'select.jsoeSearchRegexFlags--type').should('be.visible').select(['i']);
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'regex', path: '#/file/type', $regex: '^application/pdf$', $options: 'i'
+      });
+    });
+  });
+
   it('combines a name literal with a content-type regex', () => {
     const propSel = sel + '[data-search-path="#/file"] ';
     cy.get(propSel + 'input.jsoeSearchOptIn--name').check();

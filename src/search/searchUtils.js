@@ -64,10 +64,23 @@ export function findOwnControl (root, selector) {
  * (`syncRangeValidity`, `dateSearchType.js`'s own equivalent) - clearing it
  * once wouldn't stick past the next keystroke, so those call this directly,
  * live, instead.
+ *
+ * Returns `false` (not exempted) when `el` also sits inside a
+ * `buildOptInFieldset` fieldset (`jsoeSearchOptInFieldset--*`), for the same
+ * reason `setDescendantsRequired` skips those controls: a dimension range
+ * nested in `makeDomShapeSearchType`'s per-dimension opt-in gate (say,
+ * DOMRect's "Width") is only reachable at all once its own checkbox is
+ * checked, and checking it is itself the user's explicit request to
+ * constrain *that* facet - an enclosing "Has property" shouldn't then let
+ * its "From"/"To" sit blank and still read as valid, any more than
+ * `fileSearchType.js`'s "Name" facet should once opted into.
  * @param {Element} el
  * @returns {boolean}
  */
 export function isExemptedByAncestorHasProperty (el) {
+  if (el.closest('fieldset[class^="jsoeSearchOptInFieldset--"]')) {
+    return false;
+  }
   const row = el.closest('jsoe-search-has-property');
   if (!row) {
     return false;
@@ -646,7 +659,7 @@ export function readLengthSizeQuery (el, path) {
  */
 export function buildOptInFieldset ({name, key = '', label, children}) {
   return [
-    ['label', [
+    ['label', {class: 'jsoeSearchOptInLabel'}, [
       `${label}: `,
       ['input', {type: 'checkbox', name: `${name}-optIn`, class: `jsoeSearchOptIn--${key}`}]
     ]],
@@ -803,6 +816,17 @@ export function resyncAtLeastOne (root) {
  * `required` content attribute entirely (standard boolean-attribute
  * reflection), so a later call to restore it can't rely on `[required]`
  * still matching that element; it looks for the marker instead.
+ *
+ * Skips any control inside a `buildOptInFieldset` fieldset
+ * (`jsoeSearchOptInFieldset--*`): that facet already has its own gate on
+ * whether it applies at all (the checkbox's `disabled` toggle exempts it
+ * from constraint validation while unchecked), so an enclosing "Has
+ * property" shouldn't also strip its `required` - a user who explicitly
+ * opts into e.g. `fileSearchType.js`'s "Name" facet under a "Has property"
+ * ancestor still needs to fill in the Value it requires, or uncheck "Name"
+ * again; only the widget's own `buildAtLeastOneSentinel` (which *is*
+ * exempted, via `isExemptedByAncestorHasProperty`) should be satisfied by
+ * "Has property" alone.
  * @param {Element} root
  * @param {boolean} required
  * @returns {void}
@@ -810,6 +834,9 @@ export function resyncAtLeastOne (root) {
 export function setDescendantsRequired (root, required) {
   const selector = required ? '[data-jsoe-was-required]' : '[required]';
   [...root.querySelectorAll(selector)].forEach((el) => {
+    if (el.closest('fieldset[class^="jsoeSearchOptInFieldset--"]')) {
+      return;
+    }
     if (!required) {
       /** @type {HTMLElement} */ (el).dataset.jsoeWasRequired = 'true';
     }

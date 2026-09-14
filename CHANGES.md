@@ -2,6 +2,8 @@
 
 ## 0.30.0
 
+- feat(search): assorted validation fixes
+- feat(search): styling
 - feat(regexp): support `d` flag
 
 ## 0.29.0

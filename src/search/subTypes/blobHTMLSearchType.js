@@ -1,4 +1,6 @@
-import {buildPathLabel, findOwnControl} from '../searchUtils.js';
+import {
+  buildPathLabel, findOwnControl, isExemptedByAncestorHasProperty
+} from '../searchUtils.js';
 import {makeBlobHTMLLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
 
@@ -22,6 +24,17 @@ import {getQueryViaElement} from '../searchElementUtils.js';
  * `change` handler): a `required` field that's merely hidden, rather than
  * also un-required, still blocks the form's validity even though the user
  * has no way to see or fill it.
+ *
+ * The `change` handler also checks `isExemptedByAncestorHasProperty` before
+ * (re-)asserting `required` on the now-visible control: nested as an
+ * optional object property's own child widget, an enclosing "Has property"
+ * already provides a complete constraint on its own (the same relief
+ * `setDescendantsRequired` gives other `required`-attribute controls), but
+ * that relief is a one-time toggle applied *before* `revalidateDescendants`
+ * re-dispatches a synthetic `change` on this very `<select>` - without this
+ * check, that synthetic event would immediately reassert `required` on
+ * whichever control the current mode makes visible, undoing the exemption
+ * `setDescendantsRequired` had just granted.
  * @type {SearchTypeObject}
  */
 const blobHTMLSearchType = {
@@ -72,13 +85,15 @@ const blobHTMLSearchType = {
               );
               const isFullText = /** @type {HTMLSelectElement} */ (this).value ===
                 'fullText';
+              const exempted = container !== null &&
+                isExemptedByAncestorHasProperty(container);
               if (input) {
                 input.hidden = isFullText;
-                input.required = !isFullText;
+                input.required = !isFullText && !exempted;
               }
               if (textarea) {
                 textarea.hidden = !isFullText;
-                textarea.required = isFullText;
+                textarea.required = isFullText && !exempted;
               }
             }
           }

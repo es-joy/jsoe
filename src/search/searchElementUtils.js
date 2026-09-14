@@ -7,6 +7,7 @@ import {
   buildAtLeastOneSentinel, syncAtLeastOneCheck
 } from './searchUtils.js';
 import {combineAnd, makeRangeLeaf, makeDomShapeLeaf} from './queryTreeBuilders.js';
+import regexpType from '../fundamentalTypes/regexpType.js';
 
 /**
  * Locates a built search element by the JSON-Pointer path it was built for.
@@ -124,7 +125,9 @@ function buildErrorFamilyChildren ({label, name}) {
   errorStringProps.forEach((prop) => {
     children.push(...buildOptInFieldset({
       name: `${name}-${prop}`, key: prop, label: prop,
-      children: [buildLiteralRegexControls({name: `${name}-${prop}`, key: prop})]
+      children: [buildLiteralRegexControls({
+        name: `${name}-${prop}`, key: prop, flagOptions: regexpType.allowedFlags
+      })]
     }));
   });
   errorNumberProps.forEach((prop) => {

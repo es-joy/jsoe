@@ -1,5 +1,6 @@
 import {buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery} from '../searchUtils.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
+import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -32,7 +33,7 @@ const blobSearchType = {
       }
     }, [
       ['span', {class: 'searchLabel'}, [`${label} (MIME type)`]],
-      buildLiteralRegexControls({name})
+      buildLiteralRegexControls({name, flagOptions: regexpType.allowedFlags})
     ]];
   },
   getQuery: getQueryViaElement

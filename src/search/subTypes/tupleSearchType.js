@@ -1,6 +1,7 @@
 import {
   buildPathLabel, buildLengthSizeControls, readLengthSizeQuery,
-  buildOptInFieldset, readOptInChecked, wireOptInFieldset
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset,
+  buildAtLeastOneSentinel, syncAtLeastOneCheck
 } from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
@@ -9,6 +10,21 @@ import {buildSearchWidget} from '../searchDispatch.js';
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
  */
+
+/**
+ * @param {Element} root - a `jsoe-search-tuple` element
+ * @returns {void}
+ */
+function syncTupleValidity (root) {
+  const itemCount = Number(/** @type {HTMLElement} */ (root).dataset.itemCount ?? '0');
+  const hasRest = /** @type {HTMLElement} */ (root).dataset.hasRest === 'true';
+  syncAtLeastOneCheck(root, () => (
+    Array.from({length: itemCount}, (_, idx) => String(idx)).some(
+      (key) => readOptInChecked(root, key)
+    ) ||
+    (hasRest && (readOptInChecked(root, 'rest') || readLengthSizeQuery(root, '') !== undefined))
+  ));
+}
 
 /**
  * Each fixed position gets its own control from `.items[i]`, not one
@@ -22,6 +38,9 @@ import {buildSearchWidget} from '../searchDispatch.js';
  * items.length`, no sparse toggle - not applicable to a tuple), and the
  * `rest` element itself recurses into its own search widget under the same
  * `*` path-segment convention `arraySearchType.js` uses for its element.
+ * Leaving every position, the rest element, and (when present) the length
+ * unconfigured at once is invalid (`buildAtLeastOneSentinel`), the same as
+ * `arraySearchType.js`/`setSearchType.js`/`filelistSearchType.js`.
  * @type {SearchTypeObject}
  */
 const tupleSearchType = {
@@ -74,6 +93,7 @@ const tupleSearchType = {
         })
       );
     }
+    children.push(buildAtLeastOneSentinel());
 
     return ['jsoe-search-tuple', {
       dataset: {
@@ -91,11 +111,15 @@ const tupleSearchType = {
         connectedCallback () {
           const itemCount = Number(this.dataset.itemCount ?? '0');
           Array.from({length: itemCount}, (_, idx) => String(idx)).forEach(
-            (key) => wireOptInFieldset(this, key)
+            (key) => wireOptInFieldset(this, key, () => syncTupleValidity(this))
           );
           if (this.dataset.hasRest === 'true') {
-            wireOptInFieldset(this, 'rest');
+            wireOptInFieldset(this, 'rest', () => syncTupleValidity(this));
+            this.querySelector('input.jsoeSearchSize')?.addEventListener(
+              'input', () => syncTupleValidity(this)
+            );
           }
+          syncTupleValidity(this);
         },
         /** @this {HTMLElement} */
         getQuery () {

@@ -337,6 +337,17 @@ fieldset[class^="jsoeSearchOptInFieldset--"] {
   padding: 0;
 }
 
+/* `buildOptInFieldset`'s own "Key matches"/"Element matches"/etc. checkbox
+   label - `[data-search-kind] label`'s `margin-inline-end` above is meant
+   for short *inline* control pairs sharing one line (a "From:"/"To:"
+   pair), not a facet-toggling label like this one, which reads better
+   started on its own line rather than run together with whatever came
+   before it (an adjacent length/size control, another facet's own label,
+   etc). */
+[data-search-kind] .jsoeSearchOptInLabel {
+  display: block;
+}
+
 /* `searchUtils.js`'s `buildAtLeastOneSentinel` - kept off-screen without
    `display: none`/the `hidden` attribute, which would exempt it from the
    Constraint Validation API entirely (the same reason `[hidden]` needed a

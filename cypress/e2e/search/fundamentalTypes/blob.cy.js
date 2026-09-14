@@ -19,4 +19,18 @@ describe('search: blob spec', () => {
       });
     });
   });
+
+  it('allows flags once "Matches regex" is chosen', () => {
+    const propSel = sel + '[data-search-path="#/blob"] ';
+    cy.get(propSel + 'select[name$="-mode"]').select('regex');
+    cy.get(propSel + 'input[name$="-value"]').type('^image/');
+    cy.get(propSel + 'select.jsoeSearchRegexFlags--').should('be.visible').select(['i']);
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'regex', path: '#/blob', $regex: '^image/', $options: 'i'
+      });
+    });
+  });
 });

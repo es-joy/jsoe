@@ -205,6 +205,41 @@ describe('search: form validity', () => {
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
 
+  it('is valid for a map with just a size, without choosing key or value matches', () => {
+    cy.get(sel + 'select.addPropertySelect').select('map');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    const mapSel = sel + 'jsoe-search-map[data-search-path="#/map"] ';
+    cy.get(mapSel + 'input[name$="-size"]').type('4');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(mapSel + 'input[name$="-size"]').clear();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+  });
+
+  it('is invalid with no position/rest/length chosen for a tuple-with-rest, valid with any one alone', () => {
+    const tupleSel = '#section-tupleRest ';
+    cy.get(tupleSel + '.checkValidityButton').click();
+    cy.get(tupleSel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(tupleSel + 'input.jsoeSearchOptIn--0').check();
+    cy.get(tupleSel + '[data-search-path="#/0"] input[name$="-value"]').type('abc');
+    cy.get(tupleSel + '.checkValidityButton').click();
+    cy.get(tupleSel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(tupleSel + 'input.jsoeSearchOptIn--0').uncheck();
+    cy.get(tupleSel + '.checkValidityButton').click();
+    cy.get(tupleSel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(tupleSel + 'input[name$="-size"]').type('5');
+    cy.get(tupleSel + '.checkValidityButton').click();
+    cy.get(tupleSel + '.validityResult').should('have.text', 'Valid');
+  });
+
   it('is valid when "Has property" is chosen for an array-typed property, even with neither length/size nor an element match', () => {
     cy.get(sel + 'select.addPropertySelect').select('array');
     cy.get(sel + 'button').contains('Add').click();
@@ -231,6 +266,75 @@ describe('search: form validity', () => {
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
     cy.get(sel + 'select[name$="-hasProperty-object"]').select('');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+  });
+
+  it('is valid when "Has property" is chosen for a file-typed property, but opting into "Name" still requires its own Value', () => {
+    cy.get(sel + 'select.addPropertySelect').select('file');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(sel + 'select[name$="-hasProperty-file"]').select('true');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    const fileSel = sel + 'jsoe-search-file[data-search-path="#/file"] ';
+    cy.get(fileSel + 'input.jsoeSearchOptIn--name').check();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(fileSel + 'input.jsoeSearchValue--name').type('report.pdf');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(fileSel + 'input.jsoeSearchOptIn--name').uncheck();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+  });
+
+  it('is valid when "Has property" is chosen for a domrect-typed property, but opting into a dimension still requires its own range bound', () => {
+    cy.get(sel + 'select.addPropertySelect').select('domrect');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(sel + 'select[name$="-hasProperty-domrect"]').select('true');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    const domrectSel = sel + 'jsoe-search-domrect[data-search-path="#/domrect"] ';
+    cy.get(domrectSel + 'input.jsoeSearchOptIn--x').check();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(domrectSel + 'input.jsoeSearchRangeGte--x').type('5');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(domrectSel + 'input.jsoeSearchRangeGte--x').clear();
+    cy.get(domrectSel + 'input.jsoeSearchOptIn--x').uncheck();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+  });
+
+  it('is valid when "Has property" is chosen for a blobHTML-typed property, and stays valid across a mode switch', () => {
+    cy.get(sel + 'select.addPropertySelect').select('blobHTML');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(sel + 'select[name$="-hasProperty-blobHTML"]').select('true');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    const blobHTMLSel = sel + 'jsoe-search-blob-html[data-search-path="#/blobHTML"] ';
+    cy.get(blobHTMLSel + 'select.jsoeSearchBlobHTMLMode').select('fullText');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(sel + 'select[name$="-hasProperty-blobHTML"]').select('');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
   });

@@ -12,12 +12,13 @@ import {buildSearchWidget} from '../searchDispatch.js';
  */
 
 /**
- * @param {Element} root - a `jsoe-search-map`/`jsoe-search-record` element
+ * @param {Element} root - a `jsoe-search-map` element
  * @returns {void}
  */
-function syncKeyValueValidity (root) {
+function syncMapValidity (root) {
   syncAtLeastOneCheck(
-    root, () => readOptInChecked(root, 'key') || readOptInChecked(root, 'value')
+    root, () => readOptInChecked(root, 'key') || readOptInChecked(root, 'value') ||
+      readLengthSizeQuery(root, '') !== undefined
   );
 }
 
@@ -31,10 +32,12 @@ function syncKeyValueValidity (root) {
  * affordance `setSearchType.js` gets for the analogous reason), combined
  * with the joint leaf via `$and`. Key and value are each wrapped in their
  * own `buildOptInFieldset` (so leaving either at "no constraint" doesn't
- * force it via a `required` control inside), but *leaving both* unopted-in
- * is itself invalid via `buildAtLeastOneSentinel` - unlike array/set/tuple's
- * element match(es), a map/record has no independent length/size-only
- * alternative that would still mean something on its own here.
+ * force it via a `required` control inside), but *leaving all three*
+ * (key, value, and size) unconfigured is itself invalid via
+ * `buildAtLeastOneSentinel` - unlike `recordSearchType.js` (which has no
+ * size control of its own and so needs key or value specifically), a
+ * length/size-only search is already meaningful here, the same as
+ * `arraySearchType.js`/`setSearchType.js`.
  * @type {SearchTypeObject}
  */
 const mapSearchType = {
@@ -68,9 +71,12 @@ const mapSearchType = {
       $define: {
         /** @this {HTMLElement} */
         connectedCallback () {
-          wireOptInFieldset(this, 'key', () => syncKeyValueValidity(this));
-          wireOptInFieldset(this, 'value', () => syncKeyValueValidity(this));
-          syncKeyValueValidity(this);
+          wireOptInFieldset(this, 'key', () => syncMapValidity(this));
+          wireOptInFieldset(this, 'value', () => syncMapValidity(this));
+          this.querySelector('input.jsoeSearchSize')?.addEventListener(
+            'input', () => syncMapValidity(this)
+          );
+          syncMapValidity(this);
         },
         /** @this {HTMLElement} */
         getQuery () {

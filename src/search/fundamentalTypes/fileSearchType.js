@@ -5,6 +5,7 @@ import {
 } from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
+import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -74,11 +75,15 @@ const fileSearchType = {
       ['span', {class: 'searchLabel'}, [label]],
       ...buildOptInFieldset({
         name: `${name}-name`, key: 'name', label: 'Name',
-        children: [buildLiteralRegexControls({name: `${name}-name`, key: 'name'})]
+        children: [buildLiteralRegexControls({
+          name: `${name}-name`, key: 'name', flagOptions: regexpType.allowedFlags
+        })]
       }),
       ...buildOptInFieldset({
         name: `${name}-type`, key: 'type', label: 'Content type',
-        children: [buildLiteralRegexControls({name: `${name}-type`, key: 'type'})]
+        children: [buildLiteralRegexControls({
+          name: `${name}-type`, key: 'type', flagOptions: regexpType.allowedFlags
+        })]
       }),
       buildAtLeastOneSentinel()
     ]];
