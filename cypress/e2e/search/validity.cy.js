@@ -205,6 +205,36 @@ describe('search: form validity', () => {
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
 
+  it('is valid when "Has property" is chosen for an array-typed property, even with neither length/size nor an element match', () => {
+    cy.get(sel + 'select.addPropertySelect').select('array');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(sel + 'select[name$="-hasProperty-array"]').select('true');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(sel + 'select[name$="-hasProperty-array"]').select('');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+  });
+
+  it('is valid when "Has property" is chosen for an object-typed property, even with no property added inside it', () => {
+    cy.get(sel + 'select.addPropertySelect').select('object');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(sel + 'select[name$="-hasProperty-object"]').select('true');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(sel + 'select[name$="-hasProperty-object"]').select('');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+  });
+
   it('requires the currently-visible blobHTML value control only, valid once filled', () => {
     cy.get(sel + 'select.addPropertySelect').select('blobHTML');
     cy.get(sel + 'button').contains('Add').click();

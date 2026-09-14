@@ -25,4 +25,8 @@ describe('search: array spec', () => {
       });
     });
   });
+
+  it('floors the size input at 0 even though the schema declares no minLength', () => {
+    cy.get(sel + 'jsoe-search-array input[name$="-size"]').should('have.attr', 'min', '0');
+  });
 });

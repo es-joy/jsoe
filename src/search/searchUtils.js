@@ -718,22 +718,66 @@ export function buildAtLeastOneSentinel () {
 }
 
 /**
+ * @type {WeakMap<Element, () => void>}
+ */
+const atLeastOneResyncs = new WeakMap();
+
+/**
  * Sets a `buildAtLeastOneSentinel`'s custom validity from a live check -
  * call once at `connectedCallback` time for the initial state (a freshly-
  * built widget has satisfied none of its facets yet) and again whenever a
  * facet that could change the answer does (an opt-in checkbox toggling, a
  * recursed child's own `input`/`change`).
+ *
+ * Also relaxed, independently of `isSatisfied`, while
+ * `isExemptedByAncestorHasProperty` says an enclosing
+ * `objectSearchType.js` has-property row's own "Has"/"Doesn't have"
+ * already provides a complete constraint - the same relief
+ * `syncRangeValidity` and `dateSearchType.js`'s own range validator give
+ * their "at least one bound" rule, needed here too since a has-property
+ * row's own child could just as easily be an `array`/`map`/`file`/etc.
+ * whose *own* sole constraint is this same "at least one facet" sentinel
+ * rather than a plain `required` attribute or a range pair.
+ *
+ * Every call re-registers `isSatisfied` (keyed by `root` in a `WeakMap`, so
+ * it never leaks past the element's own lifetime) for `resyncAtLeastOne` to
+ * call later. This exists because not every "at least one" widget's own
+ * answer changes via a plain `input`/`change` event - `objectSearchType.js`
+ * itself is the reason: its sentinel changes when a row is added/removed
+ * (a button click, and a structural DOM change, not a value change on any
+ * control), which `revalidateDescendants`' blanket event-redispatch can
+ * never reach, unlike `array`/`map`/etc.'s own opt-in checkboxes and size
+ * inputs. `objectSearchType.js`'s `buildHasPropertyRow` calls
+ * `resyncAtLeastOne` directly instead, precisely because it can't rely on
+ * redispatched events reaching every possible child type.
  * @param {Element} root
  * @param {() => boolean} isSatisfied
  * @returns {void}
  */
 export function syncAtLeastOneCheck (root, isSatisfied) {
+  atLeastOneResyncs.set(root, () => syncAtLeastOneCheck(root, isSatisfied));
   const sentinel = /** @type {HTMLInputElement|undefined} */ (
     findOwnControl(root, 'input.searchAtLeastOneSentinel')
   );
   sentinel?.setCustomValidity(
-    isSatisfied() ? '' : 'Configure at least one of this widget’s facets.'
+    isSatisfied() || isExemptedByAncestorHasProperty(root)
+      ? ''
+      : 'Configure at least one of this widget’s facets.'
   );
+}
+
+/**
+ * Re-runs every `syncAtLeastOneCheck` registered anywhere within `root`
+ * (itself included) - see that function's doc for why this exists
+ * alongside `revalidateDescendants` rather than relying on it alone.
+ * @param {Element} root
+ * @returns {void}
+ */
+export function resyncAtLeastOne (root) {
+  atLeastOneResyncs.get(root)?.();
+  [...root.querySelectorAll('[data-search-path]')].forEach((el) => {
+    atLeastOneResyncs.get(el)?.();
+  });
 }
 
 /**

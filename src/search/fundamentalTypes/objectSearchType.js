@@ -3,7 +3,7 @@ import {escapeJSONPointer} from '../../utils/jsonPointer.js';
 import {
   buildPathLabel, buildHasPropertyToggle, readTriStateSelect, findOwnControl,
   buildCheckbox, readCheckbox, buildAtLeastOneSentinel, syncAtLeastOneCheck,
-  setDescendantsRequired, revalidateDescendants
+  setDescendantsRequired, revalidateDescendants, resyncAtLeastOne
 } from '../searchUtils.js';
 import {combineAnd, makeHasPropertyLeaf} from '../queryTreeBuilders.js';
 import {
@@ -154,6 +154,14 @@ function buildHasPropertyRow ({
   // state - a range pair's `isExemptedByAncestorHasProperty` check
   // (`searchUtils.js`) only takes effect once something re-runs it, which
   // otherwise wouldn't happen until the user next touches that field.
+  // `resyncAtLeastOne` covers the same gap for a child that's itself an
+  // `object`/`array`/`map`/etc. with its own "at least one facet" sentinel
+  // (`buildAtLeastOneSentinel`) - `revalidateDescendants`' event-redispatch
+  // reaches `array`/`map`/etc. fine (their own answer changes via a plain
+  // `input`/`change` on a real control), but not `objectSearchType.js`
+  // itself, whose sentinel changes when a row is added/removed - a button
+  // click and a structural DOM change, neither of which redispatching
+  // `input`/`change` events can simulate.
   const syncChildState = () => {
     if (!childRoot) {
       return;
@@ -161,6 +169,7 @@ function buildHasPropertyRow ({
     childRoot.hidden = select?.value === 'false';
     setDescendantsRequired(childRoot, select?.value === '');
     revalidateDescendants(childRoot);
+    resyncAtLeastOne(childRoot);
   };
   select?.addEventListener('change', syncChildState);
   syncChildState();
