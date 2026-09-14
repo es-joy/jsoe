@@ -15,6 +15,9 @@
   correctly serves records from more than one store); omitted, the built
   controls simply infer type choices from the value alone, as
   `getControlsForFormatAndValue` already does without a schema.
+- feat: also ships with experimental `buildSearchChoices` API,
+  but this is not yet ready (still needs appropriate styling and
+  verification).
 
 ## 0.28.2
 
