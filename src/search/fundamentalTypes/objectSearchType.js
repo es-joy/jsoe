@@ -1,6 +1,8 @@
 import {jml} from '../../vendor-imports.js';
 import {escapeJSONPointer} from '../../utils/jsonPointer.js';
-import {buildPathLabel, buildHasPropertyToggle, readTriStateSelect} from '../searchUtils.js';
+import {
+  buildPathLabel, buildHasPropertyToggle, readTriStateSelect, findOwnControl
+} from '../searchUtils.js';
 import {combineAnd, makeHasPropertyLeaf} from '../queryTreeBuilders.js';
 import {
   findSearchElement, getQueryViaElement, hasGetQuery
@@ -25,12 +27,14 @@ import {buildSearchWidget} from '../searchDispatch.js';
  *   typeNamespace: string|undefined,
  *   topRoot: import('../../types.js').RootElement|undefined,
  *   types: import('../../types.js').default|undefined,
- *   originalJSON: import('../../formats/schema.js').ZodexSchema|undefined
+ *   originalJSON: import('../../formats/schema.js').ZodexSchema|undefined,
+ *   addPropertySelect: HTMLSelectElement
  * }} cfg
  * @returns {HTMLElement}
  */
 function buildHasPropertyRow ({
-  propertyName, propSchema, path, typeNamespace, topRoot, types, originalJSON
+  propertyName, propSchema, path, typeNamespace, topRoot, types, originalJSON,
+  addPropertySelect
 }) {
   const childPath = `${path}/${escapeJSONPointer(propertyName)}`;
   const name = `${typeNamespace}-hasProperty-${propertyName}`;
@@ -38,7 +42,7 @@ function buildHasPropertyRow ({
     schemaObject: propSchema, path: childPath, typeNamespace, topRoot, types,
     originalJSON
   });
-  return /** @type {HTMLElement} */ (jml('jsoe-search-has-property', {
+  const row = /** @type {HTMLElement} */ (jml('jsoe-search-has-property', {
     dataset: {searchPath: childPath, searchKind: 'hasProperty', propertyName},
     $define: {
       // Reads `childPath` off `this.dataset` rather than closing over the
@@ -65,8 +69,48 @@ function buildHasPropertyRow ({
     }
   }, [
     buildHasPropertyToggle({name, propertyName}),
+    ['button', {
+      type: 'button',
+      class: 'removePropertyButton',
+      $on: {
+        // `row`/`addPropertySelect`/`propertyName` are all closed over
+        // directly - safe since `buildHasPropertyRow` (unlike `$define`)
+        // runs fresh per row, so nothing here is shared across instances.
+        click () {
+          const option = /** @type {HTMLOptionElement|null} */ (
+            addPropertySelect.querySelector(
+              `option[value="${CSS.escape(propertyName)}"]`
+            )
+          );
+          if (option) {
+            option.disabled = false;
+          }
+          row.remove();
+        }
+      }
+    }, ['Remove']],
     childArr
   ]));
+
+  // Asserting the property is absent ("Doesn't have") makes a value
+  // constraint on it meaningless, so hide the recursed child widget while
+  // that's selected rather than leaving it showing (and usable) alongside a
+  // contradictory "doesn't have" answer - `buildUI` runs fresh per row, so
+  // (unlike `$define`) it's safe for this listener to close over `select`/
+  // `childRoot` directly.
+  const select = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(row, 'select.jsoeSearchTriState--')
+  );
+  const childRoot = findSearchElement(row, childPath);
+  const syncChildVisibility = () => {
+    if (childRoot) {
+      childRoot.hidden = select?.value === 'false';
+    }
+  };
+  select?.addEventListener('change', syncChildVisibility);
+  syncChildVisibility();
+
+  return row;
 }
 
 /**
@@ -74,10 +118,14 @@ function buildHasPropertyRow ({
  * optional properties are offered ("avoid listing required" - a required
  * property is guaranteed present, so asking about its existence is
  * meaningless), and picking one from the pull-down adds a row for it
- * (removed from the pull-down so it can't be added twice); there is no
- * remove affordance, since setting a row's toggle back to "(any)" already
- * expresses "no constraint from this row" for the existence half, same as
- * clearing the nested widget does for the value half.
+ * (disabled in the pull-down, rather than removed, so it can't be added a
+ * second time while its row exists). Each row's own "Remove" button
+ * discards the row and re-enables its property in the pull-down, for
+ * undoing an added-by-mistake property - a coarser-grained option than
+ * setting the row's toggle back to "(any)" (which already expresses "no
+ * constraint from this row" without removing it). A required property gets
+ * no pull-down entry or toggle at all - its own value-match widget is just
+ * always shown, since its existence is never in question.
  * @type {SearchTypeObject}
  */
 const objectSearchType = {
@@ -86,9 +134,31 @@ const objectSearchType = {
     const objectSchemaObject = /** @type {import('zodexy').SzObject} */ (
       schemaObject
     );
-    const availableProperties = Object.entries(
-      objectSchemaObject.properties
-    ).filter(([, propSchema]) => propSchema.isOptional === true);
+    const propertyEntries = Object.entries(objectSchemaObject.properties);
+    const availableProperties = propertyEntries.filter(
+      ([, propSchema]) => propSchema.isOptional === true
+    );
+    // A required property is guaranteed present, so a has/doesn't-have
+    // toggle would be meaningless for it (same reasoning `availableProperties`
+    // already uses to leave it out of the "Add property" pull-down) - it
+    // still needs its own value-match widget, though, just always shown
+    // rather than added on demand. `buildSearchWidget` is used directly
+    // (not `buildHasPropertyRow`) since there is no existence toggle to
+    // combine it with - the child widget's own `getQuery` is exactly the
+    // row's query.
+    const requiredProperties = propertyEntries.filter(
+      ([, propSchema]) => propSchema.isOptional !== true
+    );
+    const requiredArr = requiredProperties.map(([propertyName, propSchema]) => (
+      buildSearchWidget({
+        schemaObject: propSchema,
+        path: `${path}/${escapeJSONPointer(propertyName)}`,
+        typeNamespace,
+        topRoot,
+        types,
+        originalJSON
+      })
+    ));
 
     return ['jsoe-search-object', {
       dataset: {searchPath: path, searchKind: 'object'},
@@ -129,17 +199,23 @@ const objectSearchType = {
               const propSchema = objectSchemaObject.properties[propertyName];
               const row = buildHasPropertyRow({
                 propertyName, propSchema, path, typeNamespace, topRoot, types,
-                originalJSON
+                originalJSON, addPropertySelect: select
               });
               container.append(row);
-              const option = select.querySelector(
-                `option[value="${CSS.escape(propertyName)}"]`
+              const option = /** @type {HTMLOptionElement|null} */ (
+                select.querySelector(
+                  `option[value="${CSS.escape(propertyName)}"]`
+                )
               );
-              option?.remove();
+              if (option) {
+                option.disabled = true;
+              }
+              select.value = '';
             }
           }
         }, ['Add']]
-      ]]
+      ]],
+      ...requiredArr
     ]];
   },
   getQuery: getQueryViaElement

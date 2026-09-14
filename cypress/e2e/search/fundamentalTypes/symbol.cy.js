@@ -8,7 +8,8 @@ describe('search: symbol spec', () => {
   });
 
   it('gets a literalSet query against the description', () => {
-    cy.get(sel + 'input[name$="-value"]').type('mySymbol');
+    const propSel = sel + '[data-search-path="#/symbol"] ';
+    cy.get(propSel + 'input[name$="-value"]').type('mySymbol');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());

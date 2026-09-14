@@ -8,7 +8,8 @@ describe('search: string spec', () => {
   });
 
   it('gets a literalSet query by default', () => {
-    cy.get(sel + 'input[name$="-value"]').type('abc, def');
+    const propSel = sel + '[data-search-path="#/string"] ';
+    cy.get(propSel + 'input[name$="-value"]').type('abc, def');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());
@@ -19,8 +20,9 @@ describe('search: string spec', () => {
   });
 
   it('gets a regex query when that mode is selected', () => {
-    cy.get(sel + 'select[name$="-mode"]').select('regex');
-    cy.get(sel + 'input[name$="-value"]').type('^abc$');
+    const propSel = sel + '[data-search-path="#/string"] ';
+    cy.get(propSel + 'select[name$="-mode"]').select('regex');
+    cy.get(propSel + 'input[name$="-value"]').type('^abc$');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());

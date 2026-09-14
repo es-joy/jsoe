@@ -285,6 +285,20 @@ video.recordedMedia {
   padding: 0.3em 0.6em 0.4em;
   border: 1px solid #ccc;
   border-radius: 4px;
+  /* Reset explicitly rather than relying on inheriting the page default:
+     a light-background kind (e.g. `tuple`'s "args" widget nested inside a
+     dark-background `function`) would otherwise inherit that ancestor's
+     `color: white` and become unreadable against its own light
+     background. */
+  color: #000;
+}
+
+/* `objectSearchType.js` hides a "Doesn't have" property's own recursed
+   widget via the native `hidden` attribute - restore its effect, since the
+   unconditional `display: block` above (an author rule) would otherwise
+   beat the browser's default `[hidden] { display: none }` UA rule. */
+[data-search-kind][hidden] {
+  display: none;
 }
 
 [data-search-kind] > .searchLabel {

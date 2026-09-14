@@ -8,8 +8,9 @@ describe('search: regexp spec', () => {
   });
 
   it('combines a source match with selected flags', () => {
-    cy.get(sel + 'input[name$="-value"]').type('abc');
-    cy.get(sel + 'select.jsoeSearchMultiSelect').select(['g', 'i']);
+    const propSel = sel + '[data-search-path="#/regexp"] ';
+    cy.get(propSel + 'input[name$="-value"]').type('abc');
+    cy.get(propSel + 'select.jsoeSearchMultiSelect').select(['g', 'i']);
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());

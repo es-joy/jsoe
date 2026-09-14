@@ -8,12 +8,31 @@ describe('search: file spec', () => {
   });
 
   it('gets a literalSet query against the name', () => {
-    cy.get(sel + 'input[name$="-value"]').type('report.pdf');
+    const propSel = sel + '[data-search-path="#/file"] ';
+    cy.get(propSel + 'input.jsoeSearchValue--name').type('report.pdf');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());
       expect(query.$and[0]).to.deep.equal({
-        kind: 'literalSet', path: '#/file', $in: ['report.pdf']
+        kind: 'literalSet', path: '#/file/name', $in: ['report.pdf']
+      });
+    });
+  });
+
+  it('combines a name literal with a content-type regex', () => {
+    const propSel = sel + '[data-search-path="#/file"] ';
+    cy.get(propSel + 'input.jsoeSearchValue--name').type('report.pdf');
+    cy.get(propSel + 'select.jsoeSearchMode--type').select('regex');
+    cy.get(propSel + 'input.jsoeSearchValue--type').type('^application/pdf$');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      const leaf = query.$and[0];
+      expect(leaf.$and).to.deep.include({
+        kind: 'literalSet', path: '#/file/name', $in: ['report.pdf']
+      });
+      expect(leaf.$and).to.deep.include({
+        kind: 'regex', path: '#/file/type', $regex: '^application/pdf$'
       });
     });
   });

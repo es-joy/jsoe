@@ -27,4 +27,52 @@ describe('search: object spec', () => {
       });
     });
   });
+
+  it('hides the nested widget while "Doesn\'t have" is chosen', () => {
+    const nestedSel = sel + 'jsoe-search-object[data-search-path="#/object"] ';
+    cy.get(nestedSel + 'select.addPropertySelect').select('nested');
+    cy.get(nestedSel + 'button').contains('Add').click();
+
+    const childSel = nestedSel +
+      'jsoe-search-string[data-search-path="#/object/nested"]';
+    cy.get(childSel).should('be.visible');
+
+    cy.get(nestedSel + 'select[name$="-hasProperty-nested"]').select('false');
+    cy.get(childSel).should('be.hidden');
+
+    cy.get(nestedSel + 'select[name$="-hasProperty-nested"]').select('true');
+    cy.get(childSel).should('be.visible');
+
+    cy.get(nestedSel + 'select[name$="-hasProperty-nested"]').select('');
+    cy.get(childSel).should('be.visible');
+  });
+
+  it('lets an added property be removed and re-added', () => {
+    const nestedSel = sel + 'jsoe-search-object[data-search-path="#/object"] ';
+    const rowSel = nestedSel +
+      'jsoe-search-has-property[data-property-name="nested"]';
+
+    cy.get(nestedSel + 'select.addPropertySelect').select('nested');
+    cy.get(nestedSel + 'button').contains('Add').click();
+    cy.get(rowSel).should('exist');
+    cy.get(nestedSel + 'select.addPropertySelect option[value="nested"]')
+      .should('be.disabled');
+
+    cy.get(rowSel + ' button.removePropertyButton').click();
+    cy.get(rowSel).should('not.exist');
+    cy.get(nestedSel + 'select.addPropertySelect option[value="nested"]')
+      .should('not.be.disabled');
+
+    cy.get(nestedSel + 'select.addPropertySelect').select('nested');
+    cy.get(nestedSel + 'button').contains('Add').click();
+    cy.get(rowSel).should('exist');
+  });
+
+  it('shows a required property\'s own widget directly, with no toggle', () => {
+    const childSel = sel + 'jsoe-search-string[data-search-path="#/requiredString"]';
+    cy.get(childSel).should('be.visible');
+    cy.get(sel + 'select[name$="-hasProperty-requiredString"]').should('not.exist');
+    cy.get(sel + 'select.addPropertySelect option[value="requiredString"]')
+      .should('not.exist');
+  });
 });

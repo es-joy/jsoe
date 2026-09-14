@@ -9,12 +9,27 @@ describe('search: blobHTML spec', () => {
 
   it('gets a blobHTML leaf for the selected mode', () => {
     cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('cssSelector');
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('.title');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').should('be.visible').type('.title');
+    cy.get(sel + 'textarea.jsoeSearchBlobHTMLValue').should('be.hidden');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());
       expect(query.$and[0]).to.deep.equal({
         kind: 'blobHTML', path: '#/blobHTML', mode: 'cssSelector', value: '.title'
+      });
+    });
+  });
+
+  it('swaps to a textarea for full text search mode only', () => {
+    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('fullText');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').should('be.hidden');
+    cy.get(sel + 'textarea.jsoeSearchBlobHTMLValue').should('be.visible')
+      .type('welcome text');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'blobHTML', path: '#/blobHTML', mode: 'fullText', value: 'welcome text'
       });
     });
   });

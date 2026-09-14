@@ -8,8 +8,9 @@ describe('search: blob spec', () => {
   });
 
   it('gets a regex query against the MIME type', () => {
-    cy.get(sel + 'select[name$="-mode"]').select('regex');
-    cy.get(sel + 'input[name$="-value"]').type('^image/');
+    const propSel = sel + '[data-search-path="#/blob"] ';
+    cy.get(propSel + 'select[name$="-mode"]').select('regex');
+    cy.get(propSel + 'input[name$="-value"]').type('^image/');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());

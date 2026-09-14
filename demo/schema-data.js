@@ -761,6 +761,12 @@ const schemaInstanceJSONSearchAllTypes = {
   description: 'One property per search-supported type',
   type: 'object',
   properties: {
+    // No `isOptional`, exercising `objectSearchType.js`'s required-property
+    // path: its own widget is always shown, with no has/doesn't-have toggle.
+    requiredString: {
+      description: 'A required property (always shown, no has/doesn’t have toggle)',
+      type: 'string'
+    },
     date: {...schemaInstanceJSONSearchDate, isOptional: true},
     number: {type: 'number', isOptional: true},
     bigint: {type: 'bigInt', isOptional: true},
