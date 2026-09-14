@@ -151,6 +151,17 @@ video.recordedMedia {
   color: #b00;
 }
 
+/* `demo/index-search.js`'s per-section "Get query" result: a query for a
+   deeply-nested schema can be a long single-line JSON string, so this needs
+   the same scrollable-box treatment as `.jsoe-raw-editor` rather than
+   growing the page. */
+.queryResult {
+  max-width: 100%;
+  max-height: 300px;
+  overflow: auto;
+  border: 1px solid;
+}
+
 .visualizer {
   height: 60px;
 }
@@ -255,6 +266,125 @@ video.recordedMedia {
 [data-type="resurrectable"], /* i.e., `noneditable` */
 [data-type="domrect"], [data-type="dompoint"],
 [data-type="dommatrix"] {
+  background-color: lightgray;
+}
+
+/* Search widgets (`buildSearchChoices`/`buildSearchWidget`, `src/search/`):
+   every built widget's custom-element root carries `data-search-kind`
+   (the leaf/composite kind it was built for - `object`, `array`, or, for
+   the "checked"-type factories that have no structural schema of their
+   own, the full tag name e.g. `jsoe-search-error`). Block-level with the
+   same border/padding treatment as `fieldset.xorTypeChoices` above, so a
+   hierarchical type's recursively-nested child widgets land on their own
+   indented line rather than running together inline, and the same
+   background colors as the corresponding view/edit UI `[data-type]` rules
+   above, so a given type reads the same whether browsing or searching. */
+[data-search-kind] {
+  display: block;
+  margin-block: 0.3em;
+  padding: 0.3em 0.6em 0.4em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+[data-search-kind] > .searchLabel {
+  display: block;
+  font-weight: bold;
+  margin-block-end: 0.2em;
+}
+
+/* Inline control pairs built by `searchUtils.js` (a "Mode:"/"Value:" pair
+   from `buildLiteralRegexControls`, a "From:"/"To:" pair from
+   `buildRangeInputsPair`, a trailing tri-state like "Integer:") are each
+   their own `<label>` with no whitespace between them in the built markup,
+   so without this they visually run together (e.g. "To: [input]Integer:
+   [select]"). */
+[data-search-kind] label {
+  margin-inline-end: 0.6em;
+}
+
+/* Nested child widgets get progressively inset, so a hierarchical type's
+   structure (object properties, array/set elements, map/record key-value,
+   union branches, etc.) stays legible several levels deep. */
+[data-search-kind] [data-search-kind] {
+  margin-inline-start: 0.8em;
+}
+
+/* Dark backgrounds get a light text color so labels/inputs stay readable
+   (unlike the view/edit `[data-type]` rules above, which - for these same
+   colors - rely on their content being a short, bolded inline leaf rather
+   than a whole widget's worth of labels and form controls). */
+[data-search-kind="jsoe-search-undefined"] {
+  background-color: green;
+  color: white;
+}
+[data-search-kind="jsoe-search-null"] {
+  background-color: lightgreen;
+}
+[data-search-kind="jsoe-search-nan"] {
+  background-color: green;
+  color: white;
+}
+[data-search-kind="boolean"] {
+  background-color: aqua;
+}
+[data-search-kind="number"] {
+  background-color: violet;
+}
+[data-search-kind="string"] {
+  background-color: lightblue;
+}
+[data-search-kind="array"], [data-search-kind="tuple"] {
+  background-color: lightyellow;
+}
+[data-search-kind="object"], [data-search-kind="record"] {
+  background-color: orange;
+}
+[data-search-kind="symbol"] {
+  background-color: lightgreen;
+}
+[data-search-kind="promise"] {
+  background-color: orange;
+}
+[data-search-kind="function"] {
+  background-color: teal;
+  color: white;
+}
+[data-search-kind="date"] {
+  background-color: teal;
+  color: white;
+}
+[data-search-kind="regexp"] {
+  background-color: yellow;
+}
+[data-search-kind="SpecialRealNumber"] {
+  background-color: red;
+  color: white;
+}
+[data-search-kind="blobHTML"] {
+  background-color: sandybrown;
+}
+[data-search-kind="jsoe-search-error"],
+[data-search-kind="jsoe-search-errors-special"] {
+  background-color: red;
+  color: white;
+}
+[data-search-kind="file"] {
+  background-color: beige;
+}
+[data-search-kind="filelist"] {
+  background-color: bisque;
+}
+[data-search-kind="blob"] {
+  background-color: lightgray;
+}
+[data-search-kind="buffersource"] {
+  background-color: beige;
+}
+[data-search-kind="map"], [data-search-kind="set"],
+[data-search-kind="bigint"], [data-search-kind="domexception"],
+[data-search-kind="jsoe-search-domrect"], [data-search-kind="jsoe-search-dompoint"],
+[data-search-kind="jsoe-search-dommatrix"] {
   background-color: lightgray;
 }
 

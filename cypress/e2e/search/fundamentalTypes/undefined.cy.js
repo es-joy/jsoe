@@ -20,6 +20,9 @@ describe('search: undefined spec', () => {
 
   it('gets no constraint when unchecked', () => {
     cy.get(sel + '.getQueryButton').click();
-    cy.get(sel + '.queryResult').should('have.text', '{"$and":[]}');
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query).to.deep.equal({$and: []});
+    });
   });
 });

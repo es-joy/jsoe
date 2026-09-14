@@ -56,7 +56,7 @@ jml('section', {role: 'main'}, [
           click () {
             const query = control.$getQuery();
             console.log(query);
-            resultPre.textContent = JSON.stringify(query);
+            resultPre.textContent = JSON.stringify(query, null, 2);
           }
         }
       }, ['Get query']],
