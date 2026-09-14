@@ -1,7 +1,7 @@
 import {buildPathLabel, buildLengthSizeControls, readLengthSizeQuery} from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
-import {getSearchTypeObject} from '../searchDispatch.js';
+import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -22,7 +22,7 @@ import {getSearchTypeObject} from '../searchDispatch.js';
  * @type {SearchTypeObject}
  */
 const tupleSearchType = {
-  buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+  buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
     const label = buildPathLabel(schemaObject, path);
     const name = `${typeNamespace}-tuple`;
     const tupleSchemaObject = /** @type {import('zodexy').SzTuple} */ (
@@ -30,24 +30,24 @@ const tupleSearchType = {
     );
     const {items, rest} = tupleSchemaObject;
 
-    const itemArrs = items.map((itemSchema, idx) => getSearchTypeObject(
-      itemSchema
-    ).buildUI({
+    const itemArrs = items.map((itemSchema, idx) => buildSearchWidget({
       schemaObject: itemSchema,
       path: `${path}/${idx}`,
       typeNamespace,
       topRoot,
-      types
+      types,
+      originalJSON
     }));
 
     const restElementPath = `${path}/*`;
     const restArr = rest
-      ? getSearchTypeObject(rest).buildUI({
+      ? buildSearchWidget({
         schemaObject: rest,
         path: restElementPath,
         typeNamespace,
         topRoot,
-        types
+        types,
+        originalJSON
       })
       : undefined;
 

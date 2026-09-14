@@ -1,4 +1,4 @@
-import {getSchemaType} from '../formats/schema.js';
+import {getSchemaType, getTypesForSchema} from '../formats/schema.js';
 
 import dateSearchType from './fundamentalTypes/dateSearchType.js';
 import numberSearchType from './fundamentalTypes/numberSearchType.js';
@@ -50,7 +50,8 @@ import blobHTMLSearchType from './subTypes/blobHTMLSearchType.js';
  *     path: string,
  *     typeNamespace?: string,
  *     topRoot?: import('../types.js').RootElement,
- *     types?: import('../types.js').default
+ *     types?: import('../types.js').default,
+ *     originalJSON?: import('../formats/schema.js').ZodexSchema
  *   }) => import('../types.js').JamilihArray,
  *   getQuery: (cfg: {
  *     root: HTMLElement,
@@ -226,4 +227,65 @@ export function getSearchTypeObject (schemaObject) {
   return availableSearchTypes[searchSchemaType] ?? noneditableSearchType;
 }
 
-export {availableSearchTypes, noneditableSearchType};
+/**
+ * Intersection schemas are never registered in `availableSearchTypes` -
+ * resolved here instead of in `getSearchSchemaType`, reusing jsoe's
+ * existing intersection-merging machinery (`getTypesForSchema`,
+ * `src/formats/schema.js`) rather than reinventing it (search plan §3/§5).
+ * A single merged result replaces the intersection outright; more than one
+ * (e.g. one side of the intersection is itself a union) is handed to
+ * `unionSearchType.js` unchanged via a synthesized `union` wrapper, the
+ * same way `unionSearchType.js` already treats distinguishable branches.
+ * @param {import('../formats/schema.js').ZodexSchema} schemaObject
+ * @param {import('../formats/schema.js').ZodexSchema} originalJSON
+ * @returns {import('../formats/schema.js').ZodexSchema}
+ */
+function resolveIntersection (schemaObject, originalJSON) {
+  if (schemaObject.type !== 'intersection') {
+    return schemaObject;
+  }
+  const merged = [...getTypesForSchema(schemaObject, originalJSON)];
+  return merged.length === 1
+    ? merged[0]
+    : /** @type {import('../formats/schema.js').ZodexSchema} */ (
+      /** @type {unknown} */ ({type: 'union', options: merged})
+    );
+}
+
+/**
+ * The call site every *recursive* search widget uses in place of calling
+ * `getSearchTypeObject(...).buildUI(...)` directly - it's the same thing,
+ * plus `resolveIntersection` run first, so an intersection schema at any
+ * depth (not just the one `buildSearchChoices` is called with) still
+ * resolves instead of falling through to the `noneditableSearchType`
+ * escape hatch. `originalJSON` (needed for the `getTypesForSchema` call's
+ * own `$ref` resolution) defaults to `schemaObject` itself only as a last
+ * resort for a call site that has none to pass down - every recursive
+ * caller should be threading the true document root through via its own
+ * `originalJSON` parameter instead.
+ * @param {{
+ *   schemaObject: import('../formats/schema.js').ZodexSchema,
+ *   path: string,
+ *   typeNamespace?: string,
+ *   topRoot?: import('../types.js').RootElement,
+ *   types?: import('../types.js').default,
+ *   originalJSON?: import('../formats/schema.js').ZodexSchema
+ * }} cfg
+ * @returns {import('../types.js').JamilihArray}
+ */
+export function buildSearchWidget ({
+  schemaObject, path, typeNamespace, topRoot, types, originalJSON
+}) {
+  const resolvedOriginalJSON = originalJSON ?? schemaObject;
+  const resolvedSchema = resolveIntersection(schemaObject, resolvedOriginalJSON);
+  return getSearchTypeObject(resolvedSchema).buildUI({
+    schemaObject: resolvedSchema,
+    path,
+    typeNamespace,
+    topRoot,
+    types,
+    originalJSON: resolvedOriginalJSON
+  });
+}
+
+export {availableSearchTypes, noneditableSearchType, resolveIntersection};

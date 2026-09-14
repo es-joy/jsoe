@@ -1,7 +1,7 @@
 import {buildPathLabel, buildLengthSizeControls, readLengthSizeQuery} from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
-import {getSearchTypeObject} from '../searchDispatch.js';
+import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -16,19 +16,20 @@ import {getSearchTypeObject} from '../searchDispatch.js';
  * @type {SearchTypeObject}
  */
 const arraySearchType = {
-  buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+  buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
     const label = buildPathLabel(schemaObject, path);
     const name = `${typeNamespace}-array`;
     const arraySchemaObject = /** @type {import('zodexy').SzArray} */ (
       schemaObject
     );
     const elementPath = `${path}/*`;
-    const elementArr = getSearchTypeObject(arraySchemaObject.element).buildUI({
+    const elementArr = buildSearchWidget({
       schemaObject: arraySchemaObject.element,
       path: elementPath,
       typeNamespace,
       topRoot,
-      types
+      types,
+      originalJSON
     });
     return ['jsoe-search-array', {
       dataset: {searchPath: path, searchKind: 'array'},

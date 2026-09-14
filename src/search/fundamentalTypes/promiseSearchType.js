@@ -1,7 +1,7 @@
 import {buildPathLabel} from '../searchUtils.js';
 import {makePassThroughLeaf} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
-import {getSearchTypeObject} from '../searchDispatch.js';
+import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -21,17 +21,18 @@ import {getSearchTypeObject} from '../searchDispatch.js';
  * @type {SearchTypeObject}
  */
 const promiseSearchType = {
-  buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+  buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
     const label = buildPathLabel(schemaObject, path);
     const promiseSchemaObject = /** @type {import('zodexy').SzPromise} */ (
       schemaObject
     );
-    const childArr = getSearchTypeObject(promiseSchemaObject.value).buildUI({
+    const childArr = buildSearchWidget({
       schemaObject: promiseSchemaObject.value,
       path,
       typeNamespace,
       topRoot,
-      types
+      types,
+      originalJSON
     });
     return ['jsoe-search-promise', {
       dataset: {searchPath: path, searchKind: 'promise'},

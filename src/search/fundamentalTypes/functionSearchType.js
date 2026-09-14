@@ -1,7 +1,7 @@
 import {buildPathLabel} from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
-import {getSearchTypeObject} from '../searchDispatch.js';
+import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -19,26 +19,28 @@ import {getSearchTypeObject} from '../searchDispatch.js';
  * @type {SearchTypeObject}
  */
 const functionSearchType = {
-  buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+  buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
     const label = buildPathLabel(schemaObject, path);
     const functionSchemaObject = /** @type {import('zodexy').SzFunction<any, any>} */ (
       schemaObject
     );
     const argsPath = `${path}/*args`;
     const outputPath = `${path}/*output`;
-    const argsArr = getSearchTypeObject(functionSchemaObject.input).buildUI({
+    const argsArr = buildSearchWidget({
       schemaObject: functionSchemaObject.input,
       path: argsPath,
       typeNamespace,
       topRoot,
-      types
+      types,
+      originalJSON
     });
-    const outputArr = getSearchTypeObject(functionSchemaObject.output).buildUI({
+    const outputArr = buildSearchWidget({
       schemaObject: functionSchemaObject.output,
       path: outputPath,
       typeNamespace,
       topRoot,
-      types
+      types,
+      originalJSON
     });
     return ['jsoe-search-function', {
       dataset: {searchPath: path, searchKind: 'function'},

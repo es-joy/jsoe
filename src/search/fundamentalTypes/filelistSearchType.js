@@ -1,7 +1,7 @@
 import {buildPathLabel, buildLengthSizeControls, readLengthSizeQuery} from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
-import {getSearchTypeObject} from '../searchDispatch.js';
+import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -28,19 +28,20 @@ import {getSearchTypeObject} from '../searchDispatch.js';
  * @type {SearchTypeObject}
  */
 const filelistSearchType = {
-  buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+  buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
     const label = buildPathLabel(schemaObject, path);
     const name = `${typeNamespace}-filelist`;
     const outputSchema = /** @type {FilelistOutputSchema} */ (
       /** @type {{output: unknown}} */ (schemaObject).output
     );
     const elementPath = `${path}/*`;
-    const elementArr = getSearchTypeObject(outputSchema.element).buildUI({
+    const elementArr = buildSearchWidget({
       schemaObject: outputSchema.element,
       path: elementPath,
       typeNamespace,
       topRoot,
-      types
+      types,
+      originalJSON
     });
     return ['jsoe-search-filelist', {
       dataset: {searchPath: path, searchKind: 'filelist'},

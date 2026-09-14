@@ -5,7 +5,7 @@ import {combineAnd, makeHasPropertyLeaf} from '../queryTreeBuilders.js';
 import {
   findSearchElement, getQueryViaElement, hasGetQuery
 } from '../searchElementUtils.js';
-import {getSearchTypeObject} from '../searchDispatch.js';
+import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -24,17 +24,19 @@ import {getSearchTypeObject} from '../searchDispatch.js';
  *   path: string,
  *   typeNamespace: string|undefined,
  *   topRoot: import('../../types.js').RootElement|undefined,
- *   types: import('../../types.js').default|undefined
+ *   types: import('../../types.js').default|undefined,
+ *   originalJSON: import('../../formats/schema.js').ZodexSchema|undefined
  * }} cfg
  * @returns {HTMLElement}
  */
 function buildHasPropertyRow ({
-  propertyName, propSchema, path, typeNamespace, topRoot, types
+  propertyName, propSchema, path, typeNamespace, topRoot, types, originalJSON
 }) {
   const childPath = `${path}/${escapeJSONPointer(propertyName)}`;
   const name = `${typeNamespace}-hasProperty-${propertyName}`;
-  const childArr = getSearchTypeObject(propSchema).buildUI({
-    schemaObject: propSchema, path: childPath, typeNamespace, topRoot, types
+  const childArr = buildSearchWidget({
+    schemaObject: propSchema, path: childPath, typeNamespace, topRoot, types,
+    originalJSON
   });
   return /** @type {HTMLElement} */ (jml('jsoe-search-has-property', {
     dataset: {searchPath: childPath, searchKind: 'hasProperty', propertyName},
@@ -79,7 +81,7 @@ function buildHasPropertyRow ({
  * @type {SearchTypeObject}
  */
 const objectSearchType = {
-  buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+  buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
     const label = buildPathLabel(schemaObject, path);
     const objectSchemaObject = /** @type {import('zodexy').SzObject} */ (
       schemaObject
@@ -126,7 +128,8 @@ const objectSearchType = {
               }
               const propSchema = objectSchemaObject.properties[propertyName];
               const row = buildHasPropertyRow({
-                propertyName, propSchema, path, typeNamespace, topRoot, types
+                propertyName, propSchema, path, typeNamespace, topRoot, types,
+                originalJSON
               });
               container.append(row);
               const option = select.querySelector(

@@ -1,7 +1,7 @@
 import {buildPathLabel} from '../searchUtils.js';
 import {makePassThroughLeaf} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
-import {getSearchTypeObject} from '../searchDispatch.js';
+import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -19,17 +19,18 @@ import {getSearchTypeObject} from '../searchDispatch.js';
  * @type {SearchTypeObject}
  */
 const catchSearchType = {
-  buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+  buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
     const label = buildPathLabel(schemaObject, path);
     const catchSchemaObject = /** @type {import('zodexy').SzCatch} */ (
       schemaObject
     );
-    const childArr = getSearchTypeObject(catchSchemaObject.innerType).buildUI({
+    const childArr = buildSearchWidget({
       schemaObject: catchSchemaObject.innerType,
       path,
       typeNamespace,
       topRoot,
-      types
+      types,
+      originalJSON
     });
     return ['jsoe-search-catch', {
       dataset: {searchPath: path, searchKind: 'catch'},

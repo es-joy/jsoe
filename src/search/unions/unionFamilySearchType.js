@@ -2,7 +2,7 @@ import {jml} from '../../vendor-imports.js';
 import {buildPathLabel, findOwnControl} from '../searchUtils.js';
 import {makeTypeOfLeaf, combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
-import {getSearchSchemaType, getSearchTypeObject} from '../searchDispatch.js';
+import {getSearchSchemaType, buildSearchWidget} from '../searchDispatch.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -45,7 +45,7 @@ function isSelectElement (el) {
  */
 export function makeUnionFamilySearchType ({tagName, discriminated}) {
   return {
-    buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+    buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
       const label = buildPathLabel(schemaObject, path);
       const name = `${typeNamespace}-${tagName}`;
       const unionLikeSchemaObject = /** @type {UnionLikeSchemaObject} */ (
@@ -126,12 +126,13 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
                   return;
                 }
                 const branch = branches[Number(this.value)];
-                const branchArr = getSearchTypeObject(branch.option).buildUI({
+                const branchArr = buildSearchWidget({
                   schemaObject: branch.option,
                   path,
                   typeNamespace,
                   topRoot,
-                  types
+                  types,
+                  originalJSON
                 });
                 container.append(/** @type {HTMLElement} */ (jml(...branchArr)));
               }

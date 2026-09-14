@@ -26,3 +26,7 @@ export {
 export {
   getTypesForSchema
 } from './formats/schema.js';
+
+export {
+  buildSearchChoices
+} from './search/index.js';

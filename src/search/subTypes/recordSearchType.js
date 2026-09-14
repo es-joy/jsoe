@@ -1,7 +1,7 @@
 import {buildPathLabel, buildCheckbox, readCheckbox} from '../searchUtils.js';
 import {makeMapRecordJointLeaf} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
-import {getSearchTypeObject} from '../searchDispatch.js';
+import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -19,7 +19,7 @@ import {getSearchTypeObject} from '../searchDispatch.js';
  * @type {SearchTypeObject}
  */
 const recordSearchType = {
-  buildUI ({schemaObject, path, typeNamespace, topRoot, types}) {
+  buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
     const label = buildPathLabel(schemaObject, path);
     const name = `${typeNamespace}-record`;
     const recordSchemaObject = /** @type {import('zodexy').SzRecord} */ (
@@ -27,19 +27,21 @@ const recordSearchType = {
     );
     const keyPath = `${path}/*key`;
     const valuePath = `${path}/*value`;
-    const keyArr = getSearchTypeObject(recordSchemaObject.key).buildUI({
+    const keyArr = buildSearchWidget({
       schemaObject: recordSchemaObject.key,
       path: keyPath,
       typeNamespace,
       topRoot,
-      types
+      types,
+      originalJSON
     });
-    const valueArr = getSearchTypeObject(recordSchemaObject.value).buildUI({
+    const valueArr = buildSearchWidget({
       schemaObject: recordSchemaObject.value,
       path: valuePath,
       typeNamespace,
       topRoot,
-      types
+      types,
+      originalJSON
     });
     return ['jsoe-search-record', {
       dataset: {searchPath: path, searchKind: 'record'},
