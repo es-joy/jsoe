@@ -17,7 +17,11 @@ import {getQueryViaElement} from '../searchElementUtils.js';
  * "Full text search" mode alone, since a search phrase in a body of text is
  * the one mode actually expected to run to more than one line - both share
  * the same class, so the mode `<select>`'s `change` handler (and `getQuery`)
- * only need the tag name to tell them apart.
+ * only need the tag name to tell them apart. Only the currently-visible one
+ * of the pair is ever `required` (toggled alongside `hidden` by the mode
+ * `change` handler): a `required` field that's merely hidden, rather than
+ * also un-required, still blocks the form's validity even though the user
+ * has no way to see or fill it.
  * @type {SearchTypeObject}
  */
 const blobHTMLSearchType = {
@@ -35,9 +39,10 @@ const blobHTMLSearchType = {
             findOwnControl(this, 'select.jsoeSearchBlobHTMLMode')
           )?.value;
           const value = /** @type {HTMLInputElement|HTMLTextAreaElement|undefined} */ (
-            mode === 'fullText'
-              ? findOwnControl(this, 'textarea.jsoeSearchBlobHTMLValue')
-              : findOwnControl(this, 'input.jsoeSearchBlobHTMLValue')
+            findOwnControl(
+              this,
+              `${mode === 'fullText' ? 'textarea' : 'input'}.jsoeSearchBlobHTMLValue`
+            )
           )?.value;
           if (!value || !mode) {
             return undefined;
@@ -59,19 +64,21 @@ const blobHTMLSearchType = {
           $on: {
             change () {
               const container = this.closest('jsoe-search-blob-html');
-              const input = /** @type {HTMLElement|null|undefined} */ (
+              const input = /** @type {HTMLInputElement|null|undefined} */ (
                 container?.querySelector('input.jsoeSearchBlobHTMLValue')
               );
-              const textarea = /** @type {HTMLElement|null|undefined} */ (
+              const textarea = /** @type {HTMLTextAreaElement|null|undefined} */ (
                 container?.querySelector('textarea.jsoeSearchBlobHTMLValue')
               );
               const isFullText = /** @type {HTMLSelectElement} */ (this).value ===
                 'fullText';
               if (input) {
                 input.hidden = isFullText;
+                input.required = !isFullText;
               }
               if (textarea) {
                 textarea.hidden = !isFullText;
+                textarea.required = isFullText;
               }
             }
           }
@@ -84,7 +91,10 @@ const blobHTMLSearchType = {
       ]],
       ['label', [
         'Value: ',
-        ['input', {type: 'text', name: `${name}-value`, class: 'jsoeSearchBlobHTMLValue'}],
+        ['input', {
+          type: 'text', name: `${name}-value`, class: 'jsoeSearchBlobHTMLValue',
+          required: true
+        }],
         ['textarea', {
           name: `${name}-value`, class: 'jsoeSearchBlobHTMLValue', hidden: true
         }]

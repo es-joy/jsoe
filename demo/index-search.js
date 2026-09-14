@@ -47,10 +47,14 @@ jml('section', {role: 'main'}, [
     const resultPre = /** @type {HTMLElement} */ (
       jml('pre', {class: 'queryResult'})
     );
+    const validityResult = /** @type {HTMLElement} */ (
+      jml('span', {class: 'validityResult'})
+    );
     return ['div', {class: 'searchDemoSection', id: `section-${id}`}, [
       ['h2', [label]],
       control.container,
       ['button', {
+        type: 'button',
         class: 'getQueryButton',
         $on: {
           click () {
@@ -60,7 +64,19 @@ jml('section', {role: 'main'}, [
           }
         }
       }, ['Get query']],
-      resultPre
+      resultPre,
+      ['button', {
+        type: 'button',
+        class: 'checkValidityButton',
+        $on: {
+          click () {
+            validityResult.textContent = control.container.reportValidity()
+              ? 'Valid'
+              : 'Invalid';
+          }
+        }
+      }, ['Check validity']],
+      validityResult
     ]];
   })
 ], body);

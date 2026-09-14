@@ -151,6 +151,13 @@ video.recordedMedia {
   color: #b00;
 }
 
+/* `demo/index-search.js`'s "Check validity" button and its immediately-
+   following result text (`.validityResult`) are both inline (a `<button>`
+   and a `<span>`), so without this they run together with no gap. */
+.checkValidityButton {
+  margin-inline-end: 0.5em;
+}
+
 /* `demo/index-search.js`'s per-section "Get query" result: a query for a
    deeply-nested schema can be a long single-line JSON string, so this needs
    the same scrollable-box treatment as `.jsoe-raw-editor` rather than
@@ -222,6 +229,7 @@ video.recordedMedia {
   background-color: purple;
 }
 [data-type="date"] {
+  color: white;
   background-color: teal;
 }
 [data-type="regexp"] {
@@ -311,6 +319,18 @@ video.recordedMedia {
   display: block;
   font-weight: bold;
   margin-block-end: 0.2em;
+}
+
+/* `objectSearchType.js`'s required-property row wraps its recursed widget
+   in a `<fieldset disabled>` (native constraint-validation opt-out for the
+   whole subtree, toggled by the row's own "Search on this property"
+   checkbox) purely for that behavior, not for its default border/padding -
+   which would otherwise double up with the child widget's own
+   `[data-search-kind]` box drawn just inside it. */
+fieldset.searchRequiredPropertyFieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* Inline control pairs built by `searchUtils.js` (a "Mode:"/"Value:" pair

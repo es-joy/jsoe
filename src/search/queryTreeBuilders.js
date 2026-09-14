@@ -99,6 +99,15 @@ export function makeIntegerCheckLeaf (path, isInteger) {
 
 /**
  * @param {string} path
+ * @param {boolean} isValid
+ * @returns {import('./queryTree.js').QueryValidDateCheckLeaf}
+ */
+export function makeValidDateCheckLeaf (path, isValid) {
+  return {kind: 'validDateCheck', path, isValid};
+}
+
+/**
+ * @param {string} path
  * @param {{$in?: unknown[], $nin?: unknown[]}} cfg
  * @returns {import('./queryTree.js').QueryLiteralSetLeaf}
  */

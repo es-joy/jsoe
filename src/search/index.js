@@ -3,7 +3,7 @@ import {getSearchTypeObject, buildSearchWidget, resolveIntersection} from './sea
 
 /**
  * @typedef {{
- *   container: HTMLDivElement,
+ *   container: HTMLFormElement,
  *   $getQuery: () => import('./queryTree.js').QueryAnd,
  *   whenReady: Promise<void>
  * }} SearchChoicesControl
@@ -36,12 +36,22 @@ import {getSearchTypeObject, buildSearchWidget, resolveIntersection} from './sea
  * `$getQuery()` reads the live DOM into a `QueryAnd` on demand (`{$and:
  * []}` when nothing has been entered anywhere, matching the empty-`$and`
  * convention of "no constraint"), and a host that wants live updates wraps
- * it in its own `container.addEventListener('input', ...)` since
- * `container` is a plain `HTMLDivElement`. Every widget built so far is
- * synchronous, so `whenReady` (unlike `buildTypeChoices`'s) has no deferred
- * work to wait on and settles immediately - it's still returned, so a
- * caller can `await` either function uniformly without checking which one
- * it has.
+ * it in its own `container.addEventListener('input', ...)`. Every widget
+ * built so far is synchronous, so `whenReady` (unlike `buildTypeChoices`'s)
+ * has no deferred work to wait on and settles immediately - it's still
+ * returned, so a caller can `await` either function uniformly without
+ * checking which one it has.
+ *
+ * `container` is a real `<form>` (its own `submit` prevented, since it is
+ * never actually submitted) rather than a plain `<div>`, matching the edit
+ * side's own root `<form>` (`src/types.js`'s `Types.validValuesSet` reads
+ * `form.checkValidity()`) - the various cross-field checks the individual
+ * search widgets wire up (`searchUtils.js`'s `buildRangeInputsPair`,
+ * `dateSearchType.js`, etc.) are native Constraint Validation API calls
+ * (`setCustomValidity`/`required`), so a host only needs the one native
+ * `container.checkValidity()`/`container.reportValidity()` to check them
+ * all at once, the same way `demo/index-search.js`'s "Check validity"
+ * button does.
  * @param {{
  *   schemaContent: import('../formats/schema.js').ZodexSchema,
  *   typeNamespace?: string,
@@ -62,8 +72,15 @@ export function buildSearchChoices ({schemaContent, typeNamespace, topRoot, type
     schemaObject: schemaContent, path, typeNamespace, topRoot, types,
     originalJSON: schemaContent
   });
-  const container = /** @type {HTMLDivElement} */ (
-    jml('div', {class: 'searchChoicesContainer'}, [arr])
+  const container = /** @type {HTMLFormElement} */ (
+    jml('form', {
+      class: 'searchChoicesContainer',
+      $on: {
+        submit (e) {
+          e.preventDefault();
+        }
+      }
+    }, [arr])
   );
   const schemaObject = resolveIntersection(schemaContent, schemaContent);
   return {

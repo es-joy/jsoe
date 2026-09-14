@@ -1,7 +1,8 @@
 import {jml} from '../../vendor-imports.js';
 import {escapeJSONPointer} from '../../utils/jsonPointer.js';
 import {
-  buildPathLabel, buildHasPropertyToggle, readTriStateSelect, findOwnControl
+  buildPathLabel, buildHasPropertyToggle, readTriStateSelect, findOwnControl,
+  buildCheckbox, readCheckbox
 } from '../searchUtils.js';
 import {combineAnd, makeHasPropertyLeaf} from '../queryTreeBuilders.js';
 import {
@@ -114,6 +115,75 @@ function buildHasPropertyRow ({
 }
 
 /**
+ * A required property's own value-match widget, wrapped in an opt-in
+ * "Search on this property" checkbox (default unchecked) around a disabled
+ * `<fieldset>`: a required property has no existence to ask about, but it
+ * still auto-appears with no "Remove" affordance the moment its parent
+ * object is added (search plan build order never lists it in the "Add
+ * property" pull-down at all) - and several leaf widgets now mark their own
+ * value input `required` (`buildLiteralRegexControls`'s doc), which would
+ * otherwise make the *whole* form invalid the instant such a property's
+ * object exists, before the user has asked to search on it at all.
+ * `<fieldset disabled>` is a native way to exempt a whole subtree from
+ * constraint validation in one step (every descendant control, whatever
+ * type it turns out to be, stops blocking `checkValidity`/`reportValidity`
+ * while disabled) - checking the box re-enables the fieldset, making its
+ * contents both interactive and, if left with a `required` field empty,
+ * actually invalid again.
+ * @param {{
+ *   propertyName: string,
+ *   propSchema: import('../../formats/schema.js').ZodexSchema,
+ *   path: string,
+ *   typeNamespace: string|undefined,
+ *   topRoot: import('../../types.js').RootElement|undefined,
+ *   types: import('../../types.js').default|undefined,
+ *   originalJSON: import('../../formats/schema.js').ZodexSchema|undefined
+ * }} cfg
+ * @returns {HTMLElement}
+ */
+function buildRequiredPropertyRow ({
+  propertyName, propSchema, path, typeNamespace, topRoot, types, originalJSON
+}) {
+  const childPath = `${path}/${escapeJSONPointer(propertyName)}`;
+  const name = `${typeNamespace}-requiredProperty-${propertyName}`;
+  const childArr = buildSearchWidget({
+    schemaObject: propSchema, path: childPath, typeNamespace, topRoot, types,
+    originalJSON
+  });
+  const row = /** @type {HTMLElement} */ (jml('jsoe-search-required-property', {
+    dataset: {searchPath: childPath, searchKind: 'requiredProperty', propertyName},
+    $define: {
+      /** @this {HTMLElement} */
+      getQuery () {
+        if (!readCheckbox(this)) {
+          return undefined;
+        }
+        const searchPath = this.dataset.searchPath ?? '';
+        const childEl = findSearchElement(this, searchPath);
+        return childEl && hasGetQuery(childEl) ? childEl.getQuery() : undefined;
+      }
+    }
+  }, [
+    buildCheckbox({name, label: `Search on "${propertyName}"`}),
+    ['fieldset', {disabled: true, class: 'searchRequiredPropertyFieldset'}, [childArr]]
+  ]));
+
+  const checkbox = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(row, 'input.jsoeSearchCheckbox')
+  );
+  const fieldset = /** @type {HTMLFieldSetElement|null} */ (
+    row.querySelector('fieldset.searchRequiredPropertyFieldset')
+  );
+  checkbox?.addEventListener('change', () => {
+    if (fieldset) {
+      fieldset.disabled = !checkbox.checked;
+    }
+  });
+
+  return row;
+}
+
+/**
  * Has property &lt;property pull-down&gt; (README), additive: only
  * optional properties are offered ("avoid listing required" - a required
  * property is guaranteed present, so asking about its existence is
@@ -124,8 +194,10 @@ function buildHasPropertyRow ({
  * undoing an added-by-mistake property - a coarser-grained option than
  * setting the row's toggle back to "(any)" (which already expresses "no
  * constraint from this row" without removing it). A required property gets
- * no pull-down entry or toggle at all - its own value-match widget is just
- * always shown, since its existence is never in question.
+ * no pull-down entry (its existence is never in question), but does still
+ * get its own row - `buildRequiredPropertyRow`'s opt-in checkbox, defaulting
+ * unchecked/disabled, so it doesn't force a search constraint the user never
+ * asked for just by existing.
  * @type {SearchTypeObject}
  */
 const objectSearchType = {
@@ -140,22 +212,16 @@ const objectSearchType = {
     );
     // A required property is guaranteed present, so a has/doesn't-have
     // toggle would be meaningless for it (same reasoning `availableProperties`
-    // already uses to leave it out of the "Add property" pull-down) - it
-    // still needs its own value-match widget, though, just always shown
-    // rather than added on demand. `buildSearchWidget` is used directly
-    // (not `buildHasPropertyRow`) since there is no existence toggle to
-    // combine it with - the child widget's own `getQuery` is exactly the
-    // row's query.
+    // already uses to leave it out of the "Add property" pull-down) - but it
+    // still gets its own row, via `buildRequiredPropertyRow`'s opt-in
+    // checkbox, so it doesn't silently force a search constraint the user
+    // never asked for just by its parent object existing.
     const requiredProperties = propertyEntries.filter(
       ([, propSchema]) => propSchema.isOptional !== true
     );
     const requiredArr = requiredProperties.map(([propertyName, propSchema]) => (
-      buildSearchWidget({
-        schemaObject: propSchema,
-        path: `${path}/${escapeJSONPointer(propertyName)}`,
-        typeNamespace,
-        topRoot,
-        types,
+      buildRequiredPropertyRow({
+        propertyName, propSchema, path, typeNamespace, topRoot, types,
         originalJSON
       })
     ));

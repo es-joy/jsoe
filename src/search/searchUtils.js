@@ -42,7 +42,7 @@ export function buildPathLabel (schemaObject, path) {
  * `typeNamespace` closed over inside a `$define` mixin, which is installed
  * once on the shared custom-element prototype the first time a tag is
  * defined - nothing here depends on a per-instance closure at all.
- * @param {HTMLElement} root
+ * @param {Element} root
  * @param {string} selector
  * @returns {HTMLElement|undefined}
  */
@@ -65,6 +65,22 @@ export function findOwnControl (root, selector) {
  * apart two same-class controls belonging to the *same* widget, so those
  * need distinct classes. Leave it at the default `''` for the common case
  * of a widget with only one range pair.
+ *
+ * Cross-validates the pair via the native Constraint Validation API,
+ * surfaced by `jsoe.css`'s `input:invalid` styling and a real `<form>`'s
+ * `reportValidity`/`checkValidity` (`src/search/index.js`): leaving *both*
+ * ends blank is invalid - the same "no absent values" reasoning
+ * `buildLiteralRegexControls`'s Value input documents, an added range row
+ * needs at least one bound to mean anything - and if both ends are filled
+ * with "To" less than "From", that's invalid too. An open-ended range (only
+ * one end filled) stays valid. A row nested under an
+ * `objectSearchType.js` required-property's opt-in `<fieldset disabled>`
+ * (or, for `dateSearchType.js`'s own equivalent pair, its own
+ * "Invalid date" fieldset) is unaffected either way, since a disabled field
+ * is excluded from constraint validation entirely. `dateSearchType.js`'s
+ * own `datetime-local` pair needs the same two checks but isn't built
+ * through this helper (`buildDateInputControl` handles its own
+ * ISO-slicing), so it wires an equivalent handler itself.
  * @param {{
  *   name: string,
  *   key?: string,
@@ -78,14 +94,55 @@ export function findOwnControl (root, selector) {
 export function buildRangeInputsPair ({
   name, key = '', type = 'number', min, max, step
 }) {
+  /**
+   * `this` is whichever of the pair fired the event - looked up fresh via
+   * `findOwnControl` rather than closed over, so it stays correct however
+   * many `buildRangeInputsPair` pairs (of possibly-differing `key`s) end up
+   * sharing the same widget.
+   * @this {HTMLElement}
+   * @returns {void}
+   */
+  function validateRange () {
+    const root = this.closest('[data-search-path]');
+    if (!root) {
+      return;
+    }
+    const gteEl = /** @type {HTMLInputElement|undefined} */ (
+      findOwnControl(root, `input.jsoeSearchRangeGte--${key}`)
+    );
+    const lteEl = /** @type {HTMLInputElement|undefined} */ (
+      findOwnControl(root, `input.jsoeSearchRangeLte--${key}`)
+    );
+    if (!gteEl || !lteEl) {
+      return;
+    }
+    const bothEmpty = gteEl.value === '' && lteEl.value === '';
+    const outOfOrder = gteEl.value !== '' && lteEl.value !== '' &&
+      Number(lteEl.value) < Number(gteEl.value);
+    const emptyMessage = 'Enter at least one bound (From or To).';
+    gteEl.setCustomValidity(bothEmpty ? emptyMessage : '');
+    let lteMessage = '';
+    if (bothEmpty) {
+      lteMessage = emptyMessage;
+    } else if (outOfOrder) {
+      lteMessage = 'End of range must not be less than the start of the range.';
+    }
+    lteEl.setCustomValidity(lteMessage);
+  }
   return [
     ['label', [
       'From: ',
-      ['input', {name: `${name}-gte`, class: `jsoeSearchRangeGte--${key}`, type, min, max, step}]
+      ['input', {
+        name: `${name}-gte`, class: `jsoeSearchRangeGte--${key}`, type, min, max, step,
+        $on: {input: validateRange, change: validateRange}
+      }]
     ]],
     ['label', [
       'To: ',
-      ['input', {name: `${name}-lte`, class: `jsoeSearchRangeLte--${key}`, type, min, max, step}]
+      ['input', {
+        name: `${name}-lte`, class: `jsoeSearchRangeLte--${key}`, type, min, max, step,
+        $on: {input: validateRange, change: validateRange}
+      }]
     ]]
   ];
 }
@@ -172,11 +229,22 @@ export function buildHasPropertyToggle ({name, propertyName}) {
  * `dommatrixSearchType.js`'s "Is/Is not Readonly" and "Is/Is not 3d" side
  * by side); see `buildRangeInputsPair`'s doc for why. Leave it at the
  * default `''` for the common case of a widget with only one tri-state.
- * @param {{name: string, key?: string, trueLabel: string, falseLabel: string}} cfg
+ * `onChange`, when given, wires the select's own `change` event too (in
+ * addition to whatever the caller reads back via `readTriStateSelect` at
+ * `getQuery` time) - `dateSearchType.js`'s "Is valid/invalid date" tri-state
+ * uses it to disable the (otherwise irrelevant) From/To range while
+ * "Invalid date" is selected.
+ * @param {{
+ *   name: string, key?: string, trueLabel: string, falseLabel: string,
+ *   onChange?: (this: HTMLElement) => void
+ * }} cfg
  * @returns {JamilihArray}
  */
-export function buildTriStateSelect ({name, key = '', trueLabel, falseLabel}) {
-  return ['select', {name, class: `jsoeSearchTriState--${key}`}, [
+export function buildTriStateSelect ({name, key = '', trueLabel, falseLabel, onChange}) {
+  return ['select', {
+    name, class: `jsoeSearchTriState--${key}`,
+    $on: onChange ? {change: onChange} : undefined
+  }, [
     ['option', {value: ''}, ['(any)']],
     ['option', {value: 'true'}, [trueLabel]],
     ['option', {value: 'false'}, [falseLabel]]
@@ -239,6 +307,16 @@ export function readCheckbox (el) {
  * (e.g. `errorSearchType.js`'s `message`/`name`/`fileName`/`stack`); see
  * `buildRangeInputsPair`'s doc for why. Leave it at the default `''` for
  * the common case of a widget with only one such control.
+ *
+ * The Value input is `required`: unlike an untouched range/checkbox/select
+ * (whose empty/default state unambiguously means "no constraint"), a mode
+ * is always selected here (there is no "(any)" option), so an empty Value
+ * next to it is never a meaningful "no constraint" state - it just means
+ * the row was added and never finished. That leaves the whole form invalid
+ * from the moment such a row exists (`buildSearchChoices`'s `<form>`,
+ * `src/search/index.js`) until either a value is entered or (for an
+ * `objectSearchType.js` has-property row) the row is removed via its own
+ * "Remove" button.
  * @param {{name: string, key?: string}} cfg
  * @returns {JamilihArray}
  */
@@ -254,7 +332,10 @@ export function buildLiteralRegexControls ({name, key = ''}) {
     ]],
     ['label', [
       'Value: ',
-      ['input', {type: 'text', name: `${name}-value`, class: `jsoeSearchValue--${key}`}]
+      ['input', {
+        type: 'text', name: `${name}-value`, class: `jsoeSearchValue--${key}`,
+        required: true
+      }]
     ]]
   ]];
 }

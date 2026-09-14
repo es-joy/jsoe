@@ -23,8 +23,7 @@ describe('search: blobHTML spec', () => {
   it('swaps to a textarea for full text search mode only', () => {
     cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('fullText');
     cy.get(sel + 'input.jsoeSearchBlobHTMLValue').should('be.hidden');
-    cy.get(sel + 'textarea.jsoeSearchBlobHTMLValue').should('be.visible')
-      .type('welcome text');
+    cy.get(sel + 'textarea.jsoeSearchBlobHTMLValue').should('be.visible').type('welcome text');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());

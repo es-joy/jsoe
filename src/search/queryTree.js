@@ -93,6 +93,14 @@
  */
 
 /**
+ * `date`: is/is-not a valid `Date` (a structured-cloned `Date` can itself be
+ * an "Invalid Date" - a `NaN` internal time value - `dateType.js`'s own
+ * `notANum`/`ValidDate`/`InvalidDate` handling deals with the same state on
+ * the edit side).
+ * @typedef {{kind: 'validDateCheck', path: string, isValid: boolean}} QueryValidDateCheckLeaf
+ */
+
+/**
  * `string`/`StringObject`/`Blob`/`File`/regexp-source/symbol-description
  * (via `$in`/`$nin`).
  * @typedef {{
@@ -220,7 +228,8 @@
 
 /**
  * @typedef {QueryHasPropertyLeaf|QueryLengthSizeLeaf|QueryRangeLeaf|
- *   QueryNotLeaf|QueryIntegerCheckLeaf|QueryLiteralSetLeaf|QueryRegexLeaf|
+ *   QueryNotLeaf|QueryIntegerCheckLeaf|QueryValidDateCheckLeaf|
+ *   QueryLiteralSetLeaf|QueryRegexLeaf|
  *   QueryNotContainsLeaf|QueryMultiSelectLeaf|QueryKeyValueEnumLeaf|
  *   QueryTypeOfLeaf|QueryBlobHTMLLeaf|QueryDomShapeLeaf|
  *   QueryMapRecordJointLeaf|QueryPassThroughLeaf|QueryPresenceLeaf|

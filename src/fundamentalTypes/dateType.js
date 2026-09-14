@@ -12,17 +12,21 @@ import {schemaLabel} from '../utils/schemaMeta.js';
  * The `<input type="datetime-local">` construction shared between this
  * type's own `editUI` and the search subsystem's date-range widget
  * (`src/search/fundamentalTypes/dateSearchType.js` calls this twice, once
- * per range endpoint).
+ * per range endpoint, passing `onValidate` for its own from/to
+ * cross-validation - merged in here, rather than spread onto the returned
+ * array's props at the call site, since a `JamilihArray`'s props slot isn't
+ * statically indexable/spreadable outside this function).
  * @param {{
  *   name: string,
  *   value?: Date|string,
  *   notANum?: boolean,
- *   dateSchemaObject?: import('zodexy').SzDate
+ *   dateSchemaObject?: import('zodexy').SzDate,
+ *   onValidate?: (this: HTMLElement) => void
  * }} cfg
  * @returns {import('../types.js').JamilihArray}
  */
 export function buildDateInputControl ({
-  name, value = '', notANum = false, dateSchemaObject
+  name, value = '', notANum = false, dateSchemaObject, onValidate
 }) {
   return ['input', {
     name,
@@ -36,7 +40,8 @@ export function buildDateInputControl ({
       : undefined,
     max: dateSchemaObject?.max
       ? new Date(dateSchemaObject.max).toISOString().slice(0, -8)
-      : undefined
+      : undefined,
+    $on: onValidate ? {input: onValidate, change: onValidate} : undefined
   }];
 }
 

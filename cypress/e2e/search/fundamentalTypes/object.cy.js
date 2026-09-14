@@ -55,24 +55,29 @@ describe('search: object spec', () => {
     cy.get(nestedSel + 'select.addPropertySelect').select('nested');
     cy.get(nestedSel + 'button').contains('Add').click();
     cy.get(rowSel).should('exist');
-    cy.get(nestedSel + 'select.addPropertySelect option[value="nested"]')
-      .should('be.disabled');
+    cy.get(nestedSel + 'select.addPropertySelect option[value="nested"]').should('be.disabled');
 
     cy.get(rowSel + ' button.removePropertyButton').click();
     cy.get(rowSel).should('not.exist');
-    cy.get(nestedSel + 'select.addPropertySelect option[value="nested"]')
-      .should('not.be.disabled');
+    cy.get(nestedSel + 'select.addPropertySelect option[value="nested"]').should('not.be.disabled');
 
     cy.get(nestedSel + 'select.addPropertySelect').select('nested');
     cy.get(nestedSel + 'button').contains('Add').click();
     cy.get(rowSel).should('exist');
   });
 
-  it('shows a required property\'s own widget directly, with no toggle', () => {
-    const childSel = sel + 'jsoe-search-string[data-search-path="#/requiredString"]';
+  it('shows a required property\'s own widget directly, disabled until opted into', () => {
+    const rowSel = sel + 'jsoe-search-required-property[data-property-name="requiredString"] ';
+    const childSel = rowSel + 'jsoe-search-string[data-search-path="#/requiredString"]';
     cy.get(childSel).should('be.visible');
+    cy.get(childSel + ' input[name$="-value"]').should('be.disabled');
     cy.get(sel + 'select[name$="-hasProperty-requiredString"]').should('not.exist');
-    cy.get(sel + 'select.addPropertySelect option[value="requiredString"]')
-      .should('not.exist');
+    cy.get(sel + 'select.addPropertySelect option[value="requiredString"]').should('not.exist');
+
+    cy.get(rowSel + 'input.jsoeSearchCheckbox').check();
+    cy.get(childSel + ' input[name$="-value"]').should('not.be.disabled');
+
+    cy.get(rowSel + 'input.jsoeSearchCheckbox').uncheck();
+    cy.get(childSel + ' input[name$="-value"]').should('be.disabled');
   });
 });
