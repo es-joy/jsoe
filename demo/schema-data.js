@@ -692,6 +692,137 @@ const schemaInstanceJSONXor2 = {
 };
 
 // Exercises Zodexy `meta`: `meta.title` as the visible label, `meta.description`
+// Additive fixtures for demo/index-search.js (search plan §7 test plan) -
+//   shapes the existing fixtures above don't already cover.
+
+/** @type {import('zodexy').SzDate} */
+const schemaInstanceJSONSearchDate = {
+  description: 'A date with a real range, for the search range-widget test',
+  type: 'date',
+  min: Date.parse('2020-01-01T00:00:00.000Z'),
+  max: Date.parse('2029-12-31T00:00:00.000Z')
+};
+
+/** @type {import('zodexy').SzTuple} */
+const schemaInstanceJSONSearchTupleRest = {
+  description: 'A tuple with rest',
+  type: 'tuple',
+  items: [{type: 'string'}, {type: 'number'}],
+  rest: {type: 'boolean'}
+};
+
+/** @type {import('zodexy').SzRecord} */
+const schemaInstanceJSONSearchRecord = {
+  description: 'A record',
+  type: 'record',
+  key: {type: 'string'},
+  value: {type: 'number'}
+};
+
+/** @type {import('zodexy').SzLooseRecord} */
+const schemaInstanceJSONSearchLooseRecord = {
+  description: 'A loose record',
+  type: 'looseRecord',
+  key: {type: 'string'},
+  value: {type: 'number'}
+};
+
+/** @type {import('zodexy').SzDiscriminatedUnion} */
+const schemaInstanceJSONSearchDiscriminatedUnion = {
+  description: 'A discriminated union with a date branch',
+  type: 'discriminatedUnion',
+  discriminator: 'kind',
+  options: [
+    {
+      type: 'object',
+      properties: {
+        kind: {type: 'literal', values: ['event']},
+        when: {type: 'date', isOptional: true}
+      }
+    },
+    {
+      type: 'object',
+      properties: {
+        kind: {type: 'literal', values: ['note']},
+        text: {type: 'string', isOptional: true}
+      }
+    }
+  ]
+};
+
+// jsoe represents several runtime types via zodexy's "checked" mechanism -
+//   `{type: 'any', checks: [{name: 'blob'}]}` for `Blob`, and similarly for
+//   `regexp`, `error`, `domrect`, etc. (`getCheckedType`,
+//   `src/formats/schema.js`); this fixture object collects one of each,
+//   marked optional, for the search demo's additive "has property" pulldown
+//   to expose them all through one schema.
+/** @type {import('zodexy').SzObject} */
+const schemaInstanceJSONSearchAllTypes = {
+  description: 'One property per search-supported type',
+  type: 'object',
+  properties: {
+    date: {...schemaInstanceJSONSearchDate, isOptional: true},
+    number: {type: 'number', isOptional: true},
+    bigint: {type: 'bigInt', isOptional: true},
+    string: {type: 'string', isOptional: true},
+    regexp: {type: 'any', checks: [{name: 'regexp'}], isOptional: true},
+    boolean: {type: 'boolean', isOptional: true},
+    symbol: {type: 'symbol', isOptional: true},
+    undef: {type: 'undefined', isOptional: true},
+    nullValue: {type: 'null', isOptional: true},
+    nan: {type: 'nan', isOptional: true},
+    enum: {type: 'enum', values: {Red: 'red', Green: 'green'}, isOptional: true},
+    array: {type: 'array', element: {type: 'number'}, isOptional: true},
+    object: {
+      type: 'object',
+      properties: {nested: {type: 'string', isOptional: true}},
+      isOptional: true
+    },
+    map: {type: 'map', key: {type: 'string'}, value: {type: 'number'}, isOptional: true},
+    set: {type: 'set', value: {type: 'number'}, isOptional: true},
+    tuple: {...schemaInstanceJSONSearchTupleRest, isOptional: true},
+    record: {...schemaInstanceJSONSearchRecord, isOptional: true},
+    filelist: {
+      type: 'codec', name: 'filelist',
+      input: {type: 'instanceof', name: 'filelist'},
+      output: {type: 'array', element: {type: 'file'}},
+      isOptional: true
+    },
+    file: {type: 'file', isOptional: true},
+    blob: {type: 'any', checks: [{name: 'blob'}], isOptional: true},
+    error: {type: 'any', checks: [{name: 'error'}], isOptional: true},
+    errors: {type: 'any', checks: [{name: 'errors'}], isOptional: true},
+    domexception: {type: 'any', checks: [{name: 'domexception'}], isOptional: true},
+    promise: {type: 'promise', value: {type: 'number'}, isOptional: true},
+    catch: {
+      type: 'catch', innerType: {type: 'string'}, value: 'fallback',
+      isOptional: true
+    },
+    function: {
+      type: 'function',
+      input: {type: 'tuple', items: [{type: 'number'}]},
+      output: {type: 'boolean'},
+      isOptional: true
+    },
+    union: {
+      type: 'union', options: [{type: 'string'}, {type: 'number'}], isOptional: true
+    },
+    xor: {
+      type: 'xor', options: [{type: 'boolean'}, {type: 'string'}], isOptional: true
+    },
+    discriminatedUnion: {...schemaInstanceJSONSearchDiscriminatedUnion, isOptional: true},
+    domrect: {type: 'any', checks: [{name: 'domrect'}], isOptional: true},
+    dompoint: {type: 'any', checks: [{name: 'dompoint'}], isOptional: true},
+    dommatrix: {type: 'any', checks: [{name: 'dommatrix'}], isOptional: true},
+    blobHTML: {type: 'any', checks: [{name: 'blobHTML'}], isOptional: true},
+    specialRealNumber: {
+      type: 'any', checks: [{name: 'SpecialRealNumber'}], isOptional: true
+    },
+    buffersource: {type: 'any', checks: [{name: 'buffersource'}], isOptional: true}
+  }
+};
+
+// Demonstrates every recognized `meta` key: `title`/`description` (also
 //   as tooltip-only long text, plus `id`, `deprecated`, a custom key, and the
 //   reserved `jsoe` directive namespace, all surfaced through the info toggle.
 /** @type {import('zodexy').SzObject} */
@@ -757,5 +888,11 @@ export {
   schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
   schemaInstanceJSONXor, schemaInstanceJSONXor2,
   schemaInstanceJSONMeta,
+  schemaInstanceJSONSearchDate,
+  schemaInstanceJSONSearchTupleRest,
+  schemaInstanceJSONSearchRecord,
+  schemaInstanceJSONSearchLooseRecord,
+  schemaInstanceJSONSearchDiscriminatedUnion,
+  schemaInstanceJSONSearchAllTypes,
   makeNoneditableType
 };

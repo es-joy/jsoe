@@ -1,0 +1,21 @@
+describe('search: blob spec', () => {
+  const sel = '#section-allTypes ';
+
+  beforeEach(() => {
+    cy.visit('http://127.0.0.1:8087/demo/index-search-instrumented.html');
+    cy.get(sel + 'select.addPropertySelect').select('blob');
+    cy.get(sel + 'button').contains('Add').click();
+  });
+
+  it('gets a regex query against the MIME type', () => {
+    cy.get(sel + 'select[name$="-mode"]').select('regex');
+    cy.get(sel + 'input[name$="-value"]').type('^image/');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'regex', path: '#/blob', $regex: '^image/'
+      });
+    });
+  });
+});

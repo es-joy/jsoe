@@ -88,6 +88,18 @@ export default [{
     commonjs()
   ]
 }, {
+  input: 'demo/index-search.js',
+  output: {
+    file: 'instrumented/demo/index-search.js',
+    format: 'es'
+  },
+  plugins: [
+    builtins(),
+    istanbul({exclude: ['node_modules/**']}),
+    nodeResolve({browser: true}),
+    commonjs()
+  ]
+}, {
   input: 'node_modules/fast-deep-equal/es6/index.js',
   output: {
     file: 'src/deepEqual.js',
