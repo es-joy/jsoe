@@ -30,3 +30,5 @@ export {
 export {
   buildSearchChoices
 } from './search/index.js';
+
+export {default as createJtltExtensions} from './jtltExtensions.js';

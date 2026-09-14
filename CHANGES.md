@@ -1,5 +1,21 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.29.0
+
+- feat: `createJtltExtensions(types, {typeNamespace?, getSchemaContent?})`
+  (new `src/jtltExtensions.js`, exported from the package root) — builds a
+  `generateJsoeEditUI` / `generateJsoeViewUI` pair ready to spread into a
+  jtlt `config.extensions` object (jtlt 0.22.0+'s generic extension-call
+  mechanism), so a consumer's declarative templates (e.g. idb-manager's
+  route overrides) can build jsoe's own edit/view control tree for a value
+  via `{$generateJsoeEditUI: {select: '$.record', db, store}}` /
+  `{$generateJsoeViewUI: {...}}`. `db`/`store`, when a call provides both,
+  resolve that store's schema through the caller-supplied
+  `getSchemaContent(db, store)` (called fresh per call, so one bundle
+  correctly serves records from more than one store); omitted, the built
+  controls simply infer type choices from the value alone, as
+  `getControlsForFormatAndValue` already does without a schema.
+
 ## 0.28.2
 
 - fix: ensure `type: "symbol"` schema can be used
