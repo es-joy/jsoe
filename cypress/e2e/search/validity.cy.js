@@ -360,4 +360,88 @@ describe('search: form validity', () => {
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
+
+  it('rejects a syntactically invalid CSS selector, XPath expression, and regex for blobHTML', () => {
+    cy.get(sel + 'select.addPropertySelect').select('blobHTML');
+    cy.get(sel + 'button').contains('Add').click();
+
+    // "CSS selector" is the default mode.
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('[[[');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('.title');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('xpath');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('///');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('//div');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('rawHTMLRegex');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('[[[');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('^abc$');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+  });
+
+  it('rejects a regex that is only invalid under the currently-selected blobHTML flags', () => {
+    cy.get(sel + 'select.addPropertySelect').select('blobHTML');
+    cy.get(sel + 'button').contains('Add').click();
+
+    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('rawHTMLRegex');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type(
+      String.raw`\p{Foo}`, {parseSpecialCharSequences: false}
+    );
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    // `\p{Foo}` is just literal text without the `u` flag, but becomes an
+    // (here, unrecognized) Unicode property escape once `u` is chosen.
+    cy.get(sel + 'select.jsoeSearchBlobHTMLFlags').select(['u']);
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+  });
+
+  it('rejects a syntactically invalid regex for string\'s "Matches regex"', () => {
+    cy.get(sel + 'select.addPropertySelect').select('string');
+    cy.get(sel + 'button').contains('Add').click();
+
+    const propSel = sel + '[data-search-path="#/string"] ';
+    cy.get(propSel + 'select[name$="-mode"]').select('regex');
+    cy.get(propSel + 'input[name$="-value"]').type('[[[');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(propSel + 'input[name$="-value"]').clear();
+    cy.get(propSel + 'input[name$="-value"]').type('^abc$');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+  });
+
+  it('rejects a syntactically invalid regex for regexp\'s "Matches regex" source match', () => {
+    cy.get(sel + 'select.addPropertySelect').select('regexp');
+    cy.get(sel + 'button').contains('Add').click();
+
+    const propSel = sel + '[data-search-path="#/regexp"] ';
+    cy.get(propSel + 'select.jsoeSearchMode--').select('regex');
+    cy.get(propSel + 'input[name$="-value"]').type('[[[');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(propSel + 'input[name$="-value"]').clear();
+    cy.get(propSel + 'input[name$="-value"]').type('^abc$');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+  });
 });

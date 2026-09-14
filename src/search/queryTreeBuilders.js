@@ -172,10 +172,11 @@ export function makeTypeOfLeaf (path, searchType, discriminatorValue) {
  * @param {string} path
  * @param {import('./queryTree.js').QueryBlobHTMLLeaf['mode']} mode
  * @param {string} value
+ * @param {string} [$options]
  * @returns {import('./queryTree.js').QueryBlobHTMLLeaf}
  */
-export function makeBlobHTMLLeaf (path, mode, value) {
-  return {kind: 'blobHTML', path, mode, value};
+export function makeBlobHTMLLeaf (path, mode, value, $options) {
+  return {kind: 'blobHTML', path, mode, value, ...($options ? {$options} : {})};
 }
 
 /**

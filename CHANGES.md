@@ -1,5 +1,10 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.31.0
+
+- feat: validation for regexes, CSS selector, XPath, regexes
+- fix: regex flags for blobHTML
+
 ## 0.30.0
 
 - feat(search): assorted validation fixes

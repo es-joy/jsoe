@@ -453,16 +453,23 @@ export function readCheckbox (el) {
  * "Matches regex" is the chosen mode.
  *
  * `flagOptions`, when given, adds a Flags multi-select (options passed in
- * by the caller - `stringSearchType.js` passes `regexpType.js`'s own
- * `allowedFlags`, the same list `regexpSearchType.js` uses for the actual
- * regexp's own flags - kept out of this generic module to avoid it
- * depending on a specific fundamental type), shown only while "Matches
- * regex" is the chosen mode, the same `$options` a Mongo-flavored `$regex`
- * accepts alongside it - a plain literal/substring match has no regex to
- * apply flags to, so it stays hidden otherwise. Every other caller
- * (`errorSearchType.js`'s props, `fileSearchType.js`'s name/type,
- * `domexceptionSearchType.js`'s message) leaves this unset, matching the
- * README's flags-for-regexp-only-plus-string bullet.
+ * by the caller - most callers pass `regexpType.js`'s own `allowedFlags`,
+ * the same list `regexpSearchType.js` uses for the actual regexp's own
+ * flags - kept out of this generic module to avoid it depending on a
+ * specific fundamental type), shown only while "Matches regex" is the
+ * chosen mode, the same `$options` a Mongo-flavored `$regex` accepts
+ * alongside it - a plain literal/substring match has no regex to apply
+ * flags to, so it stays hidden otherwise. `regexpSearchType.js`'s own call
+ * (matching against the regexp's `.source` text, not to be confused with
+ * its separate, bespoke Flags control for the regexp's *actual* flags)
+ * leaves this unset, since a flag there would have no real regex of its own
+ * to apply to.
+ *
+ * While "Matches regex" is chosen, the Value input is also live syntax-
+ * checked (`syncLiteralRegexValidity`, below) against
+ * `new RegExp(value, flags)` - an unparsable pattern (or one only invalid
+ * for the currently-selected flags, e.g. `u`/`v`'s stricter escape rules)
+ * sets a custom validity message rather than silently accepting it.
  * @param {{
  *   name: string, key?: string, onModeChange?: (this: HTMLElement) => void,
  *   flagOptions?: string[]
@@ -470,6 +477,46 @@ export function readCheckbox (el) {
  * @returns {JamilihArray}
  */
 export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOptions}) {
+  /**
+   * Live syntax-checks the Value input against `new RegExp(value, flags)`
+   * whenever the current Mode is "Matches regex" - a literal/does-not-
+   * contain Value is a plain string with no format to violate, so this only
+   * has anything to say once "regex" is chosen, and clears back to valid
+   * the moment it isn't. Flags are folded in (read fresh off the Flags
+   * multi-select, when this call has one) because they can themselves flip
+   * a pattern between valid and invalid - the `u`/`v` flags' stricter escape
+   * rules being the main example - so a Flags `change` needs to re-run this
+   * exactly like a Value `input` or a Mode `change` does.
+   * @param {HTMLElement} el - any one of the Mode/Value/Flags controls
+   * @returns {void}
+   */
+  function syncLiteralRegexValidity (el) {
+    const root = el.closest('[data-search-path]');
+    const modeEl = /** @type {HTMLSelectElement|undefined} */ (
+      root ? findOwnControl(root, `select.jsoeSearchMode--${key}`) : undefined
+    );
+    const valueEl = /** @type {HTMLInputElement|undefined} */ (
+      root ? findOwnControl(root, `input.jsoeSearchValue--${key}`) : undefined
+    );
+    if (!modeEl || !valueEl) {
+      return;
+    }
+    if (modeEl.value !== 'regex' || !valueEl.value) {
+      valueEl.setCustomValidity('');
+      return;
+    }
+    const flagsEl = /** @type {HTMLSelectElement|undefined} */ (
+      root ? findOwnControl(root, `select.jsoeSearchRegexFlags--${key}`) : undefined
+    );
+    const flags = [...(flagsEl?.selectedOptions ?? [])].map((opt) => opt.value).join('');
+    try {
+      // eslint-disable-next-line no-new -- Testing
+      new RegExp(valueEl.value, flags);
+      valueEl.setCustomValidity('');
+    } catch {
+      valueEl.setCustomValidity('Enter a valid regular expression.');
+    }
+  }
   /**
    * @this {HTMLElement}
    * @returns {void}
@@ -482,6 +529,7 @@ export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOp
       /** @type {HTMLElement} */ (flagsLabel).hidden =
         /** @type {HTMLSelectElement} */ (this).value !== 'regex';
     }
+    syncLiteralRegexValidity(this);
     onModeChange?.call(this);
   }
   /** @type {JamilihArray[]} */
@@ -490,7 +538,13 @@ export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOp
     flagsChildren.push(['label', {class: `jsoeSearchRegexFlagsLabel--${key}`, hidden: true}, [
       'Flags: ',
       ['select', {
-        name: `${name}-flags`, multiple: true, class: `jsoeSearchRegexFlags--${key}`
+        name: `${name}-flags`, multiple: true, class: `jsoeSearchRegexFlags--${key}`,
+        $on: {
+          /** @this {HTMLElement} */
+          change () {
+            syncLiteralRegexValidity(this);
+          }
+        }
       }, flagOptions.map((flag) => ['option', {value: flag}, [flag]])]
     ]]);
   }
@@ -510,7 +564,13 @@ export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOp
       'Value: ',
       ['input', {
         type: 'text', name: `${name}-value`, class: `jsoeSearchValue--${key}`,
-        required: true
+        required: true,
+        $on: {
+          /** @this {HTMLElement} */
+          input () {
+            syncLiteralRegexValidity(this);
+          }
+        }
       }]
     ]],
     ...flagsChildren

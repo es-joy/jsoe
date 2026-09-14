@@ -167,11 +167,14 @@
 
 /**
  * XPath/CSS-selector/full-text/raw-HTML-regex; no Mongo equivalent.
+ * `$options`, mirroring `QueryRegexLeaf`'s field of the same name, is only
+ * ever populated for `mode: 'rawHTMLRegex'`.
  * @typedef {{
  *   kind: 'blobHTML',
  *   path: string,
  *   mode: 'xpath'|'cssSelector'|'fullText'|'rawHTMLRegex',
- *   value: string
+ *   value: string,
+ *   $options?: string
  * }} QueryBlobHTMLLeaf
  */
 

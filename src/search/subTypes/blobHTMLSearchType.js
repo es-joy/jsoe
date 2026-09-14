@@ -3,10 +3,102 @@ import {
 } from '../searchUtils.js';
 import {makeBlobHTMLLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
+import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
  */
+
+/**
+ * Live syntax-checks a blobHTML Value against its currently-chosen Mode -
+ * a CSS selector and an XPath expression are each tried against a detached,
+ * inert target (a fragment for the selector, the live `document` itself,
+ * required by `Element.prototype.evaluate`'s own contract, for the XPath -
+ * neither actually has to *match* anything, only parse without throwing),
+ * and a regex is tried via the same `new RegExp(value, flags)` constructor
+ * `readLiteralRegexQuery` relies on elsewhere - a "Full text search" value
+ * is a plain phrase with no format to violate, so it always passes.
+ * @param {string} mode
+ * @param {string} value
+ * @param {string} flags
+ * @returns {string}
+ */
+function computeBlobHTMLValueMessage (mode, value, flags) {
+  if (!value) {
+    return '';
+  }
+  try {
+    switch (mode) {
+    case 'cssSelector':
+      document.createDocumentFragment().querySelector(value);
+      break;
+    case 'xpath':
+      document.evaluate(value, document, null, XPathResult.ANY_TYPE, null);
+      break;
+    case 'rawHTMLRegex':
+      // eslint-disable-next-line no-new -- Testing
+      new RegExp(value, flags);
+      break;
+    default:
+      break;
+    }
+    return '';
+  } catch {
+    switch (mode) {
+    case 'cssSelector':
+      return 'Enter a valid CSS selector.';
+    case 'xpath':
+      return 'Enter a valid XPath expression.';
+    case 'rawHTMLRegex':
+      return 'Enter a valid regular expression.';
+    default:
+      return '';
+    }
+  }
+}
+
+/**
+ * Re-runs `computeBlobHTMLValueMessage` against whichever of the input/
+ * textarea pair the current Mode makes active, clearing the other one's
+ * custom validity (a hidden-but-still-`required` control would otherwise
+ * keep blocking the form, the same reasoning `buildUI`'s own doc gives for
+ * toggling `required` alongside `hidden`) - call on every `input` on either
+ * value control, `change` on the Mode `<select>`, and `change` on the Flags
+ * multi-select (changing flags can itself flip a regex between valid and
+ * invalid, e.g. the `u`/`v` flags' stricter escape rules).
+ * @param {Element|null} container
+ * @returns {void}
+ */
+function syncBlobHTMLValueValidity (container) {
+  if (!container) {
+    return;
+  }
+  const mode = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(container, 'select.jsoeSearchBlobHTMLMode')
+  )?.value ?? '';
+  const input = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(container, 'input.jsoeSearchBlobHTMLValue')
+  );
+  const textarea = /** @type {HTMLTextAreaElement|undefined} */ (
+    findOwnControl(container, 'textarea.jsoeSearchBlobHTMLValue')
+  );
+  const flagsSelect = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(container, 'select.jsoeSearchBlobHTMLFlags')
+  );
+  const flags = mode === 'rawHTMLRegex'
+    ? [...(flagsSelect?.selectedOptions ?? [])].map((opt) => opt.value).join('')
+    : '';
+  const active = mode === 'fullText' ? textarea : input;
+  if (input && input !== active) {
+    input.setCustomValidity('');
+  }
+  if (textarea && textarea !== active) {
+    textarea.setCustomValidity('');
+  }
+  if (active) {
+    active.setCustomValidity(computeBlobHTMLValueMessage(mode, active.value, flags));
+  }
+}
 
 /**
  * Blob HTML: XPath, CSS selectors, full text search, regex search of raw
@@ -23,7 +115,8 @@ import {getQueryViaElement} from '../searchElementUtils.js';
  * of the pair is ever `required` (toggled alongside `hidden` by the mode
  * `change` handler): a `required` field that's merely hidden, rather than
  * also un-required, still blocks the form's validity even though the user
- * has no way to see or fill it.
+ * has no way to see or fill it. "CSS selector" is listed ahead of "XPath"
+ * (and is the default mode) as the option most jsoe users will recognize.
  *
  * The `change` handler also checks `isExemptedByAncestorHasProperty` before
  * (re-)asserting `required` on the now-visible control: nested as an
@@ -35,6 +128,15 @@ import {getQueryViaElement} from '../searchElementUtils.js';
  * check, that synthetic event would immediately reassert `required` on
  * whichever control the current mode makes visible, undoing the exemption
  * `setDescendantsRequired` had just granted.
+ *
+ * "Regex search of raw HTML" gets its own Flags multi-select (the same
+ * `regexpType.js` `allowedFlags` list `stringSearchType.js`'s literal/regex
+ * control passes as `buildLiteralRegexControls`'s `flagOptions`), shown only
+ * while that mode is chosen, folded into the `blobHTML` leaf's own
+ * `$options` (mirroring `QueryRegexLeaf`'s field of the same name) - and,
+ * via `syncBlobHTMLValueValidity`, included when syntax-checking the Value
+ * itself, since the chosen flags can affect whether a given pattern is
+ * actually valid.
  * @type {SearchTypeObject}
  */
 const blobHTMLSearchType = {
@@ -60,10 +162,16 @@ const blobHTMLSearchType = {
           if (!value || !mode) {
             return undefined;
           }
+          const flags = mode === 'rawHTMLRegex'
+            ? [...(/** @type {HTMLSelectElement|undefined} */ (
+              findOwnControl(this, 'select.jsoeSearchBlobHTMLFlags')
+            )?.selectedOptions ?? [])].map((opt) => opt.value).join('')
+            : '';
           return makeBlobHTMLLeaf(
             searchPath,
             /** @type {import('../queryTree.js').QueryBlobHTMLLeaf['mode']} */ (mode),
-            value
+            value,
+            flags || undefined
           );
         }
       }
@@ -83,8 +191,11 @@ const blobHTMLSearchType = {
               const textarea = /** @type {HTMLTextAreaElement|null|undefined} */ (
                 container?.querySelector('textarea.jsoeSearchBlobHTMLValue')
               );
-              const isFullText = /** @type {HTMLSelectElement} */ (this).value ===
-                'fullText';
+              const flagsLabel = /** @type {HTMLElement|null|undefined} */ (
+                container?.querySelector('.jsoeSearchBlobHTMLFlagsLabel')
+              );
+              const mode = /** @type {HTMLSelectElement} */ (this).value;
+              const isFullText = mode === 'fullText';
               const exempted = container !== null &&
                 isExemptedByAncestorHasProperty(container);
               if (input) {
@@ -95,11 +206,15 @@ const blobHTMLSearchType = {
                 textarea.hidden = !isFullText;
                 textarea.required = isFullText && !exempted;
               }
+              if (flagsLabel) {
+                flagsLabel.hidden = mode !== 'rawHTMLRegex';
+              }
+              syncBlobHTMLValueValidity(container);
             }
           }
         }, [
-          ['option', {value: 'xpath'}, ['XPath']],
           ['option', {value: 'cssSelector'}, ['CSS selector']],
+          ['option', {value: 'xpath'}, ['XPath']],
           ['option', {value: 'fullText'}, ['Full text search']],
           ['option', {value: 'rawHTMLRegex'}, ['Regex search of raw HTML']]
         ]]
@@ -108,11 +223,32 @@ const blobHTMLSearchType = {
         'Value: ',
         ['input', {
           type: 'text', name: `${name}-value`, class: 'jsoeSearchBlobHTMLValue',
-          required: true
+          required: true,
+          $on: {
+            input () {
+              syncBlobHTMLValueValidity(this.closest('jsoe-search-blob-html'));
+            }
+          }
         }],
         ['textarea', {
-          name: `${name}-value`, class: 'jsoeSearchBlobHTMLValue', hidden: true
+          name: `${name}-value`, class: 'jsoeSearchBlobHTMLValue', hidden: true,
+          $on: {
+            input () {
+              syncBlobHTMLValueValidity(this.closest('jsoe-search-blob-html'));
+            }
+          }
         }]
+      ]],
+      ['label', {class: 'jsoeSearchBlobHTMLFlagsLabel', hidden: true}, [
+        'Flags: ',
+        ['select', {
+          name: `${name}-flags`, multiple: true, class: 'jsoeSearchBlobHTMLFlags',
+          $on: {
+            change () {
+              syncBlobHTMLValueValidity(this.closest('jsoe-search-blob-html'));
+            }
+          }
+        }, regexpType.allowedFlags.map((flag) => ['option', {value: flag}, [flag]])]
       ]]
     ]];
   },
