@@ -1,4 +1,8 @@
-import {buildPathLabel, buildCheckbox, readCheckbox, buildLengthSizeControls, readLengthSizeQuery} from '../searchUtils.js';
+import {
+  buildPathLabel, buildCheckbox, readCheckbox, buildLengthSizeControls,
+  readLengthSizeQuery, buildOptInFieldset, readOptInChecked, wireOptInFieldset,
+  buildAtLeastOneSentinel, syncAtLeastOneCheck
+} from '../searchUtils.js';
 import {makeMapRecordJointLeaf, combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
@@ -8,6 +12,16 @@ import {buildSearchWidget} from '../searchDispatch.js';
  */
 
 /**
+ * @param {Element} root - a `jsoe-search-map`/`jsoe-search-record` element
+ * @returns {void}
+ */
+function syncKeyValueValidity (root) {
+  syncAtLeastOneCheck(
+    root, () => readOptInChecked(root, 'key') || readOptInChecked(root, 'value')
+  );
+}
+
+/**
  * Map, Record: string-type searches of keys, values; ideally would allow
  * search to insist on match of key and value (README) - structurally the
  * same as `recordSearchType.js` (`key`/`value` recursion at `*key`/`*value`
@@ -15,7 +29,12 @@ import {buildSearchWidget} from '../searchDispatch.js';
  * leaf), plus a `lengthSize` control for `min`/`max` (a `Map`, unlike a
  * `Record`, carries its own size bounds in the schema - the same
  * affordance `setSearchType.js` gets for the analogous reason), combined
- * with the joint leaf via `$and`.
+ * with the joint leaf via `$and`. Key and value are each wrapped in their
+ * own `buildOptInFieldset` (so leaving either at "no constraint" doesn't
+ * force it via a `required` control inside), but *leaving both* unopted-in
+ * is itself invalid via `buildAtLeastOneSentinel` - unlike array/set/tuple's
+ * element match(es), a map/record has no independent length/size-only
+ * alternative that would still mean something on its own here.
  * @type {SearchTypeObject}
  */
 const mapSearchType = {
@@ -48,15 +67,21 @@ const mapSearchType = {
       title: label,
       $define: {
         /** @this {HTMLElement} */
+        connectedCallback () {
+          wireOptInFieldset(this, 'key', () => syncKeyValueValidity(this));
+          wireOptInFieldset(this, 'value', () => syncKeyValueValidity(this));
+          syncKeyValueValidity(this);
+        },
+        /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';
           const lengthLeaf = readLengthSizeQuery(this, searchPath);
           const keyEl = findSearchElement(this, `${searchPath}/*key`);
           const valueEl = findSearchElement(this, `${searchPath}/*value`);
-          const keyQuery = keyEl && hasGetQuery(keyEl)
+          const keyQuery = keyEl && hasGetQuery(keyEl) && readOptInChecked(this, 'key')
             ? keyEl.getQuery()
             : undefined;
-          const valueQuery = valueEl && hasGetQuery(valueEl)
+          const valueQuery = valueEl && hasGetQuery(valueEl) && readOptInChecked(this, 'value')
             ? valueEl.getQuery()
             : undefined;
           const jointLeaf = keyQuery || valueQuery
@@ -70,15 +95,14 @@ const mapSearchType = {
       ...buildLengthSizeControls({
         name, min: mapSchemaObject.min, max: mapSchemaObject.max, includeSparse: false
       }),
-      ['div', {class: 'searchMapKey'}, [
-        ['span', ['Key matches: ']],
-        keyArr
-      ]],
-      ['div', {class: 'searchMapValue'}, [
-        ['span', ['Value matches: ']],
-        valueArr
-      ]],
-      buildCheckbox({name: `${name}-joint`, label: 'Require same entry'})
+      ...buildOptInFieldset({
+        name: `${name}-key`, key: 'key', label: 'Key matches', children: [keyArr]
+      }),
+      ...buildOptInFieldset({
+        name: `${name}-value`, key: 'value', label: 'Value matches', children: [valueArr]
+      }),
+      buildCheckbox({name: `${name}-joint`, label: 'Require same entry'}),
+      buildAtLeastOneSentinel()
     ]];
   },
   getQuery: getQueryViaElement

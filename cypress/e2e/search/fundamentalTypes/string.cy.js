@@ -31,4 +31,20 @@ describe('search: string spec', () => {
       });
     });
   });
+
+  it('allows flags once "Matches regex" is chosen, hidden otherwise', () => {
+    const propSel = sel + '[data-search-path="#/string"] ';
+    cy.get(propSel + 'select.jsoeSearchRegexFlags--').should('not.be.visible');
+
+    cy.get(propSel + 'select[name$="-mode"]').select('regex');
+    cy.get(propSel + 'input[name$="-value"]').type('^abc$');
+    cy.get(propSel + 'select.jsoeSearchRegexFlags--').should('be.visible').select(['i', 'm']);
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'regex', path: '#/string', $regex: '^abc$', $options: 'im'
+      });
+    });
+  });
 });

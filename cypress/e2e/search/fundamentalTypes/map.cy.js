@@ -9,7 +9,9 @@ describe('search: map spec', () => {
   });
 
   it('combines key/value matches under a joint flag', () => {
+    cy.get(mapSel + 'input.jsoeSearchOptIn--key').check();
     cy.get(mapSel + '[data-search-path="#/map/*key"] input[name$="-value"]').type('x');
+    cy.get(mapSel + 'input.jsoeSearchOptIn--value').check();
     cy.get(mapSel + '[data-search-path="#/map/*value"] input[name$="-gte"]').type('5');
     cy.get(mapSel + 'input[name$="-joint"]').check();
     cy.get(sel + '.getQueryButton').click();

@@ -8,7 +8,10 @@ describe('search: function spec', () => {
   });
 
   it('combines an args (tuple) match with an output match', () => {
+    cy.get(sel + 'input.jsoeSearchOptIn--args').check();
+    cy.get(sel + 'input.jsoeSearchOptIn--0').check();
     cy.get(sel + '[data-search-path="#/function/*args/0"] input[name$="-gte"]').type('3');
+    cy.get(sel + 'input.jsoeSearchOptIn--output').check();
     cy.get(sel + '[data-search-path="#/function/*output"] select').select('true');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

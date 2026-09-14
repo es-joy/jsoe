@@ -7,8 +7,8 @@ describe('search: null spec', () => {
     cy.get(sel + 'button').contains('Add').click();
   });
 
-  it('gets a presence query when checked', () => {
-    cy.get(sel + 'jsoe-search-null input[type="checkbox"]').check();
+  it('gets a presence query automatically (the checkbox is pre-checked and disabled)', () => {
+    cy.get(sel + 'jsoe-search-null input[type="checkbox"]').should('be.checked').and('be.disabled');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());

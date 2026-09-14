@@ -10,6 +10,7 @@ describe('search: array spec', () => {
   it('combines a length/sparse constraint with an element-match constraint', () => {
     cy.get(sel + 'jsoe-search-array input[name$="-size"]').type('3');
     cy.get(sel + 'jsoe-search-array > label select.jsoeSearchTriState--').select('true');
+    cy.get(sel + 'jsoe-search-array input.jsoeSearchOptIn--').check();
     cy.get(sel + 'jsoe-search-array jsoe-search-number input[name$="-gte"]').type('7');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

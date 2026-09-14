@@ -5,7 +5,9 @@ describe('search: record/looseRecord spec', () => {
 
   it('combines key/value matches under a joint flag (record)', () => {
     const sel = '#section-record ';
+    cy.get(sel + 'input.jsoeSearchOptIn--key').check();
     cy.get(sel + 'input[name$="-value"]').type('x');
+    cy.get(sel + 'input.jsoeSearchOptIn--value').check();
     cy.get(sel + 'input[name$="-gte"]').type('5');
     cy.get(sel + 'input[name$="-joint"]').check();
     cy.get(sel + '.getQueryButton').click();
@@ -25,6 +27,7 @@ describe('search: record/looseRecord spec', () => {
 
   it('shares the same widget for looseRecord', () => {
     const sel = '#section-looseRecord ';
+    cy.get(sel + 'input.jsoeSearchOptIn--value').check();
     cy.get(sel + 'input[name$="-gte"]').type('9');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

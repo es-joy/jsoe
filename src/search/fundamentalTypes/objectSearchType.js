@@ -2,7 +2,8 @@ import {jml} from '../../vendor-imports.js';
 import {escapeJSONPointer} from '../../utils/jsonPointer.js';
 import {
   buildPathLabel, buildHasPropertyToggle, readTriStateSelect, findOwnControl,
-  buildCheckbox, readCheckbox, buildAtLeastOneSentinel, syncAtLeastOneCheck
+  buildCheckbox, readCheckbox, buildAtLeastOneSentinel, syncAtLeastOneCheck,
+  setDescendantsRequired, revalidateDescendants
 } from '../searchUtils.js';
 import {combineAnd, makeHasPropertyLeaf} from '../queryTreeBuilders.js';
 import {
@@ -82,7 +83,17 @@ function buildHasPropertyRow ({
         const existsLeaf = existsCheck === undefined
           ? undefined
           : makeHasPropertyLeaf(searchPath, existsCheck);
-        const childEl = findSearchElement(this, searchPath);
+        // "Doesn't have" already hides the child (its own `syncChildState`),
+        // since a value/presence constraint on an asserted-absent property
+        // is meaningless - skip its query outright rather than combining a
+        // stale/leftover constraint with a contradictory `$exists: false`.
+        // This matters most for `makePresenceOnlySearchType`'s leaves
+        // (undef/null/NaN), whose checkbox is permanently checked
+        // (`buildCheckbox`'s doc) and so would otherwise always contribute
+        // its `presence` leaf regardless of this row's own answer.
+        const childEl = existsCheck === false
+          ? undefined
+          : findSearchElement(this, searchPath);
         const childLeaf = childEl && hasGetQuery(childEl)
           ? childEl.getQuery()
           : undefined;
@@ -128,13 +139,31 @@ function buildHasPropertyRow ({
     findOwnControl(row, 'select.jsoeSearchTriState--')
   );
   const childRoot = findSearchElement(row, childPath);
-  const syncChildVisibility = () => {
-    if (childRoot) {
-      childRoot.hidden = select?.value === 'false';
+  // "Doesn't have" hides the child entirely (a value constraint on an
+  // asserted-absent property is meaningless) - a hidden control is already
+  // exempt from constraint validation on its own. "Has" keeps the child
+  // visible and interactive (so "Has property X" AND "X matches Y" can
+  // still be combined), but that existence assertion is *already* a
+  // complete constraint by itself, so its own required inputs (whatever
+  // type the child turns out to be) are relaxed via `setDescendantsRequired`
+  // rather than disabled - only "(any)" (no existence assertion) leaves
+  // them actually required, since the child's own value is then the row's
+  // only possible contribution. `revalidateDescendants` covers anything
+  // that (unlike a plain `required` attribute) re-asserts its own
+  // constraint imperatively on every keystroke regardless of this row's
+  // state - a range pair's `isExemptedByAncestorHasProperty` check
+  // (`searchUtils.js`) only takes effect once something re-runs it, which
+  // otherwise wouldn't happen until the user next touches that field.
+  const syncChildState = () => {
+    if (!childRoot) {
+      return;
     }
+    childRoot.hidden = select?.value === 'false';
+    setDescendantsRequired(childRoot, select?.value === '');
+    revalidateDescendants(childRoot);
   };
-  select?.addEventListener('change', syncChildVisibility);
-  syncChildVisibility();
+  select?.addEventListener('change', syncChildState);
+  syncChildState();
 
   return row;
 }

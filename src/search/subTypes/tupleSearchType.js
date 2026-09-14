@@ -57,20 +57,21 @@ const tupleSearchType = {
     /** @type {import('../../types.js').JamilihArray[]} */
     const children = [['span', {class: 'searchLabel'}, [label]]];
     itemArrs.forEach((itemArr, idx) => {
-      children.push(['div', {class: 'searchTupleItem'}, [
-        ['span', [`Position ${idx}: `]],
-        itemArr
-      ]]);
+      children.push(...buildOptInFieldset({
+        name: `${name}-${idx}`, key: String(idx), label: `Position ${idx} matches`,
+        children: [itemArr]
+      }));
     });
     if (rest) {
+      const restChild = /** @type {import('../../types.js').JamilihArray} */ (restArr);
       children.push(
         ...buildLengthSizeControls({
           name, min: items.length, max: undefined, includeSparse: false
         }),
-        ['div', {class: 'searchTupleRest'}, [
-          ['span', ['Rest element matches: ']],
-          /** @type {import('../../types.js').JamilihArray} */ (restArr)
-        ]]
+        ...buildOptInFieldset({
+          name: `${name}-rest`, key: 'rest', label: 'Rest element matches',
+          children: [restChild]
+        })
       );
     }
 
@@ -87,11 +88,24 @@ const tupleSearchType = {
         //   defined, so a second tuple widget on the same page would
         //   otherwise silently reuse the first tuple's item count/rest-ness.
         /** @this {HTMLElement} */
+        connectedCallback () {
+          const itemCount = Number(this.dataset.itemCount ?? '0');
+          Array.from({length: itemCount}, (_, idx) => String(idx)).forEach(
+            (key) => wireOptInFieldset(this, key)
+          );
+          if (this.dataset.hasRest === 'true') {
+            wireOptInFieldset(this, 'rest');
+          }
+        },
+        /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';
           const itemCount = Number(this.dataset.itemCount ?? '0');
           const hasRest = this.dataset.hasRest === 'true';
           const itemLeaves = Array.from({length: itemCount}, (_, idx) => {
+            if (!readOptInChecked(this, String(idx))) {
+              return undefined;
+            }
             const itemEl = findSearchElement(this, `${searchPath}/${idx}`);
             return itemEl && hasGetQuery(itemEl) ? itemEl.getQuery() : undefined;
           });
@@ -100,7 +114,7 @@ const tupleSearchType = {
           }
           const lengthLeaf = readLengthSizeQuery(this, searchPath);
           const restEl = findSearchElement(this, `${searchPath}/*`);
-          const restLeaf = restEl && hasGetQuery(restEl)
+          const restLeaf = restEl && hasGetQuery(restEl) && readOptInChecked(this, 'rest')
             ? restEl.getQuery()
             : undefined;
           return combineAnd([...itemLeaves, lengthLeaf, restLeaf]);

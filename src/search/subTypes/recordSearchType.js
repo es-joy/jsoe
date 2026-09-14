@@ -1,4 +1,7 @@
-import {buildPathLabel, buildCheckbox, readCheckbox} from '../searchUtils.js';
+import {
+  buildPathLabel, buildCheckbox, readCheckbox, buildOptInFieldset,
+  readOptInChecked, wireOptInFieldset, buildAtLeastOneSentinel, syncAtLeastOneCheck
+} from '../searchUtils.js';
 import {makeMapRecordJointLeaf} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
@@ -8,6 +11,16 @@ import {buildSearchWidget} from '../searchDispatch.js';
  */
 
 /**
+ * @param {Element} root - a `jsoe-search-record` element
+ * @returns {void}
+ */
+function syncKeyValueValidity (root) {
+  syncAtLeastOneCheck(
+    root, () => readOptInChecked(root, 'key') || readOptInChecked(root, 'value')
+  );
+}
+
+/**
  * Record search is "key-schema search AND/OR value-schema search,"
  * structurally unlike object's additive "has property" (search plan §1) -
  * recurses into both the `key` and `value` schemas' own search widgets
@@ -15,7 +28,10 @@ import {buildSearchWidget} from '../searchDispatch.js';
  * whether a match must come from the *same* entry ("has key 2-4 and value
  * 7-9", README) via the "joint" toggle on the resulting `mapRecordJoint`
  * leaf - also used for `looseRecord`, aliased to this same module in
- * `searchDispatch.js` since the search semantics are identical.
+ * `searchDispatch.js` since the search semantics are identical. Key and
+ * value each get their own `buildOptInFieldset` (see `mapSearchType.js`'s
+ * matching doc for why), but leaving *both* unopted-in is itself invalid via
+ * `buildAtLeastOneSentinel`.
  * @type {SearchTypeObject}
  */
 const recordSearchType = {
@@ -48,14 +64,20 @@ const recordSearchType = {
       title: label,
       $define: {
         /** @this {HTMLElement} */
+        connectedCallback () {
+          wireOptInFieldset(this, 'key', () => syncKeyValueValidity(this));
+          wireOptInFieldset(this, 'value', () => syncKeyValueValidity(this));
+          syncKeyValueValidity(this);
+        },
+        /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';
           const keyEl = findSearchElement(this, `${searchPath}/*key`);
           const valueEl = findSearchElement(this, `${searchPath}/*value`);
-          const keyQuery = keyEl && hasGetQuery(keyEl)
+          const keyQuery = keyEl && hasGetQuery(keyEl) && readOptInChecked(this, 'key')
             ? keyEl.getQuery()
             : undefined;
-          const valueQuery = valueEl && hasGetQuery(valueEl)
+          const valueQuery = valueEl && hasGetQuery(valueEl) && readOptInChecked(this, 'value')
             ? valueEl.getQuery()
             : undefined;
           if (!keyQuery && !valueQuery) {
@@ -67,15 +89,14 @@ const recordSearchType = {
       }
     }, [
       ['span', {class: 'searchLabel'}, [label]],
-      ['div', {class: 'searchRecordKey'}, [
-        ['span', ['Key matches: ']],
-        keyArr
-      ]],
-      ['div', {class: 'searchRecordValue'}, [
-        ['span', ['Value matches: ']],
-        valueArr
-      ]],
-      buildCheckbox({name: `${name}-joint`, label: 'Require same entry'})
+      ...buildOptInFieldset({
+        name: `${name}-key`, key: 'key', label: 'Key matches', children: [keyArr]
+      }),
+      ...buildOptInFieldset({
+        name: `${name}-value`, key: 'value', label: 'Value matches', children: [valueArr]
+      }),
+      buildCheckbox({name: `${name}-joint`, label: 'Require same entry'}),
+      buildAtLeastOneSentinel()
     ]];
   },
   getQuery: getQueryViaElement

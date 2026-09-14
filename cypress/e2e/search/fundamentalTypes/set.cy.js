@@ -10,6 +10,7 @@ describe('search: set spec', () => {
   it('combines a length constraint with an element-match constraint (no sparse toggle)', () => {
     cy.get(sel + 'jsoe-search-set > label select.jsoeSearchTriState--').should('not.exist');
     cy.get(sel + 'jsoe-search-set input[name$="-size"]').type('4');
+    cy.get(sel + 'jsoe-search-set input.jsoeSearchOptIn--').check();
     cy.get(sel + 'jsoe-search-set jsoe-search-number input[name$="-gte"]').type('2');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

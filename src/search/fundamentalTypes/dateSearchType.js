@@ -1,5 +1,7 @@
 import {buildDateInputControl} from '../../fundamentalTypes/dateType.js';
-import {buildPathLabel, buildTriStateSelect, readTriStateSelect} from '../searchUtils.js';
+import {
+  buildPathLabel, buildTriStateSelect, readTriStateSelect, isExemptedByAncestorHasProperty
+} from '../searchUtils.js';
 import {makeRangeLeaf, makeValidDateCheckLeaf, combineAnd} from '../queryTreeBuilders.js';
 import {getQueryViaElement} from '../searchElementUtils.js';
 
@@ -28,19 +30,30 @@ function readInputs (el) {
  * `buildRangeInputsPair` does for its own (numeric) range pairs: leaving
  * both ends blank is invalid (an added range row needs *some* bound, same
  * "no absent values" reasoning as `buildLiteralRegexControls`'s Value
- * input - not an issue while the "Invalid date" tri-state disables this
- * whole fieldset, since a disabled field is excluded from constraint
- * validation entirely), and if both ends are filled with "To" before
- * "From", that's invalid too. `datetime-local` values (`YYYY-MM-DDTHH:mm`)
+ * input) - but only while the "Valid: (any)" tri-state is still unset.
+ * Once "Valid date" or "Invalid date" is explicitly chosen, that alone is
+ * already a complete constraint, so the range goes back to being fully
+ * optional (an empty range combined with "Valid date" still means
+ * something: "matches any valid date"); "Invalid date" additionally
+ * disables the whole fieldset (an "Invalid Date" has no orderable time
+ * value to compare), which independently exempts it from constraint
+ * validation regardless. If both ends are filled with "To" before "From",
+ * that's invalid either way. `datetime-local` values (`YYYY-MM-DDTHH:mm`)
  * compare correctly as plain strings, so no `Date` parsing is needed here.
  * Also called (with `this` as the `<jsoe-search-date>` root itself, which
  * `this.closest('jsoe-search-date')` still resolves to - `closest` checks
- * the element itself first) from the widget's own `connectedCallback`
- * below, the same reason `searchUtils.js`'s `syncRangeValidity` gives: the
- * `input`/`change` events wired below only fire from the user's first
- * interaction, so a freshly-built pair would otherwise stay "valid" until
- * then.
- * @this {HTMLElement}
+ * the element itself first) from the widget's own `connectedCallback` below
+ * and from the "Valid" tri-state's own `change` handler (the "at least one
+ * bound" requirement itself flips based on that selection, not just the
+ * range values) - the same reason `searchUtils.js`'s `syncRangeValidity`
+ * gives for `connectedCallback`: the `input`/`change` events wired below
+ * only fire from the user's first interaction, so a freshly-built pair
+ * would otherwise stay "valid" until then. Also relaxed, independently of
+ * its own local "Valid" tri-state, while `isExemptedByAncestorHasProperty`
+ * says an enclosing `objectSearchType.js` has-property row's own "Has"/
+ * "Doesn't have" already provides a complete constraint (e.g. this is a
+ * `date`-typed property's own widget).
+ * @this {Element}
  * @returns {void}
  */
 function validateRange () {
@@ -52,7 +65,9 @@ function validateRange () {
   const [gteInput, lteInput] = /** @type {HTMLInputElement[]} */ (
     [...root.querySelectorAll('input[type="datetime-local"]')]
   );
-  const bothEmpty = gte === '' && lte === '';
+  const requiresBound = readTriStateSelect(root, 'valid') === undefined &&
+    !isExemptedByAncestorHasProperty(root);
+  const bothEmpty = requiresBound && gte === '' && lte === '';
   const outOfOrder = gte !== '' && lte !== '' && lte < gte;
   const emptyMessage = 'Enter at least one bound (From or To).';
   gteInput.setCustomValidity(bothEmpty ? emptyMessage : '');
@@ -117,12 +132,14 @@ const dateSearchType = {
           falseLabel: 'Invalid date',
           /** @this {HTMLElement} */
           onChange () {
-            const fieldset = this.closest('jsoe-search-date')?.querySelector(
-              'fieldset.searchDateRangeFieldset'
-            );
+            const root = this.closest('jsoe-search-date');
+            const fieldset = root?.querySelector('fieldset.searchDateRangeFieldset');
             if (fieldset) {
               /** @type {HTMLFieldSetElement} */ (fieldset).disabled =
                 /** @type {HTMLSelectElement} */ (this).value === 'false';
+            }
+            if (root) {
+              validateRange.call(root);
             }
           }
         })

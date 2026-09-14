@@ -8,7 +8,9 @@ describe('search: special errors spec', () => {
   });
 
   it('combines a message literal with a columnNumber range', () => {
+    cy.get(sel + 'input.jsoeSearchOptIn--message').check();
     cy.get(sel + 'input.jsoeSearchValue--message').type('agg');
+    cy.get(sel + 'input.jsoeSearchOptIn--columnNumber').check();
     cy.get(sel + 'input.jsoeSearchRangeGte--columnNumber').type('12');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

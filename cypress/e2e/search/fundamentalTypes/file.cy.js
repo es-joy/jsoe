@@ -9,6 +9,7 @@ describe('search: file spec', () => {
 
   it('gets a literalSet query against the name', () => {
     const propSel = sel + '[data-search-path="#/file"] ';
+    cy.get(propSel + 'input.jsoeSearchOptIn--name').check();
     cy.get(propSel + 'input.jsoeSearchValue--name').type('report.pdf');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
@@ -21,7 +22,9 @@ describe('search: file spec', () => {
 
   it('combines a name literal with a content-type regex', () => {
     const propSel = sel + '[data-search-path="#/file"] ';
+    cy.get(propSel + 'input.jsoeSearchOptIn--name').check();
     cy.get(propSel + 'input.jsoeSearchValue--name').type('report.pdf');
+    cy.get(propSel + 'input.jsoeSearchOptIn--type').check();
     cy.get(propSel + 'select.jsoeSearchMode--type').select('regex');
     cy.get(propSel + 'input.jsoeSearchValue--type').type('^application/pdf$');
     cy.get(sel + '.getQueryButton').click();

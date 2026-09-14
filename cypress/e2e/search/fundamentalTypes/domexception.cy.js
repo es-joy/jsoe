@@ -11,6 +11,7 @@ describe('search: domexception spec', () => {
     cy.get(sel + 'jsoe-search-domexception select.jsoeSearchMultiSelect').select(
       ['NotFoundError']
     );
+    cy.get(sel + 'input.jsoeSearchOptIn--message').check();
     cy.get(sel + 'input.jsoeSearchValue--message').type('missing');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

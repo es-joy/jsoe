@@ -8,6 +8,7 @@ describe('search: dompoint spec', () => {
   });
 
   it('gets a domShape leaf for a dimension range', () => {
+    cy.get(sel + 'input.jsoeSearchOptIn--z').check();
     cy.get(sel + 'input.jsoeSearchRangeGte--z').type('3');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

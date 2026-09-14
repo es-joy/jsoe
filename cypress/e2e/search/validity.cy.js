@@ -5,14 +5,16 @@ describe('search: form validity', () => {
     cy.visit('http://127.0.0.1:8087/demo/index-search-instrumented.html');
   });
 
-  it('is valid on creation (a required property starts opted out of search), invalid once opted in and left empty, valid once filled', () => {
+  it('is invalid on creation (the object itself needs an active row, and its required property starts opted out), valid once one is active, invalid again once undone', () => {
     cy.get(sel + '.checkValidityButton').click();
-    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
 
     const requiredRowSel = sel +
       'jsoe-search-required-property[data-property-name="requiredString"] ';
     cy.get(requiredRowSel + 'input.jsoeSearchCheckbox').check();
     cy.get(sel + '.checkValidityButton').click();
+    // Opted in (satisfies the object's own "at least one active row"), but
+    // its own re-enabled Value input is still empty and `required`.
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
 
     cy.get(requiredRowSel + 'input[name$="-value"]').type('anything');
@@ -21,10 +23,10 @@ describe('search: form validity', () => {
 
     cy.get(requiredRowSel + 'input.jsoeSearchCheckbox').uncheck();
     cy.get(sel + '.checkValidityButton').click();
-    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
   });
 
-  it('goes invalid when an added literal/regex property is left empty, valid once filled or removed', () => {
+  it('goes invalid when an added literal/regex property is left empty, valid once filled, invalid again once removed (the object itself needs an active row)', () => {
     cy.get(sel + 'select.addPropertySelect').select('string');
     cy.get(sel + 'button').contains('Add').click();
     cy.get(sel + '.checkValidityButton').click();
@@ -43,7 +45,8 @@ describe('search: form validity', () => {
       sel + 'jsoe-search-has-property[data-property-name="string"] button.removePropertyButton'
     ).click();
     cy.get(sel + '.checkValidityButton').click();
-    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+    // Back to zero active rows.
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
   });
 
   it('is invalid the moment a range widget exists, before any interaction, and valid once given a bound', () => {
@@ -105,6 +108,101 @@ describe('search: form validity', () => {
     cy.get(dateSel + 'input[name$="-lte"]').type('2026-06-01T00:00');
     cy.get(dateSel + '.checkValidityButton').click();
     cy.get(dateSel + '.validityResult').should('have.text', 'Valid');
+  });
+
+  it('is valid when "Valid date" is chosen even with an empty range, invalid again back at "(any)"', () => {
+    const dateSel = '#section-date ';
+    cy.get(dateSel + 'select[name$="-valid"]').select('true');
+    cy.get(dateSel + '.checkValidityButton').click();
+    cy.get(dateSel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(dateSel + 'select[name$="-valid"]').select('');
+    cy.get(dateSel + '.checkValidityButton').click();
+    cy.get(dateSel + '.validityResult').should('have.text', 'Invalid');
+  });
+
+  it('is valid when "Has property" is chosen even with the nested value left empty, still combinable, invalid again back at "(any)"', () => {
+    cy.get(sel + 'select.addPropertySelect').select('string');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(sel + 'select[name$="-hasProperty-string"]').select('true');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    const valueSel = sel + 'jsoe-search-string[data-search-path="#/string"] input[name$="-value"]';
+    cy.get(valueSel).type('abc');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(valueSel).clear();
+    cy.get(sel + 'select[name$="-hasProperty-string"]').select('');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+  });
+
+  it('is valid when "Has property" is chosen for a range-typed (number) property, even with an empty range', () => {
+    cy.get(sel + 'select.addPropertySelect').select('number');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(sel + 'select[name$="-hasProperty-number"]').select('true');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    // Still combinable with an optional range constraint on top.
+    const numberSel = sel + 'jsoe-search-number[data-search-path="#/number"] ';
+    cy.get(numberSel + 'input.jsoeSearchRangeGte--').type('5');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(numberSel + 'input.jsoeSearchRangeGte--').clear();
+    cy.get(sel + 'select[name$="-hasProperty-number"]').select('');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+  });
+
+  it('is valid when "Has property" is chosen for a date-typed property, even with an empty range', () => {
+    cy.get(sel + 'select.addPropertySelect').select('date');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    cy.get(sel + 'select[name$="-hasProperty-date"]').select('true');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(sel + 'select[name$="-hasProperty-date"]').select('');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+  });
+
+  it('is invalid with neither length/size nor an element match chosen, valid with either alone', () => {
+    cy.get(sel + 'select.addPropertySelect').select('array');
+    cy.get(sel + 'button').contains('Add').click();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    const arraySel = sel + 'jsoe-search-array[data-search-path="#/array"] ';
+    cy.get(arraySel + 'input[name$="-size"]').type('3');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
+
+    cy.get(arraySel + 'input[name$="-size"]').clear();
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+
+    // Checking the element opt-in satisfies the array's own "at least one"
+    // sentinel, but the now-enabled nested number's own range immediately
+    // becomes constraint-validation-eligible again too (its own "at least
+    // one bound" custom validity was already set while merely disabled),
+    // so it also needs a bound.
+    cy.get(arraySel + 'input.jsoeSearchOptIn--').check();
+    cy.get(arraySel + 'jsoe-search-number input[name$="-gte"]').type('1');
+    cy.get(sel + '.checkValidityButton').click();
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
 
   it('requires the currently-visible blobHTML value control only, valid once filled', () => {

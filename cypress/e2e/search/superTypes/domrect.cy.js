@@ -8,6 +8,7 @@ describe('search: domrect spec', () => {
   });
 
   it('combines a dimension range with the readonly toggle into one domShape leaf', () => {
+    cy.get(sel + 'input.jsoeSearchOptIn--x').check();
     cy.get(sel + 'input.jsoeSearchRangeGte--x').type('5');
     cy.get(sel + 'select.jsoeSearchTriState--readonly').select('true');
     cy.get(sel + '.getQueryButton').click();

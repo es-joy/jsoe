@@ -8,7 +8,9 @@ describe('search: error spec', () => {
   });
 
   it('combines a message literal with a lineNumber range', () => {
+    cy.get(sel + 'input.jsoeSearchOptIn--message').check();
     cy.get(sel + 'input.jsoeSearchValue--message').type('boom');
+    cy.get(sel + 'input.jsoeSearchOptIn--lineNumber').check();
     cy.get(sel + 'input.jsoeSearchRangeGte--lineNumber').type('42');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

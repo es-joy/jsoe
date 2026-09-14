@@ -8,6 +8,7 @@ describe('search: dommatrix spec', () => {
   });
 
   it('combines a dimension range with readonly and 3d toggles', () => {
+    cy.get(sel + 'input.jsoeSearchOptIn--a').check();
     cy.get(sel + 'input.jsoeSearchRangeGte--a').type('1');
     cy.get(sel + 'select.jsoeSearchTriState--readonly').select('false');
     cy.get(sel + 'select.jsoeSearchTriState--dimension').select('true');

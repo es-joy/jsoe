@@ -6,9 +6,12 @@ describe('search: tuple spec', () => {
   const sel = '#section-tupleRest ';
 
   it('gets a per-position match combined with the rest length/element match', () => {
+    cy.get(sel + 'input.jsoeSearchOptIn--0').check();
     cy.get(sel + '[data-search-path="#/0"] input[name$="-value"]').type('abc');
+    cy.get(sel + 'input.jsoeSearchOptIn--1').check();
     cy.get(sel + '[data-search-path="#/1"] input[name$="-gte"]').type('7');
     cy.get(sel + '[data-search-path="#"] input[name$="-size"]').type('4');
+    cy.get(sel + 'input.jsoeSearchOptIn--rest').check();
     cy.get(sel + 'jsoe-search-boolean[data-search-path="#/*"] select').select('true');
 
     cy.get(sel + '.getQueryButton').click();

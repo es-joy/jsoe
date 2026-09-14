@@ -2,7 +2,9 @@ import {
   buildPathLabel, buildCheckbox, readCheckbox,
   buildLiteralRegexControls, readLiteralRegexQuery,
   buildRangeInputsPair, readRangeInputsPair, syncRangeValidity,
-  buildTriStateSelect, readTriStateSelect
+  buildTriStateSelect, readTriStateSelect,
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset,
+  buildAtLeastOneSentinel, syncAtLeastOneCheck
 } from './searchUtils.js';
 import {combineAnd, makeRangeLeaf, makeDomShapeLeaf} from './queryTreeBuilders.js';
 
@@ -62,7 +64,12 @@ export function hasGetQuery (el) {
  * leaves (`undefined`/`void`, `null`, `NaN`): the only meaningful question
  * is whether the path is present at all, which only matters once the path
  * is optional or nested in a union - so all three share one tiny, single-
- * checkbox implementation, differing only in tag name/label.
+ * checkbox implementation, differing only in tag name/label. Unlike every
+ * other leaf, this one is never left for the user to configure at all: its
+ * checkbox is pre-checked and `disabled` (`buildCheckbox`'s doc), since a
+ * type with only one possible value has nothing else worth offering a
+ * choice between - it's simply valid, unconditionally, the moment it
+ * exists, rather than needing a `required`-style rule of its own.
  * @param {{tagName: string}} cfg
  * @returns {import('./searchDispatch.js').SearchTypeObject}
  */
@@ -85,7 +92,9 @@ export function makePresenceOnlySearchType ({tagName}) {
         }
       }, [
         ['span', {class: 'searchLabel'}, [label]],
-        buildCheckbox({name, label: `Require ${label} present`})
+        buildCheckbox({
+          name, label: `Require ${label} present`, checked: true, disabled: true
+        })
       ]];
     },
     getQuery: getQueryViaElement
@@ -113,30 +122,49 @@ function buildErrorFamilyChildren ({label, name}) {
   /** @type {import('./searchUtils.js').JamilihArray[]} */
   const children = [['span', {class: 'searchLabel'}, [label]]];
   errorStringProps.forEach((prop) => {
-    children.push(['div', {class: `errorProp-${prop}`}, [
-      ['span', [`${prop}: `]],
-      buildLiteralRegexControls({name: `${name}-${prop}`, key: prop})
-    ]]);
+    children.push(...buildOptInFieldset({
+      name: `${name}-${prop}`, key: prop, label: prop,
+      children: [buildLiteralRegexControls({name: `${name}-${prop}`, key: prop})]
+    }));
   });
   errorNumberProps.forEach((prop) => {
-    children.push(['div', {class: `errorProp-${prop}`}, [
-      ['span', [`${prop}: `]],
-      ...buildRangeInputsPair({name: `${name}-${prop}`, key: prop})
-    ]]);
+    children.push(...buildOptInFieldset({
+      name: `${name}-${prop}`, key: prop, label: prop,
+      children: buildRangeInputsPair({name: `${name}-${prop}`, key: prop})
+    }));
   });
+  children.push(buildAtLeastOneSentinel());
   return children;
+}
+
+/**
+ * @param {Element} root - a `jsoe-search-error`/`jsoe-search-errors-special`
+ *   element
+ * @returns {void}
+ */
+function syncErrorFamilyValidity (root) {
+  syncAtLeastOneCheck(
+    root,
+    () => [...errorStringProps, ...errorNumberProps].some(
+      (prop) => readOptInChecked(root, prop)
+    )
+  );
 }
 
 /**
  * Factory for `errorSearchType.js`/`errorsSpecialSearchType.js`, offering
  * literal/regex search of child string properties, numeric of number
- * children (README) - one `buildLiteralRegexControls`/`buildRangeInputsPair` pair
- * per known property (`key`-distinguished so they coexist in one widget;
- * see those helpers' docs), combined via `$and`. `.cause` (a recursive,
- * arbitrarily-typed property) and `errorsSpecial`'s `AggregateError.errors`
- * array are deliberately left out of this pass - the README's bullet asks
- * only for the flat string/number children, and open-ended recursion into
- * an arbitrary `cause` chain is a materially bigger feature than "the same
+ * children (README) - one `buildLiteralRegexControls`/`buildRangeInputsPair`
+ * pair per known property (`key`-distinguished so they coexist in one
+ * widget; see those helpers' docs), each wrapped in its own
+ * `buildOptInFieldset` (so picking, say, just `message` doesn't also force
+ * `name`/`fileName`/`stack`/`lineNumber`/`columnNumber` to be filled in),
+ * combined via `$and`, with `buildAtLeastOneSentinel` requiring at least one
+ * of the six to actually be opted into. `.cause` (a recursive, arbitrarily-
+ * typed property) and `errorsSpecial`'s `AggregateError.errors` array are
+ * deliberately left out of this pass - the README's bullet asks only for
+ * the flat string/number children, and open-ended recursion into an
+ * arbitrary `cause` chain is a materially bigger feature than "the same
  * shape, twice more".
  * @param {{tagName: string}} cfg
  * @returns {import('./searchDispatch.js').SearchTypeObject}
@@ -153,14 +181,23 @@ export function makeErrorFamilySearchType ({tagName}) {
           /** @this {HTMLElement} */
           connectedCallback () {
             errorNumberProps.forEach((prop) => syncRangeValidity(this, prop));
+            [...errorStringProps, ...errorNumberProps].forEach((prop) => (
+              wireOptInFieldset(this, prop, () => syncErrorFamilyValidity(this))
+            ));
+            syncErrorFamilyValidity(this);
           },
           /** @this {HTMLElement} */
           getQuery () {
             const searchPath = this.dataset.searchPath ?? '';
             const stringLeaves = errorStringProps.map((prop) => (
-              readLiteralRegexQuery(this, `${searchPath}/${prop}`, prop)
+              readOptInChecked(this, prop)
+                ? readLiteralRegexQuery(this, `${searchPath}/${prop}`, prop)
+                : undefined
             ));
             const numberLeaves = errorNumberProps.map((prop) => {
+              if (!readOptInChecked(this, prop)) {
+                return undefined;
+              }
               const {gte, lte} = readRangeInputsPair(this, prop);
               if (gte === '' && lte === '') {
                 return undefined;
@@ -192,10 +229,10 @@ function buildDomShapeChildren ({
   /** @type {import('./searchUtils.js').JamilihArray[]} */
   const children = [['span', {class: 'searchLabel'}, [label]]];
   dimensionKeys.forEach((dim) => {
-    children.push(['div', {class: `domShapeDimension-${dim}`}, [
-      ['span', [`${dim}: `]],
-      ...buildRangeInputsPair({name: `${name}-${dim}`, key: dim})
-    ]]);
+    children.push(...buildOptInFieldset({
+      name: `${name}-${dim}`, key: dim, label: dim,
+      children: buildRangeInputsPair({name: `${name}-${dim}`, key: dim})
+    }));
   });
   if (includeReadonly) {
     children.push(['label', [
@@ -215,7 +252,23 @@ function buildDomShapeChildren ({
       })
     ]]);
   }
+  children.push(buildAtLeastOneSentinel());
   return children;
+}
+
+/**
+ * @param {{
+ *   root: Element, dimensionKeys: string[], includeReadonly: boolean,
+ *   includeDimensionCheck: boolean
+ * }} cfg
+ * @returns {void}
+ */
+function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDimensionCheck}) {
+  syncAtLeastOneCheck(root, () => (
+    dimensionKeys.some((dim) => readOptInChecked(root, dim)) ||
+    (includeReadonly && readTriStateSelect(root, 'readonly') !== undefined) ||
+    (includeDimensionCheck && readTriStateSelect(root, 'dimension') !== undefined)
+  ));
 }
 
 /**
@@ -251,7 +304,24 @@ export function makeDomShapeSearchType ({
         $define: {
           /** @this {HTMLElement} */
           connectedCallback () {
-            dimensionKeys.forEach((dim) => syncRangeValidity(this, dim));
+            const syncValidity = () => syncDomShapeValidity({
+              root: this, dimensionKeys, includeReadonly, includeDimensionCheck
+            });
+            dimensionKeys.forEach((dim) => {
+              syncRangeValidity(this, dim);
+              wireOptInFieldset(this, dim, syncValidity);
+            });
+            if (includeReadonly) {
+              this.querySelector('select.jsoeSearchTriState--readonly')?.addEventListener(
+                'change', syncValidity
+              );
+            }
+            if (includeDimensionCheck) {
+              this.querySelector('select.jsoeSearchTriState--dimension')?.addEventListener(
+                'change', syncValidity
+              );
+            }
+            syncValidity();
           },
           /** @this {HTMLElement} */
           getQuery () {
@@ -259,6 +329,9 @@ export function makeDomShapeSearchType ({
             /** @type {{[dim: string]: import('./queryTree.js').QueryRangeLeaf}} */
             const dimensions = {};
             dimensionKeys.forEach((dim) => {
+              if (!readOptInChecked(this, dim)) {
+                return;
+              }
               const {gte, lte} = readRangeInputsPair(this, dim);
               if (gte === '' && lte === '') {
                 return;

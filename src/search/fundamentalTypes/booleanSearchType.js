@@ -30,7 +30,7 @@ const booleanSearchType = {
       ['span', {class: 'searchLabel'}, [label]],
       ['label', [
         `${label}: `,
-        buildTriStateSelect({name, trueLabel: 'True', falseLabel: 'False'})
+        buildTriStateSelect({name, trueLabel: 'True', falseLabel: 'False', required: true})
       ]]
     ]];
   },

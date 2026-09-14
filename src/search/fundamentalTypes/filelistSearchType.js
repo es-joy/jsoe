@@ -1,4 +1,8 @@
-import {buildPathLabel, buildLengthSizeControls, readLengthSizeQuery} from '../searchUtils.js';
+import {
+  buildPathLabel, buildLengthSizeControls, readLengthSizeQuery,
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset,
+  buildAtLeastOneSentinel, syncAtLeastOneCheck
+} from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
 import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
@@ -17,6 +21,16 @@ import {buildSearchWidget} from '../searchDispatch.js';
  */
 
 /**
+ * @param {Element} root - a `jsoe-search-filelist` element
+ * @returns {void}
+ */
+function syncFilelistValidity (root) {
+  syncAtLeastOneCheck(
+    root, () => readLengthSizeQuery(root, '') !== undefined || readOptInChecked(root)
+  );
+}
+
+/**
  * Has length/size of &lt;number&gt; (README, grouped with array/set/
  * tuple-with-rest) - no sparse toggle, matching `setSearchType.js`. A
  * `FileList` schema serializes as `{type: 'codec', name: 'filelist',
@@ -24,7 +38,10 @@ import {buildSearchWidget} from '../searchDispatch.js';
  * (`src/formats/schema.js`'s `codec`/`filelist` handling); the length
  * bounds and element schema both live on that `output` array shape, whose
  * element recurses into `fileSearchType.js` under the same `*` path-segment
- * convention `arraySearchType.js` uses.
+ * convention `arraySearchType.js` uses. Leaving *both* length/size and the
+ * element match unconfigured is still invalid, though
+ * (`buildAtLeastOneSentinel`), same as `arraySearchType.js`/
+ * `setSearchType.js`.
  * @type {SearchTypeObject}
  */
 const filelistSearchType = {
@@ -48,11 +65,19 @@ const filelistSearchType = {
       title: label,
       $define: {
         /** @this {HTMLElement} */
+        connectedCallback () {
+          wireOptInFieldset(this, '', () => syncFilelistValidity(this));
+          this.querySelector('input.jsoeSearchSize')?.addEventListener(
+            'input', () => syncFilelistValidity(this)
+          );
+          syncFilelistValidity(this);
+        },
+        /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ?? '';
           const lengthLeaf = readLengthSizeQuery(this, searchPath);
           const elementEl = findSearchElement(this, `${searchPath}/*`);
-          const elementLeaf = elementEl && hasGetQuery(elementEl)
+          const elementLeaf = elementEl && hasGetQuery(elementEl) && readOptInChecked(this)
             ? elementEl.getQuery()
             : undefined;
           return combineAnd([lengthLeaf, elementLeaf]);
@@ -66,10 +91,10 @@ const filelistSearchType = {
         max: outputSchema.maxLength,
         includeSparse: false
       }),
-      ['div', {class: 'searchFilelistElement'}, [
-        ['span', ['File matches: ']],
-        elementArr
-      ]]
+      ...buildOptInFieldset({
+        name: `${name}-element`, label: 'File matches', children: [elementArr]
+      }),
+      buildAtLeastOneSentinel()
     ]];
   },
   getQuery: getQueryViaElement
