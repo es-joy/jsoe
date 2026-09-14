@@ -1,5 +1,9 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.30.0
+
+- feat(regexp): support `d` flag
+
 ## 0.29.0
 
 - feat: `createJtltExtensions(types, {typeNamespace?, getSchemaContent?})`

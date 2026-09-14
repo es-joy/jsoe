@@ -65,7 +65,7 @@ const regexpType = {
       }, '')
     );
   },
-  allowedFlags: ['g', 'i', 'm', 'u', 'y', 's', 'v'],
+  allowedFlags: ['g', 'i', 'm', 'u', 'y', 's', 'v', 'd'],
   viewUI ({value, specificSchemaObject}) {
     return ['i', {
       dataset: {type: 'regexp'},
