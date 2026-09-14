@@ -301,7 +301,13 @@ video.recordedMedia {
   display: none;
 }
 
-[data-search-kind] > .searchLabel {
+/* A descendant selector rather than `>` (direct child): every search module
+   places its own `.searchLabel` as a direct child of its widget root except
+   `objectSearchType.js`, which nests it one level deeper inside its own
+   `.searchObjectControls` wrapper (alongside the "Add property" pull-down) -
+   a `>` combinator would leave that one span inline, squished directly
+   against the pull-down's label right after it with no gap. */
+[data-search-kind] .searchLabel {
   display: block;
   font-weight: bold;
   margin-block-end: 0.2em;
