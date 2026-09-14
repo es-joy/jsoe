@@ -21,7 +21,7 @@
     "tsc": "tsc",
     "tsc:ts7": "npx -y -p typescript@^7 -c \"tsc\"",
     "tsc-prod": "tsc -p tsconfig-prod.json",
-    "prepublishOnly": "run-p tsc tsc-cypress rollup",
+    "prepublishOnly": "run-p tsc tsc-prod rollup",
     "license-badge": "license-badger --corrections --uncategorizedLicenseTemplate \"\\${license} (\\${name} (\\${version}))\" --filteredTypes=nonempty --textTemplate \"License types\n(project, deps, and bundled devDeps)\" --packageJson --production badges/licenses-badge.svg",
     "eslint": "eslint .",
     "lint": "npm run eslint --",
