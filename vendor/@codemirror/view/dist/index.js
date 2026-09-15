@@ -2319,12 +2319,13 @@ class TileBuilder {
                 head = last;
             }
             else {
+                let { dom } = mark;
                 if (this.cache.reused.get(mark)) {
                     let tile = Tile.get(mark.dom);
                     if (tile)
-                        tile.setDOM(freeNode(mark.dom));
+                        dom = freeNode(mark.dom);
                 }
-                let nw = MarkTile.of(mark.mark, mark.dom);
+                let nw = MarkTile.of(mark.mark, dom);
                 head.append(nw);
                 head = nw;
             }
@@ -2824,12 +2825,14 @@ class TileUpdate {
             else if (tile === null || tile === void 0 ? void 0 : tile.isLine())
                 line = tile;
             else if (tile instanceof BlockWrapperTile) ; // Ignore
-            else if (parent.nodeName == "DIV" && !line && parent != this.view.contentDOM)
+            else if (parent.nodeName == "DIV" && !line)
                 line = new LineTile(parent, lineBaseAttrs);
             else if (!line)
                 marks.push(MarkTile.of(new MarkDecoration({ tagName: parent.nodeName.toLowerCase(), attributes: getAttrs(parent) }), parent));
         }
-        return { line: line, marks };
+        if (!line)
+            return null;
+        return { line, marks };
     }
 }
 function hasContent(tile, requireText) {
@@ -3660,18 +3663,21 @@ function blockAt(view, pos, side) {
     return line;
 }
 function moveToLineBoundary(view, start, forward, includeWrap) {
-    let line = blockAt(view, start.head, start.assoc || -1);
-    let coords = !includeWrap || line.type != BlockType.Text || !(view.lineWrapping || line.widgetLineBreaks) ? null
-        : view.coordsAtPos(start.assoc < 0 && start.head > line.from ? start.head - 1 : start.head);
+    let block = blockAt(view, start.head, start.assoc || -1);
+    let coords = !includeWrap || block.type != BlockType.Text || !(view.lineWrapping || block.widgetLineBreaks) ? null
+        : view.coordsAtPos(start.assoc < 0 && start.head > block.from ? start.head - 1 : start.head);
     if (coords) {
         let editorRect = view.dom.getBoundingClientRect();
-        let direction = view.textDirectionAt(line.from);
+        let direction = view.textDirectionAt(block.from);
         let pos = view.posAtCoords({ x: forward == (direction == Direction.LTR) ? editorRect.right - 1 : editorRect.left + 1,
             y: (coords.top + coords.bottom) / 2 });
         if (pos != null)
             return EditorSelection.cursor(pos, forward ? -1 : 1);
     }
-    return EditorSelection.cursor(forward ? line.to : line.from, forward ? -1 : 1);
+    let line = view.state.doc.lineAt(start.head);
+    if (forward ? line.to == block.to : line.from == block.from)
+        return view.visualLineSide(line, forward);
+    return EditorSelection.cursor(forward ? block.to : block.from, forward ? -1 : 1);
 }
 function moveByChar(view, start, forward, by) {
     let line = view.state.doc.lineAt(start.head), spans = view.bidiSpans(line);
@@ -5259,6 +5265,13 @@ observers.compositionstart = observers.compositionupdate = view => {
     if (view.inputState.compositionFirstChange == null)
         view.inputState.compositionFirstChange = true;
     if (view.inputState.composing < 0) {
+        let { main } = view.state.selection;
+        if (!main.empty && view.lineBlockAt(main.from).from != view.lineBlockAt(main.to).from) {
+            view.dispatch({
+                changes: view.state.selection.ranges.filter(r => !r.empty).map(r => ({ from: r.from, to: r.to })),
+                userEvent: "input"
+            });
+        }
         // FIXME possibly set a timeout to clear it again on Android
         view.inputState.composing = 0;
     }
@@ -7891,6 +7904,7 @@ class EditorView {
         @internal
         */
         this.measureRequests = [];
+        this.clearAnnouncement = -1;
         this.contentDOM = document.createElement("div");
         this.scrollDOM = document.createElement("div");
         this.scrollDOM.tabIndex = -1;
@@ -8296,9 +8310,14 @@ class EditorView {
         for (let tr of trs)
             for (let effect of tr.effects)
                 if (effect.is(EditorView.announce)) {
-                    if (first)
+                    if (first) {
                         this.announceDOM.textContent = "";
-                    first = false;
+                        this.win.clearTimeout(this.clearAnnouncement);
+                        this.clearAnnouncement = this.win.setTimeout(() => {
+                            this.announceDOM.textContent = "\u00a0";
+                        }, 200);
+                        first = false;
+                    }
                     let div = this.announceDOM.appendChild(document.createElement("div"));
                     div.textContent = effect.value;
                 }
@@ -8648,6 +8667,7 @@ class EditorView {
         this.docView.destroy();
         this.dom.remove();
         this.observer.destroy();
+        this.win.clearTimeout(this.clearAnnouncement);
         if (this.measureScheduled > -1)
             this.win.cancelAnimationFrame(this.measureScheduled);
         this.destroyed = true;

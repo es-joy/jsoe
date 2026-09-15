@@ -1072,8 +1072,7 @@ const idbkeyrange = {
 };
 
 /* globals document, OffscreenCanvas, createImageBitmap -- Polyfills */
-// `ImageBitmap` is browser / DOM specific. It also can only work
-//  same-domain (or CORS)
+// `ImageBitmap` can only work same-domain (or CORS) in the browser
 
 
 /**
@@ -1082,10 +1081,7 @@ const idbkeyrange = {
 const imagebitmap = {
     imagebitmap: {
         test (x) {
-            return toStringTag(x) === 'ImageBitmap' ||
-                // In Node, our polyfill sets the dataset on a canvas
-                //  element as JSDom no longer allows overriding toStringTag
-                (x && x.dataset && x.dataset.toStringTag === 'ImageBitmap');
+            return toStringTag(x) === 'ImageBitmap';
         },
         replace (bm) {
             const canvas = document.createElement('canvas');
@@ -1099,8 +1095,8 @@ const imagebitmap = {
         },
         revive (o) {
             const canvas = typeof OffscreenCanvas === 'undefined'
+                /* c8 ignore next -- Older environments */
                 ? document.createElement('canvas')
-                /* c8 ignore next -- Browser only */
                 : new OffscreenCanvas(o.width, o.height);
             /*
             var req = new XMLHttpRequest();
@@ -1117,14 +1113,19 @@ const imagebitmap = {
             const img = document.createElement('img');
             // The onload is needed by some browsers per https://stackoverflow.com/a/4776378/271577
             img.addEventListener('load', function () {
-                ctx.drawImage(img, 0, 0);
+                try {
+                    ctx.drawImage(img, 0, 0);
+                } catch {
+                    // Issues on Node
+                }
             });
             img.src = o.dataURL;
+
             // Works in contexts allowing an `ImageBitmap` (We might use
             //   `OffscreenCanvas.transferToBitmap` when supported)
             return typeof OffscreenCanvas === 'undefined'
+                /* c8 ignore next 3 -- Older environments */
                 ? canvas
-                /* c8 ignore next 3 -- Browser only */
                 : /** @type {OffscreenCanvas} */ (
                     canvas
                 ).transferToImageBitmap();
@@ -2229,12 +2230,40 @@ const structuredCloningThrowing = expObj.concat({
                     // WeakSet instances have an extra slot ([[WeakSetData]])
                     //    but not throwing in Chrome `postMessage`
                     'WeakSet',
+                    // WeakRef instances have an extra slot
+                    //    ([[WeakRefTarget]])
+                    'WeakRef',
+                    // FinalizationRegistry instances have extra internal
+                    //    slots (e.g., [[Cells]])
+                    'FinalizationRegistry',
+                    // Generator objects have an extra slot
+                    //    ([[GeneratorState]])
+                    'Generator',
+                    // Async generator objects have an extra slot
+                    //    ([[AsyncGeneratorState]])
+                    'AsyncGenerator',
+                    // Built-in iterator result objects have internal slots
+                    //    tied to the collection/string being iterated
+                    'String Iterator', 'Array Iterator',
+                    'Map Iterator', 'Set Iterator', 'RegExp String Iterator',
+                    // `Intl` objects (e.g., `Intl.Collator`) all have
+                    //    internal slots and are not structured-cloneable
+                    'Intl.Collator', 'Intl.DateTimeFormat',
+                    'Intl.DisplayNames', 'Intl.DurationFormat',
+                    'Intl.ListFormat', 'Intl.Locale', 'Intl.NumberFormat',
+                    'Intl.PluralRules', 'Intl.RelativeTimeFormat',
+                    'Intl.Segmenter',
 
                     // HTML-SPECIFIC
                     'Event',
                     // Also in Node `worker_threads` (currently experimental)
                     'MessageChannel',
-                    'MessagePort'
+                    'MessagePort',
+                    // Streams are Transferable but not Serializable, so
+                    //    cloning them (as opposed to transferring) throws
+                    'ReadableStream', 'WritableStream', 'TransformStream',
+                    // Also Transferable but not Serializable
+                    'OffscreenCanvas'
                 ].includes(stringTag) ||
                 // Node's native `worker_threads` `MessageChannel`/
                 //   `MessagePort` don't set `Symbol.toStringTag` per
