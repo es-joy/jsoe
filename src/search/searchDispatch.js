@@ -41,9 +41,12 @@ import blobHTMLSearchType from './subTypes/blobHTMLSearchType.js';
  */
 
 /**
- * The search-side analogue of `TypeObject` (`src/types.js:308-408`): two
- * methods, `buildUI` (a `jml` array) and `getQuery` (reads the built DOM
- * back into a `QueryNode`, or `undefined` when no constraint was entered).
+ * The search-side analogue of `TypeObject` (`src/types.js:308-408`): three
+ * methods, `buildUI` (a `jml` array), `getQuery` (reads the built DOM back
+ * into a `QueryNode`, or `undefined` when no constraint was entered), and
+ * `applyQuery` (the inverse - drives the built DOM back into the state a
+ * previously-read, or hand-edited, `QueryNode` describes, for the "Edit raw"
+ * round-trip, `SearchChoicesControl.$applyQuery`, `src/search/index.js`).
  * @typedef {{
  *   buildUI: (cfg: {
  *     schemaObject: import('../formats/schema.js').ZodexSchema,
@@ -56,7 +59,12 @@ import blobHTMLSearchType from './subTypes/blobHTMLSearchType.js';
  *   getQuery: (cfg: {
  *     root: HTMLElement,
  *     path: string
- *   }) => QueryNode|undefined
+ *   }) => QueryNode|undefined,
+ *   applyQuery: (cfg: {
+ *     root: HTMLElement,
+ *     path: string,
+ *     queryNode: QueryNode|undefined
+ *   }) => void
  * }} SearchTypeObject
  */
 
@@ -71,7 +79,8 @@ import blobHTMLSearchType from './subTypes/blobHTMLSearchType.js';
 function stubSearchType (searchSchemaType) {
   return {
     buildUI: () => ['span', [`TODO: ${searchSchemaType}`]],
-    getQuery: () => undefined
+    getQuery: () => undefined,
+    applyQuery () {}
   };
 }
 

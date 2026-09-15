@@ -1,5 +1,6 @@
 import {schemaLabel} from '../utils/schemaMeta.js';
 import {getJSONPointerParts} from '../utils/jsonPointer.js';
+import {combineAnd} from './queryTreeBuilders.js';
 
 /**
  * @typedef {import('../types.js').JamilihArray} JamilihArray
@@ -904,4 +905,371 @@ export function setDescendantsRequired (root, required) {
       el
     ).required = required;
   });
+}
+
+/**
+ * @typedef {import('./queryTree.js').QueryNode} QueryNode
+ */
+
+/**
+ * The "Edit raw" round-trip (`SearchChoicesControl.$applyQuery`,
+ * `src/search/index.js`) needs the inverse of every `getQuery`: given a
+ * previously-serialized (or hand-edited) `QueryNode`, drive the same DOM
+ * controls `getQuery` reads back into that state, so the two stay in sync.
+ * `unwrapAndClauses`/`nodeTouchesPath`/`extractLeafOfKind`/
+ * `extractClauseForPath` below are the shared groundwork every
+ * `applyQuery` implementation builds on to undo `combineAnd`'s own
+ * flattening; the `apply*` functions below those are the direct inverse of
+ * one `build*`/`read*` pair each.
+ *
+ * A plain leaf becomes a one-element array; `undefined` (no constraint)
+ * becomes `[]`; an `$and` node's own `.$and` array is returned as-is (not
+ * further flattened - a nested `$and` stays a single clause, so
+ * `nodeTouchesPath` below is what actually looks inside one).
+ * @param {QueryNode|undefined} queryNode
+ * @returns {QueryNode[]}
+ */
+export function unwrapAndClauses (queryNode) {
+  if (queryNode === undefined) {
+    return [];
+  }
+  if ('$and' in queryNode) {
+    return queryNode.$and;
+  }
+  return [queryNode];
+}
+
+/**
+ * Whether any leaf reachable from `node` (recursing through `$and`/`$or`
+ * combinators and a `not`/`passThrough` leaf's own wrapped `query`) targets
+ * `path` itself or somewhere nested under it - used to decide which of a
+ * container widget's several recursed children (`tupleSearchType.js`'s
+ * positions/rest, `functionSearchType.js`'s args/output,
+ * `objectSearchType.js`'s properties, `unionFamilySearchType.js`'s chosen
+ * branch) a given top-level clause belongs to, since a recursed child's own
+ * `getQuery()` result is threaded through untouched (whatever shape it is)
+ * rather than re-wrapped with the parent's path.
+ * @param {QueryNode|undefined} node
+ * @param {string} path
+ * @returns {boolean}
+ */
+export function nodeTouchesPath (node, path) {
+  // `QueryNotLeaf` is the only leaf kind with no `path` of its own - unwrap
+  // its `query` (iteratively, in case of a `not` wrapping another `not`)
+  // before dispatching on the combinator/leaf shapes below.
+  let current = node;
+  while (
+    current !== undefined && !('$and' in current) && !('$or' in current) &&
+    !('path' in current) && 'query' in current
+  ) {
+    ({query: current} = current);
+  }
+  if (current === undefined) {
+    return false;
+  }
+  if ('$and' in current) {
+    return current.$and.some((child) => nodeTouchesPath(child, path));
+  }
+  if ('$or' in current) {
+    return current.$or.some((child) => nodeTouchesPath(child, path));
+  }
+  if ('path' in current) {
+    return current.path === path || current.path.startsWith(`${path}/`);
+  }
+  return false;
+}
+
+/**
+ * Pulls the (at most one) top-level clause of `queryNode` whose own `kind`
+ * matches out of the `$and` it's combined into, leaving the rest re-combined
+ * - the inverse half of `combineAnd([ownLeaf, ...])`. Safe to use for any
+ * facet whose own leaf kind is unique within its widget (every `kind` this
+ * module's callers pass is exactly that: `lengthSize`, `hasProperty`,
+ * `mapRecordJoint`, `typeOf`), since a recursed child's own (arbitrarily
+ * nested) contribution never surfaces as a *bare* top-level leaf sharing the
+ * parent's own facet kind.
+ * `kind`'s own type parameter narrows `matched`'s type to exactly the leaf
+ * shape that `kind` names (`Extract<QueryLeaf, {kind: K}>`), so a call like
+ * `extractLeafOfKind(queryNode, 'range')` gives back a properly-typed
+ * `QueryRangeLeaf|undefined` with no cast needed at the call site.
+ * @template {import('./queryTree.js').QueryLeaf['kind']} K
+ * @param {QueryNode|undefined} queryNode
+ * @param {K} kind
+ * @returns {{
+ *   matched: Extract<import('./queryTree.js').QueryLeaf, {kind: K}>|undefined,
+ *   rest: QueryNode|undefined
+ * }}
+ */
+export function extractLeafOfKind (queryNode, kind) {
+  const clauses = unwrapAndClauses(queryNode);
+  const idx = clauses.findIndex((clause) => 'kind' in clause && clause.kind === kind);
+  if (idx === -1) {
+    return {matched: undefined, rest: queryNode};
+  }
+  return {
+    matched: /** @type {Extract<import('./queryTree.js').QueryLeaf, {kind: K}>} */ (
+      clauses[idx]
+    ),
+    rest: combineAnd(clauses.filter((_clause, i) => i !== idx))
+  };
+}
+
+/**
+ * Pulls the (at most one) top-level clause of `queryNode` that
+ * `nodeTouchesPath` says belongs to `path` out of the `$and` it's combined
+ * into, leaving the rest re-combined - the path-based counterpart of
+ * `extractLeafOfKind`, for a recursed child's own contribution (whose shape
+ * isn't a single known leaf `kind`, unlike a container's own facets).
+ * @param {QueryNode|undefined} queryNode
+ * @param {string} path
+ * @returns {{matched: QueryNode|undefined, rest: QueryNode|undefined}}
+ */
+export function extractClauseForPath (queryNode, path) {
+  const clauses = unwrapAndClauses(queryNode);
+  const idx = clauses.findIndex((clause) => nodeTouchesPath(clause, path));
+  if (idx === -1) {
+    return {matched: undefined, rest: queryNode};
+  }
+  return {
+    matched: clauses[idx],
+    rest: combineAnd(clauses.filter((_clause, i) => i !== idx))
+  };
+}
+
+/**
+ * The inverse of `readLiteralRegexQuery` - sets `buildLiteralRegexControls`'s
+ * Mode/Value/Flags back from a previously-read leaf (or resets to defaults
+ * for `undefined`, meaning the facet no longer has a constraint at all).
+ * Dispatches `change` on the Mode select (so its own `handleModeChange`
+ * shows/hides the Flags control and re-validates) and `input` on the Value
+ * input (so `syncLiteralRegexValidity` re-runs), the same events a real user
+ * interacting with these controls would fire.
+ * @param {Element} el
+ * @param {import('./queryTree.js').QueryLiteralSetLeaf|
+ *   import('./queryTree.js').QueryRegexLeaf|
+ *   import('./queryTree.js').QueryNotContainsLeaf|undefined} leaf
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function applyLiteralRegexQuery (el, leaf, key = '') {
+  const modeEl = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(el, `select.jsoeSearchMode--${key}`)
+  );
+  const valueEl = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, `input.jsoeSearchValue--${key}`)
+  );
+  if (!modeEl || !valueEl) {
+    return;
+  }
+  const flagsEl = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(el, `select.jsoeSearchRegexFlags--${key}`)
+  );
+  let mode = 'literal';
+  let value = '';
+  let flags = '';
+  switch (leaf?.kind) {
+  case 'regex': {
+    mode = 'regex';
+    ({$regex: value} = leaf);
+    flags = leaf.$options ?? '';
+
+    break;
+  }
+  case 'notContains': {
+    mode = 'notContains';
+    ({value} = leaf);
+
+    break;
+  }
+  case 'literalSet': {
+    value = (leaf.$in ?? []).map(String).join(', ');
+
+    break;
+  }
+  // No default
+  }
+  modeEl.value = mode;
+  valueEl.value = value;
+  if (flagsEl) {
+    const flagChars = new Set(flags.split(''));
+    [...flagsEl.options].forEach((opt) => {
+      opt.selected = flagChars.has(opt.value);
+    });
+  }
+  modeEl.dispatchEvent(new Event('change'));
+  valueEl.dispatchEvent(new Event('input'));
+}
+
+/**
+ * The inverse of `readRangeInputsPair` - sets the From/To inputs back from a
+ * previously-read `range` leaf (or clears both for `undefined`). An
+ * exclusive `$gt`/`$lt` bound (never produced by any `getQuery` in this
+ * codebase, but tolerated on a hand-edited raw query) is treated the same as
+ * its inclusive `$gte`/`$lte` counterpart, since the UI has only one plain
+ * bound per side, not a separate inclusive/exclusive toggle.
+ * @param {Element} el
+ * @param {import('./queryTree.js').QueryRangeLeaf|undefined} leaf
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function applyRangeQuery (el, leaf, key = '') {
+  const gteEl = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, `input.jsoeSearchRangeGte--${key}`)
+  );
+  const lteEl = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, `input.jsoeSearchRangeLte--${key}`)
+  );
+  if (!gteEl || !lteEl) {
+    return;
+  }
+  const gte = leaf?.$gte ?? leaf?.$gt;
+  const lte = leaf?.$lte ?? leaf?.$lt;
+  gteEl.value = gte === undefined ? '' : String(gte);
+  lteEl.value = lte === undefined ? '' : String(lte);
+  gteEl.dispatchEvent(new Event('input'));
+  lteEl.dispatchEvent(new Event('input'));
+}
+
+/**
+ * The inverse of `readTriStateSelect`/`buildHasPropertyToggle` - `undefined`
+ * maps back to "(any)".
+ * @param {Element} el
+ * @param {boolean|undefined} value
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function applyTriState (el, value, key = '') {
+  const select = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(el, `select.jsoeSearchTriState--${key}`)
+  );
+  if (!select) {
+    return;
+  }
+  select.value = value === undefined ? '' : String(value);
+  select.dispatchEvent(new Event('change'));
+}
+
+/**
+ * The inverse of `readCheckbox`.
+ * @param {Element} el
+ * @param {boolean} checked
+ * @returns {void}
+ */
+export function applyCheckbox (el, checked) {
+  const checkbox = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, 'input.jsoeSearchCheckbox')
+  );
+  if (!checkbox) {
+    return;
+  }
+  checkbox.checked = checked;
+  checkbox.dispatchEvent(new Event('change'));
+}
+
+/**
+ * The inverse of `readMultiSelect` - `values` is compared against each
+ * `<option>`'s own `value` as a string (`String(item)`), matching how
+ * `enumSearchType.js`/`SpecialRealNumberSearchType.js` build their own
+ * options from stringified values.
+ * @param {Element} el
+ * @param {unknown[]} values
+ * @returns {void}
+ */
+export function applyMultiSelect (el, values) {
+  const select = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(el, 'select.jsoeSearchMultiSelect')
+  );
+  if (!select) {
+    return;
+  }
+  const strValues = new Set(values.map(String));
+  [...select.options].forEach((opt) => {
+    opt.selected = strValues.has(opt.value);
+  });
+  select.dispatchEvent(new Event('change'));
+}
+
+/**
+ * The inverse of `readLengthSizeQuery` - clears both the size input and the
+ * sparse tri-state for `undefined`.
+ * @param {Element} el
+ * @param {import('./queryTree.js').QueryLengthSizeLeaf|undefined} leaf
+ * @returns {void}
+ */
+export function applyLengthSizeQuery (el, leaf) {
+  const sizeEl = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, 'input.jsoeSearchSize')
+  );
+  if (sizeEl) {
+    sizeEl.value = leaf?.$size === undefined ? '' : String(leaf.$size);
+    sizeEl.dispatchEvent(new Event('input'));
+  }
+  applyTriState(el, leaf?.sparseCheck);
+}
+
+/**
+ * The inverse of `readOptInChecked` - also dispatches `change` so
+ * `wireOptInFieldset`'s own listener toggles the paired fieldset's
+ * `disabled` state and runs whatever `onToggle` it was wired with (e.g. a
+ * widget's own `syncAtLeastOneCheck` re-run).
+ * @param {Element} el
+ * @param {boolean} checked
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function applyOptIn (el, checked, key = '') {
+  const checkbox = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, `input.jsoeSearchOptIn--${key}`)
+  );
+  if (!checkbox) {
+    return;
+  }
+  checkbox.checked = checked;
+  checkbox.dispatchEvent(new Event('change'));
+}
+
+/**
+ * A `buildOptInFieldset`-wrapped `buildLiteralRegexControls` facet
+ * (`fileSearchType.js`'s name/content-type, `domexceptionSearchType.js`'s
+ * message, `makeErrorFamilySearchType`'s string properties): opts the facet
+ * in exactly when `queryNode` has a clause touching `path`, and applies that
+ * clause (a bare literal/regex/does-not-contain leaf, since none of these
+ * facets recurse any deeper) to its Mode/Value/Flags controls.
+ * @param {Element} root
+ * @param {QueryNode|undefined} queryNode
+ * @param {string} path
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function applyOptInLiteralRegexFacet (root, queryNode, path, key = '') {
+  const {matched} = extractClauseForPath(queryNode, path);
+  applyOptIn(root, matched !== undefined, key);
+  applyLiteralRegexQuery(
+    root,
+    /**
+     * @type {import('./queryTree.js').QueryLiteralSetLeaf|
+     *import('./queryTree.js').QueryRegexLeaf|
+      import('./queryTree.js').QueryNotContainsLeaf|undefined} */ (matched),
+    key
+  );
+}
+
+/**
+ * A `buildOptInFieldset`-wrapped `buildRangeInputsPair` facet
+ * (`makeErrorFamilySearchType`'s number properties,
+ * `makeDomShapeSearchType`'s dimensions): opts the facet in exactly when
+ * `queryNode` has a clause touching `path`, and applies that clause (a bare
+ * `range` leaf) to its From/To controls.
+ * @param {Element} root
+ * @param {QueryNode|undefined} queryNode
+ * @param {string} path
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function applyOptInRangeFacet (root, queryNode, path, key = '') {
+  const {matched} = extractClauseForPath(queryNode, path);
+  applyOptIn(root, matched !== undefined, key);
+  applyRangeQuery(
+    root, /** @type {import('./queryTree.js').QueryRangeLeaf|undefined} */ (matched), key
+  );
 }

@@ -5,6 +5,7 @@ import {getSearchTypeObject, buildSearchWidget, resolveIntersection} from './sea
  * @typedef {{
  *   container: HTMLFormElement,
  *   $getQuery: () => import('./queryTree.js').QueryAnd,
+ *   $applyQuery: (queryDoc: import('./queryTree.js').QueryAnd) => void,
  *   whenReady: Promise<void>
  * }} SearchChoicesControl
  */
@@ -90,6 +91,27 @@ export function buildSearchChoices ({schemaContent, typeNamespace, topRoot, type
         root: container, path
       });
       return {$and: result === undefined ? [] : [result]};
+    },
+    /**
+     * The "Edit raw" round-trip's entry point - the inverse of `$getQuery`,
+     * unwrapping its own `{$and: [...]}` convention back to a bare
+     * `QueryNode` (or `undefined` for an empty `$and`, "no constraint")
+     * before handing off to the root schema's own `applyQuery`, which
+     * recurses through the whole tree exactly as `getQuery` does.
+     * @param {import('./queryTree.js').QueryAnd} queryDoc
+     * @returns {void}
+     */
+    $applyQuery (queryDoc) {
+      const {$and: clauses} = queryDoc;
+      let queryNode;
+      if (clauses.length === 1) {
+        [queryNode] = clauses;
+      } else if (clauses.length > 1) {
+        queryNode = {$and: clauses};
+      }
+      getSearchTypeObject(schemaObject).applyQuery({
+        root: container, path, queryNode
+      });
     },
     whenReady: Promise.resolve()
   };

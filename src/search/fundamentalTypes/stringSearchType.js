@@ -1,5 +1,7 @@
-import {buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery} from '../searchUtils.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {
+  buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery, applyLiteralRegexQuery
+} from '../searchUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
@@ -31,6 +33,25 @@ const stringSearchType = {
         /** @this {HTMLElement} */
         getQuery () {
           return readLiteralRegexQuery(this, this.dataset.searchPath ?? '');
+        },
+        /**
+         * `getQuery` returns a bare leaf here (no other facet to combine it
+         * with via `$and`), so `queryNode` normally already is one -
+         * unwrapping a trivial one-element `$and` too just tolerates a
+         * hand-edited raw query that wraps it anyway.
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const leaf = queryNode && '$and' in queryNode ? queryNode.$and[0] : queryNode;
+          applyLiteralRegexQuery(
+            this,
+            /**
+             * @type {import('../queryTree.js').QueryLiteralSetLeaf|
+             *import('../queryTree.js').QueryRegexLeaf|
+              import('../queryTree.js').QueryNotContainsLeaf|undefined} */ (leaf)
+          );
         }
       }
     }, [
@@ -38,7 +59,8 @@ const stringSearchType = {
       buildLiteralRegexControls({name, flagOptions: regexpType.allowedFlags})
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default stringSearchType;

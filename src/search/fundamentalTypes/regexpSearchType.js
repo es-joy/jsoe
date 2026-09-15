@@ -1,9 +1,9 @@
 import {
-  buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery,
-  buildMultiSelect, readMultiSelect, findOwnControl
+  buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery, applyLiteralRegexQuery,
+  buildMultiSelect, readMultiSelect, applyMultiSelect, findOwnControl, extractLeafOfKind
 } from '../searchUtils.js';
 import {makeMultiSelectLeaf, combineAnd} from '../queryTreeBuilders.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
@@ -43,6 +43,25 @@ const regexpSearchType = {
             ? makeMultiSelectLeaf(searchPath, {$in: selectedFlags})
             : undefined;
           return combineAnd([sourceLeaf, flagsLeaf]);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const {matched: flagsLeaf, rest: sourceLeaf} = extractLeafOfKind(queryNode, 'multiSelect');
+          // Sets Mode/Value first (dispatching the `change` that also
+          // toggles the Flags multi-select's own `hidden` state via this
+          // widget's `onModeChange`), then Flags.
+          applyLiteralRegexQuery(
+            this,
+            /**
+             * @type {import('../queryTree.js').QueryLiteralSetLeaf|
+             *import('../queryTree.js').QueryRegexLeaf|
+              import('../queryTree.js').QueryNotContainsLeaf|undefined} */ (sourceLeaf)
+          );
+          applyMultiSelect(this, flagsLeaf?.$in ?? []);
         }
       }
     }, [
@@ -66,7 +85,8 @@ const regexpSearchType = {
       ]]
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default regexpSearchType;

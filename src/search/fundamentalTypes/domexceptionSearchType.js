@@ -1,11 +1,12 @@
 import {domExceptionNames} from '../../fundamentalTypes/domexceptionType.js';
 import {
-  buildPathLabel, buildMultiSelect, readMultiSelect, buildLiteralRegexControls,
+  buildPathLabel, buildMultiSelect, readMultiSelect, applyMultiSelect,
+  buildLiteralRegexControls,
   readLiteralRegexQuery, buildOptInFieldset, readOptInChecked, wireOptInFieldset,
-  buildAtLeastOneSentinel, syncAtLeastOneCheck
+  buildAtLeastOneSentinel, syncAtLeastOneCheck, extractLeafOfKind, applyOptInLiteralRegexFacet
 } from '../searchUtils.js';
 import {makeMultiSelectLeaf, combineAnd} from '../queryTreeBuilders.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
@@ -61,6 +62,18 @@ const domexceptionSearchType = {
             ? readLiteralRegexQuery(this, `${searchPath}/message`, 'message')
             : undefined;
           return combineAnd([nameLeaf, messageLeaf]);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const searchPath = this.dataset.searchPath ?? '';
+          const {matched: nameLeaf} = extractLeafOfKind(queryNode, 'multiSelect');
+          applyMultiSelect(this, nameLeaf?.$in ?? []);
+          applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/message`, 'message');
+          syncDomexceptionValidity(this);
         }
       }
     }, [
@@ -78,7 +91,8 @@ const domexceptionSearchType = {
       buildAtLeastOneSentinel()
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default domexceptionSearchType;

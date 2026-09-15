@@ -1,9 +1,9 @@
 import {
   buildPathLabel, buildRangeInputsPair, readRangeInputsPair, buildTriStateSelect,
-  readTriStateSelect, syncRangeValidity
+  readTriStateSelect, syncRangeValidity, applyRangeQuery, applyTriState, extractLeafOfKind
 } from '../searchUtils.js';
 import {makeRangeLeaf, makeIntegerCheckLeaf, combineAnd} from '../queryTreeBuilders.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -40,6 +40,17 @@ const numberSearchType = {
             ? undefined
             : makeIntegerCheckLeaf(searchPath, isInteger);
           return combineAnd([rangeLeaf, integerLeaf]);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const {matched: rangeLeaf} = extractLeafOfKind(queryNode, 'range');
+          applyRangeQuery(this, rangeLeaf);
+          const {matched: integerLeaf} = extractLeafOfKind(queryNode, 'integerCheck');
+          applyTriState(this, integerLeaf?.isInteger);
         }
       }
     }, [
@@ -53,7 +64,8 @@ const numberSearchType = {
       ]]
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default numberSearchType;

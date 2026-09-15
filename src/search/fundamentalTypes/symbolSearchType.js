@@ -1,5 +1,7 @@
-import {buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery} from '../searchUtils.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {
+  buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery, applyLiteralRegexQuery
+} from '../searchUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
@@ -26,6 +28,21 @@ const symbolSearchType = {
         /** @this {HTMLElement} */
         getQuery () {
           return readLiteralRegexQuery(this, this.dataset.searchPath ?? '');
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const leaf = queryNode && '$and' in queryNode ? queryNode.$and[0] : queryNode;
+          applyLiteralRegexQuery(
+            this,
+            /**
+             * @type {import('../queryTree.js').QueryLiteralSetLeaf|
+             *import('../queryTree.js').QueryRegexLeaf|
+              import('../queryTree.js').QueryNotContainsLeaf|undefined} */ (leaf)
+          );
         }
       }
     }, [
@@ -33,7 +50,8 @@ const symbolSearchType = {
       buildLiteralRegexControls({name, flagOptions: regexpType.allowedFlags})
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default symbolSearchType;

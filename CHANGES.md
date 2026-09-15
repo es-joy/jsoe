@@ -1,5 +1,9 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.32.0
+
+- feat: `$applyQuery` for inverse of `$getQuery` (i.e., the ability to build up search forms from queries)
+
 ## 0.31.0
 
 - feat: validation for regexes, CSS selector, XPath, regexes

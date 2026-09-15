@@ -1,6 +1,8 @@
-import {buildPathLabel, buildMultiSelect, readMultiSelect} from '../searchUtils.js';
+import {
+  buildPathLabel, buildMultiSelect, readMultiSelect, applyMultiSelect, extractLeafOfKind
+} from '../searchUtils.js';
 import {makeMultiSelectLeaf} from '../queryTreeBuilders.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -49,6 +51,15 @@ const enumSearchType = {
           return selected.length
             ? makeMultiSelectLeaf(this.dataset.searchPath ?? '', {$in: selected})
             : undefined;
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const {matched} = extractLeafOfKind(queryNode, 'multiSelect');
+          applyMultiSelect(this, matched?.$in ?? []);
         }
       }
     }, [
@@ -56,7 +67,8 @@ const enumSearchType = {
       buildMultiSelect({name, options, required: true})
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default enumSearchType;

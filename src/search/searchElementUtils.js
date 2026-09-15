@@ -1,10 +1,12 @@
 import {
   buildPathLabel, buildCheckbox, readCheckbox,
-  buildLiteralRegexControls, readLiteralRegexQuery,
-  buildRangeInputsPair, readRangeInputsPair, syncRangeValidity,
-  buildTriStateSelect, readTriStateSelect,
-  buildOptInFieldset, readOptInChecked, wireOptInFieldset,
-  buildAtLeastOneSentinel, syncAtLeastOneCheck
+  buildLiteralRegexControls, readLiteralRegexQuery, applyOptInLiteralRegexFacet,
+  buildRangeInputsPair, readRangeInputsPair, syncRangeValidity, applyOptInRangeFacet,
+  applyRangeQuery,
+  buildTriStateSelect, readTriStateSelect, applyTriState,
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset, applyOptIn,
+  buildAtLeastOneSentinel, syncAtLeastOneCheck,
+  extractLeafOfKind
 } from './searchUtils.js';
 import {combineAnd, makeRangeLeaf, makeDomShapeLeaf} from './queryTreeBuilders.js';
 import regexpType from '../fundamentalTypes/regexpType.js';
@@ -27,7 +29,8 @@ export function findSearchElement (root, path) {
 
 /**
  * @typedef {HTMLElement & {
- *   getQuery: () => import('./queryTree.js').QueryNode|undefined
+ *   getQuery: () => import('./queryTree.js').QueryNode|undefined,
+ *   applyQuery?: (queryNode: import('./queryTree.js').QueryNode|undefined) => void
  * }} SearchElement
  */
 
@@ -46,6 +49,24 @@ export function getQueryViaElement ({root, path}) {
 }
 
 /**
+ * The `SearchTypeObject.applyQuery` every module implements identically -
+ * the "Edit raw" round-trip's counterpart to `getQueryViaElement`: locate
+ * the element built under `root` and delegate to its own `applyQuery(...)`
+ * method.
+ * @param {{
+ *   root: HTMLElement, path: string,
+ *   queryNode: import('./queryTree.js').QueryNode|undefined
+ * }} cfg
+ * @returns {void}
+ */
+export function applyQueryViaElement ({root, path, queryNode}) {
+  const el = /** @type {SearchElement|undefined} */ (
+    findSearchElement(root, path)
+  );
+  el?.applyQuery?.(queryNode);
+}
+
+/**
  * Type-predicate guard distinguishing a built search element (leaf or
  * container, either answers to `.getQuery()`) from a plain DOM node - used
  * by container elements (e.g. `objectSearchType.js`'s `<jsoe-search-object>`)
@@ -57,6 +78,20 @@ export function getQueryViaElement ({root, path}) {
  */
 export function hasGetQuery (el) {
   return typeof (/** @type {{getQuery?: unknown}} */ (el)).getQuery ===
+    'function';
+}
+
+/**
+ * Same as `hasGetQuery`, for `applyQuery` - a container walking its own
+ * children to recurse an "Edit raw" apply into each needs to know which
+ * ones answer to it, same reasoning as `hasGetQuery`'s own doc.
+ * @param {Element} el
+ * @returns {el is SearchElement & {applyQuery: (
+ *   queryNode: import('./queryTree.js').QueryNode|undefined
+ * ) => void}}
+ */
+export function hasApplyQuery (el) {
+  return typeof (/** @type {{applyQuery?: unknown}} */ (el)).applyQuery ===
     'function';
 }
 
@@ -89,7 +124,10 @@ export function makePresenceOnlySearchType ({tagName}) {
             return checked
               ? {kind: 'presence', path: this.dataset.searchPath ?? '', $exists: true}
               : undefined;
-          }
+          },
+          // The checkbox is permanently checked and `disabled` - nothing
+          // for a raw query to change here either way.
+          applyQuery () {}
         }
       }, [
         ['span', {class: 'searchLabel'}, [label]],
@@ -98,7 +136,8 @@ export function makePresenceOnlySearchType ({tagName}) {
         })
       ]];
     },
-    getQuery: getQueryViaElement
+    getQuery: getQueryViaElement,
+    applyQuery: applyQueryViaElement
   };
 }
 
@@ -211,11 +250,27 @@ export function makeErrorFamilySearchType ({tagName}) {
               });
             });
             return combineAnd([...stringLeaves, ...numberLeaves]);
+          },
+          /**
+           * @this {HTMLElement}
+           * @param {import('./queryTree.js').QueryNode|undefined} queryNode
+           * @returns {void}
+           */
+          applyQuery (queryNode) {
+            const searchPath = this.dataset.searchPath ?? '';
+            errorStringProps.forEach((prop) => {
+              applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/${prop}`, prop);
+            });
+            errorNumberProps.forEach((prop) => {
+              applyOptInRangeFacet(this, queryNode, `${searchPath}/${prop}`, prop);
+            });
+            syncErrorFamilyValidity(this);
           }
         }
       }, buildErrorFamilyChildren({label, name})];
     },
-    getQuery: getQueryViaElement
+    getQuery: getQueryViaElement,
+    applyQuery: applyQueryViaElement
   };
 }
 
@@ -362,12 +417,45 @@ export function makeDomShapeSearchType ({
                 ? {}
                 : {dimensionCheck: dimensionCheck ? 3 : 2})
             });
+          },
+          /**
+           * @this {HTMLElement}
+           * @param {import('./queryTree.js').QueryNode|undefined} queryNode
+           * @returns {void}
+           */
+          applyQuery (queryNode) {
+            // A `domShape` leaf embeds each dimension's own `range` leaf
+            // directly (`dimensions`), not via `$and` - so, unlike
+            // `makeErrorFamilySearchType`'s flat properties,
+            // `extractClauseForPath` (which `applyOptInRangeFacet` uses)
+            // isn't needed here: read the whole leaf once and apply each
+            // dimension straight from it.
+            const {matched} = extractLeafOfKind(queryNode, 'domShape');
+            dimensionKeys.forEach((dim) => {
+              const dimLeaf = matched?.dimensions[dim];
+              applyOptIn(this, dimLeaf !== undefined, dim);
+              applyRangeQuery(this, dimLeaf, dim);
+            });
+            if (includeReadonly) {
+              applyTriState(this, matched?.readonlyCheck, 'readonly');
+            }
+            if (includeDimensionCheck) {
+              applyTriState(
+                this,
+                matched?.dimensionCheck === undefined
+                  ? undefined
+                  : matched.dimensionCheck === 3,
+                'dimension'
+              );
+            }
+            syncDomShapeValidity({root: this, dimensionKeys, includeReadonly, includeDimensionCheck});
           }
         }
       }, buildDomShapeChildren({
         label, name, dimensionKeys, includeReadonly, includeDimensionCheck
       })];
     },
-    getQuery: getQueryViaElement
+    getQuery: getQueryViaElement,
+    applyQuery: applyQueryViaElement
   };
 }

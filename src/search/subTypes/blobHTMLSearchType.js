@@ -1,8 +1,8 @@
 import {
-  buildPathLabel, findOwnControl, isExemptedByAncestorHasProperty
+  buildPathLabel, findOwnControl, isExemptedByAncestorHasProperty, extractLeafOfKind
 } from '../searchUtils.js';
 import {makeBlobHTMLLeaf} from '../queryTreeBuilders.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
@@ -173,6 +173,45 @@ const blobHTMLSearchType = {
             value,
             flags || undefined
           );
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const {matched} = extractLeafOfKind(queryNode, 'blobHTML');
+          const modeEl = /** @type {HTMLSelectElement|undefined} */ (
+            findOwnControl(this, 'select.jsoeSearchBlobHTMLMode')
+          );
+          if (!modeEl) {
+            return;
+          }
+          const mode = matched?.mode ?? 'cssSelector';
+          modeEl.value = mode;
+          // Dispatching `change` runs the Mode `<select>`'s own handler
+          // first, which shows/hides the correct Value control and the
+          // Flags label before either is touched below.
+          modeEl.dispatchEvent(new Event('change'));
+          const activeEl = /** @type {HTMLInputElement|HTMLTextAreaElement|undefined} */ (
+            findOwnControl(
+              this, `${mode === 'fullText' ? 'textarea' : 'input'}.jsoeSearchBlobHTMLValue`
+            )
+          );
+          if (activeEl) {
+            activeEl.value = matched?.value ?? '';
+            activeEl.dispatchEvent(new Event('input'));
+          }
+          const flagsEl = /** @type {HTMLSelectElement|undefined} */ (
+            findOwnControl(this, 'select.jsoeSearchBlobHTMLFlags')
+          );
+          if (flagsEl) {
+            const flagChars = new Set((matched?.$options ?? '').split(''));
+            [...flagsEl.options].forEach((opt) => {
+              opt.selected = flagChars.has(opt.value);
+            });
+            flagsEl.dispatchEvent(new Event('change'));
+          }
         }
       }
     }, [
@@ -252,7 +291,8 @@ const blobHTMLSearchType = {
       ]]
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default blobHTMLSearchType;

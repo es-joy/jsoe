@@ -1,13 +1,15 @@
 import {jml} from '../../vendor-imports.js';
 import {escapeJSONPointer} from '../../utils/jsonPointer.js';
 import {
-  buildPathLabel, buildHasPropertyToggle, readTriStateSelect, findOwnControl,
-  buildCheckbox, readCheckbox, buildAtLeastOneSentinel, syncAtLeastOneCheck,
-  setDescendantsRequired, revalidateDescendants, resyncAtLeastOne
+  buildPathLabel, buildHasPropertyToggle, readTriStateSelect, applyTriState, findOwnControl,
+  buildCheckbox, readCheckbox, applyCheckbox, buildAtLeastOneSentinel, syncAtLeastOneCheck,
+  setDescendantsRequired, revalidateDescendants, resyncAtLeastOne,
+  extractLeafOfKind, extractClauseForPath
 } from '../searchUtils.js';
 import {combineAnd, makeHasPropertyLeaf} from '../queryTreeBuilders.js';
 import {
-  findSearchElement, getQueryViaElement, hasGetQuery
+  findSearchElement, getQueryViaElement, hasGetQuery,
+  applyQueryViaElement, hasApplyQuery
 } from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
 
@@ -307,6 +309,91 @@ const objectSearchType = {
         getQuery () {
           const rows = [...this.children].filter(hasGetQuery);
           return combineAnd(rows.map((row) => row.getQuery()));
+        },
+        /**
+         * `$define` methods are shared once per tag (this file's other
+         * docs), so - like `getQuery` - this reads every per-instance fact
+         * (which properties exist, their names) off `this`'s own live DOM
+         * rather than closing over `objectSchemaObject`/`propertyEntries`.
+         * A property the query doesn't reference is reset to "no
+         * constraint" (its tri-state back to "(any)"/checkbox unchecked,
+         * its own child cleared) rather than removed outright - cheaper and
+         * just as correct a way to reach the same resulting query, and
+         * non-destructive (the row, and any of the user's other in-progress
+         * edits to it, stay put to remove by hand if truly unwanted).
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const searchPath = this.dataset.searchPath ?? '';
+          let remaining = queryNode;
+
+          [...this.querySelectorAll(':scope > jsoe-search-has-property')].forEach((row) => {
+            const propertyName = /** @type {HTMLElement} */ (row).dataset.propertyName ?? '';
+            const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
+            const {matched, rest} = extractClauseForPath(remaining, childPath);
+            remaining = rest;
+            const {matched: existsLeaf, rest: childQuery} = extractLeafOfKind(matched, 'hasProperty');
+            applyTriState(row, existsLeaf?.$exists);
+            const childEl = findSearchElement(row, childPath);
+            if (childEl && hasApplyQuery(childEl)) {
+              childEl.applyQuery(childQuery);
+            }
+          });
+
+          [...this.querySelectorAll(':scope > jsoe-search-required-property')].forEach((row) => {
+            const propertyName = /** @type {HTMLElement} */ (row).dataset.propertyName ?? '';
+            const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
+            const {matched, rest} = extractClauseForPath(remaining, childPath);
+            remaining = rest;
+            applyCheckbox(row, matched !== undefined);
+            const childEl = findSearchElement(row, childPath);
+            if (childEl && hasApplyQuery(childEl)) {
+              childEl.applyQuery(matched);
+            }
+          });
+
+          // Optional properties the query references but that aren't added
+          // yet: pick each in turn from the pull-down and click "Add" (that
+          // click handler is wired per-instance, so - unlike this method -
+          // it's safe for it to close over this widget's own schema/path),
+          // then apply the same way an already-added row above would.
+          const addPropertySelect = /** @type {HTMLSelectElement|undefined} */ (
+            findOwnControl(this, 'select.addPropertySelect')
+          );
+          const addButton = /** @type {HTMLButtonElement|undefined} */ (
+            findOwnControl(this, 'button.addPropertyButton')
+          );
+          [...(addPropertySelect?.options ?? [])].
+            filter((opt) => opt.value && !opt.disabled).
+            map((opt) => opt.value).
+            forEach((propertyName) => {
+              const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
+              const {matched, rest} = extractClauseForPath(remaining, childPath);
+              if (matched === undefined) {
+                return;
+              }
+              remaining = rest;
+              if (addPropertySelect) {
+                addPropertySelect.value = propertyName;
+              }
+              addButton?.click();
+              const row = [
+                ...this.querySelectorAll(':scope > jsoe-search-has-property')
+              ].find((r) => /** @type {HTMLElement} */ (r).dataset.propertyName === propertyName);
+              if (!row) {
+                return;
+              }
+              const {matched: existsLeaf, rest: childQuery} = extractLeafOfKind(matched, 'hasProperty');
+              applyTriState(row, existsLeaf?.$exists);
+              const childEl = findSearchElement(row, childPath);
+              if (childEl && hasApplyQuery(childEl)) {
+                childEl.applyQuery(childQuery);
+              }
+            });
+
+          syncObjectValidity(this);
         }
       }
     }, [
@@ -325,6 +412,7 @@ const objectSearchType = {
           : ['span', ['(no optional properties to search on)']],
         ['button', {
           type: 'button',
+          class: 'addPropertyButton',
           $on: {
             click () {
               const container = this.closest('jsoe-search-object');
@@ -361,7 +449,8 @@ const objectSearchType = {
       ...(propertyEntries.length > 0 ? [buildAtLeastOneSentinel()] : [])
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default objectSearchType;

@@ -1,7 +1,10 @@
 import {jml} from '../../vendor-imports.js';
-import {buildPathLabel, findOwnControl} from '../searchUtils.js';
+import {buildPathLabel, findOwnControl, extractLeafOfKind} from '../searchUtils.js';
 import {makeTypeOfLeaf, combineAnd} from '../queryTreeBuilders.js';
-import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
+import {
+  findSearchElement, getQueryViaElement, hasGetQuery,
+  applyQueryViaElement, hasApplyQuery
+} from '../searchElementUtils.js';
 import {getSearchSchemaType, buildSearchWidget} from '../searchDispatch.js';
 
 /**
@@ -101,6 +104,44 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
               ? branchEl.getQuery()
               : undefined;
             return combineAnd([typeOfLeaf, branchQuery]);
+          },
+          /**
+           * Drives the existing "Has type" `<select>`'s own `change`
+           * listener (defined below, per-instance and so already safe to
+           * close over `branches`) rather than reimplementing branch-DOM
+           * construction here - `$define` methods are installed once on the
+           * tag's shared prototype the first time it's defined (this
+           * function's own doc), so `applyQuery` can't close over
+           * `branches` itself, but dispatching a real `change` event lets
+           * the per-instance listener that *can* do the rebuild for us.
+           * @this {HTMLElement}
+           * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+           * @returns {void}
+           */
+          applyQuery (queryNode) {
+            const select = /** @type {HTMLSelectElement|undefined} */ (
+              findOwnControl(this, 'select.jsoeSearchTypeOf')
+            );
+            if (!select) {
+              return;
+            }
+            const {matched, rest} = extractLeafOfKind(queryNode, 'typeOf');
+            const optionMatch = matched && [...select.options].find((opt) => (
+              opt.dataset.searchType === matched.searchType &&
+              (opt.dataset.discriminatorValue === undefined
+                ? matched.discriminatorValue === undefined
+                : JSON.parse(opt.dataset.discriminatorValue) === matched.discriminatorValue)
+            ));
+            select.value = optionMatch ? optionMatch.value : '';
+            select.dispatchEvent(new Event('change'));
+            if (!optionMatch) {
+              return;
+            }
+            const searchPath = this.dataset.searchPath ?? '';
+            const branchEl = findSearchElement(this, searchPath);
+            if (branchEl && hasApplyQuery(branchEl)) {
+              branchEl.applyQuery(rest);
+            }
           }
         }
       }, [
@@ -163,6 +204,7 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
         ['div', {class: 'searchUnionBranch'}]
       ]];
     },
-    getQuery: getQueryViaElement
+    getQuery: getQueryViaElement,
+    applyQuery: applyQueryViaElement
   };
 }

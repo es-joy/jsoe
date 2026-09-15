@@ -1,9 +1,12 @@
 import {
-  buildPathLabel, buildOptInFieldset, readOptInChecked, wireOptInFieldset,
-  buildAtLeastOneSentinel, syncAtLeastOneCheck
+  buildPathLabel, buildOptInFieldset, readOptInChecked, wireOptInFieldset, applyOptIn,
+  buildAtLeastOneSentinel, syncAtLeastOneCheck, extractClauseForPath
 } from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
-import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
+import {
+  findSearchElement, getQueryViaElement, hasGetQuery,
+  applyQueryViaElement, hasApplyQuery
+} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
@@ -82,6 +85,29 @@ const functionSearchType = {
             ? outputEl.getQuery()
             : undefined;
           return combineAnd([argsQuery, outputQuery]);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const searchPath = this.dataset.searchPath ?? '';
+          const argsPath = `${searchPath}/*args`;
+          const outputPath = `${searchPath}/*output`;
+          const {matched: argsMatched, rest} = extractClauseForPath(queryNode, argsPath);
+          const {matched: outputMatched} = extractClauseForPath(rest, outputPath);
+          applyOptIn(this, argsMatched !== undefined, 'args');
+          applyOptIn(this, outputMatched !== undefined, 'output');
+          const argsEl = findSearchElement(this, argsPath);
+          if (argsEl && hasApplyQuery(argsEl)) {
+            argsEl.applyQuery(argsMatched);
+          }
+          const outputEl = findSearchElement(this, outputPath);
+          if (outputEl && hasApplyQuery(outputEl)) {
+            outputEl.applyQuery(outputMatched);
+          }
+          syncFunctionValidity(this);
         }
       }
     }, [
@@ -96,7 +122,8 @@ const functionSearchType = {
       buildAtLeastOneSentinel()
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default functionSearchType;

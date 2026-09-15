@@ -1,9 +1,13 @@
 import {
-  buildPathLabel, buildCheckbox, readCheckbox, buildOptInFieldset,
-  readOptInChecked, wireOptInFieldset, buildAtLeastOneSentinel, syncAtLeastOneCheck
+  buildPathLabel, buildCheckbox, readCheckbox, applyCheckbox, buildOptInFieldset,
+  readOptInChecked, wireOptInFieldset, applyOptIn, buildAtLeastOneSentinel,
+  syncAtLeastOneCheck, extractLeafOfKind
 } from '../searchUtils.js';
 import {makeMapRecordJointLeaf} from '../queryTreeBuilders.js';
-import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
+import {
+  findSearchElement, getQueryViaElement, hasGetQuery,
+  applyQueryViaElement, hasApplyQuery
+} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
@@ -85,6 +89,27 @@ const recordSearchType = {
           }
           const joint = readCheckbox(this);
           return makeMapRecordJointLeaf(searchPath, joint, keyQuery, valueQuery);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const searchPath = this.dataset.searchPath ?? '';
+          const {matched: jointLeaf} = extractLeafOfKind(queryNode, 'mapRecordJoint');
+          applyCheckbox(this, Boolean(jointLeaf?.joint));
+          applyOptIn(this, jointLeaf?.keyQuery !== undefined, 'key');
+          applyOptIn(this, jointLeaf?.valueQuery !== undefined, 'value');
+          const keyEl = findSearchElement(this, `${searchPath}/*key`);
+          if (keyEl && hasApplyQuery(keyEl)) {
+            keyEl.applyQuery(jointLeaf?.keyQuery);
+          }
+          const valueEl = findSearchElement(this, `${searchPath}/*value`);
+          if (valueEl && hasApplyQuery(valueEl)) {
+            valueEl.applyQuery(jointLeaf?.valueQuery);
+          }
+          syncKeyValueValidity(this);
         }
       }
     }, [
@@ -99,7 +124,8 @@ const recordSearchType = {
       buildAtLeastOneSentinel()
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default recordSearchType;

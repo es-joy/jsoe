@@ -1,10 +1,13 @@
 import {
-  buildPathLabel, buildLengthSizeControls, readLengthSizeQuery,
-  buildOptInFieldset, readOptInChecked, wireOptInFieldset,
-  buildAtLeastOneSentinel, syncAtLeastOneCheck
+  buildPathLabel, buildLengthSizeControls, readLengthSizeQuery, applyLengthSizeQuery,
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset, applyOptIn,
+  buildAtLeastOneSentinel, syncAtLeastOneCheck, extractLeafOfKind
 } from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
-import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
+import {
+  findSearchElement, getQueryViaElement, hasGetQuery,
+  applyQueryViaElement, hasApplyQuery
+} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
@@ -69,6 +72,22 @@ const setSearchType = {
             ? elementEl.getQuery()
             : undefined;
           return combineAnd([lengthLeaf, elementLeaf]);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const searchPath = this.dataset.searchPath ?? '';
+          const {matched: lengthLeaf, rest} = extractLeafOfKind(queryNode, 'lengthSize');
+          applyLengthSizeQuery(this, lengthLeaf);
+          applyOptIn(this, rest !== undefined, '');
+          const elementEl = findSearchElement(this, `${searchPath}/*`);
+          if (elementEl && hasApplyQuery(elementEl)) {
+            elementEl.applyQuery(rest);
+          }
+          syncSetValidity(this);
         }
       }
     }, [
@@ -85,7 +104,8 @@ const setSearchType = {
       buildAtLeastOneSentinel()
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default setSearchType;

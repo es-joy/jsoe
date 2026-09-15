@@ -1,9 +1,10 @@
 import {buildDateInputControl} from '../../fundamentalTypes/dateType.js';
 import {
-  buildPathLabel, buildTriStateSelect, readTriStateSelect, isExemptedByAncestorHasProperty
+  buildPathLabel, buildTriStateSelect, readTriStateSelect, isExemptedByAncestorHasProperty,
+  applyTriState, extractLeafOfKind
 } from '../searchUtils.js';
 import {makeRangeLeaf, makeValidDateCheckLeaf, combineAnd} from '../queryTreeBuilders.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -81,6 +82,25 @@ function validateRange () {
 }
 
 /**
+ * The inverse of `readInputs` - `undefined` clears a bound, mirroring
+ * `dateType.js`'s own ISO-slicing convention (`toISOString().slice(0, -8)`)
+ * used to seed a `datetime-local` input's value from a real `Date`.
+ * @param {Element} el
+ * @param {string|undefined} gte
+ * @param {string|undefined} lte
+ * @returns {void}
+ */
+function applyInputs (el, gte, lte) {
+  const [gteInput, lteInput] = /** @type {HTMLInputElement[]} */ (
+    [...el.querySelectorAll('input[type="datetime-local"]')]
+  );
+  gteInput.value = gte === undefined ? '' : new Date(gte).toISOString().slice(0, -8);
+  lteInput.value = lte === undefined ? '' : new Date(lte).toISOString().slice(0, -8);
+  gteInput.dispatchEvent(new Event('input'));
+  lteInput.dispatchEvent(new Event('input'));
+}
+
+/**
  * OR date range/Is Not Range, Is/Is not a valid date (README) -
  * `dateType.js`'s own `buildDateInputControl` is reused twice (range start/
  * end) so the min/max wiring and ISO-slicing stay in one place. Choosing
@@ -121,6 +141,24 @@ const dateSearchType = {
               ...(lte ? {$lte: new Date(lte).toISOString()} : {})
             });
           return combineAnd([validLeaf, rangeLeaf]);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const {matched: validLeaf} = extractLeafOfKind(queryNode, 'validDateCheck');
+          // Dispatches `change`, which runs the tri-state's own `onChange`
+          // (toggling the range fieldset's `disabled` state and re-running
+          // `validateRange`) before the range inputs below are set.
+          applyTriState(this, validLeaf?.isValid, 'valid');
+          const {matched: rangeLeaf} = extractLeafOfKind(queryNode, 'range');
+          applyInputs(
+            this,
+            /** @type {string|undefined} */ (rangeLeaf?.$gte),
+            /** @type {string|undefined} */ (rangeLeaf?.$lte)
+          );
         }
       }
     }, [
@@ -160,7 +198,8 @@ const dateSearchType = {
       ]]
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default dateSearchType;

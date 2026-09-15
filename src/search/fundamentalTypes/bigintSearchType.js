@@ -1,8 +1,9 @@
 import {
-  buildPathLabel, buildRangeInputsPair, readRangeInputsPair, syncRangeValidity
+  buildPathLabel, buildRangeInputsPair, readRangeInputsPair, syncRangeValidity,
+  applyRangeQuery, extractLeafOfKind
 } from '../searchUtils.js';
 import {makeRangeLeaf} from '../queryTreeBuilders.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -55,6 +56,15 @@ const bigintSearchType = {
             ...($gte === undefined ? {} : {$gte}),
             ...($lte === undefined ? {} : {$lte})
           });
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const {matched} = extractLeafOfKind(queryNode, 'range');
+          applyRangeQuery(this, matched);
         }
       }
     }, [
@@ -62,7 +72,8 @@ const bigintSearchType = {
       ...buildRangeInputsPair({name, type: 'text'})
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default bigintSearchType;

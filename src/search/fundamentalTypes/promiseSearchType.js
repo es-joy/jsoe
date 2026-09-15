@@ -1,6 +1,9 @@
-import {buildPathLabel} from '../searchUtils.js';
+import {buildPathLabel, extractLeafOfKind} from '../searchUtils.js';
 import {makePassThroughLeaf} from '../queryTreeBuilders.js';
-import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
+import {
+  findSearchElement, getQueryViaElement, hasGetQuery,
+  applyQueryViaElement, hasApplyQuery
+} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
@@ -48,6 +51,19 @@ const promiseSearchType = {
           return childQuery === undefined
             ? undefined
             : makePassThroughLeaf(searchPath, childQuery);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const {matched} = extractLeafOfKind(queryNode, 'passThrough');
+          const searchPath = this.dataset.searchPath ?? '';
+          const childEl = findSearchElement(this, searchPath);
+          if (childEl && hasApplyQuery(childEl)) {
+            childEl.applyQuery(matched?.query);
+          }
         }
       }
     }, [
@@ -55,7 +71,8 @@ const promiseSearchType = {
       childArr
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default promiseSearchType;

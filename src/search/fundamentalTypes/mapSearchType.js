@@ -1,10 +1,14 @@
 import {
-  buildPathLabel, buildCheckbox, readCheckbox, buildLengthSizeControls,
-  readLengthSizeQuery, buildOptInFieldset, readOptInChecked, wireOptInFieldset,
-  buildAtLeastOneSentinel, syncAtLeastOneCheck
+  buildPathLabel, buildCheckbox, readCheckbox, applyCheckbox, buildLengthSizeControls,
+  readLengthSizeQuery, applyLengthSizeQuery,
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset, applyOptIn,
+  buildAtLeastOneSentinel, syncAtLeastOneCheck, extractLeafOfKind
 } from '../searchUtils.js';
 import {makeMapRecordJointLeaf, combineAnd} from '../queryTreeBuilders.js';
-import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
+import {
+  findSearchElement, getQueryViaElement, hasGetQuery,
+  applyQueryViaElement, hasApplyQuery
+} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
@@ -94,6 +98,29 @@ const mapSearchType = {
             ? makeMapRecordJointLeaf(searchPath, readCheckbox(this), keyQuery, valueQuery)
             : undefined;
           return combineAnd([lengthLeaf, jointLeaf]);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const searchPath = this.dataset.searchPath ?? '';
+          const {matched: lengthLeaf, rest} = extractLeafOfKind(queryNode, 'lengthSize');
+          applyLengthSizeQuery(this, lengthLeaf);
+          const {matched: jointLeaf} = extractLeafOfKind(rest, 'mapRecordJoint');
+          applyCheckbox(this, Boolean(jointLeaf?.joint));
+          applyOptIn(this, jointLeaf?.keyQuery !== undefined, 'key');
+          applyOptIn(this, jointLeaf?.valueQuery !== undefined, 'value');
+          const keyEl = findSearchElement(this, `${searchPath}/*key`);
+          if (keyEl && hasApplyQuery(keyEl)) {
+            keyEl.applyQuery(jointLeaf?.keyQuery);
+          }
+          const valueEl = findSearchElement(this, `${searchPath}/*value`);
+          if (valueEl && hasApplyQuery(valueEl)) {
+            valueEl.applyQuery(jointLeaf?.valueQuery);
+          }
+          syncMapValidity(this);
         }
       }
     }, [
@@ -111,7 +138,8 @@ const mapSearchType = {
       buildAtLeastOneSentinel()
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default mapSearchType;

@@ -1,10 +1,13 @@
 import {
-  buildPathLabel, buildLengthSizeControls, readLengthSizeQuery,
-  buildOptInFieldset, readOptInChecked, wireOptInFieldset,
-  buildAtLeastOneSentinel, syncAtLeastOneCheck
+  buildPathLabel, buildLengthSizeControls, readLengthSizeQuery, applyLengthSizeQuery,
+  buildOptInFieldset, readOptInChecked, wireOptInFieldset, applyOptIn,
+  buildAtLeastOneSentinel, syncAtLeastOneCheck, extractLeafOfKind, extractClauseForPath
 } from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
-import {findSearchElement, getQueryViaElement, hasGetQuery} from '../searchElementUtils.js';
+import {
+  findSearchElement, getQueryViaElement, hasGetQuery,
+  applyQueryViaElement, hasApplyQuery
+} from '../searchElementUtils.js';
 import {buildSearchWidget} from '../searchDispatch.js';
 
 /**
@@ -142,11 +145,46 @@ const tupleSearchType = {
             ? restEl.getQuery()
             : undefined;
           return combineAnd([...itemLeaves, lengthLeaf, restLeaf]);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const searchPath = this.dataset.searchPath ?? '';
+          const itemCount = Number(this.dataset.itemCount ?? '0');
+          const hasRest = this.dataset.hasRest === 'true';
+          let remaining = queryNode;
+          Array.from({length: itemCount}, (_v, idx) => idx).forEach((idx) => {
+            const childPath = `${searchPath}/${idx}`;
+            const {matched, rest} = extractClauseForPath(remaining, childPath);
+            remaining = rest;
+            applyOptIn(this, matched !== undefined, String(idx));
+            const itemEl = findSearchElement(this, childPath);
+            if (itemEl && hasApplyQuery(itemEl)) {
+              itemEl.applyQuery(matched);
+            }
+          });
+          if (hasRest) {
+            const {matched: lengthLeaf, rest: afterLength} = extractLeafOfKind(remaining, 'lengthSize');
+            applyLengthSizeQuery(this, lengthLeaf);
+            remaining = afterLength;
+            const restPath = `${searchPath}/*`;
+            const {matched: restMatched} = extractClauseForPath(remaining, restPath);
+            applyOptIn(this, restMatched !== undefined, 'rest');
+            const restEl = findSearchElement(this, restPath);
+            if (restEl && hasApplyQuery(restEl)) {
+              restEl.applyQuery(restMatched);
+            }
+          }
+          syncTupleValidity(this);
         }
       }
     }, children];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default tupleSearchType;

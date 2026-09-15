@@ -1,6 +1,8 @@
-import {buildPathLabel, buildTriStateSelect, readTriStateSelect} from '../searchUtils.js';
+import {
+  buildPathLabel, buildTriStateSelect, readTriStateSelect, applyTriState, extractLeafOfKind
+} from '../searchUtils.js';
 import {makeBooleanEqualsLeaf} from '../queryTreeBuilders.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -24,6 +26,15 @@ const booleanSearchType = {
           return value === undefined
             ? undefined
             : makeBooleanEqualsLeaf(this.dataset.searchPath ?? '', value);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const {matched} = extractLeafOfKind(queryNode, 'booleanEquals');
+          applyTriState(this, matched?.value);
         }
       }
     }, [
@@ -34,7 +45,8 @@ const booleanSearchType = {
       ]]
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default booleanSearchType;

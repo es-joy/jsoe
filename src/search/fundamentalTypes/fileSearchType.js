@@ -1,10 +1,10 @@
 import {
   buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery,
   buildOptInFieldset, readOptInChecked, wireOptInFieldset,
-  buildAtLeastOneSentinel, syncAtLeastOneCheck
+  buildAtLeastOneSentinel, syncAtLeastOneCheck, applyOptInLiteralRegexFacet
 } from '../searchUtils.js';
 import {combineAnd} from '../queryTreeBuilders.js';
-import {getQueryViaElement} from '../searchElementUtils.js';
+import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
 
 /**
@@ -69,6 +69,17 @@ const fileSearchType = {
             ? readLiteralRegexQuery(this, `${searchPath}/type`, 'type')
             : undefined;
           return combineAnd([nameLeaf, typeLeaf]);
+        },
+        /**
+         * @this {HTMLElement}
+         * @param {import('../queryTree.js').QueryNode|undefined} queryNode
+         * @returns {void}
+         */
+        applyQuery (queryNode) {
+          const searchPath = this.dataset.searchPath ?? '';
+          applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/name`, 'name');
+          applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/type`, 'type');
+          syncFileValidity(this);
         }
       }
     }, [
@@ -88,7 +99,8 @@ const fileSearchType = {
       buildAtLeastOneSentinel()
     ]];
   },
-  getQuery: getQueryViaElement
+  getQuery: getQueryViaElement,
+  applyQuery: applyQueryViaElement
 };
 
 export default fileSearchType;
