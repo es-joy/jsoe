@@ -161,7 +161,7 @@ Supported supertypes include:
 1. Import CSV as array
 1. **Schema-driven search**
     1. Might allow search on `.cause` and `AggregateError.errors` in the future
-    1. Might allow "Edit as raw" as JSON6 (edit query object directly)
+    1. Might allow "Edit as raw" as JSON6 (edit query object directly) on each individual object/array/map/tuple/record/filelist
     1. Could add syntax highlighting for CSS Selector, XPath, Regexes
     1. Need to allow multiple OR'd conditions (e.g., for string) like "matches regex" and "does not contain"
 
