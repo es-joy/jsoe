@@ -29,7 +29,7 @@ export default [
             // eslint-disable-next-line camelcase -- API
             maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 500,
             allowDefaultProject: [
-              '*.js', '.ncurc.cjs', 'demo/*.js'
+              '*.js', 'demo/*.js'
             ]
           },
           tsconfigRootDir: import.meta.dirname
