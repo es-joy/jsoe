@@ -205,13 +205,15 @@ const blobHTMLSearchType = {
           const flagsEl = /** @type {HTMLSelectElement|undefined} */ (
             findOwnControl(this, 'select.jsoeSearchBlobHTMLFlags')
           );
-          if (flagsEl) {
-            const flagChars = new Set((matched?.$options ?? '').split(''));
-            [...flagsEl.options].forEach((opt) => {
-              opt.selected = flagChars.has(opt.value);
-            });
-            flagsEl.dispatchEvent(new Event('change'));
+          if (!flagsEl) {
+            return;
           }
+
+          const flagChars = new Set((matched?.$options ?? '').split(''));
+          [...flagsEl.options].forEach((opt) => {
+            opt.selected = flagChars.has(opt.value);
+          });
+          flagsEl.dispatchEvent(new Event('change'));
         }
       }
     }, [

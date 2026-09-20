@@ -51,20 +51,22 @@ const setTooltips = ({root, specificSchemaObject, textareas, textareaBody}) => {
     const textarea = /** @type {Element} */ (
       node
     ).querySelector('textarea');
-    if (textarea) {
-      const textareas = /** @type {HTMLTextAreaElement[]} */ (
-        $$e(root, 'textarea')
-      ).slice(0, -1);
-
-      // Redo them all, as order may have changed
-      textareas.forEach((textarea, idx) => {
-        textarea.title = JSON.stringify(
-          args.items[idx] ?? args.rest,
-          null,
-          2
-        );
-      });
+    if (!textarea) {
+      return;
     }
+
+    const textareas = /** @type {HTMLTextAreaElement[]} */ (
+      $$e(root, 'textarea')
+    ).slice(0, -1);
+
+    // Redo them all, as order may have changed
+    textareas.forEach((textarea, idx) => {
+      textarea.title = JSON.stringify(
+        args.items[idx] ?? args.rest,
+        null,
+        2
+      );
+    });
   };
 
   const observer = new MutationObserver((mutationList) => {

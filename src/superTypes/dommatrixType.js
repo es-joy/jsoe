@@ -28,14 +28,16 @@ const dommatrixType = {
       ? DOMMatrix
       : DOMMatrixReadOnly;
 
-    const dommatrix = Object.hasOwn(o, 'a')
-      ? new DOMMatrixClass([o.a, o.b, o.c, o.d, o.e, o.f])
-      : new DOMMatrixClass([
-        o.m11, o.m12, o.m13, o.m14,
-        o.m21, o.m22, o.m23, o.m24,
-        o.m31, o.m32, o.m33, o.m34,
-        o.m41, o.m42, o.m43, o.m44
-      ]);
+    const dommatrix = new DOMMatrixClass(
+      Object.hasOwn(o, 'a')
+        ? [o.a, o.b, o.c, o.d, o.e, o.f]
+        : [
+          o.m11, o.m12, o.m13, o.m14,
+          o.m21, o.m22, o.m23, o.m24,
+          o.m31, o.m32, o.m33, o.m34,
+          o.m41, o.m42, o.m43, o.m44
+        ]
+    );
 
     return {value: dommatrix};
   },
@@ -238,8 +240,8 @@ const dommatrixType = {
         schemaLabel(specificSchemaObject) ??
           (isReadWrite ? 'DOMMatrix' : 'DOMMatrixReadOnly')
       ]],
-      value.is2D
-        ? ['div', [
+      ['div', value.is2D
+        ? [
           ['b', ['a ']],
           value.a,
           ['br'],
@@ -257,8 +259,8 @@ const dommatrixType = {
           ['br'],
           ['b', ['f ']],
           value.f
-        ]]
-        : ['div', [
+        ]
+        : [
           ['b', ['m11 ']],
           value.m11,
           ['br'],

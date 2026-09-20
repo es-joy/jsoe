@@ -144,14 +144,14 @@ const encapsulateObserver = (stateObj) => {
       endIterateUnsetNumeric,
       clone
     } = observerObj;
-    if (atomicPaths.some((atomicPath) => {
-      return atomicPath === ''
-        ? keypath !== ''
-        : keypath.startsWith(`${atomicPath}.`);
-    })) {
-      return;
-    }
-    if ('replaced' in observerObj) {
+    if (
+      atomicPaths.some((atomicPath) => {
+        return atomicPath === ''
+          ? keypath !== ''
+          : keypath.startsWith(`${atomicPath}.`);
+      }) ||
+      ('replaced' in observerObj)
+    ) {
       return;
     }
     if (cyclic === 'readonly' && !Array.isArray(observerObj.value)) {
@@ -428,20 +428,22 @@ const encapsulateObserver = (stateObj) => {
         }
       }
 
-      if (!readonly) {
-        await types?.setValue({
-          type: newType,
-          root: /** @type {HTMLDivElement} */ (root),
-          value: newValue
-        });
-        types?.validate({
-          type: newType,
-          root: /** @type {HTMLDivElement} */ (root),
-          topRoot: /** @type {HTMLDivElement} */ (stateObj.rootUI),
-          // We don't want focus when values auto-added
-          avoidReport: true
-        });
+      if (readonly) {
+        return;
       }
+
+      await types?.setValue({
+        type: newType,
+        root: /** @type {HTMLDivElement} */ (root),
+        value: newValue
+      });
+      types?.validate({
+        type: newType,
+        root: /** @type {HTMLDivElement} */ (root),
+        topRoot: /** @type {HTMLDivElement} */ (stateObj.rootUI),
+        // We don't want focus when values auto-added
+        avoidReport: true
+      });
     // eslint-disable-next-line promise/prefer-await-to-then, promise/prefer-await-to-callbacks -- Convenient
     })().catch((err) => {
       // Auto-population is best-effort: a node whose deferred UI is still

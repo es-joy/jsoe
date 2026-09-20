@@ -45,10 +45,9 @@ function checkFileSize (size, min, max) {
   if (min !== undefined && size < min) {
     return `File size (${size} bytes) is below the minimum of ${min} bytes`;
   }
-  if (max !== undefined && size > max) {
-    return `File size (${size} bytes) exceeds the maximum of ${max} bytes`;
-  }
-  return null;
+  return max !== undefined && size > max
+    ? `File size (${size} bytes) exceeds the maximum of ${max} bytes`
+    : null;
 }
 
 /**
@@ -57,11 +56,10 @@ function checkFileSize (size, min, max) {
  * @returns {string|null}
  */
 function checkFileMimeType (type, mime) {
-  if (mime && mime.length > 0 && !mime.includes(type)) {
-    return `File type (${type || '(none)'}) is not among the allowed ` +
-      `MIME types: ${mime.join(', ')}`;
-  }
-  return null;
+  return mime && mime.length > 0 && !mime.includes(type)
+    ? `File type (${type || '(none)'}) is not among the allowed ` +
+      `MIME types: ${mime.join(', ')}`
+    : null;
 }
 
 /**
@@ -72,10 +70,9 @@ function checkFileMimeType (type, mime) {
  * @returns {string|null}
  */
 function checkFile (file, min, max, mime) {
-  if (!file) {
-    return 'File data is required';
-  }
-  return checkFileSize(file.size, min, max) ??
+  return !file
+    ? 'File data is required'
+    : checkFileSize(file.size, min, max) ??
     checkFileMimeType(file.type, mime);
 }
 

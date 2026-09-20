@@ -4,6 +4,7 @@ describe('dialogs', function () {
   describe('makeDialog', function () {
     it('allows close argument', function (done) {
       const dialog = dialogs.makeDialog({
+        // eslint-disable-next-line jsdoc/ts-ban-ts-comment -- Sometimes errs
         // @ts-ignore Sometimes errs
         close () {
           done();
@@ -16,6 +17,7 @@ describe('dialogs', function () {
     // eslint-disable-next-line mocha/handle-done-callback -- Bug
     it('allows true close argument', function (done) {
       const dialog = dialogs.makeDialog({
+        // eslint-disable-next-line jsdoc/ts-ban-ts-comment -- Sometimes errs
         // @ts-ignore Sometimes errs
         close: true,
         atts: {
@@ -98,6 +100,7 @@ describe('dialogs', function () {
 
   describe('makeSubmitDialog', function () {
     it('submits', function (done) {
+      // eslint-disable-next-line jsdoc/ts-ban-ts-comment -- Sometimes errs
       // @ts-ignore Sometimes errs
       const dialog = dialogs.makeSubmitDialog({
         submit ({e, dialog}) {

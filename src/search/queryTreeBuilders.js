@@ -31,10 +31,7 @@ export function combineAnd (nodes) {
   if (filtered.length === 0) {
     return undefined;
   }
-  if (filtered.length === 1) {
-    return filtered[0];
-  }
-  return makeAndNode(filtered);
+  return filtered.length === 1 ? filtered[0] : makeAndNode(filtered);
 }
 
 /**

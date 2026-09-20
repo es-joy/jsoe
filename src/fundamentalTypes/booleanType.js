@@ -53,7 +53,7 @@ const booleanType = {
         ['input', {
           disabled: hasOneValue,
           type: 'radio', name: `${typeNamespace}-boolean${this.ct}`,
-          value: 'true', checked: typeof val === 'boolean' ? val : true
+          value: 'true', checked: (typeof val !== 'boolean') || val
         }]
       ]],
       ['label', [
@@ -61,7 +61,7 @@ const booleanType = {
         ['input', {
           disabled: isLiteral,
           type: 'radio', name: `${typeNamespace}-boolean${this.ct}`,
-          value: 'false', checked: typeof val === 'boolean' ? !val : false
+          value: 'false', checked: (typeof val === 'boolean') && !val
         }]
       ]]
     ]];

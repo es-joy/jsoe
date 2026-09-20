@@ -691,10 +691,7 @@ class Types {
       (Types.getTypeForRoot(root))
     ]);
     /* istanbul ignore if -- All have except aliases */
-    if (!typeObj.getInput) {
-      return null;
-    }
-    return typeObj.getInput({root});
+    return !typeObj.getInput ? null : typeObj.getInput({root});
   }
 
   /** @type {GetValueFromRootAncestor} */
@@ -713,10 +710,7 @@ class Types {
   /** @type {GetFormControlFromRootAncestor} */
   getFormControlFromRootAncestor (selOrEl) {
     const root = /** @type {RootElement} */ ($e(selOrEl, 'div[data-type]'));
-    if (!root) {
-      return null;
-    }
-    return this.getFormControlForRoot(root);
+    return !root ? null : this.getFormControlForRoot(root);
   }
 
   /** @type {GetOptionForType} */
@@ -1007,8 +1001,8 @@ class Types {
         return match;
       });
     }
-    let assign = true;
     if (found !== undefined) {
+      let assign = true;
       // The `found` is evaluated again, so sets `match` to non-null
       const mtch = /** @type {RegExpMatchArray} */ (
         /** @type {unknown} */ (match)

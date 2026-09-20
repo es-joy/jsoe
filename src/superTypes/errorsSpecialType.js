@@ -168,20 +168,21 @@ const errorsSpecialType = {
         });
       }
 
-      if (Array.isArray(value.errors)) {
-        const aggregateErrors =
-          /**
-           * @type {HTMLElement & {
-           *   $emptyAggregateErrorsContents: () => void,
-           *   $populateContents: (errs: unknown[]) => void
-           * }}
-           */ (
-            $e(root, 'input.aggregateErrors')
-          );
-        aggregateErrors.click();
-        aggregateErrors.$emptyAggregateErrorsContents();
-        aggregateErrors.$populateContents(value.errors);
+      if (!Array.isArray(value.errors)) {
+        return;
       }
+      const aggregateErrors =
+        /**
+         * @type {HTMLElement & {
+         *   $emptyAggregateErrorsContents: () => void,
+         *   $populateContents: (errs: unknown[]) => void
+         * }}
+         */ (
+          $e(root, 'input.aggregateErrors')
+        );
+      aggregateErrors.click();
+      aggregateErrors.$emptyAggregateErrorsContents();
+      aggregateErrors.$populateContents(value.errors);
     })();
   },
   getValue ({root, stateObj}) {
@@ -657,15 +658,17 @@ const errorsSpecialType = {
                   ).nextElementSibling
                 );
                 const causeContents = $e(causeHolder, '.causeContents');
-                if (!causeContents?.children.length) {
-                  const editui = component.editUI({
-                    buildTypeChoices,
-                    typeNamespace,
-                    types,
-                    value: value.cause
-                  });
-                  jml(...editui, causeContents);
+                if (causeContents?.children.length) {
+                  return;
                 }
+
+                const editui = component.editUI({
+                  buildTypeChoices,
+                  typeNamespace,
+                  types,
+                  value: value.cause
+                });
+                jml(...editui, causeContents);
               }
             }
           }]
@@ -726,36 +729,38 @@ const errorsSpecialType = {
                 const aggregateErrorsContents = $e(
                   aggregateErrorsHolder, '.aggregateErrorsContents'
                 );
-                if (!aggregateErrorsContents?.children.length) {
-                  const [editui] = arrayType.editUI({
-                    typeNamespace, types, buildTypeChoices, format,
-                    type: 'array',
-                    topRoot, bringIntoFocus,
-                    forcedState: 'errorsArray',
-                    value: []
-                  });
-
-                  errors.forEach((error, idx) => {
-                    /**
-                     * @type {HTMLDivElement & {
-                     *   $addAndSetArrayElement:
-                     *     import('../formats/structuredCloning.js').
-                     *   AddAndSetArrayElement
-                     * }}
-                     */
-                    (editui).$addAndSetArrayElement({
-                      propName: String(idx),
-                      type: getConstructor(error.constructor) === 'Error'
-                        ? 'error'
-                        : 'errors',
-                      value: error,
-                      bringIntoFocus: false,
-                      setAValue: true
-                    });
-                  });
-
-                  jml(editui, aggregateErrorsContents);
+                if (aggregateErrorsContents?.children.length) {
+                  return;
                 }
+
+                const [editui] = arrayType.editUI({
+                  typeNamespace, types, buildTypeChoices, format,
+                  type: 'array',
+                  topRoot, bringIntoFocus,
+                  forcedState: 'errorsArray',
+                  value: []
+                });
+
+                errors.forEach((error, idx) => {
+                  /**
+                   * @type {HTMLDivElement & {
+                   *   $addAndSetArrayElement:
+                   *     import('../formats/structuredCloning.js').
+                   *   AddAndSetArrayElement
+                   * }}
+                   */
+                  (editui).$addAndSetArrayElement({
+                    propName: String(idx),
+                    type: getConstructor(error.constructor) === 'Error'
+                      ? 'error'
+                      : 'errors',
+                    value: error,
+                    bringIntoFocus: false,
+                    setAValue: true
+                  });
+                });
+
+                jml(editui, aggregateErrorsContents);
               }
             },
             $on: {

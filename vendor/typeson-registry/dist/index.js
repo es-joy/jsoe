@@ -332,8 +332,7 @@ const blob = {
             req.open('GET', URL.createObjectURL(b), false); // Sync
             req.send();
 
-            // Seems not feasible to accurately simulate
-            /* c8 ignore next 3 */
+            /* c8 ignore next 3 -- Seems not feasible to accurately simulate */
             if (req.status !== 200 && req.status !== 0) {
                 throw new Error('Bad Blob access: ' + req.status);
             }
@@ -365,8 +364,8 @@ const blob = {
                         )
                     });
                 });
-                // Seems not feasible to accurately simulate
-                /* c8 ignore next 3 */
+                // eslint-disable-next-line @stylistic/max-len -- Long
+                /* c8 ignore next 3 -- Seems not feasible to accurately simulate */
                 reader.addEventListener('error', () => {
                     reject(reader.error);
                 });
@@ -386,7 +385,6 @@ const blob = {
  * @returns {string}
  */
 function generateUUID () { //  Adapted from original: public domain/MIT: https://stackoverflow.com/a/8809472/271577
-    /* c8 ignore next */
     let d = Date.now();
 
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/gu, function (c) {
@@ -447,8 +445,8 @@ const cryptokey = {
                 let jwk;
                 try {
                     jwk = await crypto.subtle.exportKey('jwk', key);
-                // Our format should be valid and our key extractable
-                /* c8 ignore next 4 */
+                // eslint-disable-next-line @stylistic/max-len -- Long
+                /* c8 ignore next 4 -- Our format should be valid and our key extractable */
                 } catch (err) {
                     reject(err);
                     return;
@@ -550,16 +548,10 @@ const date = {
         test (x) { return toStringTag(x) === 'Date'; },
         replace (dt) {
             const time = dt.getTime();
-            if (Number.isNaN(time)) {
-                return 'NaN';
-            }
-            return time;
+            return Number.isNaN(time) ? 'NaN' : time;
         },
         revive (time) {
-            if (time === 'NaN') {
-                return new Date(NaN);
-            }
-            return new Date(time);
+            return new Date(time === 'NaN' ? NaN : time);
         }
     }
 };
@@ -591,11 +583,11 @@ const domexception = {
  */
 const dommatrix = {};
 
-/* c8 ignore next */
+/* c8 ignore next -- Later support */
 if (typeof DOMMatrix !== 'undefined') {
     create$5(DOMMatrix);
 }
-/* c8 ignore next */
+/* c8 ignore next -- Later support */
 if (typeof DOMMatrixReadOnly !== 'undefined') {
     create$5(DOMMatrixReadOnly);
 }
@@ -658,11 +650,11 @@ function create$5 (Ctor) {
  */
 const dompoint = {};
 
-/* c8 ignore next */
+/* c8 ignore next -- Later support */
 if (typeof DOMPoint !== 'undefined') {
     create$4(DOMPoint);
 }
-/* c8 ignore next */
+/* c8 ignore next -- Later support */
 if (typeof DOMPointReadOnly !== 'undefined') {
     create$4(DOMPointReadOnly);
 }
@@ -717,11 +709,11 @@ const domquad = {
  */
 const domrect = {};
 
-/* c8 ignore next */
+/* c8 ignore next -- Later support */
 if (typeof DOMRect !== 'undefined') {
     create$3(DOMRect);
 }
-/* c8 ignore next */
+/* c8 ignore next -- Later support */
 if (typeof DOMRectReadOnly !== 'undefined') {
     create$3(DOMRectReadOnly);
 }
@@ -861,12 +853,12 @@ const errors = {};
     EvalError, URIError
 ].forEach((error) => create$2(error));
 
-/* c8 ignore next 3 */
+/* c8 ignore next 3 -- Later support */
 if (typeof AggregateError !== 'undefined') {
     create$2(AggregateError);
 }
 
-/* c8 ignore next 5 */
+/* c8 ignore next 5 -- Non-standard */
 // @ts-expect-error Non-standard
 if (typeof InternalError === 'function') {
     // @ts-expect-error Non-standard
@@ -951,8 +943,7 @@ const file = {
             req.open('GET', URL.createObjectURL(f), false); // Sync
             req.send();
 
-            // Seems not feasible to accurately simulate
-            /* c8 ignore next 3 */
+            /* c8 ignore next 3 -- Seems not feasible to accurately simulate */
             if (req.status !== 200 && req.status !== 0) {
                 throw new Error('Bad File access: ' + req.status);
             }
@@ -988,8 +979,8 @@ const file = {
                         lastModified: f.lastModified
                     });
                 });
-                // Seems not feasible to accurately simulate
-                /* c8 ignore next 3 */
+                // eslint-disable-next-line @stylistic/max-len -- Long
+                /* c8 ignore next 3 -- Seems not feasible to accurately simulate */
                 reader.addEventListener('error', function () {
                     reject(reader.error);
                 });
@@ -1045,6 +1036,7 @@ const filelist = {
                 }
             }
 
+            // eslint-disable-next-line jsdoc/ts-ban-ts-comment -- TS 6/7
             // @ts-ignore Override API
             return new FileList(o);
         }
@@ -1146,7 +1138,7 @@ const imagebitmap = {
                 try {
                     const resp = await createImageBitmap(canvas);
                     resolve(resp);
-                /* c8 ignore next 3 */
+                /* c8 ignore next 3 -- How to simulate? */
                 } catch (err) {
                     reject(err);
                 }
@@ -1410,10 +1402,7 @@ const primitiveObjects = {
             if (n === '-Infinity') {
                 return new Number(-Infinity);
             }
-            if (n === '-0') {
-                return new Number(-0);
-            }
-            return new Number(n);
+            return new Number(n === '-0' ? -0 : n);
         }
     }
 };
@@ -1648,11 +1637,11 @@ if (typeof Int8Array === 'function') {
         Float64Array,
         ...(typeof BigInt64Array === 'function'
             ? [BigInt64Array, BigUint64Array]
-            /* c8 ignore next */
+            /* c8 ignore next -- Later support */
             : []),
         ...(typeof Float16Array === 'function'
             ? [Float16Array]
-            /* c8 ignore next */
+            /* c8 ignore next -- Later support */
             : [])
     ].forEach((TypedArray) => create$1(TypedArray));
 }
@@ -1756,11 +1745,11 @@ if (typeof Int8Array === 'function') {
         Float64Array,
         ...(typeof BigInt64Array === 'function'
             ? [BigInt64Array, BigUint64Array]
-            /* c8 ignore next */
+            /* c8 ignore next -- Later support */
             : []),
         ...(typeof Float16Array === 'function'
             ? [Float16Array]
-            /* c8 ignore next */
+            /* c8 ignore next -- Later support */
             : [])
     ].forEach((TypedArray) => create(TypedArray));
 }
@@ -2014,20 +2003,20 @@ const expObj$1 = [
     date, error, errors, regexp
 ].concat(
     // ES2015 (ES6)
-    /* c8 ignore next */
+    /* c8 ignore next -- ES6+ */
     typeof Map === 'function' ? map : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- ES6+ */
     typeof Set === 'function' ? set : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof ArrayBuffer === 'function' ? arraybuffer : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof Uint8Array === 'function' ? typedArrays : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof DataView === 'function' ? dataview : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof Intl !== 'undefined' ? intlTypes : [],
 
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof BigInt !== 'undefined' ? [bigint, bigintObject] : []
 );
 
@@ -2117,41 +2106,41 @@ const expObj = [
     errors
 ].concat(
     // ES2015 (ES6)
-    /* c8 ignore next */
+    /* c8 ignore next -- ES6+ */
     typeof Map === 'function' ? map : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- ES6+ */
     typeof Set === 'function' ? set : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof ArrayBuffer === 'function' ? arraybuffer : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof Uint8Array === 'function' ? typedArrays : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof DataView === 'function' ? dataview : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof crypto !== 'undefined' ? cryptokey : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof BigInt !== 'undefined' ? [bigint, bigintObject] : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof DOMException !== 'undefined' ? domexception : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof QuotaExceededError !== 'undefined' ? quotaexceedederror : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof WebTransportError !== 'undefined' ? webtransporterror : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof DOMRect !== 'undefined' ? domrect : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof DOMPoint !== 'undefined' ? dompoint : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof DOMQuad !== 'undefined' ? domquad : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof DOMMatrix !== 'undefined' ? dommatrix : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof AudioData !== 'undefined' ? audiodata : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof EncodedAudioChunk !== 'undefined' ? encodedaudiochunk : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof EncodedVideoChunk !== 'undefined' ? encodedvideochunk : [],
-    /* c8 ignore next */
+    /* c8 ignore next -- Later support */
     typeof VideoFrame !== 'undefined' ? videoframe : []
 );
 

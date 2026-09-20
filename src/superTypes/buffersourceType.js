@@ -10,10 +10,7 @@ import dialogs from '../utils/dialogs.js';
  * @param {string} str
  */
 const toInteger = (str) => {
-  if (str.trim() === '') {
-    return NaN;
-  }
-  return Math.trunc(Number(str));
+  return str.trim() === '' ? NaN : Math.trunc(Number(str));
 };
 
 const dataViewMethods = /** @type {const} */ ([
@@ -392,9 +389,7 @@ const buffersourceType = {
                   }
                 }, typedArrays.map((typedArray) => {
                   return ['option', {
-                    selected: stringTag === typedArray
-                      ? true
-                      : undefined
+                    selected: (stringTag === typedArray) || undefined
                   }, [typedArray]];
                 })],
                 ['div', {

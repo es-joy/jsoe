@@ -400,14 +400,16 @@ const errorType = {
                   ).nextElementSibling
                 );
                 const causeContents = $e(causeHolder, '.causeContents');
-                if (!causeContents?.children.length) {
-                  const editui = component.editUI({
-                    typeNamespace,
-                    types,
-                    value: value.cause
-                  });
-                  jml(...editui, causeContents);
+                if (causeContents?.children.length) {
+                  return;
                 }
+
+                const editui = component.editUI({
+                  typeNamespace,
+                  types,
+                  value: value.cause
+                });
+                jml(...editui, causeContents);
               }
             }
           }]

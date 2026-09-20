@@ -967,7 +967,7 @@ const arrayType = {
 
       // Others may be ok (or problematic) now too
 
-      // eslint-disable-next-line unicorn/no-unused-array-method-return -- Short-circuiting
+      // eslint-disable-next-line unicorn/no-unused-builtin-method-return -- Short-circuiting
       propertyNameInputs.some((input, /* typeNamespace, */ _i, arr) => {
         const invalidStr = arr.some((item) => {
           return input !== item && input.value === item.value;
@@ -1188,10 +1188,7 @@ const arrayType = {
             specificSchemaObject
           )?.properties ?? {}
         ).map(([prop, val]) => {
-          if (!val.isOptional) {
-            return null;
-          }
-          return prop;
+          return !val.isOptional ? null : prop;
         }).filter(Boolean);
         optionalPropertyId++;
         const initialValue = sparse
@@ -1206,17 +1203,15 @@ const arrayType = {
         }, [
           sparse
             ? elementDesc ?? 'Item'
-            : {'#': required
-              ? [
-                ['b', {
+            : {'#': [
+              required
+                ? ['b', {
                   className,
                   title: (elementDesc ?? description) ? propName : undefined
                 }, [
                   elementDesc ?? description ?? propName
                 ]]
-              ]
-              : [
-                ['span', {
+                : ['span', {
                   className: `${className}_propertyHolder${optionalPropertyId}`
                 }, [
                   ...(specificSchemaObject && propName) // Optional but has name
@@ -1244,7 +1239,7 @@ const arrayType = {
                       ':'
                     ]
                 ]]
-              ]},
+            ]},
           nbsp.repeat(2),
           specificSchemaObject && !required
             ? ['datalist', {
@@ -1301,10 +1296,7 @@ const arrayType = {
                * @this {HTMLInputElement}
                */
               $parseInt () {
-                if (!(/^\d+$/u).test(this.value)) {
-                  return false;
-                }
-                return Math.trunc(Number(this.value));
+                return (/^\d+$/u).test(this.value) && Math.trunc(Number(this.value));
               },
               $validateLegend,
               $arrayItems: arrayItems,
@@ -1345,7 +1337,7 @@ const arrayType = {
                 ).$parseInt();
                 if (intVal === false) {
                   inputs.reverse();
-                  // eslint-disable-next-line unicorn/no-unused-array-method-return -- Short-circuiting
+                  // eslint-disable-next-line unicorn/no-unused-builtin-method-return -- Short-circuiting
                   inputs.some((input) => {
                     if (input === this) { // No need to search further
                       return true;
@@ -1376,7 +1368,7 @@ const arrayType = {
                    */
                   let nearest;
 
-                  // eslint-disable-next-line unicorn/no-unused-array-method-return -- Short-circuiting
+                  // eslint-disable-next-line unicorn/no-unused-builtin-method-return -- Short-circuiting
                   inputs.some((input) => {
                     if (input === this) {
                       return false;
@@ -1916,10 +1908,7 @@ const arrayType = {
                     $e(fieldset, 'div[data-type]')
                   );
                   /* istanbul ignore if -- Should err first? */
-                  if (!root) {
-                    return null;
-                  }
-                  return types.getFormControlForRoot(root);
+                  return !root ? null : types.getFormControlForRoot(root);
                 });
 
                 const control = controls[dupeIndex];

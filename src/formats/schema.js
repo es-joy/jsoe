@@ -161,13 +161,12 @@ export function getSchemaType (schemaObject) {
   if (schemaObject.type === 'enum') {
     return getValueType(Object.values(schemaObject.values)[0]);
   }
-  if (schemaObject.type === 'templateLiteral') {
-    return 'string';
-  }
-  return (
-    getCheckedType(schemaObject) ??
-      zodexToStructuredCloningTypeMap.get(schemaObject.type)
-  );
+  return schemaObject.type === 'templateLiteral'
+    ? 'string'
+    : (
+      getCheckedType(schemaObject) ??
+        zodexToStructuredCloningTypeMap.get(schemaObject.type)
+    );
 }
 
 const dezerializerInstances = {filelist: FileList};
@@ -245,10 +244,9 @@ function getInvalidIntersectionBranch (
  * @returns {boolean}
  */
 export function recordKeyConforms (types, keySchema, key) {
-  if (!keySchema || key === undefined) {
-    return true;
-  }
-  if (parseValue(types, keySchema, keySchema, key).success) {
+  if (!keySchema || key === undefined ||
+    parseValue(types, keySchema, keySchema, key).success
+  ) {
     return true;
   }
   // Mirror Zod's numeric-string key fallback: an object property name is always
@@ -855,7 +853,6 @@ export function getTypesForSchema (schemaObject, originalJSON) {
           ).$ref
         });
         schemaObject = refObj;
-        // eslint-disable-next-line unicorn/no-break-in-nested-loop -- Intentional, continues the `for` loop
         continue;
       }
       return rememberOriginalSchema(new Set([schemaObject]), originalJSON);
@@ -1126,13 +1123,8 @@ const schema = {
         structuralMatch ??= match;
       }
     }
-    if (fallbackMatch) {
-      return fallbackMatch;
-    }
-    if (structuralMatch) {
-      return structuralMatch;
-    }
-    return {type: typesonType};
+
+    return fallbackMatch || structuralMatch || {type: typesonType};
   },
 
   /* istanbul ignore next -- Not in use */

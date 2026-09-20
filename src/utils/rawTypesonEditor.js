@@ -227,10 +227,7 @@ export async function getEvalSeedTextForValue (value, seen = new Set()) {
     const bufferExpr = `Uint8Array.from(atob(${
       JSON.stringify(bytesToBase64(bytes))
     }), (c) => c.charCodeAt(0)).buffer`;
-    if (tag === 'ArrayBuffer') {
-      return bufferExpr;
-    }
-    return `new ${tag}(${bufferExpr})`;
+    return tag === 'ArrayBuffer' ? bufferExpr : `new ${tag}(${bufferExpr})`;
   }
   if (tag === 'Blob' || tag === 'File') {
     const blob = /** @type {Blob} */ (value);

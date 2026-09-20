@@ -127,7 +127,9 @@ export function makePresenceOnlySearchType ({tagName}) {
           },
           // The checkbox is permanently checked and `disabled` - nothing
           // for a raw query to change here either way.
-          applyQuery () {}
+          applyQuery () {
+            //
+          }
         }
       }, [
         ['span', {class: 'searchLabel'}, [label]],

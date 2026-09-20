@@ -1,5 +1,11 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## ?
+
+- chore: update codemirror packages, node-static, style-mod,
+  typeson-registry, devDeps; lint
+- docs: update license badge
+
 ## 0.32.0
 
 - feat: `$applyQuery` for inverse of `$getQuery` (i.e., the ability to build up search forms from queries)

@@ -24,10 +24,7 @@ const $$ = (sel) => [...(/** @type {NodeListOf<HTMLElement>} */ (
  */
 const $e = (el, descendentsSel) => {
   const elem = typeof el === 'string' ? $(el) : el;
-  if (!elem) {
-    return null;
-  }
-  return elem.querySelector(descendentsSel);
+  return !elem ? null : elem.querySelector(descendentsSel);
 };
 
 /**

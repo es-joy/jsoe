@@ -22,10 +22,7 @@ const escapeJSONPointer = (path) => {
  */
 const unescapeJSONPointerPart = (pathPart) => {
   return pathPart.replaceAll(/~([01])/gu, (_n0, n1) => {
-    if (n1 === '0') {
-      return '~';
-    }
-    return '/';
+    return n1 === '0' ? '~' : '/';
   });
 };
 

@@ -379,10 +379,7 @@ export function readTriStateSelect (el, key = '') {
   const select = /** @type {HTMLSelectElement|undefined} */ (
     findOwnControl(el, `select.jsoeSearchTriState--${key}`)
   );
-  if (!select || select.value === '') {
-    return undefined;
-  }
-  return select.value === 'true';
+  return !select || select.value === '' ? undefined : select.value === 'true';
 }
 
 /**
@@ -933,10 +930,7 @@ export function unwrapAndClauses (queryNode) {
   if (queryNode === undefined) {
     return [];
   }
-  if ('$and' in queryNode) {
-    return queryNode.$and;
-  }
-  return [queryNode];
+  return '$and' in queryNode ? queryNode.$and : [queryNode];
 }
 
 /**
@@ -970,13 +964,10 @@ export function nodeTouchesPath (node, path) {
   if ('$and' in current) {
     return current.$and.some((child) => nodeTouchesPath(child, path));
   }
-  if ('$or' in current) {
-    return current.$or.some((child) => nodeTouchesPath(child, path));
-  }
-  if ('path' in current) {
-    return current.path === path || current.path.startsWith(`${path}/`);
-  }
-  return false;
+  return '$or' in current
+    ? current.$or.some((child) => nodeTouchesPath(child, path))
+    : ('path' in current) &&
+      (current.path === path || current.path.startsWith(`${path}/`));
 }
 
 /**

@@ -221,12 +221,14 @@ describe('Arbitrary JavaScript spec (Promises)', () => {
       onBeforeLoad (win) {
         cy.stub(win.console, 'log').callsFake(async (msg) => {
           console.log('msg3333', typeof msg, msg);
-          if (msg && msg.then) {
-            called = true;
-            expect(
-              await msg
-            ).to.equal(expectedValue);
+          if (!msg || !msg.then) {
+            return;
           }
+
+          called = true;
+          expect(
+            await msg
+          ).to.equal(expectedValue);
         });
       }
     });

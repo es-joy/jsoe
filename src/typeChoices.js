@@ -539,12 +539,14 @@ export const buildTypeChoices = ({
           // Grandparent check added for optional items placeholder
           ancestorEl = ancestorEl.parentElement;
         }
-        if (ancestorEl?.nodeName.toLowerCase() === 'fieldset') {
-          ancestorEl.dataset.type = type;
-          DOM.filterChildElements(ancestorEl, 'legend').forEach((legend) => {
-            legend.dataset.type = type;
-          });
+        if (ancestorEl?.nodeName.toLowerCase() !== 'fieldset') {
+          return;
         }
+
+        ancestorEl.dataset.type = type;
+        DOM.filterChildElements(ancestorEl, 'legend').forEach((legend) => {
+          legend.dataset.type = type;
+        });
       },
       /**
        * @this {TypeChoicesElementAPI}
@@ -553,10 +555,7 @@ export const buildTypeChoices = ({
       $getTypeRoot () {
         const container = this.$getContainer();
         /* istanbul ignore if -- How to replicate? */
-        if (!container) {
-          return false;
-        }
-        return $e(container, 'div[data-type]');
+        return Boolean(container) && $e(container, 'div[data-type]');
       },
 
       /**

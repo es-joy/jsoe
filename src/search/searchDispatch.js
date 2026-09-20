@@ -80,7 +80,9 @@ function stubSearchType (searchSchemaType) {
   return {
     buildUI: () => ['span', [`TODO: ${searchSchemaType}`]],
     getQuery: () => undefined,
-    applyQuery () {}
+    applyQuery () {
+      //
+    }
   };
 }
 
@@ -194,10 +196,9 @@ export function getSearchSchemaType (schemaObject) {
   if (schemaObject.type === 'tuple') {
     return 'tuple';
   }
-  if (schemaObject.type === 'record' || schemaObject.type === 'looseRecord') {
-    return schemaObject.type;
-  }
-  if (['union', 'xor', 'discriminatedUnion'].includes(schemaObject.type)) {
+  if (schemaObject.type === 'record' || schemaObject.type === 'looseRecord' ||
+    ['union', 'xor', 'discriminatedUnion'].includes(schemaObject.type)
+  ) {
     return schemaObject.type;
   }
 
