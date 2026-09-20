@@ -33,13 +33,21 @@ describe('dialogs', function () {
     });
 
     it('can avoid dialog removal', function () {
-      dialogs.makeDialog({
+      const dialog = dialogs.makeDialog({
         remove: false
       });
+      dialog.close();
+      // The point of this test: with `remove: false`, closing does *not*
+      //   remove the dialog from the document (unlike every other case in
+      //   this file) — so, uniquely here, cleanup must remove it manually
+      //   afterward instead of relying on that close-triggered removal.
+      expect(document.body.contains(dialog)).to.equal(true);
+      dialog.remove();
     });
 
     it('allows avoiding children', function () {
-      dialogs.makeDialog();
+      const dialog = dialogs.makeDialog();
+      dialog.close();
     });
   });
 
@@ -49,6 +57,12 @@ describe('dialogs', function () {
         cancel () {
           setTimeout(() => {
             expect(dialog.open).to.equal(true);
+            // The `cancel` callback returning `true` is what keeps this
+            //   dialog open (that's the behavior under test), so — unlike
+            //   a dialog the `cancel` button itself closes — it's left to
+            //   this test to close (and thereby remove; `remove` defaults
+            //   to `true`) it afterward.
+            dialog.close();
             done();
           }, 0);
           return true;
@@ -106,6 +120,10 @@ describe('dialogs', function () {
         submit ({e, dialog}) {
           expect(e).to.be.instanceOf(Event);
           expect(dialog).to.be.instanceOf(HTMLDialogElement);
+          // Unlike the `cancel` button, the `submit` button never calls
+          //   `dialog.close()` itself, so this test must (`remove`
+          //   defaults to `true`, so closing also removes it).
+          dialog.close();
           done();
         }
       });

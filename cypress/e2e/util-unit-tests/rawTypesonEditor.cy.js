@@ -460,14 +460,27 @@ describe('rawTypesonEditor', function () {
   //   splitting that into two commands previously let an alias be taken
   //   the instant `dialog[open]` appeared, before asserting on the editor
   //   inside it, which is a needless (if usually instant) race.
+  //
+  //   The dialog itself is derived from the matched `.cm-content` (via
+  //   `closest`) rather than a second, independent `dialog[open]` query:
+  //   other specs in this same bundled `all.cy.js` run (e.g.
+  //   `dialogs.cy.js`'s "can avoid dialog removal"/"allows avoiding
+  //   children"/"supports a cancel argument"/"submits" cases) leave their
+  //   own `<dialog open>` elements in this shared document forever, earlier
+  //   in document order than this one — so a bare `document.querySelector(
+  //   'dialog[open]')` can silently return one of *those* instead of the
+  //   dialog that was just confirmed to contain the editor.
   const getOpenDialog = () => {
     return cy.wrap(null).should(() => {
       expect(
         document.querySelector('dialog[open] .jsoe-raw-editor .cm-content')
       ).to.exist;
     }).then(() => {
+      const cmContent = document.querySelector(
+        'dialog[open] .jsoe-raw-editor .cm-content'
+      );
       return /** @type {HTMLDialogElement} */ (
-        document.querySelector('dialog[open]')
+        cmContent?.closest('dialog[open]')
       );
     });
   };
