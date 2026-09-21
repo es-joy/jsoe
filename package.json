@@ -60,6 +60,11 @@
     "baseline widely available, not op_mini all"
   ],
   "nyc": {
+    "code-coverage": true,
+    "lines": 100,
+    "functions": 100,
+    "branches": 100,
+    "statements": 100,
     "excludeAfterRemap": true,
     "exclude": [
       "node_modules/**",
