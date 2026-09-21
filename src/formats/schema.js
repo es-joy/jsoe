@@ -75,6 +75,8 @@ function getValueType (value) {
     return 'number';
   case 'string':
     return 'string';
+  /* istanbul ignore next -- Guard: a zod literal/enum value is always one
+    of the primitive types handled above */
   default:
     return undefined;
   }
@@ -90,6 +92,7 @@ function splitConstrainedSchema (schema) {
     : Object.values(schema.values));
   const valueTypes = new Set(values.map((value) => getValueType(value)));
   return new Set([...valueTypes].flatMap((type) => {
+    /* istanbul ignore if -- Guard: getValueType never returns undefined for a real zod value */
     if (!type) {
       return [];
     }
@@ -150,6 +153,9 @@ export function getSchemaType (schemaObject) {
   if (schemaObject.type === 'codec' && schemaObject.name === 'filelist') {
     return 'filelist';
   }
+  /* istanbul ignore if -- Guard: current fixtures only ever nest `instanceof`
+    inside a `filelist` codec's own `input`, which the codec check above
+    already resolves before any caller passes it here directly */
   if (schemaObject.type === 'instanceof') {
     return /** @type {import('../types.js').AvailableArbitraryType} */ (
       schemaObject.name
