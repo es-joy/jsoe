@@ -14,7 +14,7 @@ import {
   schemaInstanceJSON4, schemaInstanceJSON5, schemaInstanceJSON6,
   schemaInstanceJSON7, schemaInstanceJSON8, schemaInstanceJSON9,
   schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
-  schemaInstanceJSONXor, schemaInstanceJSONXor2,
+  schemaInstanceJSONXor, schemaInstanceJSONXor2, schemaInstanceJSONXor3,
   schemaInstanceJSONMeta
 } from './schema-data.js';
 
@@ -431,6 +431,8 @@ async function getSchemaContent (schema) {
     return schemaInstanceJSONXor;
   case 'Zodexy schema instance xor 2':
     return schemaInstanceJSONXor2;
+  case 'Zodexy schema instance xor 3':
+    return schemaInstanceJSONXor3;
   case 'Zodexy schema instance meta':
     return schemaInstanceJSONMeta;
   case 'Zodexy schema instance mins and maxes':
@@ -485,6 +487,7 @@ const keyPathNotExpectedTypeChoices = await formatAndTypeChoices({
     'Zodexy schema instance 9', 'Zodexy schema instance 10',
     'Zodexy schema instance 11', 'Zodexy schema instance 12',
     'Zodexy schema instance xor', 'Zodexy schema instance xor 2',
+    'Zodexy schema instance xor 3',
     'Zodexy schema instance meta',
     'Zodexy schema instance mins and maxes',
     'Zodexy schema instance mins and maxes 2',

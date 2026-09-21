@@ -149,6 +149,29 @@ describe('Demo spec', () => {
     );
   });
 
+  it(
+    'derives xor branch labels (literal value/property names/type name) ' +
+      'for branches with no description',
+    function () {
+      cy.get('.formatChoices:first').select(
+        'Schema: Zodexy schema instance xor 3'
+      );
+      const sel = '#formatAndTypeChoices ';
+      // A `literal` branch with no `description` falls back to its first
+      //   value.
+      cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').eq(0).
+        should('contain', 'red');
+      // An `object` branch with no `description` falls back to its own
+      //   property names.
+      cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').eq(1).
+        should('contain', 'foo, bar');
+      // Any other branch with no `description` falls back to its own type
+      //   name.
+      cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').eq(2).
+        should('contain', 'Boolean');
+    }
+  );
+
   it('flags an `xor` value that matches more than one branch', function () {
     cy.get('.formatChoices:first').select(
       'Schema: Zodexy schema instance xor'

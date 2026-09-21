@@ -296,6 +296,9 @@ function buildXorTypeChoices ({
       r.setCustomValidity('');
     }
     const checked = allRadios.find((r) => r.checked);
+    /* istanbul ignore if -- Guard: `typeContainer`'s own input/change
+      listeners (below) can only fire from a chosen branch's own fields,
+      which do not exist until a radio is checked */
     if (!xorSchema || !checked || !$e(typeContainer, 'div[data-type]')) {
       matchStatus.hidden = true;
       return;
@@ -303,6 +306,7 @@ function buildXorTypeChoices ({
     let value;
     try {
       value = /** @type {() => unknown} */ (fsAPI.$getValue)();
+    /* istanbul ignore next -- Guard: a still-settling async sub-editor build */
     } catch {
       // Editor not ready or value not yet parseable
       matchStatus.hidden = true;
@@ -532,6 +536,7 @@ export const buildTypeChoices = ({
         const {value: type} = this;
         this.dataset.type = type; // Used for styling
         let ancestorEl = this.parentElement;
+        /* istanbul ignore if -- Guard: always attached with a parent when called */
         if (!ancestorEl) {
           return;
         }
@@ -742,6 +747,7 @@ export const buildTypeChoices = ({
   } else if (setValue || (requireObject && !objectHasValue)) {
     setTimeout(async () => {
       try {
+        /* istanbul ignore if -- Guard: every caller attaches within whenConnected's bound */
         if (!await whenConnected(sel)) {
           return;
         }

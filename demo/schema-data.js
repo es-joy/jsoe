@@ -691,6 +691,29 @@ const schemaInstanceJSONXor2 = {
   ]
 };
 
+// `xor` whose branches carry no `description` - exercises
+//   `deriveXorBranchLabel`'s (`src/typeChoices.js`) own fallback label
+//   derivation, unlike `schemaInstanceJSONXor`/`schemaInstanceJSONXor2`
+//   above (every branch of which supplies its own `description`): a
+//   `literal` branch's label falls back to its first value, an `object`
+//   branch's to its property names, and any other branch (e.g. `boolean`
+//   here) to its own type name.
+/** @type {import('zodexy').SzXor<any>} */
+const schemaInstanceJSONXor3 = {
+  type: 'xor',
+  options: [
+    {type: 'literal', values: ['red', 'green']},
+    {
+      type: 'object',
+      properties: {
+        foo: {type: 'string'},
+        bar: {type: 'number'}
+      }
+    },
+    {type: 'boolean'}
+  ]
+};
+
 // Exercises Zodexy `meta`: `meta.title` as the visible label, `meta.description`
 // Additive fixtures for demo/index-search.js (search plan §7 test plan) -
 //   shapes the existing fixtures above don't already cover.
@@ -892,7 +915,7 @@ export {
   schemaInstanceJSON4, schemaInstanceJSON5, schemaInstanceJSON6,
   schemaInstanceJSON7, schemaInstanceJSON8, schemaInstanceJSON9,
   schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
-  schemaInstanceJSONXor, schemaInstanceJSONXor2,
+  schemaInstanceJSONXor, schemaInstanceJSONXor2, schemaInstanceJSONXor3,
   schemaInstanceJSONMeta,
   schemaInstanceJSONSearchDate,
   schemaInstanceJSONSearchTupleRest,

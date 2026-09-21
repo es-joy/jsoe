@@ -3,6 +3,7 @@ import {
   getEvalSeedTextForValue, commitValueToContainer
 } from '#jsoe/utils/rawTypesonEditor.js';
 import Types from '#jsoe/types.js';
+import {formatAndTypeChoices} from '#jsoe/index.js';
 
 /**
  * Builds a real, appended object control, for tests that need to interact
@@ -121,6 +122,36 @@ describe('rawTypesonEditor', function () {
       expect(seed).not.to.contain('$types');
     });
 
+    it(
+      'round-trips null/undefined/boolean/bigint/function/plain-array ' +
+        'primitives through eval',
+      async function () {
+        const value = {
+          n: null,
+          u: undefined,
+          b: true,
+          big: 10n,
+          /**
+           * @param {number} x
+           * @param {number} y
+           * @returns {number}
+           */
+          fn: function fn (x, y) {
+            return x + y;
+          },
+          arr: [1, 'two', 3]
+        };
+        const seed = await getEvalSeedTextForValue(value);
+        const evaled = /** @type {typeof value} */ (getValueForEvalText(seed));
+        expect(evaled.n).to.be.null;
+        expect(evaled.u).to.be.undefined;
+        expect(evaled.b).to.equal(true);
+        expect(evaled.big).to.equal(10n);
+        expect(evaled.fn(2, 3)).to.equal(5);
+        expect(evaled.arr).to.deep.equal([1, 'two', 3]);
+      }
+    );
+
     it('round-trips Map/Set/RegExp through eval', async function () {
       const value = {
         m: new Map([['x', 1]]),
@@ -227,6 +258,26 @@ describe('rawTypesonEditor', function () {
       expect(evaled.agg.message).to.equal('agg msg');
       expect(evaled.agg.errors.map((e) => e.message)).to.deep.equal(['a', 'b']);
     });
+
+    it(
+      'round-trips a non-standard `fileName`/`lineNumber`/`columnNumber` ' +
+        '(Firefox-style) through eval',
+      async function () {
+        const err = /** @type {Error & {fileName: string, lineNumber: number, columnNumber: number}} */ (
+          new Error('bad state')
+        );
+        err.fileName = 'source.js';
+        err.lineNumber = 12;
+        err.columnNumber = 34;
+        const seed = await getEvalSeedTextForValue({err});
+        const evaled = /** @type {{err: typeof err}} */ (
+          getValueForEvalText(seed)
+        );
+        expect(evaled.err.fileName).to.equal('source.js');
+        expect(evaled.err.lineNumber).to.equal(12);
+        expect(evaled.err.columnNumber).to.equal(34);
+      }
+    );
 
     it('round-trips DOMException/DOMRect/DOMPoint/DOMMatrix through eval', async function () {
       const value = {
@@ -603,6 +654,169 @@ describe('rawTypesonEditor', function () {
           invoke('text').
           should('include', 'new Date(').
           and('not.include', '$types');
+
+        cy.get('@dialog').find('> .submit > .cancel').invoke('click');
+        cy.get('@root').then((rootUI) => {
+          /** @type {ArrayLike<HTMLDivElement>} */ (
+            /** @type {unknown} */ (rootUI)
+          )[0].remove();
+        });
+      }
+    );
+
+    it(
+      'commits typed Typeson/JSON6 text to the container when "Save" is ' +
+        'clicked',
+      function () {
+        const types = new Types();
+        buildAppendedObjectControl(
+          types, 'edit-raw-save', {a: 1}
+        ).as('root');
+
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 1);
+        cy.get('@root').find('.editRawTypeson').invoke('click');
+        getOpenDialog().as('dialog');
+
+        // `{force: true}`: this editor (like the rest of this directory's
+        //   no-`cy.visit()` elements) lives outside the AUT frame Cypress
+        //   action commands check visibility against - matching this
+        //   directory's own `.invoke('click')` for the same reason.
+        //   CodeMirror auto-closes a typed `{`, so selecting-all and typing
+        //   the new content's own closing brace just moves past the
+        //   auto-inserted one rather than duplicating it.
+        cy.get('@dialog').find('.jsoe-raw-editor .cm-content').
+          // eslint-disable-next-line sonarjs/no-forced-browser-interaction -- Wrong-frame element, per comment above
+          type('{selectall}{{}b: 2{}}', {force: true});
+        cy.get('@dialog').find('> .submit > button.submit').
+          contains('Save').invoke('click');
+
+        // The dialog closes on a successful save.
+        cy.get('@dialog').should('not.exist');
+
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 1).
+          find('input[class^="propertyName-"]').should('have.value', 'b');
+
+        cy.get('@root').then((rootUI) => {
+          /** @type {ArrayLike<HTMLDivElement>} */ (
+            /** @type {unknown} */ (rootUI)
+          )[0].remove();
+        });
+      }
+    );
+
+    it(
+      'shows an error (rather than closing) when "Save" is clicked with ' +
+        'unparseable text',
+      function () {
+        const types = new Types();
+        buildAppendedObjectControl(
+          types, 'edit-raw-save-parse-error', {a: 1}
+        ).as('root');
+
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 1);
+        cy.get('@root').find('.editRawTypeson').invoke('click');
+        getOpenDialog().as('dialog');
+
+        cy.get('@dialog').find('.jsoe-raw-editor .cm-content').
+          // eslint-disable-next-line sonarjs/no-forced-browser-interaction -- Wrong-frame element, see the "Save" test above
+          type('{selectall}not valid json6', {force: true});
+        cy.get('@dialog').find('> .submit > button.submit').
+          contains('Save').invoke('click');
+
+        cy.get('@dialog').should('exist');
+        cy.get('@dialog').find(`.jsoe-raw-editor-error`).
+          should('not.have.text', '');
+        // The original property is untouched.
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 1).
+          find('input[class^="propertyName-"]').should('have.value', 'a');
+
+        cy.get('@dialog').find('> .submit > .cancel').invoke('click');
+        cy.get('@root').then((rootUI) => {
+          /** @type {ArrayLike<HTMLDivElement>} */ (
+            /** @type {unknown} */ (rootUI)
+          )[0].remove();
+        });
+      }
+    );
+
+    it(
+      'shows an error (rather than closing) when "Save" is clicked with ' +
+        'a value that violates the control\'s own schema',
+      function () {
+        const schemaContent = /** @type {import('zodexy').SzObject} */ ({
+          type: 'object',
+          properties: {a: {type: 'number'}}
+        });
+        cy.wrap(null).then(async () => {
+          const {
+            formatChoices, typesHolder, setValue, whenReady
+          } = await formatAndTypeChoices({
+            schemas: ['schema'],
+            selectedSchema: 'schema',
+            getSchemaContent: () => Promise.resolve(schemaContent),
+            hasValue: false,
+            singleValue: true,
+            typeNamespace: 'edit-raw-save-schema-error'
+          });
+          document.body.append(formatChoices, typesHolder);
+          await whenReady;
+          await setValue({a: 1}, {
+            readonly: false,
+            typeNamespace: 'edit-raw-save-schema-error',
+            schemaContent
+          });
+          return typesHolder;
+        }).as('typesHolder');
+
+        cy.get('@typesHolder').find('.editRawTypeson').invoke('click');
+        getOpenDialog().as('dialog');
+
+        cy.get('@dialog').find('.jsoe-raw-editor .cm-content').
+          // eslint-disable-next-line sonarjs/no-forced-browser-interaction -- Wrong-frame element, see the "Save" test above
+          type('{selectall}{{}a: "not a number"{}}', {force: true});
+        cy.get('@dialog').find('> .submit > button.submit').
+          contains('Save').invoke('click');
+
+        cy.get('@dialog').should('exist');
+        cy.get('@dialog').find(`.jsoe-raw-editor-error`).
+          should('not.have.text', '');
+
+        cy.get('@dialog').find('> .submit > .cancel').invoke('click');
+      }
+    );
+
+    it(
+      'shows an error (rather than crashing) when switching to eval mode ' +
+        'cannot reseed the current value',
+      function () {
+        /** @type {{[key: string]: unknown}} */
+        const cyclic = {};
+        cyclic.self = cyclic;
+        const types = new Types({allowUnsafeEval: true});
+        buildAppendedObjectControl(
+          types, 'allow-unsafe-eval-reseed-error', cyclic
+        ).as('root');
+
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 1);
+        cy.get('@root').find('.editRawTypeson').invoke('click');
+        getOpenDialog().as('dialog');
+
+        cy.get('@dialog').find('select.jsoe-raw-editor-mode').then(($select) => {
+          const select = /** @type {HTMLSelectElement} */ ($select[0]);
+          select.value = 'eval';
+          select.dispatchEvent(new Event('change', {bubbles: true}));
+        });
+
+        cy.get('@dialog').find(`.jsoe-raw-editor-error`).
+          should('not.have.text', '');
+        // The editor is left empty rather than showing stale/partial text.
+        cy.get('@dialog').find('.jsoe-raw-editor .cm-content').
+          invoke('text').should('equal', '');
 
         cy.get('@dialog').find('> .submit > .cancel').invoke('click');
         cy.get('@root').then((rootUI) => {

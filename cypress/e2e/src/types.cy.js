@@ -187,6 +187,45 @@ describe('`typeChoices`', function () {
   });
 
   it(
+    'selects the matching branch\'s radio when setting an existing ' +
+      '`xor` value',
+    async function () {
+      const schemaContent = /** @type {import('zodexy').SzXor<any>} */ ({
+        type: 'xor',
+        options: [
+          {description: 'A greeting', type: 'literal', values: ['hi']},
+          {description: 'A count', type: 'number'}
+        ]
+      });
+      const {
+        formatChoices, typesHolder, setValue, whenReady
+      } = await formatAndTypeChoices({
+        schemas: ['schema'],
+        selectedSchema: 'schema',
+        getSchemaContent: () => Promise.resolve(schemaContent),
+        hasValue: false,
+        singleValue: true,
+        typeNamespace: 'xor-existing-value'
+      });
+      document.body.append(formatChoices, typesHolder);
+      await whenReady;
+      await setValue(42, {
+        readonly: false,
+        typeNamespace: 'xor-existing-value',
+        schemaContent
+      });
+      await whenAllTypeChoicesReady(typesHolder);
+
+      const checkedLabel = /** @type {HTMLElement|null} */ (
+        typesHolder.querySelector(
+          ':scope fieldset.xorTypeChoices input[type="radio"]:checked'
+        )?.closest('label')
+      );
+      expect(checkedLabel?.textContent).to.contain('A count');
+    }
+  );
+
+  it(
     '`formatChoices.$whenReady()` resolves the same build the returned ' +
       '`whenReady` tracks',
     async function () {
