@@ -209,6 +209,226 @@ describe('`typeChoices`', function () {
   );
 });
 
+describe('bigint `literal` editUI', function () {
+  beforeEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it('falls back to "BigInt" as the title when the schema has no label',
+    function () {
+      const types = new Types();
+      const root = /** @type {HTMLDivElement} */ (types.getUIForModeAndType({
+        readonly: false,
+        typeNamespace: 'literal-bigint-no-label',
+        type: 'bigint',
+        format: 'schema',
+        value: undefined,
+        hasValue: false,
+        specificSchemaObject: /** @type {import('zodexy').SzType} */ ({
+          type: 'literal',
+          values: [1n, 2n]
+        })
+      }));
+      document.body.append(root);
+      expect(root.title).to.equal('BigInt');
+    });
+});
+
+describe('number `format`-derived min/max', function () {
+  beforeEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it(
+    'derives HTML min/max bounds from a numeric `format` when the ' +
+      'schema gives no explicit min/max',
+    function () {
+      const types = new Types();
+      const root = /** @type {HTMLDivElement} */ (types.getUIForModeAndType({
+        readonly: false,
+        typeNamespace: 'number-format-bounds',
+        type: 'number',
+        format: 'schema',
+        value: undefined,
+        hasValue: false,
+        specificSchemaObject: /** @type {import('zodexy').SzType} */ ({
+          type: 'number',
+          format: 'safeint',
+          minInclusive: true,
+          maxInclusive: true
+        })
+      }));
+      document.body.append(root);
+      const input = /** @type {HTMLInputElement} */ (
+        root.querySelector('input')
+      );
+      expect(Number(input.min)).to.equal(Number.MIN_SAFE_INTEGER);
+      expect(Number(input.max)).to.equal(Number.MAX_SAFE_INTEGER);
+    }
+  );
+});
+
+describe('error `setValue` clears fields absent from a later value',
+  function () {
+    beforeEach(() => {
+      document.body.replaceChildren();
+    });
+
+    it(
+      'unchecks name/fileName/stack and blanks lineNumber/columnNumber ' +
+        'when a later `setValue` omits them',
+      function () {
+        const types = new Types();
+        const root = /** @type {HTMLDivElement} */ (
+          types.getUIForModeAndType({
+            readonly: false,
+            typeNamespace: 'error-clear-fields',
+            type: 'error',
+            format: 'structuredCloning',
+            hasValue: true,
+            value: {
+              message: 'first',
+              name: 'FirstError',
+              fileName: 'first.js',
+              lineNumber: 1,
+              columnNumber: 2,
+              stack: 'first stack'
+            }
+          })
+        );
+        document.body.append(root);
+
+        types.setValue({type: 'error', root, value: {message: 'second'}});
+
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.name[type=checkbox]')
+          ).checked
+        ).to.equal(false);
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.fileName[type=checkbox]')
+          ).checked
+        ).to.equal(false);
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.stack[type=checkbox]')
+          ).checked
+        ).to.equal(false);
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.lineNumber[type=number]')
+          ).value
+        ).to.equal('');
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.columnNumber[type=number]')
+          ).value
+        ).to.equal('');
+      }
+    );
+  });
+
+describe('symbol `setValue`', function () {
+  beforeEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it(
+    'selects "Symbol.for()" and fills the input for a registered symbol',
+    function () {
+      const types = new Types();
+      const root = /** @type {HTMLDivElement} */ (
+        types.getUIForModeAndType({
+          readonly: false,
+          typeNamespace: 'symbol-setvalue-registered',
+          type: 'symbol',
+          format: 'structuredCloning',
+          hasValue: true,
+          value: Symbol('first')
+        })
+      );
+      document.body.append(root);
+
+      types.setValue({
+        type: 'symbol', root, value: Symbol.for('registered')
+      });
+
+      expect(
+        /** @type {HTMLInputElement} */ (
+          root.querySelector('input[value="Symbol.for"]')
+        ).checked
+      ).to.equal(true);
+      expect(
+        /** @type {HTMLInputElement} */ (
+          root.querySelector('input.symbolInput')
+        ).value
+      ).to.equal('registered');
+    }
+  );
+
+  it('selects "Symbol()" for an unregistered symbol', function () {
+    const types = new Types();
+    const root = /** @type {HTMLDivElement} */ (types.getUIForModeAndType({
+      readonly: false,
+      typeNamespace: 'symbol-setvalue-unregistered',
+      type: 'symbol',
+      format: 'structuredCloning',
+      hasValue: true,
+      value: Symbol.for('was registered')
+    }));
+    document.body.append(root);
+
+    types.setValue({type: 'symbol', root, value: Symbol('unregistered')});
+
+    expect(
+      /** @type {HTMLInputElement} */ (
+        root.querySelector('input[value="Symbol"]')
+      ).checked
+    ).to.equal(true);
+    expect(
+      /** @type {HTMLInputElement} */ (
+        root.querySelector('input.symbolInput')
+      ).value
+    ).to.equal('unregistered');
+  });
+});
+
+describe('blob `viewUI` video revokes its object URL on load', function () {
+  beforeEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it(
+    'calls `URL.revokeObjectURL` once the video fires `loadeddata` ' +
+      '(outside Safari/iOS)',
+    function () {
+      const types = new Types();
+      const root = /** @type {HTMLDivElement} */ (types.getUIForModeAndType({
+        readonly: true,
+        typeNamespace: 'blob-video-revoke',
+        type: 'blob',
+        format: 'structuredCloning',
+        value: new Blob(['fake'], {type: 'video/webm'}),
+        hasValue: true
+      }));
+      document.body.append(root);
+
+      const video = /** @type {HTMLVideoElement} */ (
+        root.querySelector('video.video')
+      );
+      // `cy.stub()` only queues installing the stub; dispatching the event
+      //   as plain (non-`cy.`) synchronous code right after would race it,
+      //   so the dispatch is itself queued (`cy.then()`) to run after.
+      cy.stub(URL, 'revokeObjectURL').as('revokeObjectURL');
+      cy.then(() => {
+        video.dispatchEvent(new Event('loadeddata'));
+      });
+      cy.get('@revokeObjectURL').should('have.been.calledOnce');
+    }
+  );
+});
+
 describe('`Types.getFormControlFromRootAncestor`', function () {
   it('`getFormControlFromRootAncestor` with non-root ancestor', function () {
     const types = new Types();

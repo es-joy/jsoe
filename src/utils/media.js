@@ -102,4 +102,18 @@ async function startScreenCapture (displayMediaOptions) {
   return captureStream;
 }
 
-export {visualize, getUserMedia, startScreenCapture};
+/**
+ * Detects real Safari/iOS, as opposed to any other browser: nearly every
+ *   browser's own UA string includes "Safari" (e.g. Chrome's own UA ends
+ *   `... Safari/537.36`, for legacy compatibility), so a bare `/Safari/`
+ *   test alone would also match Chrome, Edge, etc.
+ * @param {string} [userAgent]
+ * @returns {boolean}
+ */
+function isRealSafari (userAgent = navigator.userAgent) {
+  return (/iPad|iPhone|iPod/u).test(userAgent) ||
+    ((/Safari/u).test(userAgent) &&
+      !(/Chrome|Chromium|CriOS|Edg|OPR/u).test(userAgent));
+}
+
+export {visualize, getUserMedia, startScreenCapture, isRealSafari};

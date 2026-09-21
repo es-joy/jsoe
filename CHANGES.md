@@ -7,6 +7,11 @@
 - docs: update license badge
 - fix: `getValue` issues with readonly `viewUI` (raw-editor "View raw" on
   array/object/date controls)
+- fix: blob/file video preview and recorded-media object URLs were never
+  revoked in Chrome/Edge/other Chromium browsers (their own UA strings
+  also contain "Safari", so the Safari-only check meant to skip revoking
+  matched everywhere) - new `isRealSafari` (`src/utils/media.js`)
+  properly excludes Chromium browsers
 - test: improve coverage (search widgets, `types.js` stale-root guards,
   schemaMeta keydown a11y, sparse-array item renumbering)
 

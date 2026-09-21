@@ -1,7 +1,9 @@
 import {jml, toStringTag} from '../vendor-imports.js';
 import {$e} from '../utils/templateUtils.js';
 import {schemaLabel} from '../utils/schemaMeta.js';
-import {visualize, getUserMedia, startScreenCapture} from '../utils/media.js';
+import {
+  visualize, getUserMedia, startScreenCapture, isRealSafari
+} from '../utils/media.js';
 import dialogs from '../utils/dialogs.js';
 
 /**
@@ -236,7 +238,7 @@ const blobType = {
             $on: {
               loadeddata () {
                 // Bug in Safari revoking the URL here
-                if (!(/iPad|iPhone|iPod|Safari/u).test(navigator.userAgent)) {
+                if (!isRealSafari()) {
                   URL.revokeObjectURL(objURL);
                 }
               }
@@ -810,7 +812,7 @@ const blobType = {
 
                   recordedMedia.addEventListener('loadeddata', () => {
                     // Bug in Safari revoking the URL here
-                    if (!(/iPad|iPhone|iPod|Safari/u).test(navigator.userAgent)) {
+                    if (!isRealSafari()) {
                       URL.revokeObjectURL(url);
                     }
                   });

@@ -37,6 +37,7 @@ const setTooltips = ({root, specificSchemaObject, textareas, textareaBody}) => {
     );
   });
 
+  /* istanbul ignore if -- Guard: both call sites only ever reach here once per root */
   if (observerMap.has(root)) {
     return;
   }

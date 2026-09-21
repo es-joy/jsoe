@@ -82,6 +82,20 @@ describe('schemaMeta', function () {
       expect(meta.deprecated).to.equal(false);
       expect(meta.rows).to.deep.equal([['Title', 'X']]);
     });
+
+    it(
+      'stringifies a non-boolean truthy `deprecated` value as-is',
+      function () {
+        const meta = resolveSchemaMeta(sz({
+          type: 'string',
+          meta: {title: 'X', deprecated: 'as of v2'}
+        }));
+        expect(meta.rows).to.deep.equal([
+          ['Title', 'X'],
+          ['Deprecated', 'as of v2']
+        ]);
+      }
+    );
   });
 
   describe('`schemaLabel`', function () {

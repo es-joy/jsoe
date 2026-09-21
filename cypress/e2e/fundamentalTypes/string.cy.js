@@ -881,6 +881,18 @@ describe('String spec - Misc. (schemas)', () => {
         `Nanoid value is not of the expected length: 15`
       );
     });
+
+    // Correct length (15), but characters outside the nanoid alphabet
+    //   (`[a-zA-Z0-9_-]`) - a distinct failure from the wrong-length case
+    //   above.
+    cy.clearTypeAndBlur(
+      'textarea[name="demo-keypath-not-expected-string"]',
+      '!!!!!!!!!!!!!!!'
+    ).then((elem) => {
+      expect(elem[0].validationMessage).to.equal(
+        `Value does not match nanoid pattern`
+      );
+    });
   });
 
   it('checks cuid', () => {
