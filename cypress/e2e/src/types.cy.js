@@ -185,6 +185,28 @@ describe('`typeChoices`', function () {
 
     expect(document.body.textContent).to.contain('abc');
   });
+
+  it(
+    '`formatChoices.$whenReady()` resolves the same build the returned ' +
+      '`whenReady` tracks',
+    async function () {
+      const {formatChoices, typesHolder, whenReady} =
+        await formatAndTypeChoices({
+          schemas: [],
+          hasValue: false,
+          singleValue: true,
+          typeNamespace: 'format-choices-when-ready'
+        });
+      document.body.append(formatChoices, typesHolder);
+      await whenReady;
+      // Not `.equal(whenReady)`: a later rebuild reassigns the module's
+      //   own tracked promise, so this only asserts both currently settle
+      //   for the same (already-built) type choices, not identity.
+      await /** @type {{$whenReady: () => Promise<void>}} */ (
+        /** @type {unknown} */ (formatChoices)
+      ).$whenReady();
+    }
+  );
 });
 
 describe('`Types.getFormControlFromRootAncestor`', function () {
@@ -195,6 +217,64 @@ describe('`Types.getFormControlFromRootAncestor`', function () {
     )).to.be.null;
   });
 });
+
+describe(
+  '`Types.validate`/`Types.setValue` stale-root guard',
+  function () {
+    beforeEach(() => {
+      document.body.replaceChildren();
+    });
+
+    // A `root`'s own `data-type` (read via `Types.getTypeForRoot`) can
+    //   stop matching the `type` a caller still holds - e.g. a stale
+    //   closure from before a `xor`/union control switched branches - so
+    //   both methods guard against acting on a mismatched pair rather than
+    //   assuming the caller's `type` is still current.
+    it(
+      '`validate` returns `true` (skips validating) for a stale `type`',
+      function () {
+        const types = new Types();
+        const root = /** @type {HTMLDivElement} */ (
+          types.getUIForModeAndType({
+            readonly: false,
+            typeNamespace: 'stale-root-validate',
+            type: 'string',
+            format: 'structuredCloning',
+            value: 'hello',
+            hasValue: true
+          })
+        );
+        document.body.append(root);
+        expect(root.dataset.type).to.equal('string');
+        expect(
+          types.validate({type: 'number', root, avoidReport: true})
+        ).to.equal(true);
+      }
+    );
+
+    it(
+      '`setValue` returns `undefined` (skips setting) for a stale `type`',
+      function () {
+        const types = new Types();
+        const root = /** @type {HTMLDivElement} */ (
+          types.getUIForModeAndType({
+            readonly: false,
+            typeNamespace: 'stale-root-setvalue',
+            type: 'string',
+            format: 'structuredCloning',
+            value: 'hello',
+            hasValue: true
+          })
+        );
+        document.body.append(root);
+        expect(root.dataset.type).to.equal('string');
+        expect(
+          types.setValue({type: 'number', root, value: 42})
+        ).to.be.undefined;
+      }
+    );
+  }
+);
 
 describe('`Types.validate` zodexy error messages', function () {
   /**

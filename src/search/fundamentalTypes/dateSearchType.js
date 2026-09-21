@@ -59,6 +59,7 @@ function readInputs (el) {
  */
 function validateRange () {
   const root = this.closest('jsoe-search-date');
+  /* istanbul ignore if -- Guard: always within a jsoe-search-date at call time */
   if (!root) {
     return;
   }

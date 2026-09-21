@@ -18,4 +18,12 @@ describe('search: bigint spec', () => {
       });
     });
   });
+
+  it('contributes nothing with neither bound filled in', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
 });

@@ -20,13 +20,14 @@ import Types from '#jsoe/types.js';
  * @param {InstanceType<typeof Types>} types
  * @param {string} testId
  * @param {{[key: string]: unknown}} [value]
+ * @param {boolean} [readonly]
  * @returns {Cypress.Chainable<JQuery<HTMLDivElement>>}
  */
-const buildAppendedObjectControl = (types, testId, value) => {
+const buildAppendedObjectControl = (types, testId, value, readonly) => {
   const objectValue = value ?? {d: new Date(0)};
   return cy.wrap(null).then(() => {
     return types.getControlsForFormatAndValue(
-      'structuredCloning', objectValue, {typeNamespace: testId}
+      'structuredCloning', objectValue, {typeNamespace: testId, readonly}
     );
   // A `.then()` callback returning a raw DOM element is auto-wrapped by
   //   Cypress into a jQuery-like collection for the next step; unwrap it.
@@ -445,6 +446,55 @@ describe('rawTypesonEditor', function () {
         });
       }
     );
+
+    it(
+      'also resets a sparse (`arrayNonindexKeys`) container\'s item ' +
+        'numbering, via its own self-healing `decrementItemIndex` path',
+      function () {
+        const types = new Types();
+        const typeNamespace = 'reset-item-index-sparse-test';
+        const type = 'arrayNonindexKeys';
+        buildAppendedObjectControl(
+          types, typeNamespace, /** @type {any} */ ([1, 2, 3])
+        ).as('root');
+
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 3);
+
+        cy.get('@root').then((rootUI) => {
+          const root = /** @type {ArrayLike<HTMLDivElement>} */ (
+            /** @type {unknown} */ (rootUI)
+          )[0];
+          return commitValueToContainer({
+            types,
+            format: 'structuredCloning',
+            type,
+            root,
+            topRoot: root,
+            typeNamespace,
+            specificSchemaObject: undefined,
+            value: /** @type {any} */ ([9])
+          });
+        });
+
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 1);
+
+        // A manual "+ Item" after the replace still works (proving
+        //   `decrementItemIndex`'s recount left `itemIndex` in a sane
+        //   state, not just that the line merely didn't throw).
+        cy.get('@root').find('> .arrayContents > .addArrayElement').
+          contains('+ Item').invoke('click');
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 2);
+
+        cy.get('@root').then((rootUI) => {
+          /** @type {ArrayLike<HTMLDivElement>} */ (
+            /** @type {unknown} */ (rootUI)
+          )[0].remove();
+        });
+      }
+    );
   });
 
   // The raw-editor dialog (built by `dialogs.js`) is appended to the same
@@ -553,6 +603,44 @@ describe('rawTypesonEditor', function () {
           invoke('text').
           should('include', 'new Date(').
           and('not.include', '$types');
+
+        cy.get('@dialog').find('> .submit > .cancel').invoke('click');
+        cy.get('@root').then((rootUI) => {
+          /** @type {ArrayLike<HTMLDivElement>} */ (
+            /** @type {unknown} */ (rootUI)
+          )[0].remove();
+        });
+      }
+    );
+  });
+
+  describe('"View raw" (the readonly counterpart of "Edit raw")', function () {
+    it(
+      'opens a read-only dialog with no mode selector or Save button, ' +
+        'even with allowUnsafeEval true',
+      function () {
+        const types = new Types({allowUnsafeEval: true});
+        buildAppendedObjectControl(
+          types, 'view-raw-readonly', undefined, true
+        ).as('root');
+
+        // The `d` property is built asynchronously; wait for it so the
+        //   control's read value isn't a still-empty `{}`.
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 1);
+        cy.get('@root').find('.viewRawTypeson').invoke('click');
+        getOpenDialog().as('dialog');
+
+        cy.get('@dialog').find('.jsoe-raw-editor .cm-content').
+          invoke('text').should('include', '$types');
+        // `readonly` excludes the mode selector regardless of
+        //   `allowUnsafeEval` - only "Edit raw" offers a JS/eval mode.
+        cy.get('@dialog').find('select.jsoe-raw-editor-mode').
+          should('not.exist');
+        // A cancel-only dialog (`makeCancelDialog`), not a submit one.
+        cy.get('@dialog').find('> .submit > .cancel').should('exist');
+        cy.get('@dialog').find('> .submit button').
+          should('have.length', 1);
 
         cy.get('@dialog').find('> .submit > .cancel').invoke('click');
         cy.get('@root').then((rootUI) => {

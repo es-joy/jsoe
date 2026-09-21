@@ -20,6 +20,10 @@ export const functionSpec = {
     replace (funcType) {
       return '(' + funcType.toString() + ')';
     },
+    /* istanbul ignore next -- `TypeSpecSet` requires `revive`, but the
+      only `Typeson` instance this `functionSpec` is registered on
+      (`iterate`, below) only ever calls `encapsulateAsync` (encode), never
+      a decode method, so this is never actually invoked */
     revive (o) {
       // eslint-disable-next-line no-eval -- User opted in
       return eval(o);

@@ -5,6 +5,28 @@ describe('search: tuple spec', () => {
 
   const sel = '#section-tupleRest ';
 
+  it(
+    'omits a position from the query when that position alone is not ' +
+      'opted into',
+    () => {
+      cy.get(sel + 'input.jsoeSearchOptIn--0').check();
+      cy.get(sel + '[data-search-path="#/0"] input[name$="-value"]').
+        type('abc');
+      // Position 1 is left un-opted-in.
+
+      cy.get(sel + '.getQueryButton').click();
+      cy.get(sel + '.queryResult').then((elem) => {
+        const query = JSON.parse(elem.text());
+        // Only one leaf (position 0's) survives `combineAnd`'s filtering
+        // of the un-opted-in position 1 (and the un-opted-in rest/length),
+        // so it comes back bare, not wrapped in an `$and`.
+        expect(query.$and[0]).to.deep.equal({
+          kind: 'literalSet', path: '#/0', $in: ['abc']
+        });
+      });
+    }
+  );
+
   it('gets a per-position match combined with the rest length/element match', () => {
     cy.get(sel + 'input.jsoeSearchOptIn--0').check();
     cy.get(sel + '[data-search-path="#/0"] input[name$="-value"]').type('abc');

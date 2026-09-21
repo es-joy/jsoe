@@ -25,3 +25,32 @@ describe('search: FileList/instanceof routing regression', () => {
     );
   });
 });
+
+describe('search: filelist spec (getQuery)', () => {
+  const sel = '#section-allTypes ';
+
+  beforeEach(() => {
+    cy.visit('http://127.0.0.1:8087/demo/index-search-instrumented.html');
+    cy.get(sel + 'select.addPropertySelect').select('filelist');
+    cy.get(sel + 'button').contains('Add').click();
+  });
+
+  it('gets a bare length constraint with no element match opted into', () => {
+    cy.get(sel + 'jsoe-search-filelist input[name$="-size"]').type('2');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'lengthSize', path: '#/filelist', $size: 2
+      });
+    });
+  });
+
+  it('contributes nothing with no size or element match opted into', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
+});

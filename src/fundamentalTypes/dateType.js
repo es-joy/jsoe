@@ -116,9 +116,15 @@ const dateType = {
     }; // Input shouldn't allow anyways
   },
   isInvalid ({root}) {
-    return !this.valid && /** @type {HTMLInputElement} */ (
+    const invalidCheckbox = /** @type {HTMLInputElement|null} */ (
       $e(root, '.invalidDate')
-    ).checked;
+    );
+    // Readonly rendering (`viewUI`) has no `.invalidDate` checkbox to
+    //   read back - its own root already carries the same, final state
+    //   as a class instead (see `viewUI` below).
+    return invalidCheckbox
+      ? !this.valid && invalidCheckbox.checked
+      : root.classList.contains('InvalidDate');
   },
   getValue ({root}) {
     if (this.isInvalid({root})) {
@@ -126,9 +132,12 @@ const dateType = {
         this.toValue
       )('NaN').value;
     }
+    const input = this.getInput({root});
+    // Readonly rendering has no `input` to read; its root's own text is
+    //   the same date string `editUI`'s `input.value` would have held.
     return /** @type {import('../types.js').ToValue} */ (
       this.toValue
-    )(this.getInput({root}).value).value;
+    )(input ? input.value : root.textContent).value;
   },
   isValueInvalid (value) {
     return value && Number.isNaN(value.getTime());

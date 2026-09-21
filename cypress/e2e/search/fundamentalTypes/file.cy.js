@@ -35,6 +35,14 @@ describe('search: file spec', () => {
     });
   });
 
+  it('contributes nothing with neither name nor type opted into', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
+
   it('combines a name literal with a content-type regex', () => {
     const propSel = sel + '[data-search-path="#/file"] ';
     cy.get(propSel + 'input.jsoeSearchOptIn--name').check();

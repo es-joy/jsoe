@@ -24,4 +24,15 @@ describe('search: set spec', () => {
       });
     });
   });
+
+  it('gets a bare length constraint with no element match opted into', () => {
+    cy.get(sel + 'jsoe-search-set input[name$="-size"]').type('4');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'lengthSize', path: '#/set', $size: 4
+      });
+    });
+  });
 });

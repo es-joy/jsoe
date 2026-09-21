@@ -347,6 +347,16 @@ const arrayType = {
             '.typeContainer',
             'div[data-type]'
           ]
+        )[0] || DOM.filterChildElements(
+          // Readonly rendering (this file's `viewUI`) has no `.typeChoices`
+          //   dropdown - and so no `.typeContainer` wrapper - around a
+          //   property's value, which sits directly under `fieldset`
+          //   instead (see `$addAndSetArrayElement` above); it also is not
+          //   always a `div` (e.g. `dateType`'s `viewUI` renders an `i`),
+          //   unlike every editable type's `editUI`, so no tag qualifier.
+          /** @type {HTMLFieldSetElement} */
+          (fieldset),
+          ['[data-type]']
         )[0]
       );
       /* istanbul ignore if -- Should err first? */
@@ -479,7 +489,15 @@ const arrayType = {
             ? schemaLabel(/** @type {import('zodexy').SzRecord} */ (
               specificSchemaObject
             )?.key)
-            : specificSchemaObject ? propName : undefined
+            : specificSchemaObject ? propName : undefined,
+          // `getPropertyValueFromLegend` (`../types.js`) needs a
+          //   `[data-prop="true"]` element per legend to read `getValue`'s
+          //   key/index back out - only added here (rather than on the
+          //   `input` below) when there is no `input` to carry it instead:
+          //   this span's own visible text may be a human schema label
+          //   (not the raw key), but its 0-based-index math is only valid
+          //   without a `propName` (an array/set/map/tuple ordinal item).
+          ...(propName === undefined ? {dataset: {prop: 'true'}} : {})
         }, [
           propName !== undefined
             ? schemaLabel(/** @type {import('zodexy').SzObject} */ (
@@ -487,7 +505,22 @@ const arrayType = {
             )?.properties?.[propName]) ?? propName
             /* istanbul ignore next -- Won't reach here as typeson will always give keypath? */
             : itemIndex
-        ]]
+        ]],
+        // The edit-mode counterpart of this legend (`buildLegend` in this
+        //   same file's `editUI`) carries the raw property key in an
+        //   `input`'s `value` (editable there; read-only here) rather than
+        //   in place of the visible label above, precisely so a schema's
+        //   human-readable label can differ from the actual key -
+        //   `getValue`'s own `objectProperty.length` check also relies on
+        //   this `input`'s presence to tell a keyed property from a plain
+        //   array/set/map/tuple ordinal item.
+        ...(propName !== undefined
+          ? [['input', {
+            type: 'hidden',
+            dataset: {prop: 'true'},
+            value: propName
+          }]]
+          : [])
       ]];
     };
 

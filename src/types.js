@@ -868,6 +868,7 @@ class Types {
         'message' in error
         ? error.message
         : undefined;
+      /* istanbul ignore if -- Should not happen: valid type, unexpected throw */
       if (errorMessage !== 'Not yet instantiated' && typeValidation.valid) {
         return false;
       }

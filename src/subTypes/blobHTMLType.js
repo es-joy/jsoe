@@ -151,6 +151,7 @@ const blobHTMLType = {
     //   (`whenConnected`) so a never-attached editor is abandoned, not polled
     //   forever.
     (async () => {
+      /* istanbul ignore if -- Guard: every caller attaches within 250 ticks */
       if (!await whenConnected(textarea, 250)) {
         return;
       }

@@ -7,6 +7,14 @@ describe('search: enum spec', () => {
     cy.get(sel + 'button').contains('Add').click();
   });
 
+  it('contributes nothing with no value selected', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
+
   it('gets a multiSelect query of the enum\'s actual values', () => {
     cy.get(sel + 'jsoe-search-enum select').select(['red']);
     cy.get(sel + '.getQueryButton').click();

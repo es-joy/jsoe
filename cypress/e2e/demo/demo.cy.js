@@ -65,6 +65,11 @@ describe('Demo spec', () => {
     cy.get('dialog[open]').should('include.text', 'true');
   });
 
+  it('is invalid before any type is chosen', function () {
+    cy.get('button#typeChoicesOnly-isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
+  });
+
   it('logs value', function () {
     const sel = '#typeChoicesOnly ';
     cy.get(sel + 'select.typeChoices-demo-type-choices-only').select(

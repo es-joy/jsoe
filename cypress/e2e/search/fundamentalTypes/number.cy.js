@@ -23,4 +23,23 @@ describe('search: number spec', () => {
       });
     });
   });
+
+  it('gets a bare range query with the integer check left at "(any)"', () => {
+    cy.get(sel + 'input[name$="-gte"]').type('5');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'range', path: '#/number', valueType: 'number', $gte: 5
+      });
+    });
+  });
+
+  it('contributes nothing with neither a range nor the integer check set', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
 });

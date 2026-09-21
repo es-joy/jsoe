@@ -27,4 +27,20 @@ describe('search: regexp spec', () => {
       });
     });
   });
+
+  it(
+    'gets a bare literal-source query, ignoring flags while not in ' +
+      '"Matches regex" mode',
+    () => {
+      const propSel = sel + '[data-search-path="#/regexp"] ';
+      cy.get(propSel + 'input[name$="-value"]').type('abc');
+      cy.get(sel + '.getQueryButton').click();
+      cy.get(sel + '.queryResult').then((elem) => {
+        const query = JSON.parse(elem.text());
+        expect(query.$and[0]).to.deep.equal({
+          kind: 'literalSet', path: '#/regexp', $in: ['abc']
+        });
+      });
+    }
+  );
 });

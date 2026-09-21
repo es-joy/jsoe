@@ -25,6 +25,15 @@ describe('search: record/looseRecord spec', () => {
     });
   });
 
+  it('contributes nothing when neither key nor value is opted into', () => {
+    const sel = '#section-record ';
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
+
   it('shares the same widget for looseRecord', () => {
     const sel = '#section-looseRecord ';
     cy.get(sel + 'input.jsoeSearchOptIn--value').check();

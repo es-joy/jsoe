@@ -444,4 +444,22 @@ describe('search: form validity', () => {
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
+
+  it(
+    'suppresses the native form submit (e.g. from pressing Enter in a ' +
+      'value input) instead of navigating away',
+    () => {
+      cy.get(sel + 'select.addPropertySelect').select('string');
+      cy.get(sel + 'button').contains('Add').click();
+
+      const propSel = sel + '[data-search-path="#/string"] ';
+      cy.get(propSel + 'input[name$="-value"]').type('abc');
+      // A real, unprevented submit would navigate the page away (there is
+      //   no `action`, so it re-requests the current URL), wiping this
+      //   typed value; asserting the value survives is how a suppressed
+      //   submit is told apart from one that merely didn't happen.
+      cy.get(sel + 'form.searchChoicesContainer').submit();
+      cy.get(propSel + 'input[name$="-value"]').should('have.value', 'abc');
+    }
+  );
 });

@@ -26,6 +26,17 @@ describe('search: array spec', () => {
     });
   });
 
+  it('gets a bare length constraint with no element match opted into', () => {
+    cy.get(sel + 'jsoe-search-array input[name$="-size"]').type('3');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'lengthSize', path: '#/array', $size: 3
+      });
+    });
+  });
+
   it('floors the size input at 0 even though the schema declares no minLength', () => {
     cy.get(sel + 'jsoe-search-array input[name$="-size"]').should('have.attr', 'min', '0');
   });

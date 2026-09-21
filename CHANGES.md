@@ -5,6 +5,10 @@
 - chore: update codemirror packages, node-static, style-mod,
   typeson-registry, devDeps; lint
 - docs: update license badge
+- fix: `getValue` issues with readonly `viewUI` (raw-editor "View raw" on
+  array/object/date controls)
+- test: improve coverage (search widgets, `types.js` stale-root guards,
+  schemaMeta keydown a11y, sparse-array item renumbering)
 
 ## 0.32.0
 

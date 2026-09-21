@@ -8,6 +8,14 @@ describe('search: map spec', () => {
     cy.get(sel + 'button').contains('Add').click();
   });
 
+  it('contributes nothing with no size, key, or value opted into', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
+
   it('combines key/value matches under a joint flag', () => {
     cy.get(mapSel + 'input.jsoeSearchOptIn--key').check();
     cy.get(mapSel + '[data-search-path="#/map/*key"] input[name$="-value"]').type('x');

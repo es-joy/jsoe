@@ -7,6 +7,14 @@ describe('search: domexception spec', () => {
     cy.get(sel + 'button').contains('Add').click();
   });
 
+  it('contributes nothing with neither name nor message opted into', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
+
   it('combines a predefined-name pull-down with a message literal', () => {
     cy.get(sel + 'jsoe-search-domexception select.jsoeSearchMultiSelect').select(
       ['NotFoundError']

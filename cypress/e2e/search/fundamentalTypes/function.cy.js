@@ -7,6 +7,14 @@ describe('search: function spec', () => {
     cy.get(sel + 'button').contains('Add').click();
   });
 
+  it('contributes nothing with neither args nor output opted into', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
+
   it('combines an args (tuple) match with an output match', () => {
     cy.get(sel + 'input.jsoeSearchOptIn--args').check();
     cy.get(sel + 'input.jsoeSearchOptIn--0').check();

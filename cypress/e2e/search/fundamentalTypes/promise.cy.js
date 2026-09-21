@@ -19,4 +19,12 @@ describe('search: promise spec', () => {
       });
     });
   });
+
+  it('contributes nothing when the resolved value has no query of its own', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
 });

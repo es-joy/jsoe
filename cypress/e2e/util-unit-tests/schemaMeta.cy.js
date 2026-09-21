@@ -1,5 +1,5 @@
 import {
-  resolveSchemaMeta, schemaLabel, metaTooltipText, metaTable
+  appendSchemaMeta, resolveSchemaMeta, schemaLabel, metaTooltipText, metaTable
 } from '#jsoe/utils/schemaMeta.js';
 
 /**
@@ -109,5 +109,60 @@ describe('schemaMeta', function () {
         ]
       ]);
     });
+  });
+
+  describe('`appendSchemaMeta`', function () {
+    it(
+      'toggles the metadata table via Enter/Space keydown (not just ' +
+        'click), and ignores an unrelated key',
+      function () {
+        const root = document.createElement('div');
+        appendSchemaMeta(
+          root, sz({type: 'object', meta: {title: 'Widget'}})
+        );
+        document.body.append(root);
+
+        const toggle = '.schema-meta-toggle';
+        const table = '.schema-meta-table';
+
+        /**
+         * `root` (like the rest of this directory's no-`cy.visit()`
+         *   elements) lives outside the AUT frame Cypress action commands
+         *   check visibility against, so a real keydown is dispatched
+         *   directly (matching this directory's `.invoke('click')` for the
+         *   same reason) instead of `cy.trigger()`.
+         * @param {string} key
+         * @returns {void}
+         */
+        const keydown = (key) => {
+          cy.wrap(root).find(toggle).then(([toggleEl]) => {
+            toggleEl.dispatchEvent(
+              new KeyboardEvent('keydown', {key, bubbles: true})
+            );
+          });
+        };
+
+        // Built and shown lazily, the first time it is activated.
+        cy.wrap(root).find(table).should('not.exist');
+        keydown('Enter');
+        cy.wrap(root).find(table).should('exist');
+        cy.wrap(root).find(toggle).
+          should('have.attr', 'aria-expanded', 'true');
+
+        // A key that is neither Enter nor Space does nothing.
+        keydown('a');
+        cy.wrap(root).find(toggle).
+          should('have.attr', 'aria-expanded', 'true');
+
+        // Space collapses it again.
+        keydown(' ');
+        cy.wrap(root).find(toggle).
+          should('have.attr', 'aria-expanded', 'false');
+
+        cy.wrap(root).then(() => {
+          root.remove();
+        });
+      }
+    );
   });
 });

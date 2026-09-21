@@ -7,6 +7,14 @@ describe('search: SpecialRealNumber spec', () => {
     cy.get(sel + 'button').contains('Add').click();
   });
 
+  it('contributes nothing with no value selected', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
+
   it('gets a multiSelect query of Infinity/-Infinity/-0', () => {
     cy.get(sel + 'jsoe-search-special-real-number select').select(
       ['Infinity', '-0']
