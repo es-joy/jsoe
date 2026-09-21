@@ -51,6 +51,7 @@ function computeBlobHTMLValueMessage (mode, value, flags) {
       return 'Enter a valid XPath expression.';
     case 'rawHTMLRegex':
       return 'Enter a valid regular expression.';
+    /* istanbul ignore next -- Guard: an unknown mode's try-block never throws */
     default:
       return '';
     }
@@ -70,6 +71,7 @@ function computeBlobHTMLValueMessage (mode, value, flags) {
  * @returns {void}
  */
 function syncBlobHTMLValueValidity (container) {
+  /* istanbul ignore if -- Guard: always called from a descendant's own handler */
   if (!container) {
     return;
   }
@@ -184,6 +186,7 @@ const blobHTMLSearchType = {
           const modeEl = /** @type {HTMLSelectElement|undefined} */ (
             findOwnControl(this, 'select.jsoeSearchBlobHTMLMode')
           );
+          /* istanbul ignore if -- Guard: buildUI always creates this select */
           if (!modeEl) {
             return;
           }
@@ -205,6 +208,7 @@ const blobHTMLSearchType = {
           const flagsEl = /** @type {HTMLSelectElement|undefined} */ (
             findOwnControl(this, 'select.jsoeSearchBlobHTMLFlags')
           );
+          /* istanbul ignore if -- Guard: buildUI always creates this select */
           if (!flagsEl) {
             return;
           }

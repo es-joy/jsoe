@@ -122,6 +122,7 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
             const select = /** @type {HTMLSelectElement|undefined} */ (
               findOwnControl(this, 'select.jsoeSearchTypeOf')
             );
+            /* istanbul ignore if -- Guard: buildUI always creates this select */
             if (!select) {
               return;
             }
@@ -134,6 +135,9 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
             ));
             select.value = optionMatch ? optionMatch.value : '';
             select.dispatchEvent(new Event('change'));
+            /* istanbul ignore if -- A query whose discriminator no longer
+              matches any current branch (e.g. the schema changed since it
+              was saved); the `select` is still reset to "none" above */
             if (!optionMatch) {
               return;
             }
@@ -161,12 +165,14 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
             required: true,
             $on: {
               change () {
+                /* istanbul ignore if -- Guard: registered as this select's own handler */
                 if (!isSelectElement(this)) {
                   return;
                 }
                 const container = this.closest(tagName)?.querySelector(
                   '.searchUnionBranch'
                 );
+                /* istanbul ignore if -- Guard: buildUI always creates this container */
                 if (!container) {
                   return;
                 }

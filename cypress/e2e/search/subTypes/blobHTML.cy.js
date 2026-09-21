@@ -54,4 +54,12 @@ describe('search: blobHTML spec', () => {
       });
     });
   });
+
+  it('contributes nothing with no value entered', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
 });

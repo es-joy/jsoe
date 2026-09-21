@@ -327,6 +327,72 @@ describe('error `setValue` clears fields absent from a later value',
         ).to.equal('');
       }
     );
+
+    it(
+      'unchecks message and sets name/fileName/lineNumber/columnNumber ' +
+        'when a later `setValue` supplies them (the reverse direction)',
+      function () {
+        const types = new Types();
+        const root = /** @type {HTMLDivElement} */ (
+          types.getUIForModeAndType({
+            readonly: false,
+            typeNamespace: 'error-set-fields',
+            type: 'error',
+            format: 'structuredCloning',
+            hasValue: true,
+            // `editUI`'s own default-param fill-in only applies when
+            //   `value` itself is `undefined`, not for a partial object -
+            //   so every field must be given explicitly here.
+            value: {
+              message: 'only message',
+              name: '',
+              fileName: '',
+              lineNumber: '',
+              columnNumber: '',
+              stack: ''
+            }
+          })
+        );
+        document.body.append(root);
+
+        types.setValue({
+          type: 'error',
+          root,
+          value: {
+            name: 'SecondError',
+            fileName: 'second.js',
+            lineNumber: 3,
+            columnNumber: 4
+          }
+        });
+
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.message[type=checkbox]')
+          ).checked
+        ).to.equal(false);
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.name:not([type])')
+          ).value
+        ).to.equal('SecondError');
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.fileName:not([type])')
+          ).value
+        ).to.equal('second.js');
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.lineNumber[type=number]')
+          ).value
+        ).to.equal('3');
+        expect(
+          /** @type {HTMLInputElement} */ (
+            root.querySelector('input.columnNumber[type=number]')
+          ).value
+        ).to.equal('4');
+      }
+    );
   });
 
 describe('symbol `setValue`', function () {

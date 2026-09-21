@@ -165,6 +165,7 @@ function buildHasPropertyRow ({
   // click and a structural DOM change, neither of which redispatching
   // `input`/`change` events can simulate.
   const syncChildState = () => {
+    /* istanbul ignore if -- Guard: every property type builds a child search widget */
     if (!childRoot) {
       return;
     }
@@ -382,6 +383,7 @@ const objectSearchType = {
               const row = [
                 ...this.querySelectorAll(':scope > jsoe-search-has-property')
               ].find((r) => /** @type {HTMLElement} */ (r).dataset.propertyName === propertyName);
+              /* istanbul ignore if -- Guard: addButton's click adds the row synchronously */
               if (!row) {
                 return;
               }
