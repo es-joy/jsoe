@@ -257,6 +257,12 @@ const schemaInstanceJSON2 = {
       checks: [{name: 'file'}]
     },
     {
+      description: 'A Constrained File',
+      type: 'file',
+      max: 0,
+      mime: ['text/plain']
+    },
+    {
       description: 'A BufferSource',
       type: 'any',
       checks: [{name: 'buffersource'}]
@@ -333,6 +339,21 @@ const schemaInstanceJSON4 = {
     {
       description: 'An undefined',
       type: 'undefined'
+    },
+    {
+      description: 'Flagless Email',
+      type: 'string',
+      kind: 'email',
+      pattern: String.raw`^brettz\d@yahoo\.com$`
+    },
+    {
+      description: 'Sensitive Stringbool',
+      type: 'pipe',
+      inner: {type: 'string'},
+      outer: {type: 'boolean'},
+      case: 'sensitive',
+      truthy: ['yes', 'true'],
+      falsy: ['no', 'false']
     }
   ]
 };

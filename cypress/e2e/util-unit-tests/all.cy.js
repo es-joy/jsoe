@@ -5,3 +5,5 @@ import './jsonPointer.cy.js';
 import './rawTypesonEditor.cy.js';
 import './schemaMeta.cy.js';
 import './templateUtils.cy.js';
+import './schema.cy.js';
+import './searchUtils.cy.js';

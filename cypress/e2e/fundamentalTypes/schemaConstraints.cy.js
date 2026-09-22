@@ -194,3 +194,87 @@ describe('`looseRecord` accepts non-conforming keys a `record` rejects', () => {
     }
   );
 });
+
+describe('file constraints', () => {
+  beforeEach(() => {
+    cy.visit('http://127.0.0.1:8087/demo/index-schema-instrumented.html', {
+      onBeforeLoad (win) {
+        cy.stub(win.console, 'log').as('consoleLog');
+        cy.stub(win, 'alert').as('windowAlert');
+      }
+    });
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance 2'
+    );
+  });
+
+  const sel = '#formatAndTypeChoices ';
+
+  it('shows alert when snapshot size exceeds max', () => {
+    cy.get(typeChoices).select('File (A Constrained File)');
+    cy.get(sel + '.device').select('video');
+
+    cy.get(sel + '.takeSnapshot').click();
+
+    cy.get('dialog[open]').should('include.text', 'exceeds the maximum of 0 bytes');
+    cy.get('dialog[open] .submit button').click();
+  });
+
+  it('shows alert when recording size exceeds max', () => {
+    cy.get(typeChoices).select('File (A Constrained File)');
+    cy.get(sel + '.device').select('video');
+
+    cy.get(sel + '.visualizer').should('not.be.visible');
+
+    // eslint-disable-next-line cypress/no-unnecessary-waiting -- Needed for stream to load
+    cy.wait(1000);
+    cy.get(sel + '.recordMedia').click();
+
+    // eslint-disable-next-line cypress/no-unnecessary-waiting -- Need some time recorded
+    cy.wait(1000);
+    cy.get(sel + '.stopRecording').click();
+
+    cy.get('dialog[open]').should('include.text', 'exceeds the maximum of 0 bytes');
+    cy.get('dialog[open] .submit button').click();
+  });
+});
+
+describe('string constraints', () => {
+  beforeEach(() => {
+    cy.visit('http://127.0.0.1:8087/demo/index-schema-instrumented.html', {
+      onBeforeLoad (win) {
+        cy.stub(win.console, 'log').as('consoleLog');
+        cy.stub(win, 'alert').as('windowAlert');
+      }
+    });
+    cy.get('.formatChoices:first').select(
+      'Schema: Zodexy schema instance 4'
+    );
+  });
+
+  const sel = '#formatAndTypeChoices ';
+
+  it('rejects flagless email pattern mismatch', () => {
+    cy.get(typeChoices).select('String (Flagless Email)');
+    cy.clearTypeAndBlur(sel + 'input[name="demo-keypath-not-expected-string"]', 'brettz1@yahoo.comX');
+    cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
+    cy.get('dialog[open] .submit button').click();
+  });
+
+  it('rejects sensitive stringbool on case mismatch', () => {
+    cy.get(typeChoices).select('String (Sensitive Stringbool)');
+    cy.clearTypeAndBlur(sel + 'textarea[name="demo-keypath-not-expected-string"]', 'YES');
+    cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'false');
+    cy.get('dialog[open] .submit button').click();
+  });
+
+  it('accepts sensitive stringbool on exact match', () => {
+    cy.get(typeChoices).select('String (Sensitive Stringbool)');
+    cy.clearTypeAndBlur(sel + 'textarea[name="demo-keypath-not-expected-string"]', 'yes');
+    cy.get('button#isValid').click();
+    cy.get('dialog[open]').should('include.text', 'true');
+    cy.get('dialog[open] .submit button').click();
+  });
+});
