@@ -1,4 +1,6 @@
-import schemaFormat, {getTypesForSchema} from '../../../src/formats/schema.js';
+import schemaFormat, {
+  getTypesForSchema
+} from '#jsoe/formats/schema.js';
 import Types from '../../../src/types.js';
 
 describe('schema', () => {
@@ -32,21 +34,36 @@ describe('schema', () => {
   });
 
   it('convertFromTypeson promise', () => {
+    if (!schemaFormat.convertFromTypeson) {
+      throw new Error('convertFromTypeson expected');
+    }
     /** @type {import('../../../src/types.js').StateObject} */
     const stateObj = {
       schemaContent: {type: 'boolean'},
       format: 'schema',
       readonly: false
     };
-    if (schemaFormat.convertFromTypeson) {
-      schemaFormat.convertFromTypeson(
-        'number',
-        new Types(),
-        123,
-        'prop',
-        [{type: 'promise', value: {type: 'number'}}, undefined],
-        stateObj
-      );
-    }
+    const result = schemaFormat.convertFromTypeson(
+      'number',
+      new Types(),
+      123,
+      'prop',
+      [{type: 'promise', value: {type: 'number'}}, undefined],
+      stateObj
+    );
+    expect(result).to.deep.equal({
+      type: 'number',
+      schemaIdx: 0,
+      schema: {type: 'number'},
+      mustBeOptional: false
+    });
+  });
+
+  it('mergeSchema throws on mismatched intersection types', () => {
+    expect(() => getTypesForSchema({
+      type: 'intersection',
+      left: {type: 'string'},
+      right: {type: 'number'}
+    }, {type: 'boolean'})).to.throw('Cannot merge intersection types');
   });
 });
