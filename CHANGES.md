@@ -12,8 +12,7 @@
   also contain "Safari", so the Safari-only check meant to skip revoking
   matched everywhere) - new `isRealSafari` (`src/utils/media.js`)
   properly excludes Chromium browsers
-- test: improve coverage (search widgets, `types.js` stale-root guards,
-  schemaMeta keydown a11y, sparse-array item renumbering)
+- test: improve coverage
 
 ## 0.32.0
 
