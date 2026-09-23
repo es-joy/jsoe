@@ -26,4 +26,13 @@ describe('search: bigint spec', () => {
       expect(query.$and).to.deep.equal([]);
     });
   });
+
+  it('ignores an unparseable bound rather than throwing', () => {
+    cy.get(sel + 'input[name$="-gte"]').type('not-a-bigint');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
 });

@@ -615,8 +615,10 @@ describe('File spec (schemas)', () => {
   it('views UI', function () {
     cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 2');
     const sel = '#formatAndTypeChoices ';
+    // `schemaInstanceJSON2` now has two `file`-typed options ('A File' and
+    //   'A Constrained File'); select by the disambiguated label.
     cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
-      'file'
+      'File (A File)'
     );
     cy.get(sel + 'input[name="demo-keypath-not-expected-file"]').selectFile(
       'package.json'

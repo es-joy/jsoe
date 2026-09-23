@@ -707,6 +707,62 @@ describe('rawTypesonEditor', function () {
     );
 
     it(
+      'commits a new array-valued property to an object container when ' +
+        '"Save" is clicked',
+      function () {
+        const schemaContent = /** @type {import('zodexy').SzObject} */ ({
+          type: 'object',
+          properties: {
+            a: {type: 'array', element: {type: 'number'}}
+          }
+        });
+        cy.wrap(null).then(async () => {
+          const {
+            formatChoices, typesHolder, setValue, whenReady
+          } = await formatAndTypeChoices({
+            schemas: ['schema'],
+            selectedSchema: 'schema',
+            getSchemaContent: () => Promise.resolve(schemaContent),
+            hasValue: false,
+            singleValue: true,
+            typeNamespace: 'edit-raw-save-array'
+          });
+          document.body.append(formatChoices, typesHolder);
+          await whenReady;
+          await setValue({a: [1]}, {
+            readonly: false,
+            typeNamespace: 'edit-raw-save-array',
+            schemaContent
+          });
+          return typesHolder;
+        }).as('root');
+
+        cy.get('@root').find('.editRawTypeson').invoke('click');
+        getOpenDialog().as('dialog');
+
+        cy.get('@dialog').find('.jsoe-raw-editor .cm-content').
+          // eslint-disable-next-line sonarjs/no-forced-browser-interaction -- Wrong-frame element, see the "Save" test above
+          type('{selectall}{{}a: [1, 2, 3]{}}', {force: true});
+        cy.get('@dialog').find('> .submit > button.submit').
+          contains('Save').invoke('click');
+
+        // The dialog closes on a successful save.
+        cy.get('@dialog').should('not.exist');
+
+        cy.get('@root').find(
+          '.typeContainer [data-type="arrayNonindexKeys"] > ' +
+          '.arrayContents > .arrayItems > fieldset'
+        ).should('have.length', 3);
+
+        cy.get('@root').then((rootUI) => {
+          /** @type {ArrayLike<HTMLDivElement>} */ (
+            /** @type {unknown} */ (rootUI)
+          )[0].remove();
+        });
+      }
+    );
+
+    it(
       'shows an error (rather than closing) when "Save" is clicked with ' +
         'unparseable text',
       function () {

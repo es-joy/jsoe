@@ -237,6 +237,18 @@ describe('file constraints', () => {
     cy.get('dialog[open]').should('include.text', 'exceeds the maximum of 0 bytes');
     cy.get('dialog[open] .submit button').click();
   });
+
+  it('shows alert when an uploaded file exceeds max, and clears the input', () => {
+    cy.get(typeChoices).select('File (A Constrained File)');
+
+    cy.get(sel + 'input[type="file"]').selectFile('package.json');
+
+    cy.get('dialog[open]').should('include.text', 'exceeds the maximum of 0 bytes');
+    cy.get('dialog[open] .submit button').click();
+    cy.get(sel + 'input[type="file"]').should(($input) => {
+      expect($input.val()).to.equal('');
+    });
+  });
 });
 
 describe('string constraints', () => {
