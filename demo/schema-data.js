@@ -868,7 +868,15 @@ const schemaInstanceJSONSearchAllTypes = {
     specialRealNumber: {
       type: 'any', checks: [{name: 'SpecialRealNumber'}], isOptional: true
     },
-    buffersource: {type: 'any', checks: [{name: 'buffersource'}], isOptional: true}
+    buffersource: {type: 'any', checks: [{name: 'buffersource'}], isOptional: true},
+    resurrectable: {type: 'any', checks: [{name: 'resurrectable'}], isOptional: true},
+    // Not a real recognized check name - exercises `getSearchTypeObject`'s
+    //   `?? noneditableSearchType` fallback for a schema shape with no
+    //   registered entry at all (as opposed to `resurrectable` above, which
+    //   is itself a registered key).
+    unrecognizedCheckedType: {
+      type: 'any', checks: [{name: 'notARealCheckedType'}], isOptional: true
+    }
   }
 };
 
