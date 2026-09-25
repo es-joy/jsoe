@@ -67,9 +67,6 @@ And there are the following non-structured-cloning Zodexy schema types:
 
 - `function`
 - `promise`
-
-The following is no longer supported as a first class type by Zod and thus Zodexy, but it can be supported by type `any` with `checks` (as can other types).
-
 - `symbol`
 
 Has some support for JSON references, but no UI for them at preent.
