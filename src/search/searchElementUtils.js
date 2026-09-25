@@ -121,9 +121,17 @@ export function makePresenceOnlySearchType ({tagName}) {
           /** @this {HTMLElement} */
           getQuery () {
             const checked = readCheckbox(this);
-            return checked
-              ? {kind: 'presence', path: this.dataset.searchPath ?? '', $exists: true}
-              : undefined;
+            /* istanbul ignore if -- Guard: the checkbox is permanently checked and disabled */
+            if (!checked) {
+              return undefined;
+            }
+            return {
+              kind: 'presence',
+              path: this.dataset.searchPath ??
+                /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+                '',
+              $exists: true
+            };
           },
           // The checkbox is permanently checked and `disabled` - nothing
           // for a raw query to change here either way.
@@ -232,7 +240,9 @@ export function makeErrorFamilySearchType ({tagName}) {
           },
           /** @this {HTMLElement} */
           getQuery () {
-            const searchPath = this.dataset.searchPath ?? '';
+            const searchPath = this.dataset.searchPath ??
+              /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+              '';
             const stringLeaves = errorStringProps.map((prop) => (
               readOptInChecked(this, prop)
                 ? readLiteralRegexQuery(this, `${searchPath}/${prop}`, prop)
@@ -259,7 +269,9 @@ export function makeErrorFamilySearchType ({tagName}) {
            * @returns {void}
            */
           applyQuery (queryNode) {
-            const searchPath = this.dataset.searchPath ?? '';
+            const searchPath = this.dataset.searchPath ??
+              /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+              '';
             errorStringProps.forEach((prop) => {
               applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/${prop}`, prop);
             });
@@ -352,7 +364,11 @@ function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDim
  * @returns {import('./searchDispatch.js').SearchTypeObject}
  */
 export function makeDomShapeSearchType ({
-  tagName, dimensionKeys, includeReadonly = false, includeDimensionCheck = false
+  tagName, dimensionKeys,
+  /* istanbul ignore next -- Guard: every current caller (domrect/dompoint/
+    dommatrix) explicitly passes `true`; none omits it. */
+  includeReadonly = false,
+  includeDimensionCheck = false
 }) {
   return {
     buildUI ({schemaObject, path, typeNamespace}) {
@@ -385,7 +401,9 @@ export function makeDomShapeSearchType ({
           },
           /** @this {HTMLElement} */
           getQuery () {
-            const searchPath = this.dataset.searchPath ?? '';
+            const searchPath = this.dataset.searchPath ??
+              /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+              '';
             /** @type {{[dim: string]: import('./queryTree.js').QueryRangeLeaf}} */
             const dimensions = {};
             dimensionKeys.forEach((dim) => {

@@ -24,4 +24,23 @@ describe('search: dommatrix spec', () => {
       });
     });
   });
+
+  it(
+    'round-trips a dimension range without touching the 3d toggle',
+    () => {
+      cy.get(sel + 'input.jsoeSearchOptIn--a').check();
+      cy.get(sel + 'input.jsoeSearchRangeGte--a').type('1');
+
+      cy.get(sel + '.loadQueryButton').click();
+      cy.get(sel + 'input.jsoeSearchRangeGte--a').clear();
+      cy.get(sel + 'input.jsoeSearchRangeGte--a').type('2');
+      cy.get(sel + '.applyQueryButton').click();
+      cy.get(sel + '.queryRawEditorError').should('have.text', '');
+
+      cy.get(sel + 'input.jsoeSearchRangeGte--a').should('have.value', '1');
+      cy.get(
+        sel + 'select.jsoeSearchTriState--dimension'
+      ).should('have.value', '');
+    }
+  );
 });
