@@ -61,11 +61,7 @@ There are also the following fundamental (structured-cloning capable
 Zodexy) schema types:
 
 - `boolean` (using in place of true/false when schema specifies)
-- `catch`
-- `enum`
-- `literal`
 - `nan` (standalone in Zodexy)
-- `void` (preferred in Zodexy when specified as such)
 
 And there are the following non-structured-cloning Zodexy schema types:
 
