@@ -248,6 +248,38 @@ describe('`typeChoices`', function () {
   );
 });
 
+describe('string `stringbool` viewUI', function () {
+  beforeEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it(
+    'falls back to "(a string boolean)" as the title when the schema ' +
+      'has no label',
+    function () {
+      const types = new Types();
+      const root = /** @type {HTMLElement} */ (types.getUIForModeAndType({
+        readonly: true,
+        typeNamespace: 'stringbool-no-label',
+        type: 'string',
+        format: 'schema',
+        value: 'yes',
+        hasValue: true,
+        specificSchemaObject: /** @type {import('zodexy').SzType} */ ({
+          type: 'pipe',
+          inner: {type: 'string'},
+          outer: {type: 'boolean'},
+          case: 'sensitive',
+          truthy: ['yes'],
+          falsy: ['no']
+        })
+      }));
+      document.body.append(root);
+      expect(root.title).to.equal('(a string boolean)');
+    }
+  );
+});
+
 describe('bigint `literal` editUI', function () {
   beforeEach(() => {
     document.body.replaceChildren();

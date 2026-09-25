@@ -27,4 +27,14 @@ describe('search: SpecialRealNumber spec', () => {
       });
     });
   });
+
+  it('clears an existing selection when applying a query with no match', () => {
+    cy.get(sel + 'jsoe-search-special-real-number select').select(
+      ['Infinity', '-0']
+    );
+    cy.get(sel + '.queryRawEditor .cm-content').type('{selectall}{{}$and: []{}}');
+    cy.get(sel + '.applyQueryButton').click();
+    cy.get(sel + '.queryRawEditorError').should('have.text', '');
+    cy.get(sel + 'jsoe-search-special-real-number select').find('option:selected').should('not.exist');
+  });
 });

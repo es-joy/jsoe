@@ -47,6 +47,15 @@ describe('search: object spec', () => {
     cy.get(childSel).should('be.visible');
   });
 
+  it(
+    'does nothing when "Add" is clicked with no property selected yet',
+    () => {
+      const nestedSel = sel + 'jsoe-search-object[data-search-path="#/object"] ';
+      cy.get(nestedSel + 'button').contains('Add').click();
+      cy.get(nestedSel + 'jsoe-search-has-property').should('not.exist');
+    }
+  );
+
   it('lets an added property be removed and re-added', () => {
     const nestedSel = sel + 'jsoe-search-object[data-search-path="#/object"] ';
     const rowSel = nestedSel +

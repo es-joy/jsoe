@@ -7,6 +7,14 @@ describe('search: boolean spec', () => {
     cy.get(sel + 'button').contains('Add').click();
   });
 
+  it('contributes nothing when nothing is opted in', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
+    });
+  });
+
   it('gets a booleanEquals query', () => {
     cy.get(sel + 'jsoe-search-boolean select').select('false');
     cy.get(sel + '.getQueryButton').click();
