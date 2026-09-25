@@ -101,7 +101,7 @@ function buildExampleAllTypesQuery () {
     hasPropertyClause(
       '#/file', makeLiteralSetLeaf('#/file/name', {$in: ['report.pdf']})
     ),
-    hasPropertyClause('#/blob', makeRegexLeaf('#/blob', '^image/')),
+    hasPropertyClause('#/blob', makeRegexLeaf('#/blob', '^image/', 'i')),
     hasPropertyClause(
       '#/error', makeLiteralSetLeaf('#/error/message', {$in: ['Oops']})
     ),

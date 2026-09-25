@@ -365,9 +365,9 @@ function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDim
  */
 export function makeDomShapeSearchType ({
   tagName, dimensionKeys,
-  /* istanbul ignore next -- Guard: every current caller (domrect/dompoint/
-    dommatrix) explicitly passes `true`; none omits it. */
-  includeReadonly = false,
+  // Guard: every current caller (domrect/dompoint/dommatrix) explicitly
+  //   passes `true`; none omits it.
+  includeReadonly = /* istanbul ignore next -- Guard: see above */ false,
   includeDimensionCheck = false
 }) {
   return {
@@ -421,6 +421,7 @@ export function makeDomShapeSearchType ({
             });
             const readonlyCheck = includeReadonly
               ? readTriStateSelect(this, 'readonly')
+              /* istanbul ignore next -- Guard: every current caller passes `includeReadonly: true` */
               : undefined;
             const dimensionCheck = includeDimensionCheck
               ? readTriStateSelect(this, 'dimension')

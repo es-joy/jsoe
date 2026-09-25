@@ -36,4 +36,19 @@ describe('search: map spec', () => {
       });
     });
   });
+
+  it('reports only the key match when the value is not opted into', () => {
+    cy.get(mapSel + 'input.jsoeSearchOptIn--key').check();
+    cy.get(mapSel + '[data-search-path="#/map/*key"] input[name$="-value"]').type('x');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      const leaf = query.$and[0];
+      expect(leaf.kind).to.equal('mapRecordJoint');
+      expect(leaf.keyQuery).to.deep.equal({
+        kind: 'literalSet', path: '#/map/*key', $in: ['x']
+      });
+      expect(leaf.valueQuery).to.be.undefined;
+    });
+  });
 });

@@ -60,7 +60,11 @@ export function makeHasPropertyLeaf (path, $exists) {
  * }} cfg
  * @returns {import('./queryTree.js').QueryLengthSizeLeaf}
  */
-export function makeLengthSizeLeaf (path, cfg = {}) {
+export function makeLengthSizeLeaf (
+  path,
+  // Guard: every current caller passes `cfg` explicitly.
+  cfg = /* istanbul ignore next -- See above */ {}
+) {
   return {kind: 'lengthSize', path, ...cfg};
 }
 
@@ -73,7 +77,12 @@ export function makeLengthSizeLeaf (path, cfg = {}) {
  * }} cfg
  * @returns {import('./queryTree.js').QueryRangeLeaf}
  */
-export function makeRangeLeaf (path, valueType, cfg = {}) {
+export function makeRangeLeaf (
+  path,
+  valueType,
+  // Guard: every current caller passes `cfg` explicitly.
+  cfg = /* istanbul ignore next -- See above */ {}
+) {
   return {kind: 'range', path, valueType, ...cfg};
 }
 
@@ -108,7 +117,11 @@ export function makeValidDateCheckLeaf (path, isValid) {
  * @param {{$in?: unknown[], $nin?: unknown[]}} cfg
  * @returns {import('./queryTree.js').QueryLiteralSetLeaf}
  */
-export function makeLiteralSetLeaf (path, cfg = {}) {
+export function makeLiteralSetLeaf (
+  path,
+  // Guard: every current caller passes `cfg` explicitly.
+  cfg = /* istanbul ignore next -- See above */ {}
+) {
   return {kind: 'literalSet', path, ...cfg};
 }
 
@@ -136,7 +149,11 @@ export function makeNotContainsLeaf (path, value) {
  * @param {{$in?: unknown[], $nin?: unknown[]}} cfg
  * @returns {import('./queryTree.js').QueryMultiSelectLeaf}
  */
-export function makeMultiSelectLeaf (path, cfg = {}) {
+export function makeMultiSelectLeaf (
+  path,
+  // Guard: every current caller passes `cfg` explicitly.
+  cfg = /* istanbul ignore next -- See above */ {}
+) {
   return {kind: 'multiSelect', path, ...cfg};
 }
 
@@ -209,7 +226,14 @@ export function makeMapRecordJointLeaf (path, joint, keyQuery, valueQuery) {
  * @returns {import('./queryTree.js').QueryPassThroughLeaf}
  */
 export function makePassThroughLeaf (path, query) {
-  return {kind: 'passThrough', path, ...(query ? {query} : {})};
+  return {
+    kind: 'passThrough',
+    path,
+    ...(query
+      ? {query}
+      /* istanbul ignore next -- Guard: both callers (promise/catch) only call this once their own child query is truthy */
+      : {})
+  };
 }
 
 /**

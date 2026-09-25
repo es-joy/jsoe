@@ -192,9 +192,9 @@ const functionType = {
     return typeof x === 'function';
   },
   toValue (s, rootInfo) {
+    /* istanbul ignore next -- `groups`/`args`/`returns` should always be found */
     const {groups: {
       args, returns
-    /* istanbul ignore next -- Should always be found */
     } = {}} = /** @type {RegExpMatchArray} */ (
       /** @type {import('../types.js').RootInfo} */ (rootInfo).match
     );

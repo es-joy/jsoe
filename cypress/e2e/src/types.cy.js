@@ -226,6 +226,52 @@ describe('`typeChoices`', function () {
   );
 
   it(
+    'shows a "cannot add beyond maxSize" dialog for a fixed-arity ' +
+      '(no `rest`) function',
+    async function () {
+      const schemaContent =
+        /** @type {import('zodexy').SzFunction<any, any>} */ ({
+          type: 'function',
+          input: {
+            type: 'tuple', items: [{type: 'number'}, {type: 'number'}]
+          },
+          output: {type: 'boolean'}
+        });
+      const {
+        formatChoices, typesHolder, setValue, whenReady
+      } = await formatAndTypeChoices({
+        schemas: ['schema'],
+        selectedSchema: 'schema',
+        getSchemaContent: () => Promise.resolve(schemaContent),
+        hasValue: false,
+        singleValue: true,
+        typeNamespace: 'function-fixed-arity'
+      });
+      document.body.append(formatChoices, typesHolder);
+      await whenReady;
+      await setValue(function (/** @type {number} */ a, /** @type {number} */ b) {
+        return a < b;
+      }, {
+        readonly: false,
+        typeNamespace: 'function-fixed-arity',
+        schemaContent
+      });
+      await whenAllTypeChoicesReady(typesHolder);
+
+      const addButton = /** @type {HTMLButtonElement} */ (
+        typesHolder.querySelector(
+          ':scope [data-type="function"] div[data-type="set"] ' +
+            '.addArrayElement'
+        )
+      );
+      addButton.click();
+
+      const dialog = document.querySelector('dialog[open]');
+      expect(dialog?.textContent).to.contain('maxSize');
+    }
+  );
+
+  it(
     '`formatChoices.$whenReady()` resolves the same build the returned ' +
       '`whenReady` tracks',
     async function () {
