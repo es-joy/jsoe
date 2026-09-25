@@ -165,26 +165,27 @@ Supported supertypes include:
     1. Could add syntax highlighting for CSS Selector, XPath, Regexes
     1. Need to allow multiple OR'd conditions (e.g., for string) like "matches regex" and "does not contain"
 
-    1. Objects: "Has property &lt;property pull-down>" (avoid listing required)
-    1. Arrays, Set, FileList, tuple with rest: "Has length/size of &lt;number>"; arrays: "Is/Is not sparse"
-    1. Union/Discriminated Union: "Has type &lt;type pull-down>" (including when union is part of a key to records, maps, discriminator of discriminated union, etc.)
-    1. undefined/void, null, NaN, instanceof, Non-editable (no variants to allow for distinct search; if optional, would be in union); non-editable might allow arbitrary JS query against it, but...
-    1. boolean, BooleanObject: true or false
-    1. number, NumberObject: OR Ranges/Is Not Range, Is/Is Not Integer
-    1. bigint, bigint object: OR Ranges/Is Not Range
-    1. BufferSource: OR Range/IS Not Range
-    1. string, StringObject, Blob, File, regexp (source), symbol (description): OR literal or regex search/Does Not contain search; regexp gets multiple select search of flags or regex search?
-    1. Blob HTML:
-        1. XPath (ideally JS like jtlt for XSLT-like JS or doc() and collection() as part of $for in FLWOR shorthand for XQuery-like JS)
-        2. CSS selectors
-        3. Full text search
-        4. Regex search of raw HTML
-    1. Special number: multiple select of "Infinity", "-Negativity", "NaN"
-    1. date: OR date range, Is Not Range
-    1. Enum, Native Enum: multiple select; native enum also can search key vs. value
-    1. promise, Literal, catch: pass on children
-    1. function; pass on args, return type
-    1. Error, Special Errors, DOMException: Literal/Regex search of child string properties, numeric of number children; also pull-down of name for DOMException
-    1. DOMRect, DOMPoint, DOMMatrix: numeric search ranges for children; "Is/Is not Readonly"; DOMMatrix: "Is/Is not 3d"
-    1. Map, Record: string-type searches of keys, values; ideally would allow search to insist on match of key and value (e.g., has key 2-4 and value 7-9)
-    1. Tuple (with rest has size search as with arrays): otherwise just passes on children
+    1. Many of the following may now be implemented; need to check
+        1. Objects: "Has property &lt;property pull-down>" (avoid listing required)
+        1. Arrays, Set, FileList, tuple with rest: "Has length/size of &lt;number>"; arrays: "Is/Is not sparse"
+        1. Union/Discriminated Union: "Has type &lt;type pull-down>" (including when union is part of a key to records, maps, discriminator of discriminated union, etc.)
+        1. undefined/void, null, NaN, instanceof, Non-editable (no variants to allow for distinct search; if optional, would be in union); non-editable might allow arbitrary JS query against it, but...
+        1. boolean, BooleanObject: true or false
+        1. number, NumberObject: OR Ranges/Is Not Range, Is/Is Not Integer
+        1. bigint, bigint object: OR Ranges/Is Not Range
+        1. BufferSource: OR Range/IS Not Range
+        1. string, StringObject, Blob, File, regexp (source), symbol (description): OR literal or regex search/Does Not contain search; regexp gets multiple select search of flags or regex search?
+        1. Blob HTML:
+            1. XPath (ideally JS like jtlt for XSLT-like JS or doc() and collection() as part of $for in FLWOR shorthand for XQuery-like JS)
+            2. CSS selectors
+            3. Full text search
+            4. Regex search of raw HTML
+        1. Special number: multiple select of "Infinity", "-Negativity", "NaN"
+        1. date: OR date range, Is Not Range
+        1. Enum, Native Enum: multiple select; native enum also can search key vs. value
+        1. promise, Literal, catch: pass on children
+        1. function; pass on args, return type
+        1. Error, Special Errors, DOMException: Literal/Regex search of child string properties, numeric of number children; also pull-down of name for DOMException
+        1. DOMRect, DOMPoint, DOMMatrix: numeric search ranges for children; "Is/Is not Readonly"; DOMMatrix: "Is/Is not 3d"
+        1. Map, Record: string-type searches of keys, values; ideally would allow search to insist on match of key and value (e.g., has key 2-4 and value 7-9)
+        1. Tuple (with rest has size search as with arrays): otherwise just passes on children
