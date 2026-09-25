@@ -46,12 +46,14 @@ const setTooltips = ({root, specificSchemaObject, textareas, textareaBody}) => {
    * @param {Node} node
    */
   const addTitles = (node) => {
+    /* istanbul ignore if -- Guard: mutations here are always element fieldsets */
     if (node.nodeType !== Node.ELEMENT_NODE) {
       return;
     }
     const textarea = /** @type {Element} */ (
       node
     ).querySelector('textarea');
+    /* istanbul ignore if -- Guard: an added/removed arg fieldset always has one */
     if (!textarea) {
       return;
     }
@@ -72,6 +74,7 @@ const setTooltips = ({root, specificSchemaObject, textareas, textareaBody}) => {
 
   const observer = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
+      /* istanbul ignore if -- Guard: the observer only subscribes to childList mutations */
       if (mutation.type !== 'childList') {
         continue;
       }

@@ -559,7 +559,7 @@ export const buildTypeChoices = ({
        */
       $getTypeRoot () {
         const container = this.$getContainer();
-        /* istanbul ignore if -- How to replicate? */
+        /* istanbul ignore next -- How to replicate? */
         return Boolean(container) && $e(container, 'div[data-type]');
       },
 

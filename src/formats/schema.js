@@ -185,15 +185,14 @@ const dezerializerCodecs = {
     decode (value) {
       return Array.from({length: value.length}, (_, idx) => value.item(idx));
     },
-    /* c8 ignore start -- Just including for parity */
     /**
      * @param {File[]} value
      * @returns {FileList}
      */
+    /* istanbul ignore next -- Just including for parity */
     encode (value) {
       return new FileList(value);
     }
-    /* c8 ignore stop -- See comment above */
   }
 };
 

@@ -12,9 +12,9 @@ const symbolType = {
     return typeof x === 'symbol';
   },
   toValue (s, rootInfo) {
+    /* istanbul ignore next -- `groups`/`symbolClassType` should always be found */
     const {groups: {
       symbolClassType
-    /* istanbul ignore next -- Should always be found */
     } = {}} = /** @type {RegExpMatchArray} */ (
       /** @type {import('../types.js').RootInfo} */ (rootInfo).match
     );

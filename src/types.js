@@ -690,7 +690,7 @@ class Types {
       /** @type {AvailableType} */
       (Types.getTypeForRoot(root))
     ]);
-    /* istanbul ignore if -- All have except aliases */
+    /* istanbul ignore next -- All have except aliases */
     return !typeObj.getInput ? null : typeObj.getInput({root});
   }
 
@@ -878,6 +878,7 @@ class Types {
     const schemaValidation = valueReady && schemaObject &&
       (schemaObject.type === 'templateLiteral' ||
         schemaFormat.isValueValidationRequired?.(schemaObject))
+      /* istanbul ignore next -- Guard: the 'schema' format always implements `validateValue` */
       ? schemaFormat.validateValue?.(
         this, schemaObject, value
       ) ?? {valid: true, message: undefined}
@@ -892,14 +893,13 @@ class Types {
         message: message || 'Invalid',
         schema: schemaValidation.valid
           ? schemaObject
+          /* istanbul ignore next -- Guard: an invalid schemaValidation always sets its own `.schema` */
           : schemaValidation.schema ?? schemaObject
       });
-      formControl.setCustomValidity(
-        valid
-          ? ''
-          /* istanbul ignore next -- Should always have a message */
-          : (validationMessage || 'Invalid')
-      );
+      /* istanbul ignore next -- `validationMessage` should always be set
+        by the time `valid` is false */
+      const customValidity = valid ? '' : (validationMessage || 'Invalid');
+      formControl.setCustomValidity(customValidity);
 
       // We don't want a focus as `reportValidity` does in at least
       //  some cases, but blur() would cause user to
