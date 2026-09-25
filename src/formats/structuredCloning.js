@@ -44,7 +44,9 @@ export const structuredCloningJsoe = structuredCloningForStorage.filter(
       'audiodata',
       'encodedaudiochunk',
       'encodedvideochunk',
-      'videoframe'
+      'videoframe',
+      'gpucompilationinfo',
+      'gpucompilationmessage'
     ].every((prop) => {
       return !Object.hasOwn(typeSpecSet, prop);
     });

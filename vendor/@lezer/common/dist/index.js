@@ -2023,14 +2023,14 @@ class StructureCursor {
     constructor(root, offset) {
         this.offset = offset;
         this.done = false;
-        this.cursor = root.cursor(IterMode.IncludeAnonymous | IterMode.IgnoreMounts);
+        this.cursor = root.cursor(IterMode.IncludeAnonymous | IterMode.IgnoreMounts | IterMode.ExcludeBuffers);
     }
     // Move to the first node (in pre-order) that starts at or after `pos`.
     moveTo(pos) {
         let { cursor } = this, p = pos - this.offset;
         while (!this.done && cursor.from < p) {
-            if (cursor.to >= pos && cursor.enter(p, 1, IterMode.IgnoreOverlays | IterMode.ExcludeBuffers)) ;
-            else if (cursor.to <= pos) {
+            if (cursor.to >= p && cursor.enter(p, 1, IterMode.IncludeAnonymous | IterMode.IgnoreOverlays | IterMode.ExcludeBuffers)) ;
+            else if (cursor.to <= p) {
                 if (!cursor.next(false))
                     this.done = true;
                 // Moved to next node

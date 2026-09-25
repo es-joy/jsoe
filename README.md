@@ -141,6 +141,8 @@ Supported supertypes include:
                 1. encodedaudiochunk
                 1. encodedvideochunk
                 1. videoframe
+                1. gpucompilationinfo
+                1. gpucompilationmessage
             1. Our own custom derivative types? (e.g., MIDI using TypedArray)
 1. Expand subtypes
     1. String

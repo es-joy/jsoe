@@ -1043,6 +1043,114 @@ const filelist = {
     }
 };
 
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const gpucompilationinfo = {
+    gpucompilationinfo: {
+        test (x) {
+            return toStringTag(x) === 'GPUCompilationInfo';
+        },
+        replace ({messages}) {
+            return {messages};
+        },
+        revive ({messages}) {
+            /* eslint-disable class-methods-use-this -- Don't need */
+            /**
+             * `GPUCompilationInfo` polyfill.
+             */
+            class GPUCompilationInfo {
+                /**
+                 * @returns {string}
+                 */
+                get [Symbol.toStringTag] () {
+                    return 'GPUCompilationInfo';
+                }
+                /**
+                 * @returns {GPUCompilationMessage[]}
+                 */
+                get messages () {
+                    /* eslint-enable class-methods-use-this -- Don't need */
+                    return messages;
+                }
+            }
+            return new GPUCompilationInfo();
+        }
+    }
+};
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const gpucompilationmessage = {
+    gpucompilationmessage: {
+        test (x) {
+            return toStringTag(x) === 'GPUCompilationMessage';
+        },
+        replace ({length, lineNum, linePos, message, offset, type}) {
+            return {length, lineNum, linePos, message, offset, type};
+        },
+        revive ({length, lineNum, linePos, message, offset, type}) {
+            /* eslint-disable class-methods-use-this -- Don't need */
+            /**
+             * `GPUCompilationInfo` polyfill.
+             */
+            class GPUCompilationMessage {
+                /**
+                 * @returns {string}
+                 */
+                get [Symbol.toStringTag] () {
+                    return 'GPUCompilationMessage';
+                }
+
+                /**
+                 * @returns {number}
+                 */
+                get length () {
+                    return length;
+                }
+
+                /**
+                 * @returns {number}
+                 */
+                get lineNum () {
+                    return lineNum;
+                }
+
+                /**
+                 * @returns {number}
+                 */
+                get linePos () {
+                    return linePos;
+                }
+
+                /**
+                 * @returns {string}
+                 */
+                get message () {
+                    return message;
+                }
+
+                /**
+                 * @returns {number}
+                 */
+                get offset () {
+                    return offset;
+                }
+
+                /**
+                 * @returns {"error"|"info"|"warning"}
+                 */
+                get type () {
+                    return type;
+                }
+                /* eslint-enable class-methods-use-this -- Don't need */
+            }
+            return new GPUCompilationMessage();
+        }
+    }
+};
+
 /* globals IDBKeyRange -- Polyfill needed */
 
 
@@ -2141,7 +2249,11 @@ const expObj = [
     /* c8 ignore next -- Later support */
     typeof EncodedVideoChunk !== 'undefined' ? encodedvideochunk : [],
     /* c8 ignore next -- Later support */
-    typeof VideoFrame !== 'undefined' ? videoframe : []
+    typeof VideoFrame !== 'undefined' ? videoframe : [],
+    /* c8 ignore next -- Later support */
+    typeof GPUCompilationInfo !== 'undefined' ? gpucompilationinfo : [],
+    /* c8 ignore next -- Later support */
+    typeof GPUCompilationMessage !== 'undefined' ? gpucompilationmessage : []
 );
 
 /**
@@ -2347,5 +2459,5 @@ const universal = [
     //   built-in into ecmasript standard.
 ];
 
-export { c as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, audiodata, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, encodedaudiochunk, encodedvideochunk, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, hasConstructorOf, idbkeyrange, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, quotaexceedederror, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningForStorage, structuredCloningThrowing, symbol, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject, videoframe, webtransporterror };
+export { c as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, audiodata, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, encodedaudiochunk, encodedvideochunk, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, gpucompilationinfo, gpucompilationmessage, hasConstructorOf, idbkeyrange, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, quotaexceedederror, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningForStorage, structuredCloningThrowing, symbol, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject, videoframe, webtransporterror };
 //# sourceMappingURL=index.js.map
