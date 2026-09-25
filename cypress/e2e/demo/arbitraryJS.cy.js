@@ -585,6 +585,51 @@ describe('Arbitrary JavaScript spec (functions)', () => {
     });
   });
 
+  it(
+    'retitles the remaining arg after removing an added one (schema mode)',
+    function () {
+      const sel = '#formatAndTypeChoices ';
+      cy.get(sel + '.formatChoices').select(
+        'Schema: Zodexy arbitrary JS schema'
+      );
+      cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+        'function (A function)'
+      );
+
+      // Add a second (`tuple.rest`-typed) arg beyond the one fixed `number`
+      //   item the tuple declares.
+      cy.get(sel + '[data-type="function"] .addArrayElement').click();
+      cy.get(
+        sel + '[data-type="function"] div[data-type="set"] ' +
+          '.arrayItems > fieldset'
+      ).should('have.length', 2);
+
+      // Remove it again - only the added item's own "x" is enabled; the
+      //   fixed tuple item's is `disabled` since it alone satisfies the
+      //   set's `minSize`.
+      cy.get(
+        sel + '[data-type="function"] div[data-type="set"] ' +
+          '.arrayItems > fieldset:not([data-required]) button'
+      ).contains('x').click();
+
+      cy.get(
+        sel + '[data-type="function"] div[data-type="set"] ' +
+          '.arrayItems > fieldset'
+      ).should('have.length', 1);
+
+      // The `MutationObserver`-driven retitle re-derives every surviving
+      //   textarea's tooltip from its current position - confirm it still
+      //   correctly reflects the tuple's own first (and only fixed) item
+      //   after the removal-triggered DOM mutation, rather than a stale or
+      //   missing title.
+      cy.get(
+        sel + '[data-type="function"] div[data-type="set"] textarea'
+      ).should(
+        'have.attr', 'title', JSON.stringify({type: 'number'}, null, 2)
+      );
+    }
+  );
+
   describe('getInput()', function () {
     it('Shows the function root form control', function () {
       const sel = '#formatAndTypeChoices ';
