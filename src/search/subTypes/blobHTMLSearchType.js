@@ -151,7 +151,9 @@ const blobHTMLSearchType = {
       $define: {
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const mode = /** @type {HTMLSelectElement|undefined} */ (
             findOwnControl(this, 'select.jsoeSearchBlobHTMLMode')
           )?.value;

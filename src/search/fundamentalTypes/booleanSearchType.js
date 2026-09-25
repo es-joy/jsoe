@@ -25,7 +25,12 @@ const booleanSearchType = {
           const value = readTriStateSelect(this);
           return value === undefined
             ? undefined
-            : makeBooleanEqualsLeaf(this.dataset.searchPath ?? '', value);
+            : makeBooleanEqualsLeaf(
+              this.dataset.searchPath ??
+                /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+                '',
+              value
+            );
         },
         /**
          * @this {HTMLElement}

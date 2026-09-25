@@ -84,7 +84,9 @@ const mapSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const lengthLeaf = readLengthSizeQuery(this, searchPath);
           const keyEl = findSearchElement(this, `${searchPath}/*key`);
           const valueEl = findSearchElement(this, `${searchPath}/*value`);
@@ -105,7 +107,9 @@ const mapSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const {matched: lengthLeaf, rest} = extractLeafOfKind(queryNode, 'lengthSize');
           applyLengthSizeQuery(this, lengthLeaf);
           const {matched: jointLeaf} = extractLeafOfKind(rest, 'mapRecordJoint');

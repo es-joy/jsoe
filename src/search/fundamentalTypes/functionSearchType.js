@@ -74,7 +74,9 @@ const functionSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const argsEl = findSearchElement(this, `${searchPath}/*args`);
           const outputEl = findSearchElement(this, `${searchPath}/*output`);
           const argsQuery = argsEl && hasGetQuery(argsEl) && readOptInChecked(this, 'args')
@@ -92,7 +94,9 @@ const functionSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const argsPath = `${searchPath}/*args`;
           const outputPath = `${searchPath}/*output`;
           const {matched: argsMatched, rest} = extractClauseForPath(queryNode, argsPath);

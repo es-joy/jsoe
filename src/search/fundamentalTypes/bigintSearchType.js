@@ -52,7 +52,9 @@ const bigintSearchType = {
           if ($gte === undefined && $lte === undefined) {
             return undefined;
           }
-          return makeRangeLeaf(this.dataset.searchPath ?? '', 'bigint', {
+          return makeRangeLeaf(this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '', 'bigint', {
             ...($gte === undefined ? {} : {$gte}),
             ...($lte === undefined ? {} : {$lte})
           });

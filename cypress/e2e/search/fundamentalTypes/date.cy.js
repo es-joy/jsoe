@@ -53,4 +53,27 @@ describe('search: date spec', () => {
       expect(query).to.deep.equal({$and: []});
     });
   });
+
+  it('gets a validDateCheck leaf (and no range leaf) for "Invalid date"', () => {
+    cy.get(sel + 'select.jsoeSearchTriState--valid').select('false');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([
+        {kind: 'validDateCheck', path: '#/date', isValid: false}
+      ]);
+    });
+  });
+
+  it('round-trips a one-sided range (gte only, no lte)', () => {
+    cy.clearTypeAndBlur(sel + 'input[name$="-gte"]', '2021-06-01T00:00');
+    cy.get(sel + '.loadQueryButton').click();
+    cy.get(sel + 'input[name$="-gte"]').clear();
+    cy.get(sel + '.applyQueryButton').click();
+    cy.get(sel + '.queryRawEditorError').should('have.text', '');
+    cy.get(sel + 'input[name$="-gte"]').should(
+      'have.value', '2021-06-01T00:00'
+    );
+    cy.get(sel + 'input[name$="-lte"]').should('have.value', '');
+  });
 });

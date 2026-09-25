@@ -126,7 +126,9 @@ const tupleSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const itemCount = Number(this.dataset.itemCount ?? '0');
           const hasRest = this.dataset.hasRest === 'true';
           const itemLeaves = Array.from({length: itemCount}, (_, idx) => {
@@ -152,7 +154,9 @@ const tupleSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const itemCount = Number(this.dataset.itemCount ?? '0');
           const hasRest = this.dataset.hasRest === 'true';
           let remaining = queryNode;

@@ -49,7 +49,9 @@ const enumSearchType = {
         getQuery () {
           const selected = readMultiSelect(this);
           return selected.length
-            ? makeMultiSelectLeaf(this.dataset.searchPath ?? '', {$in: selected})
+            ? makeMultiSelectLeaf(this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '', {$in: selected})
             : undefined;
         },
         /**

@@ -129,7 +129,9 @@ const dateSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const validCheck = readTriStateSelect(this, 'valid');
           const validLeaf = validCheck === undefined
             ? undefined

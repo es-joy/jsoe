@@ -28,6 +28,18 @@ describe('search: regexp spec', () => {
     });
   });
 
+  it('clears selected flags when applying a query with no match', () => {
+    const propSel = sel + '[data-search-path="#/regexp"] ';
+    cy.get(propSel + 'select.jsoeSearchMode--').select('regex');
+    cy.get(propSel + 'input[name$="-value"]').type('abc');
+    cy.get(propSel + 'select.jsoeSearchMultiSelect').should('be.visible').select(['g', 'i']);
+
+    cy.get(sel + '.queryRawEditor .cm-content').type('{selectall}{{}$and: []{}}');
+    cy.get(sel + '.applyQueryButton').click();
+    cy.get(sel + '.queryRawEditorError').should('have.text', '');
+    cy.get(propSel + 'select.jsoeSearchMultiSelect option:selected').should('not.exist');
+  });
+
   it(
     'gets a bare literal-source query, ignoring flags while not in ' +
       '"Matches regex" mode',

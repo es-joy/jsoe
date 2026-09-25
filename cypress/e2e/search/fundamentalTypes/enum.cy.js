@@ -25,4 +25,12 @@ describe('search: enum spec', () => {
       });
     });
   });
+
+  it('clears an existing selection when applying a query with no match', () => {
+    cy.get(sel + 'jsoe-search-enum select').select(['red']);
+    cy.get(sel + '.queryRawEditor .cm-content').type('{selectall}{{}$and: []{}}');
+    cy.get(sel + '.applyQueryButton').click();
+    cy.get(sel + '.queryRawEditorError').should('have.text', '');
+    cy.get(sel + 'jsoe-search-enum select').find('option:selected').should('not.exist');
+  });
 });

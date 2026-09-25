@@ -37,7 +37,9 @@ const buffersourceSearchType = {
           if (gte === '' && lte === '') {
             return undefined;
           }
-          return makeRangeLeaf(this.dataset.searchPath ?? '', 'buffersource', {
+          return makeRangeLeaf(this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '', 'buffersource', {
             ...(gte === '' ? {} : {$gte: Number(gte)}),
             ...(lte === '' ? {} : {$lte: Number(lte)})
           });

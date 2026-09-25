@@ -32,7 +32,9 @@ const stringSearchType = {
       $define: {
         /** @this {HTMLElement} */
         getQuery () {
-          return readLiteralRegexQuery(this, this.dataset.searchPath ?? '');
+          return readLiteralRegexQuery(this, this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '');
         },
         /**
          * `getQuery` returns a bare leaf here (no other facet to combine it

@@ -77,7 +77,9 @@ const filelistSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const lengthLeaf = readLengthSizeQuery(this, searchPath);
           const elementEl = findSearchElement(this, `${searchPath}/*`);
           const elementLeaf = elementEl && hasGetQuery(elementEl) && readOptInChecked(this)
@@ -91,7 +93,9 @@ const filelistSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const {matched: lengthLeaf, rest} = extractLeafOfKind(queryNode, 'lengthSize');
           applyLengthSizeQuery(this, lengthLeaf);
           applyOptIn(this, rest !== undefined, '');

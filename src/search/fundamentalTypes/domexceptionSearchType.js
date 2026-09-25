@@ -53,7 +53,9 @@ const domexceptionSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const selectedNames = readMultiSelect(this);
           const nameLeaf = selectedNames.length
             ? makeMultiSelectLeaf(`${searchPath}/name`, {$in: selectedNames})
@@ -69,7 +71,9 @@ const domexceptionSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const {matched: nameLeaf} = extractLeafOfKind(queryNode, 'multiSelect');
           applyMultiSelect(this, nameLeaf?.$in ?? []);
           applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/message`, 'message');

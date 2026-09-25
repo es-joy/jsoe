@@ -75,7 +75,9 @@ const recordSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const keyEl = findSearchElement(this, `${searchPath}/*key`);
           const valueEl = findSearchElement(this, `${searchPath}/*value`);
           const keyQuery = keyEl && hasGetQuery(keyEl) && readOptInChecked(this, 'key')
@@ -96,7 +98,9 @@ const recordSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const {matched: jointLeaf} = extractLeafOfKind(queryNode, 'mapRecordJoint');
           applyCheckbox(this, Boolean(jointLeaf?.joint));
           applyOptIn(this, jointLeaf?.keyQuery !== undefined, 'key');

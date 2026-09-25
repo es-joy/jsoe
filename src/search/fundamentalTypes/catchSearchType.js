@@ -41,7 +41,9 @@ const catchSearchType = {
       $define: {
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const childEl = findSearchElement(this, searchPath);
           const childQuery = childEl && hasGetQuery(childEl)
             ? childEl.getQuery()
@@ -57,7 +59,9 @@ const catchSearchType = {
          */
         applyQuery (queryNode) {
           const {matched} = extractLeafOfKind(queryNode, 'passThrough');
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const childEl = findSearchElement(this, searchPath);
           if (childEl && hasApplyQuery(childEl)) {
             childEl.applyQuery(matched?.query);

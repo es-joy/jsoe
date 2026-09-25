@@ -27,7 +27,9 @@ const numberSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const {gte, lte} = readRangeInputsPair(this);
           const rangeLeaf = gte === '' && lte === ''
             ? undefined

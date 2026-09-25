@@ -61,7 +61,9 @@ const fileSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           const nameLeaf = readOptInChecked(this, 'name')
             ? readLiteralRegexQuery(this, `${searchPath}/name`, 'name')
             : undefined;
@@ -76,7 +78,9 @@ const fileSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/name`, 'name');
           applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/type`, 'type');
           syncFileValidity(this);

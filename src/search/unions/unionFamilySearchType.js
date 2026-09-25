@@ -82,7 +82,9 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
         $define: {
           /** @this {HTMLElement} */
           getQuery () {
-            const searchPath = this.dataset.searchPath ?? '';
+            const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
             const select = /** @type {HTMLSelectElement|undefined} */ (
               findOwnControl(this, 'select.jsoeSearchTypeOf')
             );
@@ -141,7 +143,9 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
             if (!optionMatch) {
               return;
             }
-            const searchPath = this.dataset.searchPath ?? '';
+            const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
             const branchEl = findSearchElement(this, searchPath);
             if (branchEl && hasApplyQuery(branchEl)) {
               branchEl.applyQuery(rest);

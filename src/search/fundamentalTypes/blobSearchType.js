@@ -30,7 +30,9 @@ const blobSearchType = {
       $define: {
         /** @this {HTMLElement} */
         getQuery () {
-          return readLiteralRegexQuery(this, this.dataset.searchPath ?? '');
+          return readLiteralRegexQuery(this, this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '');
         },
         /**
          * @this {HTMLElement}

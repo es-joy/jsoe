@@ -46,6 +46,27 @@ describe('search: filelist spec (getQuery)', () => {
     });
   });
 
+  it('combines a length constraint with an opted-in element match', () => {
+    const filelistSel = sel + 'jsoe-search-filelist ';
+    cy.get(filelistSel + 'input[name$="-size"]').type('2');
+    cy.get(filelistSel + 'input.jsoeSearchOptIn--').check();
+    cy.get(filelistSel + 'jsoe-search-file input.jsoeSearchOptIn--name').check();
+    cy.get(
+      filelistSel + 'jsoe-search-file input.jsoeSearchValue--name'
+    ).type('report.pdf');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      const leaf = query.$and[0];
+      expect(leaf.$and).to.deep.include({
+        kind: 'lengthSize', path: '#/filelist', $size: 2
+      });
+      expect(leaf.$and).to.deep.include({
+        kind: 'literalSet', path: '#/filelist/*/name', $in: ['report.pdf']
+      });
+    });
+  });
+
   it('contributes nothing with no size or element match opted into', () => {
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
