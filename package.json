@@ -63,7 +63,7 @@
     "baseline widely available, not op_mini all"
   ],
   "nyc": {
-    "code-coverage": true,
+    "check-coverage": true,
     "lines": 100,
     "functions": 100,
     "branches": 100,
