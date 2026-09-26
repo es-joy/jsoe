@@ -1282,3 +1282,27 @@
     });
   });
 });
+
+describe(
+  'Schema-preloaded: catchall-less object with an out-of-shape property',
+  () => {
+    beforeEach(() => {
+      cy.visit(
+        'http://127.0.0.1:8087/demo/schema-preloaded-instrumented.html'
+      );
+    });
+
+    it(
+      'offers the full unconstrained type choice for a preloaded value\'s ' +
+        'property that is outside the schema\'s declared shape',
+      () => {
+        // `a` (declared in the schema) gets a locked, single-option (hidden)
+        //   type-choices select; `extra` (outside the schema) gets the full
+        //   unconstrained list - so the *visible* one is `extra`'s.
+        cy.get('select.typeChoices-' +
+          'demo-type-choices-catchall-less-extra-property:visible').
+          find('option').its('length').should('be.greaterThan', 5);
+      }
+    );
+  }
+);

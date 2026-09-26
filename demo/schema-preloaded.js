@@ -357,6 +357,27 @@ setTimeout(function () {
           ]];
         })()
       ]]
-    ]]
+    ]],
+
+    // A catchall-less `object` whose preloaded value has a property
+    //   outside the declared shape (`extra`): Zod's plain `z.object()`
+    //   strips such a key on parse but jsoe still shows it while editing,
+    //   offering the full unconstrained type choice for it (matching a
+    //   `looseRecord`'s non-conforming entry, above) rather than crashing
+    //   or silently dropping it.
+    ...(() => {
+      /** @type {import('zodexy').SzObject} */
+      const schema = {
+        type: 'object',
+        properties: {a: {type: 'number'}}
+      };
+      return typeChoices({
+        format: 'schema',
+        setValue: true,
+        typeNamespace: 'demo-type-choices-catchall-less-extra-property',
+        value: {a: 1, extra: 'surprise'},
+        schemaContent: schema
+      }).domArray;
+    })()
   ], body);
 }, 0);
