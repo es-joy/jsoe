@@ -1,23 +1,23 @@
-import {getFormatAndSchemaChoices} from '#jsoe/formatAndTypeChoices.js';
+import {
+  getFormatAndSchemaChoices, formatAndTypeChoices
+} from '#jsoe/formatAndTypeChoices.js';
 
 describe('getFormatAndSchemaChoices', function () {
   it(
     'preselects "Arbitrary JavaScript Object" when a schema is also ' +
       'available but not itself preselected',
     () => {
-      const options = /** @type {[string, {selected?: boolean}][]} */ (
-        /** @type {unknown} */ (
-          getFormatAndSchemaChoices({
-            schemas: ['schema'],
-            arbitraryJS: true,
-            preselectSchema: true
-          })
+      const fragment = getFormatAndSchemaChoices({
+        schemas: ['schema'],
+        arbitraryJS: true,
+        preselectSchema: true
+      });
+      const arbitraryJSOption = /** @type {HTMLOptionElement} */ (
+        [...fragment.children].find(
+          (opt) => opt.textContent === 'Arbitrary JavaScript Object'
         )
       );
-      const [, arbitraryJSOpts] = /** @type {[string, {selected?: boolean}]} */ (
-        options.find(([text]) => text === 'Arbitrary JavaScript Object')
-      );
-      expect(arbitraryJSOpts.selected).to.equal(false);
+      expect(arbitraryJSOption.selected).to.equal(false);
     }
   );
 });
@@ -46,4 +46,20 @@ describe('formatAndTypeChoices spec', function () {
       expect($select.find('option:selected').val()).to.equal('json');
     });
   });
+});
+
+describe('formatAndTypeChoices().validValuesSet', function () {
+  it(
+    'is false before any type/branch has been chosen (no rendered ' +
+      'type root yet to check)',
+    async () => {
+      const {validValuesSet} = await formatAndTypeChoices({
+        hasKeyPath: false,
+        arbitraryJS: true,
+        preselectSchema: false,
+        typeNamespace: 'valid-values-unset-test'
+      });
+      expect(validValuesSet()).to.equal(false);
+    }
+  );
 });

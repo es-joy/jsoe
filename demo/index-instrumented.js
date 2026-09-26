@@ -547,6 +547,7 @@ setTimeout(async function () {
       $on: {
         click () {
           const form = this.previousElementSibling;
+          /* istanbul ignore if -- Guard: this button's previous sibling is always the rendered form */
           if (!isFormElement(form)) {
             return;
           }
@@ -614,6 +615,7 @@ setTimeout(async function () {
       placeholder: 'e.g., ["abc", 17]',
       $on: {
         change () {
+          /* istanbul ignore if -- Guard: this listener is only ever attached to the input element itself */
           if (!isInputElement(this)) {
             return;
           }

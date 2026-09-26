@@ -272,8 +272,8 @@ jml('section', {role: 'main'}, [
          * @param {unknown} c
          * @returns {void}
          */
+        /* istanbul ignore next -- Guard: only used as serialized initial-value display, never invoked */
         function (a, b, c) {
-          /* istanbul ignore next -- Guard: only used as serialized initial-value display, never invoked */
           console.log(a, b, c);
         }
       ],
@@ -310,8 +310,8 @@ jml('section', {role: 'main'}, [
        * @param {unknown} c
        * @returns {void}
        */
+      /* istanbul ignore next -- Guard: only used as serialized initial-value display, never invoked */
       value (a, b, c) {
-        /* istanbul ignore next -- Guard: only used as serialized initial-value display, never invoked */
         console.log(a, b, c);
       },
       typeNamespace: 'demo-type-choices-only-initial-value5'
@@ -340,8 +340,8 @@ jml('section', {role: 'main'}, [
          * @param {unknown} c
          * @returns {void}
          */
+        /* istanbul ignore next -- Guard: only used as serialized initial-value display, never invoked */
         function (a, b, c) {
-          /* istanbul ignore next -- Guard: only used as serialized initial-value display, never invoked */
           console.log(a, b, c);
         }
       ], schemaInstanceJSONArbitraryJS)

@@ -98,7 +98,10 @@ describe('search: object spec', () => {
     'gets/applies a query for a nested object with only required ' +
       'properties (no "add property" select to fall back from)',
     () => {
-      cy.get(sel + 'select.addPropertySelect').select('objectAllRequired');
+      // `.eq(0)`: the "object" property already added by `beforeEach` has
+      //   its own nested "add property" select too - the outer one is
+      //   first in document order.
+      cy.get(sel + 'select.addPropertySelect').eq(0).select('objectAllRequired');
       cy.get(sel + 'button').contains('Add').click();
 
       const nestedSel =
@@ -128,7 +131,7 @@ describe('search: object spec', () => {
   it(
     'contributes nothing for an object schema with no properties at all',
     () => {
-      cy.get(sel + 'select.addPropertySelect').select('objectEmpty');
+      cy.get(sel + 'select.addPropertySelect').eq(0).select('objectEmpty');
       cy.get(sel + 'button').contains('Add').click();
 
       cy.get(sel + '.getQueryButton').click();

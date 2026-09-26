@@ -108,8 +108,7 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
             const branchEl = findSearchElement(this, searchPath);
             const branchQuery = branchEl && hasGetQuery(branchEl)
               ? branchEl.getQuery()
-              /* istanbul ignore next -- Guard: a selected branch's own search widget is always built by then */
-              : undefined;
+              : /* istanbul ignore next -- Guard: a selected branch's own search widget is always built by then */ undefined;
             return combineAnd([typeOfLeaf, branchQuery]);
           },
           /**
@@ -142,8 +141,7 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
             ));
             select.value = optionMatch
               ? optionMatch.value
-              /* istanbul ignore next -- Same "discriminator no longer matches any branch" case as below */
-              : '';
+              : /* istanbul ignore next -- Same "discriminator no longer matches any branch" case as below */ '';
             select.dispatchEvent(new Event('change'));
             /* istanbul ignore if -- A query whose discriminator no longer
               matches any current branch (e.g. the schema changed since it

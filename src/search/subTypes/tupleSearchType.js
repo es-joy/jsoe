@@ -144,8 +144,7 @@ const tupleSearchType = {
             const itemEl = findSearchElement(this, `${searchPath}/${idx}`);
             return itemEl && hasGetQuery(itemEl)
               ? itemEl.getQuery()
-              /* istanbul ignore next -- Guard: buildSearchWidget always builds a real search element here */
-              : undefined;
+              : /* istanbul ignore next -- Guard: buildSearchWidget always builds a real search element here */ undefined;
           });
           if (!hasRest) {
             return combineAnd(itemLeaves);

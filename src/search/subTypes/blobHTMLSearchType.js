@@ -77,7 +77,9 @@ function syncBlobHTMLValueValidity (container) {
   }
   const mode = /** @type {HTMLSelectElement|undefined} */ (
     findOwnControl(container, 'select.jsoeSearchBlobHTMLMode')
-  )?.value ?? '';
+  )?.value ??
+    /* istanbul ignore next -- Guard: buildUI always creates this select */
+    '';
   const input = /** @type {HTMLInputElement|undefined} */ (
     findOwnControl(container, 'input.jsoeSearchBlobHTMLValue')
   );
@@ -88,7 +90,9 @@ function syncBlobHTMLValueValidity (container) {
     findOwnControl(container, 'select.jsoeSearchBlobHTMLFlags')
   );
   const flags = mode === 'rawHTMLRegex'
-    ? [...(flagsSelect?.selectedOptions ?? [])].map((opt) => opt.value).join('')
+    ? [...(flagsSelect?.selectedOptions ??
+      /* istanbul ignore next -- Guard: buildUI always creates this select */
+      [])].map((opt) => opt.value).join('')
     : '';
   const active = mode === 'fullText' ? textarea : input;
   if (input && input !== active) {
@@ -163,13 +167,17 @@ const blobHTMLSearchType = {
               `${mode === 'fullText' ? 'textarea' : 'input'}.jsoeSearchBlobHTMLValue`
             )
           )?.value;
-          if (!value || !mode) {
+          if (!value ||
+            /* istanbul ignore next -- Guard: buildUI's mode select always has "CSS selector" selected by default, never empty */
+            !mode) {
             return undefined;
           }
           const flags = mode === 'rawHTMLRegex'
             ? [...(/** @type {HTMLSelectElement|undefined} */ (
               findOwnControl(this, 'select.jsoeSearchBlobHTMLFlags')
-            )?.selectedOptions ?? [])].map((opt) => opt.value).join('')
+            )?.selectedOptions ??
+              /* istanbul ignore next -- Guard: buildUI always creates this select */
+              [])].map((opt) => opt.value).join('')
             : '';
           return makeBlobHTMLLeaf(
             searchPath,

@@ -39,6 +39,16 @@ describe('Demo spec', () => {
     cy.get('#viewUIResults').should('contain', 'true');
   });
 
+  it('Opens schema instance 11 (union of nan/catch) nan option', function () {
+    cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 11');
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
+      'nan'
+    );
+    cy.get('#viewUI').click();
+    cy.get('#viewUIResults').should('contain', 'NaN');
+  });
+
   it('Opens any schema (boolean) option', function () {
     cy.get('.formatChoices:first').select('Schema: any schema');
     const sel = '#formatAndTypeChoices ';
