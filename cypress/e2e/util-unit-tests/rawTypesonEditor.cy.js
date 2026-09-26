@@ -412,7 +412,11 @@ describe('rawTypesonEditor', function () {
         /**
          *
          */
-        const AnonClass = class {};
+        class AnonClass {}
+        // A `class Name {}` declaration always gets a real `.name` (here,
+        //   "AnonClass") from its own binding - override it back to empty
+        //   to genuinely test the anonymous-class case this describes.
+        Object.defineProperty(AnonClass, 'name', {value: ''});
         let error;
         try {
           await getEvalSeedTextForValue(new AnonClass());
@@ -421,6 +425,27 @@ describe('rawTypesonEditor', function () {
         }
         expect(error).to.be.instanceOf(Error);
         expect(/** @type {Error} */ (error).message).to.match(/Object/u);
+      }
+    );
+
+    it(
+      'falls back to "non-plain-object" when neither `constructor.name` ' +
+        'nor a `toStringTag`-derived tag is available',
+      async function () {
+        const value = Object.create(Object.create(null));
+        // An empty `Symbol.toStringTag` makes `Object.prototype.toString`
+        //   itself yield no extractable tag (`"[object ]"`), alongside the
+        //   `null`-prototype-derived prototype already leaving `constructor`
+        //   undefined.
+        value[Symbol.toStringTag] = '';
+        let error;
+        try {
+          await getEvalSeedTextForValue(value);
+        } catch (err) {
+          error = err;
+        }
+        expect(error).to.be.instanceOf(Error);
+        expect(/** @type {Error} */ (error).message).to.match(/non-plain-object/u);
       }
     );
   });
