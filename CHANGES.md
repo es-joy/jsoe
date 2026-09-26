@@ -12,7 +12,8 @@
   also contain "Safari", so the Safari-only check meant to skip revoking
   matched everywhere) - new `isRealSafari` (`src/utils/media.js`)
   properly excludes Chromium browsers
-- fix(search): Missing error types selection for special Errors
+- fix(search): missing error types selection for special Errors
+- fix(demo): add Boolean object
 - test: improve coverage
 
 ## 0.32.0

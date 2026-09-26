@@ -869,6 +869,11 @@ const schemaInstanceJSONSearchAllTypes = {
     string: {type: 'string', isOptional: true},
     regexp: {type: 'any', checks: [{name: 'regexp'}], isOptional: true},
     boolean: {type: 'boolean', isOptional: true},
+    // A boxed `Boolean` object - `searchDispatch.js` deliberately dispatches
+    //   this to the same `booleanSearchType.js` as plain `boolean`, since a
+    //   search leaf only cares about "true or false", not how the value was
+    //   constructed.
+    booleanObject: {type: 'any', checks: [{name: 'BooleanObject'}], isOptional: true},
     symbol: {type: 'symbol', isOptional: true},
     undef: {type: 'undefined', isOptional: true},
     nullValue: {type: 'null', isOptional: true},
