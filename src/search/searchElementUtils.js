@@ -357,21 +357,47 @@ export function makeErrorFamilySearchType ({
 /**
  * @param {{
  *   label: string, name: string, dimensionKeys: string[],
+ *   threeDOnlyKeys: string[],
  *   includeReadonly: boolean, includeDimensionCheck: boolean
  * }} cfg
  * @returns {import('./searchUtils.js').JamilihArray[]}
  */
 function buildDomShapeChildren ({
-  label, name, dimensionKeys, includeReadonly, includeDimensionCheck
+  label, name, dimensionKeys, threeDOnlyKeys, includeReadonly, includeDimensionCheck
 }) {
   /** @type {import('./searchUtils.js').JamilihArray[]} */
   const children = [['span', {class: 'searchLabel'}, [label]]];
-  dimensionKeys.forEach((dim) => {
-    children.push(...buildOptInFieldset({
-      name: `${name}-${dim}`, key: dim, label: dim,
-      children: buildRangeInputsPair({name: `${name}-${dim}`, key: dim})
-    }));
+  const twoDOnlyKeys = dimensionKeys.filter(
+    (dim) => !threeDOnlyKeys.includes(dim)
+  );
+  /** @param {string} dim */
+  const buildDimFieldset = (dim) => buildOptInFieldset({
+    name: `${name}-${dim}`, key: dim, label: dim,
+    children: buildRangeInputsPair({name: `${name}-${dim}`, key: dim})
   });
+  if (threeDOnlyKeys.length) {
+    // Each group is only shown for the "Is 3d" answer it actually applies
+    //   to (`connectedCallback`'s own dimension-select listener below
+    //   toggles each container's `hidden`, oppositely - `a`-`f` starts
+    //   visible, matching the default before "Is 3d" had any effect on it,
+    //   and only `m11`-`m44` starts hidden) - `dimensionKeys` itself stays
+    //   the full combined list (`getQuery`/`applyQuery` read every dim
+    //   regardless of visibility; hiding a group is purely about
+    //   decluttering the irrelevant one, not about which dims can
+    //   contribute to the query).
+    children.push(
+      ['div', {class: 'domShape2dOnlyDims'}, [
+        ...twoDOnlyKeys.flatMap((dim) => buildDimFieldset(dim))
+      ]],
+      ['div', {class: 'domShape3dOnlyDims', hidden: true}, [
+        ...threeDOnlyKeys.flatMap((dim) => buildDimFieldset(dim))
+      ]]
+    );
+  } else {
+    twoDOnlyKeys.forEach((dim) => {
+      children.push(...buildDimFieldset(dim));
+    });
+  }
   if (includeReadonly) {
     children.push(['label', [
       'Readonly: ',
@@ -415,12 +441,17 @@ function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDim
  * Readonly"; DOMMatrix: "Is/Is not 3d" (README) - one `buildRangeInputsPair`
  * per known dimension (`key`-distinguished so they coexist in one widget;
  * `dimensionKeys` covers DOMMatrix's 2D (`a`-`f`) *and* 3D (`m11`-`m44`)
- * shapes at once rather than switching the control set on an "Is/Is not 3d"
- * answer that's itself just another optional search constraint, not a
- * schema fact - `domrect`/`dompoint`/`dommatrix` are all "checked" types
- * with no structural schema to derive dimension names from in the first
- * place, same reasoning as `makeErrorFamilySearchType`), combined into one
- * `domShape` leaf (`queryTree.js`) rather than separate leaves via `$and`.
+ * shapes at once, since `domrect`/`dompoint`/`dommatrix` are all "checked"
+ * types with no structural schema to derive dimension names from in the
+ * first place, same reasoning as `makeErrorFamilySearchType`), combined
+ * into one `domShape` leaf (`queryTree.js`) rather than separate leaves via
+ * `$and`. `threeDOnlyKeys` (DOMMatrix's own `m11`-`m44`, a subset of
+ * `dimensionKeys`) are still always read/written by `getQuery`/`applyQuery`
+ * regardless of visibility - only their own `.domShape3dOnlyDims` wrapper's
+ * `hidden` state changes, in step with "Is/Is not 3d" - so a stale value
+ * entered before switching away isn't silently discarded, matching how a
+ * `buildOptInFieldset`'s own unchecked-but-still-hideable fieldset already
+ * behaves elsewhere in this file.
  * `searchKind` (the CSS/`jsoe.css`-facing hook) is deliberately its own,
  *   short value - matching every other search type's own `availableTypes`
  *   dispatch key (`searchDispatch.js`), rather than reusing the longer
@@ -429,6 +460,7 @@ function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDim
  *   tagName: string,
  *   searchKind: string,
  *   dimensionKeys: string[],
+ *   threeDOnlyKeys?: string[],
  *   includeReadonly: boolean,
  *   includeDimensionCheck?: boolean
  * }} cfg
@@ -436,6 +468,7 @@ function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDim
  */
 export function makeDomShapeSearchType ({
   tagName, searchKind, dimensionKeys,
+  threeDOnlyKeys = [],
   includeReadonly,
   includeDimensionCheck = false
 }) {
@@ -462,9 +495,36 @@ export function makeDomShapeSearchType ({
               );
             }
             if (includeDimensionCheck) {
-              this.querySelector('select.jsoeSearchTriState--dimension')?.addEventListener(
-                'change', syncValidity
+              const dimensionSelect = this.querySelector(
+                'select.jsoeSearchTriState--dimension'
               );
+              dimensionSelect?.addEventListener('change', syncValidity);
+              if (threeDOnlyKeys.length) {
+                const twoDOnlyContainer = /** @type {HTMLElement|null} */ (
+                  this.querySelector('.domShape2dOnlyDims')
+                );
+                const threeDOnlyContainer = /** @type {HTMLElement|null} */ (
+                  this.querySelector('.domShape3dOnlyDims')
+                );
+                const syncDimensionGroupVisibility = () => {
+                  /* istanbul ignore if -- Guard: `buildDomShapeChildren` always builds both containers whenever `threeDOnlyKeys` is non-empty */
+                  if (!twoDOnlyContainer || !threeDOnlyContainer) {
+                    return;
+                  }
+                  const is3d = readTriStateSelect(this, 'dimension');
+                  // `a`-`f` show by default (`is3d === undefined`, same as
+                  //   before "Is 3d" had any effect on the 2D group) and
+                  //   hide only once "Is 3d" is answered `true`; `m11`-`m44`
+                  //   stay hidden until that same answer, matching the
+                  //   opposite side of the same toggle - both sets are real,
+                  //   valid fields regardless of dimensionality, but only
+                  //   one is relevant to search once it's known.
+                  twoDOnlyContainer.hidden = is3d === true;
+                  threeDOnlyContainer.hidden = is3d !== true;
+                };
+                dimensionSelect?.addEventListener('change', syncDimensionGroupVisibility);
+                syncDimensionGroupVisibility();
+              }
             }
             syncValidity();
           },
@@ -473,9 +533,27 @@ export function makeDomShapeSearchType ({
             const searchPath = this.dataset.searchPath ??
               /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
               '';
+            const readonlyCheck = includeReadonly
+              ? readTriStateSelect(this, 'readonly')
+              : /* istanbul ignore next -- Guard: every current caller passes `includeReadonly: true` */ undefined;
+            const dimensionCheck = includeDimensionCheck
+              ? readTriStateSelect(this, 'dimension')
+              : undefined;
+            // Once "Is 3d" is answered, only its own (currently visible)
+            //   group of dims is relevant - a stale opt-in left checked on
+            //   the other (now-hidden) group's fields before switching must
+            //   not silently contribute a constraint the answer itself
+            //   already contradicts (e.g. "is 3d: true" alongside a 2D-only
+            //   `a` range). Unanswered still reads every dim, same as a
+            //   plain `domrect`/`dompoint` widget with no such split at all.
+            const relevantDims = dimensionCheck !== undefined && threeDOnlyKeys.length
+              ? (dimensionCheck
+                ? threeDOnlyKeys
+                : dimensionKeys.filter((dim) => !threeDOnlyKeys.includes(dim)))
+              : dimensionKeys;
             /** @type {{[dim: string]: import('./queryTree.js').QueryRangeLeaf}} */
             const dimensions = {};
-            dimensionKeys.forEach((dim) => {
+            relevantDims.forEach((dim) => {
               if (!readOptInChecked(this, dim)) {
                 return;
               }
@@ -488,12 +566,6 @@ export function makeDomShapeSearchType ({
                 ...(lte === '' ? {} : {$lte: Number(lte)})
               });
             });
-            const readonlyCheck = includeReadonly
-              ? readTriStateSelect(this, 'readonly')
-              : /* istanbul ignore next -- Guard: every current caller passes `includeReadonly: true` */ undefined;
-            const dimensionCheck = includeDimensionCheck
-              ? readTriStateSelect(this, 'dimension')
-              : undefined;
             if (
               readonlyCheck === undefined && dimensionCheck === undefined &&
               Object.keys(dimensions).length === 0
@@ -541,7 +613,7 @@ export function makeDomShapeSearchType ({
           }
         }
       }, buildDomShapeChildren({
-        label, name, dimensionKeys, includeReadonly, includeDimensionCheck
+        label, name, dimensionKeys, threeDOnlyKeys, includeReadonly, includeDimensionCheck
       })];
     },
     getQuery: getQueryViaElement,

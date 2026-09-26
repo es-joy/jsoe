@@ -15,6 +15,7 @@
 - fix(style): undefined and nan color contrast with white color
 - fix(search): missing error types selection for special Errors
 - fix(search): avoid inconsistent selectors across types
+- fix(search): "Is/Is not 3d" hides ranges appropriately
 - fix(demo): add Boolean, Number, String objects and bigintObject
 - test: improve coverage
 
