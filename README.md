@@ -155,6 +155,8 @@ Supported supertypes include:
 1. Add drag-and-drop support for `File` type
 1. Import CSV as array
 1. **Schema-driven search**
+    1. Fix: errors is missing error type!
+    1. Error, Special Errors, DOMException: Literal search of child string properties
     1. Might allow search on `.cause` and `AggregateError.errors` in the future
     1. Might allow "Edit as raw" as JSON6 (edit query object directly) on each individual object/array/map/tuple/record/filelist
     1. Could add syntax highlighting for CSS Selector, XPath, Regexes
@@ -167,12 +169,10 @@ Supported supertypes include:
     1. bigint object: OR Ranges/Is Not Range
     1. Literal: pass on children
     1. DOMMatrix: "Is/Is not 3d" should hide certain ranges
-    1. Many of the following may now be implemented; need to check
+    1. Some of the following may now be implemented; need to confirm
         1. string, StringObject, Blob, File, regexp (source), symbol (description): OR literal or regex search/Does Not contain search; regexp gets multiple select search of flags or regex search?
         1. Blob HTML:
             1. XPath (ideally JS like jtlt for XSLT-like JS or doc() and collection() as part of $for in FLWOR shorthand for XQuery-like JS)
             2. CSS selectors
             3. Full text search
             4. Regex search of raw HTML
-        1. Enum, Native Enum: multiple select; native enum also can search key vs. value
-        1. Error, Special Errors, DOMException: Literal/Regex search of child string properties, numeric of number children; also pull-down of name for DOMException
