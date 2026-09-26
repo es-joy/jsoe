@@ -195,6 +195,7 @@ function deriveXorBranchLabel (schemaObj, optText, idx) {
   }
   if (schemaObj && schemaObj.type === 'object') {
     const {properties} = /** @type {import('zodexy').SzObject} */ (schemaObj);
+    /* istanbul ignore next -- Guard: a valid SzObject schema always has a real `properties` object */
     const keys = properties && typeof properties === 'object'
       ? Object.keys(properties)
       : [];
@@ -206,7 +207,9 @@ function deriveXorBranchLabel (schemaObj, optText, idx) {
         : keys.join(', ');
     }
   }
-  return optText || `Option ${idx + 1}`;
+  return optText ||
+    /* istanbul ignore next -- Guard: typeOptions always carries a real type name */
+    `Option ${idx + 1}`;
 }
 
 /**

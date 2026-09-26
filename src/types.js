@@ -878,10 +878,11 @@ class Types {
     const schemaValidation = valueReady && schemaObject &&
       (schemaObject.type === 'templateLiteral' ||
         schemaFormat.isValueValidationRequired?.(schemaObject))
-      /* istanbul ignore next -- Guard: the 'schema' format always implements `validateValue` */
       ? schemaFormat.validateValue?.(
         this, schemaObject, value
-      ) ?? {valid: true, message: undefined}
+      ) ??
+        /* istanbul ignore next -- Guard: the 'schema' format always implements `validateValue` */
+        {valid: true, message: undefined}
       : {valid: true, message: undefined};
     const valid = typeValidation.valid && schemaValidation.valid;
     const message = typeValidation.valid

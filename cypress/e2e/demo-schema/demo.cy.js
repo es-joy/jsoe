@@ -162,9 +162,9 @@ describe('Demo spec', () => {
       cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').eq(0).
         should('contain', 'red');
       // An `object` branch with no `description` falls back to its own
-      //   property names.
+      //   property names, truncated (with a "+N more" suffix) beyond 3.
       cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').eq(1).
-        should('contain', 'foo, bar');
+        should('contain', 'foo, bar, baz, +1 more');
       // Any other branch with no `description` falls back to its own type
       //   name.
       cy.get(sel + 'fieldset.xorTypeChoices label.xorTypeChoice').eq(2).

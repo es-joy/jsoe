@@ -728,7 +728,9 @@ const schemaInstanceJSONXor3 = {
       type: 'object',
       properties: {
         foo: {type: 'string'},
-        bar: {type: 'number'}
+        bar: {type: 'number'},
+        baz: {type: 'boolean'},
+        qux: {type: 'string'}
       }
     },
     {type: 'boolean'}
