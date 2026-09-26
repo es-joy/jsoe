@@ -231,14 +231,14 @@ export function makeMapRecordJointLeaf (path, joint, keyQuery, valueQuery) {
  * @returns {import('./queryTree.js').QueryPassThroughLeaf}
  */
 export function makePassThroughLeaf (path, query) {
-  return {
-    kind: 'passThrough',
-    path,
-    ...(query
-      ? {query}
-      /* istanbul ignore next -- Guard: both callers (promise/catch) only call this once their own child query is truthy */
-      : {})
-  };
+  const leaf = /** @type {import('./queryTree.js').QueryPassThroughLeaf} */ (
+    {kind: 'passThrough', path}
+  );
+  /* istanbul ignore else -- Guard: both callers (promise/catch) only call this once their own child query is truthy */
+  if (query) {
+    leaf.query = query;
+  }
+  return leaf;
 }
 
 /**

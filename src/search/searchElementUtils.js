@@ -421,8 +421,7 @@ export function makeDomShapeSearchType ({
             });
             const readonlyCheck = includeReadonly
               ? readTriStateSelect(this, 'readonly')
-              /* istanbul ignore next -- Guard: every current caller passes `includeReadonly: true` */
-              : undefined;
+              : /* istanbul ignore next -- Guard: every current caller passes `includeReadonly: true` */ undefined;
             const dimensionCheck = includeDimensionCheck
               ? readTriStateSelect(this, 'dimension')
               : undefined;

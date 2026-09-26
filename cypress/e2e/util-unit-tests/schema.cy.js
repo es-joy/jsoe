@@ -59,6 +59,33 @@ describe('schema', () => {
     });
   });
 
+  it(
+    'mergeSchema keeps the stricter min/maxLength when the left side ' +
+      'already has it, copies an object-valued meta key the left side ' +
+      'lacks, and falls back to the right side\'s description when the ' +
+      'left side has none',
+    () => {
+      const types = getTypesForSchema({
+        type: 'intersection',
+        left: {
+          type: 'string', minLength: 5, maxLength: 5, meta: {a: 1}
+        },
+        right: {
+          type: 'string',
+          minLength: 3,
+          maxLength: 10,
+          meta: {a: 1, b: {nested: true}},
+          description: 'right desc'
+        }
+      }, {type: 'boolean'});
+      const [merged] = [...types];
+      expect(merged).to.deep.include({
+        minLength: 5, maxLength: 5, description: 'right desc'
+      });
+      expect(/** @type {any} */ (merged).meta.b).to.deep.equal({nested: true});
+    }
+  );
+
   it('mergeSchema throws on mismatched intersection types', () => {
     expect(() => getTypesForSchema({
       type: 'intersection',

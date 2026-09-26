@@ -851,6 +851,16 @@ const schemaInstanceJSONSearchAllTypes = {
       properties: {nested: {type: 'string', isOptional: true}},
       isOptional: true
     },
+    objectAllRequired: {
+      type: 'object',
+      properties: {req: {type: 'string'}},
+      isOptional: true
+    },
+    objectEmpty: {
+      type: 'object',
+      properties: {},
+      isOptional: true
+    },
     map: {type: 'map', key: {type: 'string'}, value: {type: 'number'}, isOptional: true},
     set: {type: 'set', value: {type: 'number'}, isOptional: true},
     tuple: {...schemaInstanceJSONSearchTupleRest, isOptional: true},

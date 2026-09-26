@@ -929,6 +929,46 @@ describe('rawTypesonEditor', function () {
         });
       }
     );
+
+    it(
+      'shows an error (rather than closing) when "Save" is clicked with ' +
+        'a value this format has no registered support for (a bare ' +
+        'Symbol, under plain `structuredCloning` rather than `arbitraryJS`)',
+      function () {
+        const types = new Types({allowUnsafeEval: true});
+        buildAppendedObjectControl(
+          types, 'unsupported-type-symbol', {a: 1}
+        ).as('root');
+
+        cy.get('@root').find('> .arrayContents > .arrayItems > fieldset').
+          should('have.length', 1);
+        cy.get('@root').find('.editRawTypeson').invoke('click');
+        getOpenDialog().as('dialog');
+
+        cy.get('@dialog').find('select.jsoe-raw-editor-mode').then(($select) => {
+          const select = /** @type {HTMLSelectElement} */ ($select[0]);
+          select.value = 'eval';
+          select.dispatchEvent(new Event('change', {bubbles: true}));
+        });
+
+        cy.get('@dialog').find('.jsoe-raw-editor .cm-content').
+          // eslint-disable-next-line sonarjs/no-forced-browser-interaction -- Wrong-frame element, see the "Save" test above
+          type('{selectall}{{}a: Symbol("x"){}}', {force: true});
+        cy.get('@dialog').find('> .submit > button.submit').
+          contains('Save').invoke('click');
+
+        cy.get('@dialog').should('exist');
+        cy.get('@dialog').find(`.jsoe-raw-editor-error`).
+          should('not.have.text', '');
+
+        cy.get('@dialog').find('> .submit > .cancel').invoke('click');
+        cy.get('@root').then((rootUI) => {
+          /** @type {ArrayLike<HTMLDivElement>} */ (
+            /** @type {unknown} */ (rootUI)
+          )[0].remove();
+        });
+      }
+    );
   });
 
   describe('"View raw" (the readonly counterpart of "Edit raw")', function () {

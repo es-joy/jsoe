@@ -232,8 +232,7 @@ function buildRequiredPropertyRow ({
         const childEl = findSearchElement(this, searchPath);
         return childEl && hasGetQuery(childEl)
           ? childEl.getQuery()
-          /* istanbul ignore next -- Guard: buildSearchWidget always builds a real search element here */
-          : undefined;
+          : /* istanbul ignore next -- Guard: buildSearchWidget always builds a real search element here */ undefined;
       }
     }
   }, [
@@ -340,9 +339,10 @@ const objectSearchType = {
           let remaining = queryNode;
 
           [...this.querySelectorAll(':scope > jsoe-search-has-property')].forEach((row) => {
-            const propertyName =
+            const propertyName = /** @type {HTMLElement} */ (row).
+              dataset.propertyName ??
               /* istanbul ignore next -- Guard: buildHasPropertyRow/buildRequiredPropertyRow always set dataset.propertyName */
-              /** @type {HTMLElement} */ (row).dataset.propertyName ?? '';
+              '';
             const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
             const {matched, rest} = extractClauseForPath(remaining, childPath);
             remaining = rest;
@@ -356,9 +356,10 @@ const objectSearchType = {
           });
 
           [...this.querySelectorAll(':scope > jsoe-search-required-property')].forEach((row) => {
-            const propertyName =
+            const propertyName = /** @type {HTMLElement} */ (row).
+              dataset.propertyName ??
               /* istanbul ignore next -- Guard: buildHasPropertyRow/buildRequiredPropertyRow always set dataset.propertyName */
-              /** @type {HTMLElement} */ (row).dataset.propertyName ?? '';
+              '';
             const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
             const {matched, rest} = extractClauseForPath(remaining, childPath);
             remaining = rest;

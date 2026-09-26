@@ -94,6 +94,51 @@ describe('search: object spec', () => {
     cy.get(rowSel).should('exist');
   });
 
+  it(
+    'gets/applies a query for a nested object with only required ' +
+      'properties (no "add property" select to fall back from)',
+    () => {
+      cy.get(sel + 'select.addPropertySelect').select('objectAllRequired');
+      cy.get(sel + 'button').contains('Add').click();
+
+      const nestedSel =
+        sel + 'jsoe-search-object[data-search-path="#/objectAllRequired"] ';
+      cy.get(nestedSel + 'select.addPropertySelect').should('not.exist');
+
+      const rowSel = nestedSel +
+        'jsoe-search-required-property[data-property-name="req"] ';
+      cy.get(rowSel + 'input.jsoeSearchCheckbox').check();
+      cy.get(rowSel + 'input[name$="-value"]').type('hello');
+
+      cy.get(sel + '.getQueryButton').click();
+      cy.get(sel + '.queryResult').then((elem) => {
+        const query = JSON.parse(elem.text());
+        expect(query.$and[0]).to.deep.equal({
+          kind: 'literalSet', path: '#/objectAllRequired/req', $in: ['hello']
+        });
+      });
+
+      cy.get(sel + '.loadQueryButton').click();
+      cy.get(sel + '.applyQueryButton').click();
+      cy.get(sel + '.queryRawEditorError').should('have.text', '');
+      cy.get(rowSel + 'input[name$="-value"]').should('have.value', 'hello');
+    }
+  );
+
+  it(
+    'contributes nothing for an object schema with no properties at all',
+    () => {
+      cy.get(sel + 'select.addPropertySelect').select('objectEmpty');
+      cy.get(sel + 'button').contains('Add').click();
+
+      cy.get(sel + '.getQueryButton').click();
+      cy.get(sel + '.queryResult').then((elem) => {
+        const query = JSON.parse(elem.text());
+        expect(query.$and).to.deep.equal([]);
+      });
+    }
+  );
+
   it('shows a required property\'s own widget directly, disabled until opted into', () => {
     const rowSel = sel + 'jsoe-search-required-property[data-property-name="requiredString"] ';
     const childSel = rowSel + 'jsoe-search-string[data-search-path="#/requiredString"]';

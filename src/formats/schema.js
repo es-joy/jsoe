@@ -274,7 +274,9 @@ export function recordKeyConforms (types, keySchema, key) {
  * @returns {{matched: number, total: number}}
  */
 export function getXorBranchMatchInfo (types, xorSchema, value) {
-  const options = /** @type {ZodexSchema[]} */ (xorSchema.options ?? []);
+  const options = /** @type {ZodexSchema[]} */ (xorSchema.options ??
+    /* istanbul ignore next -- Guard: a real SzUnion schema always has `options` */
+    []);
   let matched = 0;
   for (const option of options) {
     if (parseValue(types, option, xorSchema, value).success) {
