@@ -14,6 +14,22 @@ describe('search: resurrectable (noneditable escape hatch) spec', () => {
   });
 
   it(
+    'contributes nothing to the query and tolerates an "Edit raw" round ' +
+      'trip',
+    () => {
+      cy.get(sel + '.getQueryButton').click();
+      cy.get(sel + '.queryResult').then((elem) => {
+        const query = JSON.parse(elem.text());
+        expect(query.$and).to.deep.equal([]);
+      });
+
+      cy.get(sel + '.loadQueryButton').click();
+      cy.get(sel + '.applyQueryButton').click();
+      cy.get(sel + '.queryRawEditorError').should('have.text', '');
+    }
+  );
+
+  it(
     'falls back to the noneditable stub for a schema shape with no ' +
       'registered search type at all',
     () => {
