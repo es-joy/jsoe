@@ -1,3 +1,27 @@
+import {getFormatAndSchemaChoices} from '#jsoe/formatAndTypeChoices.js';
+
+describe('getFormatAndSchemaChoices', function () {
+  it(
+    'preselects "Arbitrary JavaScript Object" when a schema is also ' +
+      'available but not itself preselected',
+    () => {
+      const options = /** @type {[string, {selected?: boolean}][]} */ (
+        /** @type {unknown} */ (
+          getFormatAndSchemaChoices({
+            schemas: ['schema'],
+            arbitraryJS: true,
+            preselectSchema: true
+          })
+        )
+      );
+      const [, arbitraryJSOpts] = /** @type {[string, {selected?: boolean}]} */ (
+        options.find(([text]) => text === 'Arbitrary JavaScript Object')
+      );
+      expect(arbitraryJSOpts.selected).to.equal(false);
+    }
+  );
+});
+
 describe('formatAndTypeChoices spec', function () {
   beforeEach(() => {
     cy.visit('http://127.0.0.1:8087/demo/index-instrumented.html', {

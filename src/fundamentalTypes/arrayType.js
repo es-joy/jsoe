@@ -113,8 +113,8 @@ const arrayType = {
     return Array.isArray(x);
   },
   toValue (s, info) {
+    /* istanbul ignore next -- Guard: every real caller's `info.endMatchTypeObjs` is always an array */
     const {
-      /* istanbul ignore next -- Just a guard */
       endMatchTypeObjs = [],
       remnant: innerContents,
       rootHolder,
@@ -821,7 +821,11 @@ const arrayType = {
         message,
         schema: specificSchemaObject,
         typeSpecific: true
-      }) ?? message;
+      }) ??
+        /* istanbul ignore next -- Guard: every caller passes a non-empty
+          string literal, and `getValidationMessage` only ever returns a
+          falsy value when its own `message` input was already falsy */
+        message;
     };
 
     const elementDesc = schemaLabel(/** @type {import('zodexy').SzArray} */ (

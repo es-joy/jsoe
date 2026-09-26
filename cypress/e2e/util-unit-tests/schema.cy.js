@@ -1,5 +1,5 @@
 import schemaFormat, {
-  getTypesForSchema
+  getTypesForSchema, recordKeyConforms, getXorBranchMatchInfo
 } from '#jsoe/formats/schema.js';
 import Types from '../../../src/types.js';
 
@@ -65,5 +65,65 @@ describe('schema', () => {
       left: {type: 'string'},
       right: {type: 'number'}
     }, {type: 'boolean'})).to.throw('Cannot merge intersection types');
+  });
+
+  it(
+    'getXorBranchMatchInfo counts a "checked"-type branch as unmatched ' +
+      'for a value of the wrong JS type',
+    () => {
+      const types = new Types();
+      const info = getXorBranchMatchInfo(
+        types,
+        /** @type {import('zodexy').SzUnion} */ (
+          /** @type {unknown} */ ({
+            type: 'union',
+            options: [
+              {type: 'any', checks: [{name: 'blob'}]},
+              {type: 'string'}
+            ]
+          })
+        ),
+        'hello'
+      );
+      expect(info).to.deep.equal({matched: 1, total: 2});
+    }
+  );
+
+  describe('recordKeyConforms', () => {
+    const types = new Types();
+
+    it('is true with no key schema', () => {
+      expect(recordKeyConforms(types, undefined, 'abc')).to.equal(true);
+    });
+
+    it('is true with an undefined key', () => {
+      expect(recordKeyConforms(types, {type: 'number'}, undefined)).to.equal(true);
+    });
+
+    it('is true when the key already conforms directly', () => {
+      expect(recordKeyConforms(types, {type: 'string'}, 'abc')).to.equal(true);
+    });
+
+    it(
+      'is true for a numeric-string key against a `number` key schema ' +
+        '(Zod\'s numeric-string key fallback)',
+      () => {
+        expect(recordKeyConforms(types, {type: 'number'}, '42')).to.equal(true);
+      }
+    );
+
+    it('is false for a non-string key that does not conform directly', () => {
+      expect(recordKeyConforms(
+        /** @type {any} */ (types), {type: 'number'}, /** @type {any} */ (null)
+      )).to.equal(false);
+    });
+
+    it('is false for an all-whitespace key', () => {
+      expect(recordKeyConforms(types, {type: 'number'}, ' '.repeat(3))).to.equal(false);
+    });
+
+    it('is false for a non-numeric string key against a `number` key schema', () => {
+      expect(recordKeyConforms(types, {type: 'number'}, 'abc')).to.equal(false);
+    });
   });
 });

@@ -210,7 +210,9 @@ function binaryButton (
               });
               const message = checkFile(file, min, max, mime);
               if (message) {
-                dialogs.alert(getValidationMessage?.(message) ?? message);
+                dialogs.alert(getValidationMessage?.(message) ??
+                  /* istanbul ignore next -- Guard: `message` is truthy here (the enclosing `if`), and `getValidationMessage` only returns falsy for a falsy input */
+                  message);
                 return;
               }
               /** @type {HTMLFieldSetElement & {$setValue: SetValue}} */ (
@@ -650,7 +652,9 @@ const fileType = {
                 const validationMessage = getValidationMessage(message);
                 input.setCustomValidity(validationMessage ?? '');
                 if (message) {
-                  dialogs.alert(validationMessage ?? message);
+                  dialogs.alert(validationMessage ??
+                    /* istanbul ignore next -- Guard: `message` is truthy here (the enclosing `if`), and `getValidationMessage` only returns falsy for a falsy input */
+                    message);
                   input.reportValidity();
                   return;
                 }
@@ -734,7 +738,9 @@ const fileType = {
 
                 const message = checkFile(file, min, max, mime);
                 if (message) {
-                  dialogs.alert(getValidationMessage(message) ?? message);
+                  dialogs.alert(getValidationMessage(message) ??
+                    /* istanbul ignore next -- Guard: `message` is truthy here (the enclosing `if`), and `getValidationMessage` only returns falsy for a falsy input */
+                    message);
                   input.value = '';
                   return;
                 }
@@ -1081,7 +1087,9 @@ const fileType = {
 
                   const message = checkFile(file, min, max, mime);
                   if (message) {
-                    dialogs.alert(getValidationMessage(message) ?? message);
+                    dialogs.alert(getValidationMessage(message) ??
+                      /* istanbul ignore next -- Guard: `message` is truthy here (the enclosing `if`), and `getValidationMessage` only returns falsy for a falsy input */
+                      message);
                     chunks = [];
                     return;
                   }
@@ -1218,7 +1226,9 @@ const fileType = {
 
                   const message = checkFile(file, min, max, mime);
                   if (message) {
-                    dialogs.alert(getValidationMessage(message) ?? message);
+                    dialogs.alert(getValidationMessage(message) ??
+                      /* istanbul ignore next -- Guard: `message` is truthy here (the enclosing `if`), and `getValidationMessage` only returns falsy for a falsy input */
+                      message);
                     return;
                   }
 

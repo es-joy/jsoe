@@ -9,18 +9,15 @@ import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js
  */
 
 /**
- * Enum, Native Enum: multiple select (README). The value-editing side has
- * no dedicated `enumType.js` (`getSchemaType` resolves `enum` to whatever
- * its underlying value type is), but search needs the actual allowed
- * values listed, so this is one of the search-only dedicated modules
- * (search plan §1).
+ * Enum: multiple select (README). The value-editing side has no dedicated
+ * `enumType.js` (`getSchemaType` resolves `enum` to whatever its underlying
+ * value type is), but search needs the actual allowed values listed, so
+ * this is one of the search-only dedicated modules (search plan §1).
  *
- * The README's further "native enum also can search key vs. value" is not
- * implemented by this pass - only the plain multi-select-of-values
- * affordance every enum gets either way. A native enum whose keys differ
- * from its values (unlike a plain `z.enum([...])`, where they're the same)
- * still gets a usable widget here, just not that extra key-vs-value mode
- * yet; `values`'s keys are shown alongside their value as a hint.
+ * Native enums (whose keys could differ from their values, unlike a plain
+ * `z.enum([...])`) are no longer a schema shape zodexy produces, so every
+ * `values` entry's own key is always identical to its (stringified) value;
+ * the key-vs-value label distinction below is kept only as a guard.
  * `buildMultiSelect`'s `required` leaves the whole selection invalid until
  * at least one value is picked, natively (no build-time-empty gap like
  * `buildRangeInputsPair`'s custom validity needed a `connectedCallback`
@@ -38,7 +35,10 @@ const enumSearchType = {
       const strValue = String(value);
       return /** @type {[string, string]} */ ([
         strValue,
-        key === strValue ? strValue : `${strValue} (${key})`
+        key === strValue
+          ? strValue
+          /* istanbul ignore next -- Guard: no current zodexy enum schema has a key differing from its own value */
+          : `${strValue} (${key})`
       ]);
     });
     return ['jsoe-search-enum', {

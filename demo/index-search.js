@@ -15,7 +15,8 @@ import {
   schemaInstanceJSONSearchTupleRest,
   schemaInstanceJSONSearchRecord,
   schemaInstanceJSONSearchLooseRecord,
-  schemaInstanceJSONSearchDiscriminatedUnion
+  schemaInstanceJSONSearchDiscriminatedUnion,
+  schemaInstanceJSONSearchResurrectableRoot
 } from './schema-data.js';
 
 /**
@@ -189,6 +190,11 @@ const sections = [
     id: 'discriminatedUnion',
     label: 'Discriminated union (with a date branch)',
     schemaContent: schemaInstanceJSONSearchDiscriminatedUnion
+  },
+  {
+    id: 'resurrectableRoot',
+    label: 'Resurrectable (noneditable escape hatch) at the search root',
+    schemaContent: schemaInstanceJSONSearchResurrectableRoot
   }
 ];
 

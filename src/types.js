@@ -867,6 +867,7 @@ class Types {
       const errorMessage = error && typeof error === 'object' &&
         'message' in error
         ? error.message
+        /* istanbul ignore next -- Guard: getValue only ever throws a real Error with a message */
         : undefined;
       /* istanbul ignore if -- Should not happen: valid type, unexpected throw */
       if (errorMessage !== 'Not yet instantiated' && typeValidation.valid) {
@@ -894,8 +895,9 @@ class Types {
         message: message || 'Invalid',
         schema: schemaValidation.valid
           ? schemaObject
-          /* istanbul ignore next -- Guard: an invalid schemaValidation always sets its own `.schema` */
-          : schemaValidation.schema ?? schemaObject
+          : schemaValidation.schema ??
+            /* istanbul ignore next -- Guard: an invalid schemaValidation always sets its own `.schema` */
+            schemaObject
       });
       /* istanbul ignore next -- `validationMessage` should always be set
         by the time `valid` is false */

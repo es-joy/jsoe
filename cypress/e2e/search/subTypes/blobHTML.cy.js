@@ -71,6 +71,17 @@ describe('search: blobHTML spec', () => {
     );
   });
 
+  it('clears an existing mode/value when applying a query with no match', () => {
+    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('fullText');
+    cy.get(sel + 'textarea.jsoeSearchBlobHTMLValue').type('welcome text');
+
+    cy.get(sel + '.queryRawEditor .cm-content').type('{selectall}{{}$and: []{}}');
+    cy.get(sel + '.applyQueryButton').click();
+    cy.get(sel + '.queryRawEditorError').should('have.text', '');
+    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').should('have.value', 'cssSelector');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').should('have.value', '');
+  });
+
   it('contributes nothing with no value entered', () => {
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

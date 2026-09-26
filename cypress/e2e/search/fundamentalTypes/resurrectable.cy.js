@@ -41,3 +41,32 @@ describe('search: resurrectable (noneditable escape hatch) spec', () => {
     }
   );
 });
+
+describe(
+  'search: resurrectable at the search root (stub getQuery/applyQuery)',
+  () => {
+    const sel = '#section-resurrectableRoot ';
+
+    beforeEach(() => {
+      cy.visit('http://127.0.0.1:8087/demo/index-search-instrumented.html');
+    });
+
+    it(
+      'calls the stub\'s own getQuery/applyQuery directly (no nesting ' +
+        'object to route through)',
+      () => {
+        cy.get(sel).should('contain', 'TODO: noneditable');
+
+        cy.get(sel + '.getQueryButton').click();
+        cy.get(sel + '.queryResult').then((elem) => {
+          const query = JSON.parse(elem.text());
+          expect(query).to.deep.equal({$and: []});
+        });
+
+        cy.get(sel + '.loadQueryButton').click();
+        cy.get(sel + '.applyQueryButton').click();
+        cy.get(sel + '.queryRawEditorError').should('have.text', '');
+      }
+    );
+  }
+);

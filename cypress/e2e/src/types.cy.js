@@ -258,6 +258,69 @@ describe('`typeChoices`', function () {
       expect(fieldset.value).to.equal('');
       expect(fieldset.selectedIndex).to.equal(0);
       expect(fieldset.selectedOptions).to.deep.equal([]);
+
+      // The shim's own `value`/`selectedIndex` setters, exercised directly -
+      //   nothing in the app currently drives them this way (radios are
+      //   always toggled by clicking/checking one directly), but the shim
+      //   still implements a full `<select>`-shaped surface.
+      const radios = /** @type {HTMLInputElement[]} */ (
+        [...typesHolder.querySelectorAll(
+          ':scope fieldset.xorTypeChoices input[type="radio"]'
+        )]
+      );
+      fieldset.selectedIndex = 2;
+      expect(radios[1].checked).to.equal(true);
+      expect(radios[0].checked).to.equal(false);
+
+      fieldset.value = radios[0].value;
+      expect(radios[0].checked).to.equal(true);
+      expect(radios[1].checked).to.equal(false);
+    }
+  );
+
+  it(
+    'falls back to `selectedOptions[0]`\'s own index when a `change` on ' +
+      'an `xor` radio group isn\'t targeted at a specific radio',
+    async function () {
+      const schemaContent = /** @type {import('zodexy').SzXor<any>} */ ({
+        type: 'xor',
+        options: [
+          {description: 'A greeting', type: 'literal', values: ['hi']},
+          {description: 'A count', type: 'number'}
+        ]
+      });
+      const {formatChoices, typesHolder, whenReady} =
+        await formatAndTypeChoices({
+          schemas: ['schema'],
+          selectedSchema: 'schema',
+          getSchemaContent: () => Promise.resolve(schemaContent),
+          hasValue: false,
+          singleValue: true,
+          typeNamespace: 'xor-change-no-target-idx'
+        });
+      document.body.append(formatChoices, typesHolder);
+      await whenReady;
+
+      const fieldset = /** @type {HTMLFieldSetElement} */ (
+        typesHolder.querySelector(':scope fieldset.xorTypeChoices')
+      );
+      const radios = /** @type {HTMLInputElement[]} */ (
+        [...fieldset.querySelectorAll('input[type="radio"]')]
+      );
+      // Programmatically check a radio, then dispatch `change` on the
+      //   fieldset itself (rather than the radio) - `e.target` is then the
+      //   fieldset, which carries no `dataset.idx` of its own, forcing the
+      //   `selectedOptions[0]` fallback that a real per-instance handler
+      //   re-dispatching `change` this same way (this function's own doc)
+      //   also relies on.
+      radios[1].checked = true;
+      fieldset.dispatchEvent(new Event('change', {bubbles: true}));
+      await whenAllTypeChoicesReady(typesHolder);
+
+      const checkedLabel = /** @type {HTMLElement|null} */ (
+        fieldset.querySelector('input[type="radio"]:checked')?.closest('label')
+      );
+      expect(checkedLabel?.textContent).to.contain('A count');
     }
   );
 

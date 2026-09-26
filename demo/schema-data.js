@@ -728,12 +728,19 @@ const schemaInstanceJSONXor3 = {
       type: 'object',
       properties: {
         foo: {type: 'string'},
+        bar: {type: 'number'}
+      }
+    },
+    {type: 'boolean'},
+    {
+      type: 'object',
+      properties: {
+        foo: {type: 'string'},
         bar: {type: 'number'},
         baz: {type: 'boolean'},
         qux: {type: 'string'}
       }
-    },
-    {type: 'boolean'}
+    }
   ]
 };
 
@@ -772,6 +779,20 @@ const schemaInstanceJSONSearchLooseRecord = {
   key: {type: 'string'},
   value: {type: 'number'}
 };
+
+// A `resurrectable`-checked schema *at the search root* (rather than nested
+//   as an object property, as the `allTypes` fixture's own `resurrectable`
+//   property is) - `stubSearchType`'s rendered stub has no `$define` methods
+//   of its own, so `objectSearchType.js`'s child dispatch never calls into
+//   its `getQuery`/`applyQuery` for a *nested* stub; only the top-level
+//   `SearchChoicesControl.$getQuery`/`$applyQuery` call a root schema's own
+//   `SearchTypeObject.getQuery`/`applyQuery` directly, so this is the one
+//   way to exercise those two functions at all.
+/** @type {import('zodexy').SzType} */
+const schemaInstanceJSONSearchResurrectableRoot = /** @type {any} */ ({
+  type: 'any',
+  checks: [{name: 'resurrectable'}]
+});
 
 /** @type {import('zodexy').SzDiscriminatedUnion} */
 const schemaInstanceJSONSearchDiscriminatedUnion = {
@@ -979,5 +1000,6 @@ export {
   schemaInstanceJSONSearchLooseRecord,
   schemaInstanceJSONSearchDiscriminatedUnion,
   schemaInstanceJSONSearchAllTypes,
+  schemaInstanceJSONSearchResurrectableRoot,
   makeNoneditableType
 };
