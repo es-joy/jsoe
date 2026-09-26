@@ -224,6 +224,7 @@ jml('section', {role: 'main'}, [
         ));
         const formControl =
           keyPathNotExpectedTypeChoices.types.getFormControlForRoot(root);
+        /* istanbul ignore if -- Guard: root always resolves to a rendered form control here */
         if (!formControl) {
           return;
         }
@@ -243,6 +244,7 @@ jml('section', {role: 'main'}, [
     placeholder: 'e.g., ["abc", 17]',
     $on: {
       change () {
+        /* istanbul ignore if -- Guard: this listener is only ever attached to the input element itself */
         if (!isInputElement(this)) {
           return;
         }
@@ -271,6 +273,7 @@ jml('section', {role: 'main'}, [
          * @returns {void}
          */
         function (a, b, c) {
+          /* istanbul ignore next -- Guard: only used as serialized initial-value display, never invoked */
           console.log(a, b, c);
         }
       ],
@@ -308,6 +311,7 @@ jml('section', {role: 'main'}, [
        * @returns {void}
        */
       value (a, b, c) {
+        /* istanbul ignore next -- Guard: only used as serialized initial-value display, never invoked */
         console.log(a, b, c);
       },
       typeNamespace: 'demo-type-choices-only-initial-value5'
@@ -337,6 +341,7 @@ jml('section', {role: 'main'}, [
          * @returns {void}
          */
         function (a, b, c) {
+          /* istanbul ignore next -- Guard: only used as serialized initial-value display, never invoked */
           console.log(a, b, c);
         }
       ], schemaInstanceJSONArbitraryJS)

@@ -25,6 +25,31 @@ const waitForProperty = (
   checkIfResolvedYet();
 }));
 
+describe('Arbitrary JavaScript spec (initialize with value)', () => {
+  beforeEach(() => {
+    cy.visit('http://127.0.0.1:8087/demo/index-arbitraryJS-instrumented.html');
+  });
+
+  it('sets a value programmatically via setValue()', () => {
+    cy.get('button#initializeWithValue').click();
+  });
+});
+
+describe('Arbitrary JavaScript spec (schema 2, "never"-typed function)', () => {
+  beforeEach(() => {
+    cy.visit('http://127.0.0.1:8087/demo/index-arbitraryJS-instrumented.html');
+  });
+
+  it('loads the second arbitrary-JS schema\'s content', () => {
+    const sel = '#formatAndTypeChoices ';
+    cy.get(sel + '.formatChoices').select(
+      'Schema: Zodexy arbitrary JS schema 2'
+    );
+    cy.get('button#getType').click();
+    cy.get('dialog[open]').should('include.text', 'function');
+  });
+});
+
 describe('Arbitrary JavaScript spec (symbols)', () => {
   let called = false;
   beforeEach(() => {

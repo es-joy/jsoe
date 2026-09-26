@@ -496,17 +496,15 @@ export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOp
    */
   function syncLiteralRegexValidity (el) {
     const root = el.closest('[data-search-path]');
+    /* istanbul ignore if -- Guard: called from a descendant's own handler, so root is always found */
+    if (!root) {
+      return;
+    }
     const modeEl = /** @type {HTMLSelectElement|undefined} */ (
-      root
-        ? findOwnControl(root, `select.jsoeSearchMode--${key}`)
-        /* istanbul ignore next -- Guard: called from a descendant's own handler, so root is always found */
-        : undefined
+      findOwnControl(root, `select.jsoeSearchMode--${key}`)
     );
     const valueEl = /** @type {HTMLInputElement|undefined} */ (
-      root
-        ? findOwnControl(root, `input.jsoeSearchValue--${key}`)
-        /* istanbul ignore next -- Guard: called from a descendant's own handler, so root is always found */
-        : undefined
+      findOwnControl(root, `input.jsoeSearchValue--${key}`)
     );
     /* istanbul ignore if -- Guard: buildLiteralRegexControls always creates these */
     if (!modeEl || !valueEl) {
@@ -517,10 +515,7 @@ export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOp
       return;
     }
     const flagsEl = /** @type {HTMLSelectElement|undefined} */ (
-      root
-        ? findOwnControl(root, `select.jsoeSearchRegexFlags--${key}`)
-        /* istanbul ignore next -- Guard: called from a descendant's own handler, so root is always found */
-        : undefined
+      findOwnControl(root, `select.jsoeSearchRegexFlags--${key}`)
     );
     const flags = [...(flagsEl?.selectedOptions ??
       /* istanbul ignore next -- Guard: buildLiteralRegexControls always creates this select */
