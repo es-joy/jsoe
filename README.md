@@ -156,9 +156,9 @@ Supported supertypes include:
 1. Import CSV as array
 1. **Schema-driven search**
     1. Important
+        1. regexp multiple select of flags should be labeled as flags-related (possibly others)
         1. Need to allow multiple OR'd conditions (e.g.,
             for string) like "matches regex" and "does not contain"
-        1. regexp multiple select of flags should be labeled as flags-related (possibly others)
         1. Union/Discriminated Union: "Has type &lt;type pull-down>" (including when union is part of a key to records, maps, discriminator of discriminated union, etc.); list something besides numeric index
         1. Fix: errors is missing error type!
         1. BooleanObject: true or false
