@@ -179,12 +179,14 @@ video.recordedMedia {
 
 [data-type="undef"] {
   background-color: green;
+  color: white;
 }
 [data-type="null"] {
   background-color: lightgreen;
 }
 [data-type="nan"] {
   background-color: green;
+  color: white;
 }
 
 [data-type="true"] {

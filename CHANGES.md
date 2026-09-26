@@ -12,6 +12,7 @@
   also contain "Safari", so the Safari-only check meant to skip revoking
   matched everywhere) - new `isRealSafari` (`src/utils/media.js`)
   properly excludes Chromium browsers
+- fix(style): undefined and nan color contrast with white color
 - fix(search): missing error types selection for special Errors
 - fix(search): avoid inconsistent selectors across types
 - fix(demo): add Boolean, Number, String objects
