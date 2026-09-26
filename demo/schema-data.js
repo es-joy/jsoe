@@ -869,6 +869,10 @@ const schemaInstanceJSONSearchAllTypes = {
     //   as plain `number` (same reasoning as `booleanObject` below).
     numberObject: {type: 'any', checks: [{name: 'NumberObject'}], isOptional: true},
     bigint: {type: 'bigInt', isOptional: true},
+    // A boxed `BigInt` object - dispatches to the same `bigintSearchType.js`
+    //   as plain `bigint` (same reasoning as `booleanObject`/`numberObject`/
+    //   `stringObject` below).
+    bigintObject: {type: 'any', checks: [{name: 'bigintObject'}], isOptional: true},
     string: {type: 'string', isOptional: true},
     // A boxed `String` object - dispatches to the same `stringSearchType.js`
     //   as plain `string` (same reasoning as `booleanObject` below).

@@ -462,7 +462,8 @@ fieldset[class^="jsoeSearchOptInFieldset--"] {
   background-color: beige;
 }
 [data-search-kind="map"], [data-search-kind="set"],
-[data-search-kind="bigint"], [data-search-kind="domexception"],
+[data-search-kind="bigint"], [data-search-kind="bigintObject"],
+[data-search-kind="domexception"],
 [data-search-kind="domrect"], [data-search-kind="dompoint"],
 [data-search-kind="dommatrix"] {
   background-color: lightgray;

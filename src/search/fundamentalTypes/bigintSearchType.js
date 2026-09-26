@@ -4,6 +4,7 @@ import {
 } from '../searchUtils.js';
 import {makeRangeLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
+import {getSchemaType} from '../../formats/schema.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -37,7 +38,7 @@ const bigintSearchType = {
     const label = buildPathLabel(schemaObject, path);
     const name = `${typeNamespace}-bigint`;
     return ['jsoe-search-bigint', {
-      dataset: {searchPath: path, searchKind: 'bigint'},
+      dataset: {searchPath: path, searchKind: getSchemaType(schemaObject)},
       title: label,
       $define: {
         /** @this {HTMLElement} */

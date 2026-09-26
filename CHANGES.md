@@ -15,7 +15,7 @@
 - fix(style): undefined and nan color contrast with white color
 - fix(search): missing error types selection for special Errors
 - fix(search): avoid inconsistent selectors across types
-- fix(demo): add Boolean, Number, String objects
+- fix(demo): add Boolean, Number, String objects and bigintObject
 - test: improve coverage
 
 ## 0.32.0
