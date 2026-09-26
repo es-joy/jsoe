@@ -5,11 +5,15 @@ import {
   applyRangeQuery,
   buildTriStateSelect, readTriStateSelect, applyTriState,
   buildOptInFieldset, readOptInChecked, wireOptInFieldset, applyOptIn,
+  buildMultiSelect, readMultiSelect, applyOptInMultiSelectFacet,
   buildAtLeastOneSentinel, syncAtLeastOneCheck,
   extractLeafOfKind
 } from './searchUtils.js';
-import {combineAnd, makeRangeLeaf, makeDomShapeLeaf} from './queryTreeBuilders.js';
+import {
+  combineAnd, makeRangeLeaf, makeDomShapeLeaf, makeMultiSelectLeaf
+} from './queryTreeBuilders.js';
 import regexpType from '../fundamentalTypes/regexpType.js';
+import errorsSpecialType from '../superTypes/errorsSpecialType.js';
 
 /**
  * Locates a built search element by the JSON-Pointer path it was built for.
@@ -165,12 +169,32 @@ const errorStringProps = ['message', 'name', 'fileName', 'stack'];
 const errorNumberProps = ['lineNumber', 'columnNumber'];
 
 /**
- * @param {{label: string, name: string}} cfg
+ * `errorsSpecialSearchType.js`'s own opt-in facet key/name for choosing
+ *   which specific error class(es) (`TypeError`/`RangeError`/etc.) to match -
+ *   not a real property on the value (unlike `errorStringProps`/
+ *   `errorNumberProps`), so it gets its own synthetic sub-path
+ *   (`${searchPath}/${errorClassKey}`) rather than colliding with those.
+ * @type {string}
+ */
+const errorClassKey = 'errorClass';
+
+/**
+ * @param {{
+ *   label: string, name: string, includeErrorClassSelect: boolean
+ * }} cfg
  * @returns {import('./searchUtils.js').JamilihArray[]}
  */
-function buildErrorFamilyChildren ({label, name}) {
+function buildErrorFamilyChildren ({label, name, includeErrorClassSelect}) {
   /** @type {import('./searchUtils.js').JamilihArray[]} */
   const children = [['span', {class: 'searchLabel'}, [label]]];
+  if (includeErrorClassSelect) {
+    children.push(...buildOptInFieldset({
+      name: `${name}-${errorClassKey}`, key: errorClassKey, label: 'Error class',
+      children: [buildMultiSelect({
+        name: `${name}-${errorClassKey}`, options: errorsSpecialType.specialErrors
+      })]
+    }));
+  }
   errorStringProps.forEach((prop) => {
     children.push(...buildOptInFieldset({
       name: `${name}-${prop}`, key: prop, label: prop,
@@ -197,7 +221,10 @@ function buildErrorFamilyChildren ({label, name}) {
 function syncErrorFamilyValidity (root) {
   syncAtLeastOneCheck(
     root,
-    () => [...errorStringProps, ...errorNumberProps].some(
+    // `errorClassKey`'s own opt-in checkbox simply won't exist (and so never
+    //   reads as checked) on `errorSearchType.js`'s plain (non-`special`)
+    //   widget, so it is safe to always include it here.
+    () => [...errorStringProps, ...errorNumberProps, errorClassKey].some(
       (prop) => readOptInChecked(root, prop)
     )
   );
@@ -217,11 +244,19 @@ function syncErrorFamilyValidity (root) {
  * deliberately left out of this pass - the README's bullet asks only for
  * the flat string/number children, and open-ended recursion into an
  * arbitrary `cause` chain is a materially bigger feature than "the same
- * shape, twice more".
- * @param {{tagName: string}} cfg
+ * shape, twice more". `errorsSpecialSearchType.js` additionally opts into
+ * `includeErrorClassSelect`, adding a `buildMultiSelect` facet (also
+ * `buildOptInFieldset`-wrapped, also counted by the "at least one" sentinel)
+ * for choosing which specific error class(es) (`TypeError`/`RangeError`/
+ * etc., from `errorsSpecialType.js`'s own `specialErrors`) to match -
+ * `errorSearchType.js` (plain `Error`, a single fixed class) has no use for
+ * it and leaves it at the default `false`.
+ * @param {{tagName: string, includeErrorClassSelect?: boolean}} cfg
  * @returns {import('./searchDispatch.js').SearchTypeObject}
  */
-export function makeErrorFamilySearchType ({tagName}) {
+export function makeErrorFamilySearchType ({
+  tagName, includeErrorClassSelect = false
+}) {
   return {
     buildUI ({schemaObject, path, typeNamespace}) {
       const label = buildPathLabel(schemaObject, path);
@@ -236,6 +271,11 @@ export function makeErrorFamilySearchType ({tagName}) {
             [...errorStringProps, ...errorNumberProps].forEach((prop) => (
               wireOptInFieldset(this, prop, () => syncErrorFamilyValidity(this))
             ));
+            if (includeErrorClassSelect) {
+              wireOptInFieldset(
+                this, errorClassKey, () => syncErrorFamilyValidity(this)
+              );
+            }
             syncErrorFamilyValidity(this);
           },
           /** @this {HTMLElement} */
@@ -243,6 +283,17 @@ export function makeErrorFamilySearchType ({tagName}) {
             const searchPath = this.dataset.searchPath ??
               /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
               '';
+            const errorClassLeaf = includeErrorClassSelect &&
+              readOptInChecked(this, errorClassKey)
+              ? (() => {
+                const selected = readMultiSelect(this);
+                return selected.length
+                  ? makeMultiSelectLeaf(
+                    `${searchPath}/${errorClassKey}`, {$in: selected}
+                  )
+                  : undefined;
+              })()
+              : undefined;
             const stringLeaves = errorStringProps.map((prop) => (
               readOptInChecked(this, prop)
                 ? readLiteralRegexQuery(this, `${searchPath}/${prop}`, prop)
@@ -261,7 +312,7 @@ export function makeErrorFamilySearchType ({tagName}) {
                 ...(lte === '' ? {} : {$lte: Number(lte)})
               });
             });
-            return combineAnd([...stringLeaves, ...numberLeaves]);
+            return combineAnd([errorClassLeaf, ...stringLeaves, ...numberLeaves]);
           },
           /**
            * @this {HTMLElement}
@@ -272,6 +323,11 @@ export function makeErrorFamilySearchType ({tagName}) {
             const searchPath = this.dataset.searchPath ??
               /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
               '';
+            if (includeErrorClassSelect) {
+              applyOptInMultiSelectFacet(
+                this, queryNode, `${searchPath}/${errorClassKey}`, errorClassKey
+              );
+            }
             errorStringProps.forEach((prop) => {
               applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/${prop}`, prop);
             });
@@ -281,7 +337,7 @@ export function makeErrorFamilySearchType ({tagName}) {
             syncErrorFamilyValidity(this);
           }
         }
-      }, buildErrorFamilyChildren({label, name})];
+      }, buildErrorFamilyChildren({label, name, includeErrorClassSelect})];
     },
     getQuery: getQueryViaElement,
     applyQuery: applyQueryViaElement

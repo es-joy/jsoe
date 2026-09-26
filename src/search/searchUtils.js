@@ -1295,3 +1295,29 @@ export function applyOptInRangeFacet (
     root, /** @type {import('./queryTree.js').QueryRangeLeaf|undefined} */ (matched), key
   );
 }
+
+/**
+ * A `buildOptInFieldset`-wrapped `buildMultiSelect` facet
+ * (`makeErrorFamilySearchType`'s error-class choice): opts the facet in
+ * exactly when `queryNode` has a clause touching `path`, and applies that
+ * clause (a bare `multiSelect` leaf) to its select control.
+ * @param {Element} root
+ * @param {QueryNode|undefined} queryNode
+ * @param {string} path
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function applyOptInMultiSelectFacet (
+  root, queryNode, path,
+  /* istanbul ignore next -- Guard: every current caller passes `key` explicitly */
+  key = ''
+) {
+  const {matched} = extractClauseForPath(queryNode, path);
+  applyOptIn(root, matched !== undefined, key);
+  applyMultiSelect(
+    root,
+    /** @type {import('./queryTree.js').QueryMultiSelectLeaf|undefined} */ (
+      matched
+    )?.$in ?? []
+  );
+}

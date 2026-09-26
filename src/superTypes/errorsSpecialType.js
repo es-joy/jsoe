@@ -47,10 +47,11 @@ if (typeof InternalError !== 'undefined') {
 const specialErrors = [...specialErrorsMap.keys()];
 
 /**
- * @type {import('../types.js').SuperTypeObject}
+ * @type {import('../types.js').SuperTypeObject & {specialErrors: string[]}}
  */
 const errorsSpecialType = {
   option: ['Special errors'],
+  specialErrors,
   valueMatch (x) {
     return [
       TypeError, RangeError, SyntaxError, ReferenceError,

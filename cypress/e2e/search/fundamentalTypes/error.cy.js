@@ -52,4 +52,21 @@ describe('search: error spec', () => {
       expect(JSON.stringify(query)).to.not.contain('lineNumber');
     });
   });
+
+  it(
+    'round-trips a saved message query back into the checked opt-in and ' +
+      'its value (plain `Error` has no error-class facet to also apply)',
+    () => {
+      cy.get(sel + '.queryRawEditor .cm-content').type(
+        '{selectall}{{}$and: [{{}kind: "literalSet", ' +
+          'path: "#/error/message", $in: ["saved"]{}}]{}}'
+      );
+      cy.get(sel + '.applyQueryButton').click();
+      cy.get(sel + '.queryRawEditorError').should('have.text', '');
+      cy.get(sel + 'input.jsoeSearchOptIn--message').should('be.checked');
+      cy.get(sel + 'input.jsoeSearchValue--message').should(
+        'have.value', 'saved'
+      );
+    }
+  );
 });

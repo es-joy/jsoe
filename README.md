@@ -13,6 +13,8 @@ See a [demo](https://es-joy.github.io/jsoe/demo/) of this tool or
 [a demo](https://brettz9.github.io/idb-manager/index-pages.html) of an
 app using this tool.
 
+There is also experimental support for creating advanced search widgets based on a [zodexy](https://github.com/brettz9/zodexy) schema.
+
 ## Formats
 
 Formats are a collection of allowed types.
@@ -160,7 +162,6 @@ Supported supertypes include:
         1. Need to allow multiple OR'd conditions (e.g.,
             for string) like "matches regex" and "does not contain"
         1. Union/Discriminated Union: "Has type &lt;type pull-down>" (including when union is part of a key to records, maps, discriminator of discriminated union, etc.); list something besides numeric index
-        1. Fix: errors is missing error type!
         1. BooleanObject: true or false
         1. NumberObject: Ranges; Is/Is Not Integer
         1. bigint object: OR Ranges
