@@ -127,6 +127,78 @@ describe('`typeChoices`', function () {
     expect(document.body.textContent).to.contain('secondOnly');
   });
 
+  it(
+    'derives the `xor` fieldset\'s own `selectedIndex` from whichever ' +
+      'radio is checked when `$setType` sets a type with no ' +
+      '`specificSchema` to look up directly',
+    function () {
+      /** @type {import('zodexy').SzXor<any>} */
+      const schemaContent = {
+        type: 'xor',
+        options: [
+          {description: 'Any text', type: 'string'},
+          {description: 'A number', type: 'number'}
+        ]
+      };
+      const choice = typeChoices({
+        format: 'schema',
+        typeNamespace: 'xor-set-type',
+        schemaContent
+      });
+      document.body.append(...choice.domArray);
+      const fieldset = /**
+                        * @type {import('../../../src/typeChoices.js').TypeChoicesElementAPI}
+                        */ (
+          document.querySelector('.typeChoices-xor-set-type')
+        );
+
+      fieldset.$setType({type: 'number'});
+
+      const checkedRadio = /** @type {HTMLInputElement} */ (
+        fieldset.querySelector('input[type="radio"]:checked')
+      );
+      expect(checkedRadio.value).to.equal('number');
+      expect(fieldset.selectedIndex).to.equal(
+        Number(checkedRadio.dataset.idx) + 1
+      );
+    }
+  );
+
+  it(
+    'no-ops the `xor` fieldset\'s change handler when neither the ' +
+      'event\'s own target nor any checked radio carries a branch index ' +
+      '(no branch chosen yet)',
+    function () {
+      /** @type {import('zodexy').SzXor<any>} */
+      const schemaContent = {
+        type: 'xor',
+        options: [
+          {description: 'Any text', type: 'string'},
+          {description: 'A number', type: 'number'}
+        ]
+      };
+      const choice = typeChoices({
+        format: 'schema',
+        typeNamespace: 'xor-no-index',
+        schemaContent
+      });
+      const [fieldset, typeContainer] = choice.domArray;
+      document.body.append(...choice.domArray);
+
+      // Dispatched directly on the fieldset (not bubbled from a radio),
+      //   before any branch is chosen: `e.target` is the fieldset itself
+      //   (no `dataset.idx`) and no radio is checked either, so the
+      //   handler's own `idxAttr` fallback chain bottoms out at
+      //   `undefined`.
+      fieldset.dispatchEvent(new Event('change', {bubbles: true}));
+
+      expect(
+        fieldset.querySelector('input[type="radio"]:checked')
+      ).to.equal(null);
+      expect(typeContainer.querySelector('[data-type]')).to.equal(null);
+    }
+  );
+
   it('renders schema record entries when setting an existing schema value', async function () {
     const schemaContent = /** @type {import('zodexy').SzObject} */ ({
       type: 'object',

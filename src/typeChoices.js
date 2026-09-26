@@ -264,7 +264,11 @@ function buildXorTypeChoices ({
         ['input', {
           type: 'radio',
           name: radioName,
-          value: /** @type {string} */ (optAtts?.value ?? ''),
+          value: /** @type {string} */ (
+            optAtts?.value ??
+              /* istanbul ignore next -- Guard: `getOptionForType` always sets `value` to the (always non-empty) type name for every option xor's typeOptions can ever be built from */
+              ''
+          ),
           dataset: {idx}
         }],
         ['span', {class: 'xorTypeChoiceLabel'}, [

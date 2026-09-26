@@ -464,7 +464,9 @@ const encapsulateObserver = (stateObj) => {
       stateObj.buildWarnings.push({
         keypath,
         type: newType,
-        reason: /** @type {Error} */ (err)?.message ?? String(err)
+        reason: /** @type {Error} */ (err)?.message ??
+          /* istanbul ignore next -- Guard: every throw reaching this catch is a real Error with a `.message`, per this codebase's own convention of never throwing/rejecting a non-Error */
+          String(err)
       });
     }));
   };
@@ -524,7 +526,7 @@ const canonicalTypeToAvailableTypeAndSchema = (
   if (!allowableTypes) {
     throw new Error('Unexpected undefined type for state');
   }
-  /* istanbul ignore if -- Guard: typeson's own array plugin always reports arrays as `arrayNonindexKeys`, never plain `array`, for every format this function serves */
+  /* istanbul ignore next -- Guard: typeson's own array plugin always reports arrays as `arrayNonindexKeys`, never plain `array`, for every format this function serves */
   if (valType === 'array' && allowableTypes.includes('arrayNonindexKeys')) {
     valType = 'arrayNonindexKeys';
   }
@@ -668,6 +670,7 @@ const structuredCloning = {
     //   a caller (or test) that needs the fully-populated tree; anything a
     //   build could not attach is listed on `stateObj.buildWarnings`.
     stateObj.whenBuilt = (async () => {
+      /* istanbul ignore next -- Guard: `encapsulateObserver(stateObj)` above already initializes `stateObj.pendingBuilds` to `[]` synchronously (via `||=`) on every call, before `iterate` ever reaches here, so it is never nullish */
       await Promise.allSettled(stateObj.pendingBuilds ?? []);
     })();
 

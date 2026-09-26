@@ -971,9 +971,7 @@ const schema = {
     case 'codec':
       if (parentSchema.name === 'filelist' &&
           parentSchema.output.type === 'array') {
-        currentSchema = typesonType === 'file'
-          ? parentSchema.output.element
-          : parentSchema;
+        currentSchema = parentSchema.output.element;
       }
       break;
     // No need to handle differently?
