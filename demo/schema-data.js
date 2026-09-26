@@ -263,6 +263,11 @@ const schemaInstanceJSON2 = {
       mime: ['text/plain']
     },
     {
+      description: 'A Min-Constrained File',
+      type: 'file',
+      min: 1
+    },
+    {
       description: 'A BufferSource',
       type: 'any',
       checks: [{name: 'buffersource'}]

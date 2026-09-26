@@ -37,8 +37,7 @@ const enumSearchType = {
         strValue,
         key === strValue
           ? strValue
-          /* istanbul ignore next -- Guard: no current zodexy enum schema has a key differing from its own value */
-          : `${strValue} (${key})`
+          : /* istanbul ignore next -- Guard: no current zodexy enum schema has a key differing from its own value */ `${strValue} (${key})`
       ]);
     });
     return ['jsoe-search-enum', {

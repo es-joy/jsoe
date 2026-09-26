@@ -24,6 +24,20 @@ describe('searchUtils', () => {
     }, 'c')).to.be.false;
   });
 
+  it('nodeTouchesPath unwraps nested "not" leaves to reach the real path', () => {
+    expect(nodeTouchesPath({
+      kind: 'not',
+      query: {
+        kind: 'not',
+        query: {kind: 'hasProperty', path: 'a', $exists: true}
+      }
+    }, 'a')).to.be.true;
+  });
+
+  it('nodeTouchesPath is false for an undefined node', () => {
+    expect(nodeTouchesPath(undefined, 'a')).to.be.false;
+  });
+
   it('applyLiteralRegexQuery early return', () => {
     const el = document.createElement('div');
     applyLiteralRegexQuery(el, undefined, 'key');

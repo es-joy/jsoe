@@ -358,16 +358,14 @@ function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDim
  * @param {{
  *   tagName: string,
  *   dimensionKeys: string[],
- *   includeReadonly?: boolean,
+ *   includeReadonly: boolean,
  *   includeDimensionCheck?: boolean
  * }} cfg
  * @returns {import('./searchDispatch.js').SearchTypeObject}
  */
 export function makeDomShapeSearchType ({
   tagName, dimensionKeys,
-  /* istanbul ignore next -- Guard: every current caller (domrect/dompoint/
-    dommatrix) explicitly passes `true`; none omits it. */
-  includeReadonly = false,
+  includeReadonly,
   includeDimensionCheck = false
 }) {
   return {

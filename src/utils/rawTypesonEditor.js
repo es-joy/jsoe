@@ -445,6 +445,7 @@ export async function commitValueToContainer ({
   });
   await formats.getAvailableFormat(format).iterate(value, stateObj);
   await stateObj.whenBuilt;
+  /* istanbul ignore if -- Guard: every value that sets `stateObj.error` internally also makes the `iterate` call above reject directly (typeson itself fails to encode it), so this never sees a truthy `stateObj.error` after a normal return */
   if (stateObj.error) {
     throw stateObj.error;
   }

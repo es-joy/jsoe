@@ -888,7 +888,8 @@ const schema = {
   validateValue (types, schemaObject, value) {
     const validationSchema = getValidationSchema(schemaObject);
     const originalShape = originalSchemas.get(schemaObject) ??
-      originalSchemas.get(validationSchema) ?? validationSchema;
+      /* istanbul ignore next -- Guard: every `schemaObject` reaching here (record/looseRecord/tuple, or an intersection-derived item) was remembered by `getTypesForSchema` itself */
+      (originalSchemas.get(validationSchema) ?? validationSchema);
     const parsed = parseValue(
       types, validationSchema, originalShape, value
     );

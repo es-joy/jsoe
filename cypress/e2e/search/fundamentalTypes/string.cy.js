@@ -45,6 +45,21 @@ describe('search: string spec', () => {
     });
   });
 
+  it('round-trips a notContains mode/value through "Edit raw"', () => {
+    const propSel = sel + '[data-search-path="#/string"] ';
+    cy.get(propSel + 'select[name$="-mode"]').select('notContains');
+    cy.get(propSel + 'input[name$="-value"]').type('badword');
+    cy.get(sel + '.loadQueryButton').click();
+
+    cy.get(propSel + 'select[name$="-mode"]').select('literal');
+    cy.get(propSel + 'input[name$="-value"]').clear();
+
+    cy.get(sel + '.applyQueryButton').click();
+    cy.get(sel + '.queryRawEditorError').should('have.text', '');
+    cy.get(propSel + 'select[name$="-mode"]').should('have.value', 'notContains');
+    cy.get(propSel + 'input[name$="-value"]').should('have.value', 'badword');
+  });
+
   it('allows flags once "Matches regex" is chosen, hidden otherwise', () => {
     const propSel = sel + '[data-search-path="#/string"] ';
     cy.get(propSel + 'select.jsoeSearchRegexFlags--').should('not.be.visible');

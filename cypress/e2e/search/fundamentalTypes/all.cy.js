@@ -17,6 +17,7 @@ import './number.cy.js';
 import './object.cy.js';
 import './promise.cy.js';
 import './regexp.cy.js';
+import './resurrectable.cy.js';
 import './set.cy.js';
 import './string.cy.js';
 import './symbol.cy.js';

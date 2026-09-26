@@ -524,6 +524,7 @@ const canonicalTypeToAvailableTypeAndSchema = (
   if (!allowableTypes) {
     throw new Error('Unexpected undefined type for state');
   }
+  /* istanbul ignore if -- Guard: typeson's own array plugin always reports arrays as `arrayNonindexKeys`, never plain `array`, for every format this function serves */
   if (valType === 'array' && allowableTypes.includes('arrayNonindexKeys')) {
     valType = 'arrayNonindexKeys';
   }
@@ -670,6 +671,7 @@ const structuredCloning = {
       await Promise.allSettled(stateObj.pendingBuilds ?? []);
     })();
 
+    /* istanbul ignore if -- Guard: every value that sets `stateObj.error` internally also makes `encapsulateAsync` above reject directly (typeson itself fails to encode it), so this is never reached with a truthy `stateObj.error` */
     if (stateObj.error) {
       throw stateObj.error;
     }

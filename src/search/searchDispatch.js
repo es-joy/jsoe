@@ -286,7 +286,9 @@ function resolveIntersection (schemaObject, originalJSON) {
 export function buildSearchWidget ({
   schemaObject, path, typeNamespace, topRoot, types, originalJSON
 }) {
-  const resolvedOriginalJSON = originalJSON ?? schemaObject;
+  const resolvedOriginalJSON = originalJSON ??
+    /* istanbul ignore next -- Guard: every current caller (recursive or top-level) passes originalJSON explicitly */
+    schemaObject;
   const resolvedSchema = resolveIntersection(schemaObject, resolvedOriginalJSON);
   return getSearchTypeObject(resolvedSchema).buildUI({
     schemaObject: resolvedSchema,

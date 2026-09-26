@@ -867,8 +867,7 @@ class Types {
       const errorMessage = error && typeof error === 'object' &&
         'message' in error
         ? error.message
-        /* istanbul ignore next -- Guard: getValue only ever throws a real Error with a message */
-        : undefined;
+        : /* istanbul ignore next -- Guard: getValue only ever throws a real Error with a message */ undefined;
       /* istanbul ignore if -- Should not happen: valid type, unexpected throw */
       if (errorMessage !== 'Not yet instantiated' && typeValidation.valid) {
         return false;

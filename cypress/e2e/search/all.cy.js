@@ -6,3 +6,4 @@ import './superTypes/all.cy.js';
 import './unions/all.cy.js';
 import './validity.cy.js';
 import './applyQuery.cy.js';
+import './intersection.cy.js';

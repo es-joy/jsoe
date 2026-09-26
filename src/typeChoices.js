@@ -310,10 +310,11 @@ function buildXorTypeChoices ({
     let value;
     try {
       value = /** @type {() => unknown} */ (fsAPI.$getValue)();
-    /* istanbul ignore next -- Guard: a still-settling async sub-editor build */
     } catch {
       // Editor not ready or value not yet parseable
+      /* istanbul ignore next -- Guard: a still-settling async sub-editor build */
       matchStatus.hidden = true;
+      /* istanbul ignore next -- Guard: a still-settling async sub-editor build */
       return;
     }
     const {matched, total} = getXorBranchMatchInfo(types, xorSchema, value);

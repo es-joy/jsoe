@@ -249,6 +249,12 @@ describe('file constraints', () => {
       expect($input.val()).to.equal('');
     });
   });
+
+  it('shows only a "min" size in the label for a min-only constraint', () => {
+    cy.get(typeChoices).select('File (A Min-Constrained File)');
+    cy.get(sel + 'label').should('contain.text', 'min: 1').
+      and('not.contain.text', 'max:');
+  });
 });
 
 describe('string constraints', () => {
