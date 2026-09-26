@@ -16,6 +16,17 @@ describe('search: boolean object spec', () => {
   });
 
   it(
+    'carries its own `BooleanObject` search-kind (styled the same as ' +
+      'plain `boolean` in `jsoe.css`, not sharing its literal attribute ' +
+      'value)',
+    () => {
+      cy.get(sel + 'jsoe-search-boolean').should(
+        'have.attr', 'data-search-kind', 'BooleanObject'
+      );
+    }
+  );
+
+  it(
     'gets a booleanEquals query - a boxed `Boolean` searches exactly like ' +
       'a plain boolean',
     () => {

@@ -3,6 +3,7 @@ import {
 } from '../searchUtils.js';
 import {makeBooleanEqualsLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
+import {getSchemaType} from '../../formats/schema.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -17,7 +18,7 @@ const booleanSearchType = {
     const label = buildPathLabel(schemaObject, path);
     const name = `${typeNamespace}-boolean`;
     return ['jsoe-search-boolean', {
-      dataset: {searchPath: path, searchKind: 'boolean'},
+      dataset: {searchPath: path, searchKind: getSchemaType(schemaObject)},
       title: label,
       $define: {
         /** @this {HTMLElement} */

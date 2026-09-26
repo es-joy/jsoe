@@ -408,6 +408,10 @@ fieldset[class^="jsoeSearchOptInFieldset--"] {
 [data-search-kind="string"] {
   background-color: lightblue;
 }
+[data-search-kind="BooleanObject"], [data-search-kind="NumberObject"],
+[data-search-kind="StringObject"] {
+  background-color: aqua;
+}
 [data-search-kind="array"], [data-search-kind="tuple"] {
   background-color: lightyellow;
 }

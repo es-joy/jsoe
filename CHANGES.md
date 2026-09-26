@@ -13,7 +13,7 @@
   matched everywhere) - new `isRealSafari` (`src/utils/media.js`)
   properly excludes Chromium browsers
 - fix(search): missing error types selection for special Errors
-- fix(demo): add Boolean object
+- fix(demo): add Boolean, Number, String objects
 - test: improve coverage
 
 ## 0.32.0

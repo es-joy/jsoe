@@ -3,6 +3,7 @@ import {
 } from '../searchUtils.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
+import {getSchemaType} from '../../formats/schema.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -27,7 +28,7 @@ const stringSearchType = {
     const label = buildPathLabel(schemaObject, path);
     const name = `${typeNamespace}-string`;
     return ['jsoe-search-string', {
-      dataset: {searchPath: path, searchKind: 'string'},
+      dataset: {searchPath: path, searchKind: getSchemaType(schemaObject)},
       title: label,
       $define: {
         /** @this {HTMLElement} */

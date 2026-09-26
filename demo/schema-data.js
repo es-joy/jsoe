@@ -865,8 +865,14 @@ const schemaInstanceJSONSearchAllTypes = {
     },
     date: {...schemaInstanceJSONSearchDate, isOptional: true},
     number: {type: 'number', isOptional: true},
+    // A boxed `Number` object - dispatches to the same `numberSearchType.js`
+    //   as plain `number` (same reasoning as `booleanObject` below).
+    numberObject: {type: 'any', checks: [{name: 'NumberObject'}], isOptional: true},
     bigint: {type: 'bigInt', isOptional: true},
     string: {type: 'string', isOptional: true},
+    // A boxed `String` object - dispatches to the same `stringSearchType.js`
+    //   as plain `string` (same reasoning as `booleanObject` below).
+    stringObject: {type: 'any', checks: [{name: 'StringObject'}], isOptional: true},
     regexp: {type: 'any', checks: [{name: 'regexp'}], isOptional: true},
     boolean: {type: 'boolean', isOptional: true},
     // A boxed `Boolean` object - `searchDispatch.js` deliberately dispatches

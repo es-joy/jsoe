@@ -4,6 +4,7 @@ import {
 } from '../searchUtils.js';
 import {makeRangeLeaf, makeIntegerCheckLeaf, combineAnd} from '../queryTreeBuilders.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
+import {getSchemaType} from '../../formats/schema.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -18,7 +19,7 @@ const numberSearchType = {
     const label = buildPathLabel(schemaObject, path);
     const name = `${typeNamespace}-number`;
     return ['jsoe-search-number', {
-      dataset: {searchPath: path, searchKind: 'number'},
+      dataset: {searchPath: path, searchKind: getSchemaType(schemaObject)},
       title: label,
       $define: {
         /** @this {HTMLElement} */
