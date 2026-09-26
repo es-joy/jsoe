@@ -388,14 +388,14 @@ fieldset[class^="jsoeSearchOptInFieldset--"] {
    (unlike the view/edit `[data-type]` rules above, which - for these same
    colors - rely on their content being a short, bolded inline leaf rather
    than a whole widget's worth of labels and form controls). */
-[data-search-kind="jsoe-search-undefined"] {
+[data-search-kind="undef"] {
   background-color: green;
   color: white;
 }
-[data-search-kind="jsoe-search-null"] {
+[data-search-kind="null"] {
   background-color: lightgreen;
 }
-[data-search-kind="jsoe-search-nan"] {
+[data-search-kind="nan"] {
   background-color: green;
   color: white;
 }
@@ -442,8 +442,8 @@ fieldset[class^="jsoeSearchOptInFieldset--"] {
 [data-search-kind="blobHTML"] {
   background-color: sandybrown;
 }
-[data-search-kind="jsoe-search-error"],
-[data-search-kind="jsoe-search-errors-special"] {
+[data-search-kind="error"],
+[data-search-kind="errors"] {
   background-color: red;
   color: white;
 }
@@ -461,8 +461,8 @@ fieldset[class^="jsoeSearchOptInFieldset--"] {
 }
 [data-search-kind="map"], [data-search-kind="set"],
 [data-search-kind="bigint"], [data-search-kind="domexception"],
-[data-search-kind="jsoe-search-domrect"], [data-search-kind="jsoe-search-dompoint"],
-[data-search-kind="jsoe-search-dommatrix"] {
+[data-search-kind="domrect"], [data-search-kind="dompoint"],
+[data-search-kind="dommatrix"] {
   background-color: lightgray;
 }
 

@@ -6,7 +6,7 @@ import {makeUnionFamilySearchType} from './unionFamilySearchType.js';
  * @type {import('../searchDispatch.js').SearchTypeObject}
  */
 const unionSearchType = makeUnionFamilySearchType({
-  tagName: 'jsoe-search-union', discriminated: false
+  tagName: 'jsoe-search-union', searchKind: 'union', discriminated: false
 });
 
 export default unionSearchType;

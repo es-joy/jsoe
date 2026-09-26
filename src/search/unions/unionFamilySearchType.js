@@ -43,10 +43,14 @@ function isSelectElement (el) {
  * tag's shared prototype - the branch metadata needs to be read back off
  * the currently-selected `<option>` itself at query time, not closed over
  * from this factory's one-time call.
- * @param {{tagName: string, discriminated: boolean}} cfg
+ * `searchKind` (the CSS/`jsoe.css`-facing hook) is deliberately its own,
+ *   short value - matching every other search type's own `availableTypes`
+ *   dispatch key (`searchDispatch.js`), rather than reusing the longer
+ *   custom-element `tagName`.
+ * @param {{tagName: string, searchKind: string, discriminated: boolean}} cfg
  * @returns {SearchTypeObject}
  */
-export function makeUnionFamilySearchType ({tagName, discriminated}) {
+export function makeUnionFamilySearchType ({tagName, searchKind, discriminated}) {
   return {
     buildUI ({schemaObject, path, typeNamespace, topRoot, types, originalJSON}) {
       const label = buildPathLabel(schemaObject, path);
@@ -79,7 +83,7 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
       });
 
       return [tagName, {
-        dataset: {searchPath: path, searchKind: tagName},
+        dataset: {searchPath: path, searchKind},
         title: label,
         $define: {
           /** @this {HTMLElement} */

@@ -12,6 +12,7 @@ import {makeErrorFamilySearchType} from '../searchElementUtils.js';
  */
 const errorsSpecialSearchType = makeErrorFamilySearchType({
   tagName: 'jsoe-search-errors-special',
+  searchKind: 'errors',
   includeErrorClassSelect: true
 });
 

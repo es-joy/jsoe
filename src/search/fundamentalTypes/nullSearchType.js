@@ -5,7 +5,7 @@ import {makePresenceOnlySearchType} from '../searchElementUtils.js';
  * @type {import('../searchDispatch.js').SearchTypeObject}
  */
 const nullSearchType = makePresenceOnlySearchType({
-  tagName: 'jsoe-search-null'
+  tagName: 'jsoe-search-null', searchKind: 'null'
 });
 
 export default nullSearchType;

@@ -5,7 +5,7 @@ import {makePresenceOnlySearchType} from '../searchElementUtils.js';
  * @type {import('../searchDispatch.js').SearchTypeObject}
  */
 const nanSearchType = makePresenceOnlySearchType({
-  tagName: 'jsoe-search-nan'
+  tagName: 'jsoe-search-nan', searchKind: 'nan'
 });
 
 export default nanSearchType;

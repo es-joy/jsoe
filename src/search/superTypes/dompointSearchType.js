@@ -8,6 +8,7 @@ import {makeDomShapeSearchType} from '../searchElementUtils.js';
  */
 const dompointSearchType = makeDomShapeSearchType({
   tagName: 'jsoe-search-dompoint',
+  searchKind: 'dompoint',
   dimensionKeys: ['x', 'y', 'z', 'w'],
   includeReadonly: true
 });

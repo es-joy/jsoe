@@ -10,7 +10,9 @@ import {makeUnionFamilySearchType} from './unionFamilySearchType.js';
  * @type {import('../searchDispatch.js').SearchTypeObject}
  */
 const discriminatedUnionSearchType = makeUnionFamilySearchType({
-  tagName: 'jsoe-search-discriminated-union', discriminated: true
+  tagName: 'jsoe-search-discriminated-union',
+  searchKind: 'discriminatedUnion',
+  discriminated: true
 });
 
 export default discriminatedUnionSearchType;

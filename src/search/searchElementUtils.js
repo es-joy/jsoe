@@ -110,16 +110,20 @@ export function hasApplyQuery (el) {
  * type with only one possible value has nothing else worth offering a
  * choice between - it's simply valid, unconditionally, the moment it
  * exists, rather than needing a `required`-style rule of its own.
- * @param {{tagName: string}} cfg
+ * `searchKind` (the CSS/`jsoe.css`-facing hook) is deliberately its own,
+ *   short value - matching every other search type's own `availableTypes`
+ *   dispatch key (`searchDispatch.js`), rather than reusing the longer
+ *   custom-element `tagName`.
+ * @param {{tagName: string, searchKind: string}} cfg
  * @returns {import('./searchDispatch.js').SearchTypeObject}
  */
-export function makePresenceOnlySearchType ({tagName}) {
+export function makePresenceOnlySearchType ({tagName, searchKind}) {
   return {
     buildUI ({schemaObject, path, typeNamespace}) {
       const label = buildPathLabel(schemaObject, path);
       const name = `${typeNamespace}-${tagName}`;
       return [tagName, {
-        dataset: {searchPath: path, searchKind: tagName},
+        dataset: {searchPath: path, searchKind},
         title: label,
         $define: {
           /** @this {HTMLElement} */
@@ -251,18 +255,24 @@ function syncErrorFamilyValidity (root) {
  * etc., from `errorsSpecialType.js`'s own `specialErrors`) to match -
  * `errorSearchType.js` (plain `Error`, a single fixed class) has no use for
  * it and leaves it at the default `false`.
- * @param {{tagName: string, includeErrorClassSelect?: boolean}} cfg
+ * `searchKind` (the CSS/`jsoe.css`-facing hook) is deliberately its own,
+ *   short value - matching every other search type's own `availableTypes`
+ *   dispatch key (`searchDispatch.js`), rather than reusing the longer
+ *   custom-element `tagName`.
+ * @param {{
+ *   tagName: string, searchKind: string, includeErrorClassSelect?: boolean
+ * }} cfg
  * @returns {import('./searchDispatch.js').SearchTypeObject}
  */
 export function makeErrorFamilySearchType ({
-  tagName, includeErrorClassSelect = false
+  tagName, searchKind, includeErrorClassSelect = false
 }) {
   return {
     buildUI ({schemaObject, path, typeNamespace}) {
       const label = buildPathLabel(schemaObject, path);
       const name = `${typeNamespace}-${tagName}`;
       return [tagName, {
-        dataset: {searchPath: path, searchKind: tagName},
+        dataset: {searchPath: path, searchKind},
         title: label,
         $define: {
           /** @this {HTMLElement} */
@@ -411,8 +421,13 @@ function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDim
  * with no structural schema to derive dimension names from in the first
  * place, same reasoning as `makeErrorFamilySearchType`), combined into one
  * `domShape` leaf (`queryTree.js`) rather than separate leaves via `$and`.
+ * `searchKind` (the CSS/`jsoe.css`-facing hook) is deliberately its own,
+ *   short value - matching every other search type's own `availableTypes`
+ *   dispatch key (`searchDispatch.js`), rather than reusing the longer
+ *   custom-element `tagName`.
  * @param {{
  *   tagName: string,
+ *   searchKind: string,
  *   dimensionKeys: string[],
  *   includeReadonly: boolean,
  *   includeDimensionCheck?: boolean
@@ -420,7 +435,7 @@ function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDim
  * @returns {import('./searchDispatch.js').SearchTypeObject}
  */
 export function makeDomShapeSearchType ({
-  tagName, dimensionKeys,
+  tagName, searchKind, dimensionKeys,
   includeReadonly,
   includeDimensionCheck = false
 }) {
@@ -429,7 +444,7 @@ export function makeDomShapeSearchType ({
       const label = buildPathLabel(schemaObject, path);
       const name = `${typeNamespace}-${tagName}`;
       return [tagName, {
-        dataset: {searchPath: path, searchKind: tagName},
+        dataset: {searchPath: path, searchKind},
         title: label,
         $define: {
           /** @this {HTMLElement} */

@@ -10,6 +10,7 @@ import {makeDomShapeSearchType} from '../searchElementUtils.js';
  */
 const dommatrixSearchType = makeDomShapeSearchType({
   tagName: 'jsoe-search-dommatrix',
+  searchKind: 'dommatrix',
   dimensionKeys: [
     'a', 'b', 'c', 'd', 'e', 'f',
     'm11', 'm12', 'm13', 'm14',

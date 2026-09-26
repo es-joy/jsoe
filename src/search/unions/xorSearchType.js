@@ -10,7 +10,7 @@ import {makeUnionFamilySearchType} from './unionFamilySearchType.js';
  * @type {import('../searchDispatch.js').SearchTypeObject}
  */
 const xorSearchType = makeUnionFamilySearchType({
-  tagName: 'jsoe-search-xor', discriminated: false
+  tagName: 'jsoe-search-xor', searchKind: 'xor', discriminated: false
 });
 
 export default xorSearchType;

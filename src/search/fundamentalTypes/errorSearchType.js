@@ -6,6 +6,8 @@ import {makeErrorFamilySearchType} from '../searchElementUtils.js';
  * `makeErrorFamilySearchType` for the shared implementation.
  * @type {import('../searchDispatch.js').SearchTypeObject}
  */
-const errorSearchType = makeErrorFamilySearchType({tagName: 'jsoe-search-error'});
+const errorSearchType = makeErrorFamilySearchType({
+  tagName: 'jsoe-search-error', searchKind: 'error'
+});
 
 export default errorSearchType;

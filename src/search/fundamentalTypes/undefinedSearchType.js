@@ -5,7 +5,7 @@ import {makePresenceOnlySearchType} from '../searchElementUtils.js';
  * @type {import('../searchDispatch.js').SearchTypeObject}
  */
 const undefinedSearchType = makePresenceOnlySearchType({
-  tagName: 'jsoe-search-undefined'
+  tagName: 'jsoe-search-undefined', searchKind: 'undef'
 });
 
 export default undefinedSearchType;
