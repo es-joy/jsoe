@@ -32,6 +32,19 @@ describe('search: string spec', () => {
     });
   });
 
+  it('gets a notContains query when that mode is selected', () => {
+    const propSel = sel + '[data-search-path="#/string"] ';
+    cy.get(propSel + 'select[name$="-mode"]').select('notContains');
+    cy.get(propSel + 'input[name$="-value"]').type('badword');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'notContains', path: '#/string', value: 'badword'
+      });
+    });
+  });
+
   it('allows flags once "Matches regex" is chosen, hidden otherwise', () => {
     const propSel = sel + '[data-search-path="#/string"] ';
     cy.get(propSel + 'select.jsoeSearchRegexFlags--').should('not.be.visible');

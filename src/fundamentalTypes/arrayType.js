@@ -1940,8 +1940,10 @@ const arrayType = {
                   const root = /** @type {HTMLDivElement} */ (
                     $e(fieldset, 'div[data-type]')
                   );
-                  /* istanbul ignore if -- Should err first? */
-                  return !root ? null : types.getFormControlForRoot(root);
+                  return !root
+                    /* istanbul ignore next -- Should err first? */
+                    ? null
+                    : types.getFormControlForRoot(root);
                 });
 
                 const control = controls[dupeIndex];

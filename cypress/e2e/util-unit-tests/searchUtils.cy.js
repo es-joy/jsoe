@@ -4,7 +4,8 @@ import {
   applyRangeQuery,
   applyCheckbox,
   applyMultiSelect,
-  applyOptIn
+  applyOptIn,
+  syncRangeValidity
 } from '#jsoe/search/searchUtils.js';
 
 describe('searchUtils', () => {
@@ -43,6 +44,12 @@ describe('searchUtils', () => {
   it('applyRangeQuery early return', () => {
     const el = document.createElement('div');
     applyRangeQuery(el, undefined, 'key');
+    expect(el.getHTML()).to.equal('');
+  });
+
+  it('syncRangeValidity early return', () => {
+    const el = document.createElement('div');
+    syncRangeValidity(el, 'key');
     expect(el.getHTML()).to.equal('');
   });
 

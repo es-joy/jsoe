@@ -247,10 +247,14 @@ export function buildRangeInputsPair ({
 export function readRangeInputsPair (el, key = '') {
   const gte = /** @type {HTMLInputElement|undefined} */ (
     findOwnControl(el, `input.jsoeSearchRangeGte--${key}`)
-  )?.value ?? '';
+  )?.value ??
+    /* istanbul ignore next -- Guard: buildRangeInputsPair always creates this input */
+    '';
   const lte = /** @type {HTMLInputElement|undefined} */ (
     findOwnControl(el, `input.jsoeSearchRangeLte--${key}`)
-  )?.value ?? '';
+  )?.value ??
+    /* istanbul ignore next -- Guard: buildRangeInputsPair always creates this input */
+    '';
   return {gte, lte};
 }
 
@@ -293,7 +297,9 @@ export function readMultiSelect (el) {
   const select = /** @type {HTMLSelectElement|undefined} */ (
     findOwnControl(el, 'select.jsoeSearchMultiSelect')
   );
-  return [...(select?.selectedOptions ?? [])].map((opt) => opt.value);
+  return [...(select?.selectedOptions ??
+    /* istanbul ignore next -- Guard: buildMultiSelect always creates this select */
+    [])].map((opt) => opt.value);
 }
 
 /**
@@ -491,11 +497,18 @@ export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOp
   function syncLiteralRegexValidity (el) {
     const root = el.closest('[data-search-path]');
     const modeEl = /** @type {HTMLSelectElement|undefined} */ (
-      root ? findOwnControl(root, `select.jsoeSearchMode--${key}`) : undefined
+      root
+        ? findOwnControl(root, `select.jsoeSearchMode--${key}`)
+        /* istanbul ignore next -- Guard: called from a descendant's own handler, so root is always found */
+        : undefined
     );
     const valueEl = /** @type {HTMLInputElement|undefined} */ (
-      root ? findOwnControl(root, `input.jsoeSearchValue--${key}`) : undefined
+      root
+        ? findOwnControl(root, `input.jsoeSearchValue--${key}`)
+        /* istanbul ignore next -- Guard: called from a descendant's own handler, so root is always found */
+        : undefined
     );
+    /* istanbul ignore if -- Guard: buildLiteralRegexControls always creates these */
     if (!modeEl || !valueEl) {
       return;
     }
@@ -504,9 +517,14 @@ export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOp
       return;
     }
     const flagsEl = /** @type {HTMLSelectElement|undefined} */ (
-      root ? findOwnControl(root, `select.jsoeSearchRegexFlags--${key}`) : undefined
+      root
+        ? findOwnControl(root, `select.jsoeSearchRegexFlags--${key}`)
+        /* istanbul ignore next -- Guard: called from a descendant's own handler, so root is always found */
+        : undefined
     );
-    const flags = [...(flagsEl?.selectedOptions ?? [])].map((opt) => opt.value).join('');
+    const flags = [...(flagsEl?.selectedOptions ??
+      /* istanbul ignore next -- Guard: buildLiteralRegexControls always creates this select */
+      [])].map((opt) => opt.value).join('');
     try {
       // eslint-disable-next-line no-new -- Testing
       new RegExp(valueEl.value, flags);
@@ -754,7 +772,13 @@ export function readOptInChecked (root, key = '') {
  * @param {((this: HTMLInputElement) => void)} [onToggle]
  * @returns {void}
  */
-export function wireOptInFieldset (root, key = '', onToggle = undefined) {
+export function wireOptInFieldset (
+  root,
+  /* istanbul ignore next -- Guard: every current caller passes `key` explicitly */
+  key = '',
+  /* istanbul ignore next -- Guard: every current caller passes `onToggle` explicitly */
+  onToggle = undefined
+) {
   const checkbox = /** @type {HTMLInputElement|undefined} */ (
     findOwnControl(root, `input.jsoeSearchOptIn--${key}`)
   );
