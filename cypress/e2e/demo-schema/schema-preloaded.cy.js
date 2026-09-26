@@ -130,7 +130,7 @@
       });
 
       it('Selects template literal', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(37) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(38) ' +
           arraySels;
         cy.get(
           sel + '[data-type="string"] textarea'
@@ -542,7 +542,7 @@
       });
 
       it('Selects a BufferSource', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(31) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(32) ' +
           arraySels;
         cy.get(sel + 'div[data-type="buffersource"]').should(($div) => {
           expect($div.attr('title')).to.equal('A BufferSource');
@@ -551,7 +551,7 @@
       });
 
       it('Selects a DOMMatrix', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(32) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(33) ' +
           arraySels;
         cy.get(sel + 'input.a').should('have.value', '1');
         cy.get(sel + 'input.b').should('have.value', '2');
@@ -562,7 +562,7 @@
       });
 
       it('Selects a DOMPoint', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(33) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(34) ' +
           arraySels;
         cy.get(sel + 'input.x').should('have.value', '1');
         cy.get(sel + 'input.y').should('have.value', '2');
@@ -571,7 +571,7 @@
       });
 
       it('Selects a DOMRect', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(34) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(35) ' +
           arraySels;
         cy.get(sel + 'input.x').should('have.value', '1');
         cy.get(sel + 'input.y').should('have.value', '2');
@@ -579,7 +579,7 @@
         cy.get(sel + 'input.height').should('have.value', '4');
       });
       it('Selects a TypeError', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(35) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(36) ' +
           arraySels;
         cy.get(
           sel + 'select.errorType option:selected'
@@ -590,7 +590,7 @@
       });
 
       it('Selects a BigInt object', function () {
-        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(36) ' +
+        const sel = 'section:nth-of-type(2) > .innerItem:nth-of-type(37) ' +
           arraySels;
         cy.get(sel + 'div[data-type="bigintObject"]').should(($div) => {
           expect($div.attr('title')).to.equal('A BigInt object');

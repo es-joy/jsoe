@@ -90,6 +90,9 @@ setTimeout(function () {
         // Matches `schemaInstanceJSON2`'s 'A Constrained File' option
         //   (`max: 0`, `mime: ['text/plain']`).
         new File([], 'empty.txt', {type: 'text/plain'}),
+        // Matches `schemaInstanceJSON2`'s 'A Min-Constrained File' option
+        //   (`min: 1`).
+        new File(['x'], 'nonempty.txt', {type: 'text/plain'}),
         new ArrayBuffer(8),
         // new DataView(new ArrayBuffer(8), 2, 4),
         // new Uint8Array(new ArrayBuffer(8), 2, 4),
