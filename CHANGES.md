@@ -1,6 +1,6 @@
 # CHANGES TO `@es-joy/jsoe`
 
-## ?
+## 0.32.1
 
 - chore: update codemirror packages, node-static, style-mod,
   typeson-registry, devDeps; lint
