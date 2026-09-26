@@ -161,12 +161,13 @@ Supported supertypes include:
     1. Need to allow multiple OR'd conditions (e.g., for string) like "matches regex" and "does not contain"
 
     1. Many of the following may now be implemented; need to check
-        1. Union/Discriminated Union: "Has type &lt;type pull-down>" (including when union is part of a key to records, maps, discriminator of discriminated union, etc.)
-        1. undefined/void, null, NaN, instanceof, Non-editable (no variants to allow for distinct search; if optional, would be in union); non-editable might allow arbitrary JS query against it, but...
-        1. boolean, BooleanObject: true or false
-        1. number, NumberObject: OR Ranges/Is Not Range, Is/Is Not Integer
-        1. bigint, bigint object: OR Ranges/Is Not Range
-        1. BufferSource: OR Range/IS Not Range
+        1. Union/Discriminated Union: "Has type &lt;type pull-down>" (including when union is part of a key to records, maps, discriminator of discriminated union, etc.); list something besides numeric index
+        1. date, number, bigint, BufferSource: Is Not Range
+        1. instanceof, Non-editable (no variants to allow for distinct search; if optional, would be in union); non-editable might allow arbitrary JS query against it, but...
+        1. BooleanObject: true or false
+        1. NumberObject: Ranges/Is Not Range, Is/Is Not Integer
+        1. bigint object: OR Ranges/Is Not Range
+
         1. string, StringObject, Blob, File, regexp (source), symbol (description): OR literal or regex search/Does Not contain search; regexp gets multiple select search of flags or regex search?
         1. Blob HTML:
             1. XPath (ideally JS like jtlt for XSLT-like JS or doc() and collection() as part of $for in FLWOR shorthand for XQuery-like JS)
@@ -174,7 +175,6 @@ Supported supertypes include:
             3. Full text search
             4. Regex search of raw HTML
         1. Special number: multiple select of "Infinity", "-Negativity", "NaN"
-        1. date: OR date range, Is Not Range
         1. Enum, Native Enum: multiple select; native enum also can search key vs. value
         1. promise, Literal, catch: pass on children
         1. function; pass on args, return type
