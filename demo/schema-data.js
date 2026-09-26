@@ -878,6 +878,31 @@ const schemaInstanceJSONSearchAllTypes = {
     //   is itself a registered key).
     unrecognizedCheckedType: {
       type: 'any', checks: [{name: 'notARealCheckedType'}], isOptional: true
+    },
+    // Resolves to exactly one type (`string`), exercising
+    //   `resolveIntersection`'s `merged.length === 1` branch.
+    intersectionSingle: {
+      type: 'intersection',
+      left: {type: 'string'},
+      right: {type: 'string'},
+      isOptional: true
+    },
+    // The left side is a union of two distinctly-shaped `object`s; merging
+    //   each with the same unconstrained `object` on the right still leaves
+    //   them distinguishable, so the intersection resolves to more than one
+    //   type - exercising `resolveIntersection`'s "hand to
+    //   `unionSearchType.js`" branch.
+    intersectionMulti: {
+      type: 'intersection',
+      left: {
+        type: 'union',
+        options: [
+          {type: 'object', properties: {intersectionA: {type: 'string'}}},
+          {type: 'object', properties: {intersectionB: {type: 'number'}}}
+        ]
+      },
+      right: {type: 'object', properties: {}},
+      isOptional: true
     }
   }
 };

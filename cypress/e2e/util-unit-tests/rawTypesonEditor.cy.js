@@ -260,6 +260,36 @@ describe('rawTypesonEditor', function () {
     });
 
     it(
+      'quotes a plain object key that isn\'t a valid bare identifier ' +
+        'through eval',
+      async function () {
+        const value = {'foo-bar': 1, 123: 2, plain: 3};
+        const seed = await getEvalSeedTextForValue(value);
+        expect(seed).to.contain('"foo-bar": 1');
+        expect(seed).to.contain('"123": 2');
+        expect(seed).to.contain('plain: 3');
+        const evaled = /** @type {typeof value} */ (getValueForEvalText(seed));
+        expect(evaled).to.deep.equal(value);
+      }
+    );
+
+    it(
+      'falls back to plain `Error` for a custom Error subclass through eval',
+      async function () {
+        /** Custom error subclass not in `errorTagNames`. */
+        class MyError extends Error {
+          name = 'MyError';
+        }
+        const value = {err: new MyError('custom subclass')};
+        const seed = await getEvalSeedTextForValue(value);
+        const evaled = /** @type {typeof value} */ (getValueForEvalText(seed));
+        expect(evaled.err).to.be.instanceOf(Error);
+        expect(evaled.err).to.not.be.instanceOf(MyError);
+        expect(evaled.err.message).to.equal('custom subclass');
+      }
+    );
+
+    it(
       'round-trips a non-standard `fileName`/`lineNumber`/`columnNumber` ' +
         '(Firefox-style) through eval',
       async function () {
@@ -298,6 +328,23 @@ describe('rawTypesonEditor', function () {
       expect(evaled.matrix).to.be.instanceOf(DOMMatrix);
       expect(evaled.matrix.is2D).to.equal(true);
       expect(evaled.matrix.e).to.equal(5);
+    });
+
+    it('round-trips a 3D DOMMatrix through eval', async function () {
+      const value = {
+        matrix: new DOMMatrix([
+          1, 0, 0, 0,
+          0, 1, 0, 0,
+          0, 0, 1, 0,
+          5, 6, 7, 1
+        ])
+      };
+      const seed = await getEvalSeedTextForValue(value);
+      const evaled = /** @type {typeof value} */ (getValueForEvalText(seed));
+      expect(evaled.matrix).to.be.instanceOf(DOMMatrix);
+      expect(evaled.matrix.is2D).to.equal(false);
+      expect([evaled.matrix.m41, evaled.matrix.m42, evaled.matrix.m43]).
+        to.deep.equal([5, 6, 7]);
     });
 
     it('round-trips ArrayBuffer/DataView/typed arrays through eval', async function () {

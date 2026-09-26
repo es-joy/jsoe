@@ -157,8 +157,6 @@ Supported supertypes include:
 1. **Schema-driven search**
     1. Important
         1. Fix: errors is missing error type!
-        1. Blob HTML:
-            1. XPath (ideally JS like jtlt for XSLT-like JS or doc() and collection() as part of $for in FLWOR shorthand for XQuery-like JS)
         1. BooleanObject: true or false
         1. NumberObject: Ranges; Is/Is Not Integer
         1. StringObject: regex match/does not contain

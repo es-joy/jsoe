@@ -226,6 +226,42 @@ describe('`typeChoices`', function () {
   );
 
   it(
+    'reports the "nothing selected yet" defaults from an `xor` radio ' +
+      'group\'s shimmed `<select>`-shaped API',
+    async function () {
+      const schemaContent = /** @type {import('zodexy').SzXor<any>} */ ({
+        type: 'xor',
+        options: [
+          {description: 'A greeting', type: 'literal', values: ['hi']},
+          {description: 'A count', type: 'number'}
+        ]
+      });
+      const {formatChoices, typesHolder, whenReady} =
+        await formatAndTypeChoices({
+          schemas: ['schema'],
+          selectedSchema: 'schema',
+          getSchemaContent: () => Promise.resolve(schemaContent),
+          hasValue: false,
+          singleValue: true,
+          typeNamespace: 'xor-unselected'
+        });
+      document.body.append(formatChoices, typesHolder);
+      await whenReady;
+
+      const fieldset = /**
+                        * @type {HTMLFieldSetElement & {
+                        *value: string, selectedIndex: number,
+                        *selectedOptions: {value: string}[]
+      }} */ (
+          typesHolder.querySelector(':scope fieldset.xorTypeChoices')
+        );
+      expect(fieldset.value).to.equal('');
+      expect(fieldset.selectedIndex).to.equal(0);
+      expect(fieldset.selectedOptions).to.deep.equal([]);
+    }
+  );
+
+  it(
     'shows a "cannot add beyond maxSize" dialog for a fixed-arity ' +
       '(no `rest`) function',
     async function () {
