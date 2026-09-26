@@ -80,7 +80,9 @@ function buildHasPropertyRow ({
       //   further per-instance state needs storing here.
       /** @this {HTMLElement} */
       getQuery () {
-        const searchPath = this.dataset.searchPath ?? '';
+        const searchPath = this.dataset.searchPath ??
+          /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+          '';
         const existsCheck = readTriStateSelect(this);
         const existsLeaf = existsCheck === undefined
           ? undefined
@@ -224,9 +226,14 @@ function buildRequiredPropertyRow ({
         if (!readCheckbox(this)) {
           return undefined;
         }
-        const searchPath = this.dataset.searchPath ?? '';
+        const searchPath = this.dataset.searchPath ??
+          /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+          '';
         const childEl = findSearchElement(this, searchPath);
-        return childEl && hasGetQuery(childEl) ? childEl.getQuery() : undefined;
+        return childEl && hasGetQuery(childEl)
+          ? childEl.getQuery()
+          /* istanbul ignore next -- Guard: buildSearchWidget always builds a real search element here */
+          : undefined;
       }
     }
   }, [
@@ -327,29 +334,37 @@ const objectSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const searchPath = this.dataset.searchPath ?? '';
+          const searchPath = this.dataset.searchPath ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
+            '';
           let remaining = queryNode;
 
           [...this.querySelectorAll(':scope > jsoe-search-has-property')].forEach((row) => {
-            const propertyName = /** @type {HTMLElement} */ (row).dataset.propertyName ?? '';
+            const propertyName =
+              /* istanbul ignore next -- Guard: buildHasPropertyRow/buildRequiredPropertyRow always set dataset.propertyName */
+              /** @type {HTMLElement} */ (row).dataset.propertyName ?? '';
             const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
             const {matched, rest} = extractClauseForPath(remaining, childPath);
             remaining = rest;
             const {matched: existsLeaf, rest: childQuery} = extractLeafOfKind(matched, 'hasProperty');
             applyTriState(row, existsLeaf?.$exists);
             const childEl = findSearchElement(row, childPath);
+            /* istanbul ignore else -- Guard: buildSearchWidget always builds a real search element here */
             if (childEl && hasApplyQuery(childEl)) {
               childEl.applyQuery(childQuery);
             }
           });
 
           [...this.querySelectorAll(':scope > jsoe-search-required-property')].forEach((row) => {
-            const propertyName = /** @type {HTMLElement} */ (row).dataset.propertyName ?? '';
+            const propertyName =
+              /* istanbul ignore next -- Guard: buildHasPropertyRow/buildRequiredPropertyRow always set dataset.propertyName */
+              /** @type {HTMLElement} */ (row).dataset.propertyName ?? '';
             const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
             const {matched, rest} = extractClauseForPath(remaining, childPath);
             remaining = rest;
             applyCheckbox(row, matched !== undefined);
             const childEl = findSearchElement(row, childPath);
+            /* istanbul ignore else -- Guard: buildSearchWidget always builds a real search element here */
             if (childEl && hasApplyQuery(childEl)) {
               childEl.applyQuery(matched);
             }
@@ -390,6 +405,7 @@ const objectSearchType = {
               const {matched: existsLeaf, rest: childQuery} = extractLeafOfKind(matched, 'hasProperty');
               applyTriState(row, existsLeaf?.$exists);
               const childEl = findSearchElement(row, childPath);
+              /* istanbul ignore else -- Guard: buildSearchWidget always builds a real search element here */
               if (childEl && hasApplyQuery(childEl)) {
                 childEl.applyQuery(childQuery);
               }

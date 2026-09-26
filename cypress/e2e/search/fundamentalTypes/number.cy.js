@@ -35,6 +35,17 @@ describe('search: number spec', () => {
     });
   });
 
+  it('gets a range query for the lte bound alone', () => {
+    cy.get(sel + 'input[name$="-lte"]').type('10');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'range', path: '#/number', valueType: 'number', $lte: 10
+      });
+    });
+  });
+
   it('contributes nothing with neither a range nor the integer check set', () => {
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

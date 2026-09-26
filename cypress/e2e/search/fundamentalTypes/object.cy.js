@@ -48,6 +48,25 @@ describe('search: object spec', () => {
   });
 
   it(
+    'skips the child\'s own query entirely once "Doesn\'t have" is chosen',
+    () => {
+      const nestedSel = sel + 'jsoe-search-object[data-search-path="#/object"] ';
+      cy.get(nestedSel + 'select.addPropertySelect').select('nested');
+      cy.get(nestedSel + 'button').contains('Add').click();
+      cy.get(nestedSel + 'input[name$="-value"]').type('hello');
+      cy.get(nestedSel + 'select[name$="-hasProperty-nested"]').select('false');
+
+      cy.get(sel + '.getQueryButton').click();
+      cy.get(sel + '.queryResult').then((elem) => {
+        const query = JSON.parse(elem.text());
+        expect(query.$and[0]).to.deep.equal({
+          kind: 'hasProperty', path: '#/object/nested', $exists: false
+        });
+      });
+    }
+  );
+
+  it(
     'does nothing when "Add" is clicked with no property selected yet',
     () => {
       const nestedSel = sel + 'jsoe-search-object[data-search-path="#/object"] ';

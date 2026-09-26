@@ -33,4 +33,16 @@ describe('search: domexception spec', () => {
       });
     });
   });
+
+  it('clears an existing name selection when applying a query with no match', () => {
+    cy.get(sel + 'jsoe-search-domexception select.jsoeSearchMultiSelect').select(
+      ['NotFoundError']
+    );
+    cy.get(sel + '.queryRawEditor .cm-content').type('{selectall}{{}$and: []{}}');
+    cy.get(sel + '.applyQueryButton').click();
+    cy.get(sel + '.queryRawEditorError').should('have.text', '');
+    cy.get(
+      sel + 'jsoe-search-domexception select.jsoeSearchMultiSelect option:selected'
+    ).should('not.exist');
+  });
 });

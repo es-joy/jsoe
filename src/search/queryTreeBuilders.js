@@ -62,8 +62,8 @@ export function makeHasPropertyLeaf (path, $exists) {
  */
 export function makeLengthSizeLeaf (
   path,
-  // Guard: every current caller passes `cfg` explicitly.
-  cfg = /* istanbul ignore next -- See above */ {}
+  /* istanbul ignore next -- Guard: every current caller passes `cfg` explicitly. */
+  cfg = {}
 ) {
   return {kind: 'lengthSize', path, ...cfg};
 }
@@ -80,8 +80,8 @@ export function makeLengthSizeLeaf (
 export function makeRangeLeaf (
   path,
   valueType,
-  // Guard: every current caller passes `cfg` explicitly.
-  cfg = /* istanbul ignore next -- See above */ {}
+  /* istanbul ignore next -- Guard: every current caller passes `cfg` explicitly. */
+  cfg = {}
 ) {
   return {kind: 'range', path, valueType, ...cfg};
 }
@@ -119,8 +119,8 @@ export function makeValidDateCheckLeaf (path, isValid) {
  */
 export function makeLiteralSetLeaf (
   path,
-  // Guard: every current caller passes `cfg` explicitly.
-  cfg = /* istanbul ignore next -- See above */ {}
+  /* istanbul ignore next -- Guard: every current caller passes `cfg` explicitly. */
+  cfg = {}
 ) {
   return {kind: 'literalSet', path, ...cfg};
 }
@@ -151,8 +151,8 @@ export function makeNotContainsLeaf (path, value) {
  */
 export function makeMultiSelectLeaf (
   path,
-  // Guard: every current caller passes `cfg` explicitly.
-  cfg = /* istanbul ignore next -- See above */ {}
+  /* istanbul ignore next -- Guard: every current caller passes `cfg` explicitly. */
+  cfg = {}
 ) {
   return {kind: 'multiSelect', path, ...cfg};
 }
@@ -199,7 +199,12 @@ export function makeBlobHTMLLeaf (path, mode, value, $options) {
  * @param {{readonlyCheck?: boolean, dimensionCheck?: 2|3}} [cfg]
  * @returns {import('./queryTree.js').QueryDomShapeLeaf}
  */
-export function makeDomShapeLeaf (path, dimensions, cfg = {}) {
+export function makeDomShapeLeaf (
+  path,
+  dimensions,
+  /* istanbul ignore next -- Guard: the one current caller always passes `cfg` explicitly */
+  cfg = {}
+) {
   return {kind: 'domShape', path, dimensions, ...cfg};
 }
 

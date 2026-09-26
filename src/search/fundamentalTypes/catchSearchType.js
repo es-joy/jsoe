@@ -45,6 +45,7 @@ const catchSearchType = {
             /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
             '';
           const childEl = findSearchElement(this, searchPath);
+          /* istanbul ignore next -- Guard: buildSearchWidget always builds a real search element here */
           const childQuery = childEl && hasGetQuery(childEl)
             ? childEl.getQuery()
             : undefined;

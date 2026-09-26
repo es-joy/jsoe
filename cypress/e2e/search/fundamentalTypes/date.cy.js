@@ -81,4 +81,16 @@ describe('search: date spec', () => {
     );
     cy.get(sel + 'input[name$="-lte"]').should('have.value', '');
   });
+
+  it('round-trips a one-sided range (lte only, no gte)', () => {
+    cy.clearTypeAndBlur(sel + 'input[name$="-lte"]', '2021-06-01T00:00');
+    cy.get(sel + '.loadQueryButton').click();
+    cy.get(sel + 'input[name$="-lte"]').clear();
+    cy.get(sel + '.applyQueryButton').click();
+    cy.get(sel + '.queryRawEditorError').should('have.text', '');
+    cy.get(sel + 'input[name$="-lte"]').should(
+      'not.have.value', ''
+    );
+    cy.get(sel + 'input[name$="-gte"]').should('have.value', '');
+  });
 });

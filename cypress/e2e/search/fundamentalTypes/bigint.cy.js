@@ -19,6 +19,18 @@ describe('search: bigint spec', () => {
     });
   });
 
+  it('gets a range query for the lte bound alone', () => {
+    cy.get(sel + 'input[name$="-lte"]').type('100');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'range', path: '#/bigint', valueType: 'bigint',
+        $lte: '100'
+      });
+    });
+  });
+
   it('contributes nothing with neither bound filled in', () => {
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

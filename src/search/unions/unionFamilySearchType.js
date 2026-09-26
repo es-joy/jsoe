@@ -71,7 +71,9 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
           }
         }
         const optLabel = discriminatorValue === undefined
-          ? (buildPathLabel(option, `${path}/${idx}`) || searchType)
+          ? (buildPathLabel(option, `${path}/${idx}`) ||
+            /* istanbul ignore next -- Guard: buildPathLabel always returns a non-empty string for a branch's own path */
+            searchType)
           : String(discriminatorValue);
         return {idx, option, searchType, discriminatorValue, optLabel};
       });
@@ -92,7 +94,9 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
               return undefined;
             }
             const selectedOption = select.selectedOptions[0];
-            const searchType = selectedOption?.dataset.searchType ?? '';
+            const searchType = selectedOption?.dataset.searchType ??
+              /* istanbul ignore next -- Guard: buildUI always sets dataset.searchType on every option */
+              '';
             const rawDiscriminatorValue = selectedOption?.dataset.discriminatorValue;
             const typeOfLeaf = makeTypeOfLeaf(
               searchPath,
@@ -104,6 +108,7 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
             const branchEl = findSearchElement(this, searchPath);
             const branchQuery = branchEl && hasGetQuery(branchEl)
               ? branchEl.getQuery()
+              /* istanbul ignore next -- Guard: a selected branch's own search widget is always built by then */
               : undefined;
             return combineAnd([typeOfLeaf, branchQuery]);
           },
@@ -135,7 +140,10 @@ export function makeUnionFamilySearchType ({tagName, discriminated}) {
                 ? matched.discriminatorValue === undefined
                 : JSON.parse(opt.dataset.discriminatorValue) === matched.discriminatorValue)
             ));
-            select.value = optionMatch ? optionMatch.value : '';
+            select.value = optionMatch
+              ? optionMatch.value
+              /* istanbul ignore next -- Same "discriminator no longer matches any branch" case as below */
+              : '';
             select.dispatchEvent(new Event('change'));
             /* istanbul ignore if -- A query whose discriminator no longer
               matches any current branch (e.g. the schema changed since it

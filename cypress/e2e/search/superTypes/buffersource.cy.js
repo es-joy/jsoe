@@ -25,4 +25,15 @@ describe('search: buffersource spec', () => {
       });
     });
   });
+
+  it('gets a byte-length range query for the lte bound alone', () => {
+    cy.get(sel + 'jsoe-search-buffersource input[name$="-lte"]').type('200');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'range', path: '#/buffersource', valueType: 'buffersource', $lte: 200
+      });
+    });
+  });
 });

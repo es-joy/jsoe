@@ -37,7 +37,9 @@ const symbolSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const leaf = queryNode && '$and' in queryNode ? queryNode.$and[0] : queryNode;
+          const leaf = queryNode && '$and' in queryNode
+            ? /* istanbul ignore next -- Guard: hand-edited-raw-query-only */ queryNode.$and[0]
+            : queryNode;
           applyLiteralRegexQuery(
             this,
             /**

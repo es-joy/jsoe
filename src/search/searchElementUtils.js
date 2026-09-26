@@ -365,9 +365,9 @@ function syncDomShapeValidity ({root, dimensionKeys, includeReadonly, includeDim
  */
 export function makeDomShapeSearchType ({
   tagName, dimensionKeys,
-  // Guard: every current caller (domrect/dompoint/dommatrix) explicitly
-  //   passes `true`; none omits it.
-  includeReadonly = /* istanbul ignore next -- Guard: see above */ false,
+  /* istanbul ignore next -- Guard: every current caller (domrect/dompoint/
+    dommatrix) explicitly passes `true`; none omits it. */
+  includeReadonly = false,
   includeDimensionCheck = false
 }) {
   return {

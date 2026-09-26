@@ -19,7 +19,9 @@ import {buildSearchWidget} from '../searchDispatch.js';
  * @returns {void}
  */
 function syncTupleValidity (root) {
-  const itemCount = Number(/** @type {HTMLElement} */ (root).dataset.itemCount ?? '0');
+  const itemCount = Number(/** @type {HTMLElement} */ (root).dataset.itemCount ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.itemCount */
+            '0');
   const hasRest = /** @type {HTMLElement} */ (root).dataset.hasRest === 'true';
   syncAtLeastOneCheck(root, () => (
     Array.from({length: itemCount}, (_, idx) => String(idx)).some(
@@ -112,7 +114,9 @@ const tupleSearchType = {
         //   otherwise silently reuse the first tuple's item count/rest-ness.
         /** @this {HTMLElement} */
         connectedCallback () {
-          const itemCount = Number(this.dataset.itemCount ?? '0');
+          const itemCount = Number(this.dataset.itemCount ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.itemCount */
+            '0');
           Array.from({length: itemCount}, (_, idx) => String(idx)).forEach(
             (key) => wireOptInFieldset(this, key, () => syncTupleValidity(this))
           );
@@ -129,14 +133,19 @@ const tupleSearchType = {
           const searchPath = this.dataset.searchPath ??
             /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
             '';
-          const itemCount = Number(this.dataset.itemCount ?? '0');
+          const itemCount = Number(this.dataset.itemCount ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.itemCount */
+            '0');
           const hasRest = this.dataset.hasRest === 'true';
           const itemLeaves = Array.from({length: itemCount}, (_, idx) => {
             if (!readOptInChecked(this, String(idx))) {
               return undefined;
             }
             const itemEl = findSearchElement(this, `${searchPath}/${idx}`);
-            return itemEl && hasGetQuery(itemEl) ? itemEl.getQuery() : undefined;
+            return itemEl && hasGetQuery(itemEl)
+              ? itemEl.getQuery()
+              /* istanbul ignore next -- Guard: buildSearchWidget always builds a real search element here */
+              : undefined;
           });
           if (!hasRest) {
             return combineAnd(itemLeaves);
@@ -157,7 +166,9 @@ const tupleSearchType = {
           const searchPath = this.dataset.searchPath ??
             /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
             '';
-          const itemCount = Number(this.dataset.itemCount ?? '0');
+          const itemCount = Number(this.dataset.itemCount ??
+            /* istanbul ignore next -- Guard: buildUI always sets dataset.itemCount */
+            '0');
           const hasRest = this.dataset.hasRest === 'true';
           let remaining = queryNode;
           Array.from({length: itemCount}, (_v, idx) => idx).forEach((idx) => {

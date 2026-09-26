@@ -589,7 +589,7 @@ describe('Arbitrary JavaScript spec (functions)', () => {
     'retitles the remaining arg after removing an added one (schema mode)',
     function () {
       const sel = '#formatAndTypeChoices ';
-      cy.get(sel + '.formatChoices').select(
+      cy.get(sel + '.formatChoices').should('not.be.disabled').select(
         'Schema: Zodexy arbitrary JS schema'
       );
       cy.get(sel + 'select.typeChoices-demo-keypath-not-expected').select(
