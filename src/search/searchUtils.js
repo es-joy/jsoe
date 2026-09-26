@@ -1227,7 +1227,11 @@ export function applyLengthSizeQuery (el, leaf) {
  * @param {string} [key]
  * @returns {void}
  */
-export function applyOptIn (el, checked, key = '') {
+export function applyOptIn (
+  el, checked,
+  /* istanbul ignore next -- Guard: every current caller passes `key` explicitly */
+  key = ''
+) {
   const checkbox = /** @type {HTMLInputElement|undefined} */ (
     findOwnControl(el, `input.jsoeSearchOptIn--${key}`)
   );
@@ -1251,7 +1255,11 @@ export function applyOptIn (el, checked, key = '') {
  * @param {string} [key]
  * @returns {void}
  */
-export function applyOptInLiteralRegexFacet (root, queryNode, path, key = '') {
+export function applyOptInLiteralRegexFacet (
+  root, queryNode, path,
+  /* istanbul ignore next -- Guard: every current caller passes `key` explicitly */
+  key = ''
+) {
   const {matched} = extractClauseForPath(queryNode, path);
   applyOptIn(root, matched !== undefined, key);
   applyLiteralRegexQuery(
@@ -1276,7 +1284,11 @@ export function applyOptInLiteralRegexFacet (root, queryNode, path, key = '') {
  * @param {string} [key]
  * @returns {void}
  */
-export function applyOptInRangeFacet (root, queryNode, path, key = '') {
+export function applyOptInRangeFacet (
+  root, queryNode, path,
+  /* istanbul ignore next -- Guard: every current caller passes `key` explicitly */
+  key = ''
+) {
   const {matched} = extractClauseForPath(queryNode, path);
   applyOptIn(root, matched !== undefined, key);
   applyRangeQuery(

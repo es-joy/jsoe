@@ -14,10 +14,11 @@ import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js
  * value type is), but search needs the actual allowed values listed, so
  * this is one of the search-only dedicated modules (search plan §1).
  *
- * Native enums (whose keys could differ from their values, unlike a plain
- * `z.enum([...])`) are no longer a schema shape zodexy produces, so every
- * `values` entry's own key is always identical to its (stringified) value;
- * the key-vs-value label distinction below is kept only as a guard.
+ * A plain string-valued `z.enum([...])` always has each `values` entry's key
+ * identical to its own value, but a numeric- (or other non-string-) valued
+ * enum necessarily needs a separate descriptive key (e.g. `{zero: 0, one:
+ * 1}`) - the key-vs-value label distinction below (`"0 (zero)"` rather than
+ * a bare `"0"`) covers that real case, not a defunct "native enum" shape.
  * `buildMultiSelect`'s `required` leaves the whole selection invalid until
  * at least one value is picked, natively (no build-time-empty gap like
  * `buildRangeInputsPair`'s custom validity needed a `connectedCallback`
@@ -37,7 +38,7 @@ const enumSearchType = {
         strValue,
         key === strValue
           ? strValue
-          : /* istanbul ignore next -- Guard: no current zodexy enum schema has a key differing from its own value */ `${strValue} (${key})`
+          : `${strValue} (${key})`
       ]);
     });
     return ['jsoe-search-enum', {

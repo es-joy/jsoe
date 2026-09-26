@@ -660,6 +660,30 @@ const schemaInstanceJSON12 = {
   ]
 };
 
+// A `FileList` whose own schema carries a `description` but whose `element`
+//   (each individual `File`) does not - unlike `schemaInstanceJSON7`'s
+//   "A FileList" (whose element is described "A text File", which always
+//   takes priority over the container's own label for a file's own item
+//   legend). This is the one shape that lets `arrayType.js`'s `buildLegend`
+//   fall through to the container's own label (`fileDesc`) for each file
+//   item's legend.
+/** @type {import('zodexy').SzCodec} */
+const schemaInstanceJSON13 = {
+  description: 'A FileList (unlabeled files)',
+  type: 'codec',
+  name: 'filelist',
+  input: {
+    type: 'instanceof',
+    name: 'filelist'
+  },
+  output: {
+    type: 'array',
+    element: {
+      type: 'file'
+    }
+  }
+};
+
 // `xor` (exclusive union): exactly one branch may match. The `string` and the
 //   email `string` overlap deliberately: a value like `a@b.com` satisfies both
 //   branches, so it is valid under `union` but invalid under `xor`.
@@ -849,7 +873,13 @@ const schemaInstanceJSONSearchAllTypes = {
     undef: {type: 'undefined', isOptional: true},
     nullValue: {type: 'null', isOptional: true},
     nan: {type: 'nan', isOptional: true},
-    enum: {type: 'enum', values: {Red: 'red', Green: 'green'}, isOptional: true},
+    enum: {type: 'enum', values: {red: 'red', green: 'green'}, isOptional: true},
+    // A numeric-valued enum: the key is necessarily a descriptive label
+    //   distinct from the (stringified) value, unlike a plain string-valued
+    //   `z.enum([...])` (whose key always equals its own value).
+    enumNumeric: {
+      type: 'enum', values: {zero: 0, one: 1}, isOptional: true
+    },
     array: {type: 'array', element: {type: 'number'}, isOptional: true},
     object: {
       type: 'object',
@@ -1007,6 +1037,7 @@ export {
   schemaInstanceJSON4, schemaInstanceJSON5, schemaInstanceJSON6,
   schemaInstanceJSON7, schemaInstanceJSON8, schemaInstanceJSON9,
   schemaInstanceJSON10, schemaInstanceJSON11, schemaInstanceJSON12,
+  schemaInstanceJSON13,
   schemaInstanceJSONXor, schemaInstanceJSONXor2, schemaInstanceJSONXor3,
   schemaInstanceJSONMeta,
   schemaInstanceJSONSearchDate,

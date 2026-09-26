@@ -26,6 +26,17 @@ describe('search: array spec', () => {
     });
   });
 
+  it('gets a bare sparse constraint with no size value entered', () => {
+    cy.get(sel + 'jsoe-search-array > label select.jsoeSearchTriState--').select('true');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'lengthSize', path: '#/array', sparseCheck: true
+      });
+    });
+  });
+
   it('gets a bare length constraint with no element match opted into', () => {
     cy.get(sel + 'jsoe-search-array input[name$="-size"]').type('3');
     cy.get(sel + '.getQueryButton').click();

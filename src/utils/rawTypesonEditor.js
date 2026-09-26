@@ -348,7 +348,7 @@ export async function getEvalSeedTextForValue (value, seen = new Set()) {
       }
       return extraProps.length
         ? `Object.assign(${ctorExpr}, {${extraProps.join(', ')}})`
-        : ctorExpr;
+        : /* istanbul ignore next -- Guard: `Error.prototype.name` always makes `err.name` a real string, so `extraProps` always includes at least `name` */ ctorExpr;
     }
     if (typeof value === 'object') {
       // Anything reaching here that isn't a plain object literal (a class

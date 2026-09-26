@@ -26,6 +26,18 @@ describe('search: enum spec', () => {
     });
   });
 
+  it(
+    'labels a numeric-valued enum\'s option with its key, since the key ' +
+      'differs from the (stringified) value there',
+    () => {
+      cy.get(sel + 'select.addPropertySelect').select('enumNumeric');
+      cy.get(sel + 'button').contains('Add').click();
+      cy.get(
+        sel + 'jsoe-search-enum[data-search-path="#/enumNumeric"] select option'
+      ).eq(0).should('have.text', '0 (zero)');
+    }
+  );
+
   it('clears an existing selection when applying a query with no match', () => {
     cy.get(sel + 'jsoe-search-enum select').select(['red']);
     cy.get(sel + '.queryRawEditor .cm-content').type('{selectall}{{}$and: []{}}');

@@ -266,4 +266,20 @@ describe('FileList spec (schemas)', () => {
       }
     );
   });
+
+  it(
+    'labels each file item\'s own legend from the FileList schema\'s own ' +
+      'description when the `element` schema has none of its own',
+    function () {
+      cy.get('.formatChoices:first').select('Schema: Zodexy schema instance 13');
+      const sel = '#formatAndTypeChoices ';
+      cy.get(
+        sel + 'input[name="demo-keypath-not-expected-filelist"]'
+      ).selectFile('package.json');
+
+      cy.get(sel + 'fieldset[data-type="file"]:first legend').should(
+        'contain.text', 'A FileList (unlabeled files)'
+      );
+    }
+  );
 });

@@ -404,6 +404,25 @@ describe('rawTypesonEditor', function () {
       expect(error).to.be.instanceOf(Error);
       expect(/** @type {Error} */ (error).message).to.match(/Whatever/u);
     });
+
+    it(
+      'falls back to the `toStringTag`-derived tag for an anonymous ' +
+        'class instance (no `constructor.name` to name the error after)',
+      async function () {
+        /**
+         *
+         */
+        const AnonClass = class {};
+        let error;
+        try {
+          await getEvalSeedTextForValue(new AnonClass());
+        } catch (err) {
+          error = err;
+        }
+        expect(error).to.be.instanceOf(Error);
+        expect(/** @type {Error} */ (error).message).to.match(/Object/u);
+      }
+    );
   });
 
   describe('`commitValueToContainer`', function () {
@@ -701,6 +720,17 @@ describe('rawTypesonEditor', function () {
           invoke('text').
           should('include', 'new Date(').
           and('not.include', '$types');
+
+        // Switching back reseeds it as Typeson-tagged data again.
+        cy.get('@dialog').find('select.jsoe-raw-editor-mode').then(($select) => {
+          const select = /** @type {HTMLSelectElement} */ ($select[0]);
+          select.value = 'typeson';
+          select.dispatchEvent(new Event('change', {bubbles: true}));
+        });
+        cy.get('@dialog').find('.jsoe-raw-editor .cm-content').
+          invoke('text').
+          should('include', '$types').
+          and('not.include', 'new Date(');
 
         cy.get('@dialog').find('> .submit > .cancel').invoke('click');
         cy.get('@root').then((rootUI) => {

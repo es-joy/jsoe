@@ -45,6 +45,23 @@ describe('search: string spec', () => {
     });
   });
 
+  it(
+    'clears the value control when applying a hand-typed literalSet ' +
+      'query that has only `$nin` (no `$in`, which no widget ever produces ' +
+      'itself, but a raw-edited query can)',
+    () => {
+      const propSel = sel + '[data-search-path="#/string"] ';
+      cy.get(propSel + 'input[name$="-value"]').type('stale');
+      cy.get(sel + '.queryRawEditor .cm-content').type(
+        '{selectall}{{}$and: [{{}kind: "literalSet", path: "#/string", ' +
+          '$nin: ["x"]{}}]{}}'
+      );
+      cy.get(sel + '.applyQueryButton').click();
+      cy.get(sel + '.queryRawEditorError').should('have.text', '');
+      cy.get(propSel + 'input[name$="-value"]').should('have.value', '');
+    }
+  );
+
   it('round-trips a notContains mode/value through "Edit raw"', () => {
     const propSel = sel + '[data-search-path="#/string"] ';
     cy.get(propSel + 'select[name$="-mode"]').select('notContains');

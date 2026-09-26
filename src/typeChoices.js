@@ -239,8 +239,7 @@ function buildXorTypeChoices ({
   const radioName = `typeChoices-${typeNamespace}-xor`;
   const fieldset = jml('fieldset', {
     class: `typeChoices-${typeNamespace} xorTypeChoices${keySelectClass
-      /* istanbul ignore next -- Guard: no current caller passes keySelectClass */
-      ? ' ' + keySelectClass
+      ? /* istanbul ignore next -- Guard: no current caller passes keySelectClass */ ' ' + keySelectClass
       : ''
     }`,
     $on: {change (e) {

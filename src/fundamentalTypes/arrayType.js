@@ -1703,9 +1703,22 @@ const arrayType = {
       const propSchema = objectSchema?.properties?.[/** @type {string} */ (
         propName
       )];
+      /* istanbul ignore if -- Guard: unreachable for `object` given current
+        callers of `getChildSchema` - a preloaded value's out-of-shape
+        property is already resolved to a full type union upstream (in
+        `schema.js`'s own `convertFromTypeson`, well before `schema` reaches
+        here truthy), and a manually-added optional property (via "+ Item")
+        builds only an empty placeholder until its name is chosen, at which
+        point the datalist's own `change` handler (above) resolves its type
+        choices directly, never through this function at all. Traced and
+        confirmed unreachable via direct instrumentation across all three
+        real calling patterns (preloaded value, "+ Item" alone, "+ Item"
+        then typed name). */
       if (
         !propSchema &&
-        specificSchemaObject?.type === 'object' && !objectSchema.catchall
+        specificSchemaObject?.type === 'object' &&
+        /* istanbul ignore next -- Guard: the first two operands never both hold true given current callers, so this is never evaluated */
+        !objectSchema.catchall
       ) {
         // A key outside the declared shape of a `catchall`-less `z.object()`
         //   (which strips it on parse but still shows it while editing):
@@ -1945,8 +1958,7 @@ const arrayType = {
                     $e(fieldset, 'div[data-type]')
                   );
                   return !root
-                    /* istanbul ignore next -- Should err first? */
-                    ? null
+                    ? /* istanbul ignore next -- Guard: a rendered fieldset always has a `div[data-type]` root */ null
                     : types.getFormControlForRoot(root);
                 });
 
