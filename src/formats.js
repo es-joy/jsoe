@@ -14,9 +14,9 @@ import schema from './formats/schema.js';
  * @param {import('./types.js').default} types
  * @param {AvailableFormat} format
  * @param {string} [state]
- * @param {import('./formatAndTypeChoices.js').ZodexSchema|
+ * @param {import('./formatAndTypeChoices.js').ZodexySchema|
  *   undefined} [schemaObject]
- * @param {import('./formatAndTypeChoices.js').ZodexSchema|
+ * @param {import('./formatAndTypeChoices.js').ZodexySchema|
  *   undefined} [schemaOriginal]
  * @returns {TypesAndSchemaObjects|undefined}
  */
@@ -38,7 +38,7 @@ export const getTypeForFormatStateAndValue = ({format, state, value}) => {
 /**
  * @typedef {{
  *   types: (import('./types.js').AvailableArbitraryType)[],
- *   schemaObjects: import('./formats/schema.js').ZodexSchema[]
+ *   schemaObjects: import('./formats/schema.js').ZodexySchema[]
  * }} TypesAndSchemaObjects
  */
 
@@ -63,9 +63,9 @@ export const getTypeForFormatStateAndValue = ({format, state, value}) => {
  * @property {(
  *   types: import('./types.js').default,
  *   state?: string,
- *   schemaObject?: import('./formatAndTypeChoices.js').ZodexSchema|
+ *   schemaObject?: import('./formatAndTypeChoices.js').ZodexySchema|
  *     undefined,
- *   schemaOriginal?: import('./formatAndTypeChoices.js').ZodexSchema|
+ *   schemaOriginal?: import('./formatAndTypeChoices.js').ZodexySchema|
  *     undefined
  * ) => TypesAndSchemaObjects|undefined} getTypesAndSchemasForState Gets the
  *   specific types (and schemas) relevant to a given state.
@@ -90,12 +90,12 @@ export const getTypeForFormatStateAndValue = ({format, state, value}) => {
  * }} [convertFromTypeson]
  * @property {(
  *   types: import('./types.js').default,
- *   schemaObject: import('./formatAndTypeChoices.js').ZodexSchema,
+ *   schemaObject: import('./formatAndTypeChoices.js').ZodexySchema,
  *   value: StructuredCloneValue
  * ) => {valid: boolean, message?: string,
- *   schema?: import('./formats/schema.js').ZodexSchema}} [validateValue]
+ *   schema?: import('./formats/schema.js').ZodexySchema}} [validateValue]
  * @property {(
- *   schemaObject: import('./formats/schema.js').ZodexSchema
+ *   schemaObject: import('./formats/schema.js').ZodexySchema
  * ) => boolean} [isValueValidationRequired]
  */
 

@@ -48,7 +48,7 @@ import deepEqual from 'fast-deep-equal/es6/index.js';
  * @typedef {(info?: {
  *   baseValue?: import('./formats.js').StructuredCloneValue,
  *   bringIntoFocus?: boolean,
- *   schemaObject?: import('./formatAndTypeChoices.js').ZodexSchema,
+ *   schemaObject?: import('./formatAndTypeChoices.js').ZodexySchema,
  *   avoidReport?: boolean
  * }) => void} AddAndValidateEditUI
  */
@@ -149,8 +149,8 @@ import deepEqual from 'fast-deep-equal/es6/index.js';
  *   types?: import('./types.js').default
  *   schema?: string,
  *   schemaIdx?: number,
- *   schemaOriginal?: import('./formatAndTypeChoices.js').ZodexSchema,
- *   schemaContent?: import('./formatAndTypeChoices.js').ZodexSchema,
+ *   schemaOriginal?: import('./formatAndTypeChoices.js').ZodexySchema,
+ *   schemaContent?: import('./formatAndTypeChoices.js').ZodexySchema,
  * }} cfg
  * @returns {{
  *   domArray: [select: TypeChoicesControl, typeContainer: HTMLElement],

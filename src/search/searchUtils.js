@@ -12,7 +12,7 @@ import {combineAnd} from './queryTreeBuilders.js';
  * precedence the value-editing side uses) and falling back to the JSON
  * Pointer path's final segment so every control still has a legible label
  * even when the schema carries no metadata.
- * @param {import('../formats/schema.js').ZodexSchema|undefined} schemaObject
+ * @param {import('../formats/schema.js').ZodexySchema|undefined} schemaObject
  * @param {string} path
  * @returns {string}
  */

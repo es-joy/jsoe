@@ -17,17 +17,17 @@ import FileList from '../utils/FileList.js';
 /**
  * @typedef {ValueOf<
  *   Pick<import('zodexy').SzType, "type">
- * >} AvailableZodexType
+ * >} AvailableZodexyType
  */
 
 /**
  * @type {Map<
- *   AvailableZodexType,
+ *   AvailableZodexyType,
  *   import('../types.js').AvailableArbitraryType
  * >
  * }
  */
-const zodexToStructuredCloningTypeMap = new Map([
+const zodexyToStructuredCloningTypeMap = new Map([
   ['boolean', 'boolean'],
   ['number', 'number'],
   ['nan', 'nan'],
@@ -84,7 +84,7 @@ function getValueType (value) {
 
 /**
  * @param {import('zodexy').SzLiteral<any>|import('zodexy').SzEnum<any>} schema
- * @returns {Set<ZodexSchema>}
+ * @returns {Set<ZodexySchema>}
  */
 function splitConstrainedSchema (schema) {
   const values = /** @type {unknown[]} */ (schema.type === 'literal'
@@ -115,7 +115,7 @@ function splitConstrainedSchema (schema) {
 }
 
 /**
- * @param {ZodexSchema} schemaObject
+ * @param {ZodexySchema} schemaObject
  * @returns {import('../types.js').AvailableType|undefined}
  */
 function getCheckedType (schemaObject) {
@@ -130,7 +130,7 @@ function getCheckedType (schemaObject) {
  * `truthy`/`falsy`/`case` options on the pipe itself. jsoe edits the encoded
  * (string) side, so this is treated as a refinement of the String type -
  * a `kind` of string - rather than its own type or a boolean.
- * @param {ZodexSchema} schemaObject
+ * @param {ZodexySchema} schemaObject
  * @returns {boolean}
  */
 function isStringboolSchema (schemaObject) {
@@ -143,7 +143,7 @@ function isStringboolSchema (schemaObject) {
 }
 
 /**
- * @param {ZodexSchema} schemaObject
+ * @param {ZodexySchema} schemaObject
  * @returns {import('../types.js').AvailableArbitraryType|undefined}
  */
 export function getSchemaType (schemaObject) {
@@ -171,7 +171,7 @@ export function getSchemaType (schemaObject) {
     ? 'string'
     : (
       getCheckedType(schemaObject) ??
-        zodexToStructuredCloningTypeMap.get(schemaObject.type)
+        zodexyToStructuredCloningTypeMap.get(schemaObject.type)
     );
 }
 
@@ -200,8 +200,8 @@ const dezerializerCodecs = {
  * Exported for reuse by `src/utils/rawTypesonEditor.js`, which must enforce
  *   the same schema conformance check before accepting a raw-edited value.
  * @param {InstanceType<typeof import('../types.js').default>} types
- * @param {ZodexSchema} schemaObject
- * @param {ZodexSchema} originalShape
+ * @param {ZodexySchema} schemaObject
+ * @param {ZodexySchema} originalShape
  * @param {unknown} value
  * @returns {ReturnType<ReturnType<typeof dezerialize>['safeParse']>}
  */
@@ -216,10 +216,10 @@ export function parseValue (types, schemaObject, originalShape, value) {
 
 /**
  * @param {InstanceType<typeof import('../types.js').default>} types
- * @param {ZodexSchema} schemaObject
- * @param {ZodexSchema} originalShape
+ * @param {ZodexySchema} schemaObject
+ * @param {ZodexySchema} originalShape
  * @param {unknown} value
- * @returns {ZodexSchema|undefined}
+ * @returns {ZodexySchema|undefined}
  */
 function getInvalidIntersectionBranch (
   types, schemaObject, originalShape, value
@@ -246,7 +246,7 @@ function getInvalidIntersectionBranch (
  * `convertFromTypeson` below use this to avoid imposing the `value` schema on
  * those pass-through entries.
  * @param {InstanceType<typeof import('../types.js').default>} types
- * @param {ZodexSchema|undefined} keySchema
+ * @param {ZodexySchema|undefined} keySchema
  * @param {string|number|undefined} key
  * @returns {boolean}
  */
@@ -274,7 +274,7 @@ export function recordKeyConforms (types, keySchema, key) {
  * @returns {{matched: number, total: number}}
  */
 export function getXorBranchMatchInfo (types, xorSchema, value) {
-  const options = /** @type {ZodexSchema[]} */ (xorSchema.options ??
+  const options = /** @type {ZodexySchema[]} */ (xorSchema.options ??
     /* istanbul ignore next -- Guard: a real SzUnion schema always has `options` */
     []);
   let matched = 0;
@@ -291,7 +291,7 @@ export function getXorBranchMatchInfo (types, xorSchema, value) {
  * to check the value against the specific `xor` branch the user chose, not
  * merely against some branch.
  * @param {InstanceType<typeof import('../types.js').default>} types
- * @param {ZodexSchema} schema
+ * @param {ZodexySchema} schema
  * @param {unknown} value
  * @returns {boolean}
  */
@@ -323,21 +323,21 @@ function getChecks (types) {
 }
 
 /**
- * @typedef {import('zodexy').SzType} ZodexSchema
+ * @typedef {import('zodexy').SzType} ZodexySchema
  */
 /**
  * @typedef {import('../utils/objects.js').NestedObject} NestedObject
  */
 
-/** @type {WeakMap<ZodexSchema, ZodexSchema>} */
+/** @type {WeakMap<ZodexySchema, ZodexySchema>} */
 const intersectionSchemas = new WeakMap();
-/** @type {WeakMap<ZodexSchema, ZodexSchema>} */
+/** @type {WeakMap<ZodexySchema, ZodexySchema>} */
 const originalSchemas = new WeakMap();
 
 /**
- * @param {Set<ZodexSchema>} set
- * @param {ZodexSchema} originalJSON
- * @returns {Set<ZodexSchema>}
+ * @param {Set<ZodexySchema>} set
+ * @param {ZodexySchema} originalJSON
+ * @returns {Set<ZodexySchema>}
  */
 function rememberOriginalSchema (set, originalJSON) {
   for (const schemaObject of set) {
@@ -347,15 +347,15 @@ function rememberOriginalSchema (set, originalJSON) {
 }
 
 /**
- * @param {ZodexSchema} schemaObject
- * @returns {ZodexSchema}
+ * @param {ZodexySchema} schemaObject
+ * @returns {ZodexySchema}
  */
 export function getValidationSchema (schemaObject) {
   return intersectionSchemas.get(schemaObject) ?? schemaObject;
 }
 
 /**
- * @param {ZodexSchema['type']} type
+ * @param {ZodexySchema['type']} type
  * @param {any} value
  * @returns {any}
  */
@@ -393,7 +393,7 @@ function mergeMeta (target, source) {
 /**
  * Whether a schema node carries a fixed bag of named property schemas under
  * `properties` - i.e., `object`.
- * @param {ZodexSchema['type']|undefined} type
+ * @param {ZodexySchema['type']|undefined} type
  * @returns {boolean}
  */
 function isPropertyBagType (type) {
@@ -401,10 +401,10 @@ function isPropertyBagType (type) {
 }
 
 /**
- * @param {ZodexSchema} leftItem
- * @param {ZodexSchema} rightItem
+ * @param {ZodexySchema} leftItem
+ * @param {ZodexySchema} rightItem
  * @throws {Error}
- * @returns {ZodexSchema}
+ * @returns {ZodexySchema}
  */
 function mergeSchema (leftItem, rightItem) {
   if (leftItem.type !== rightItem.type) {
@@ -504,9 +504,9 @@ function mergeSchema (leftItem, rightItem) {
 }
 
 /**
- * @param {Set<ZodexSchema>} left
- * @param {Set<ZodexSchema>} right
- * @returns {ZodexSchema[]}
+ * @param {Set<ZodexySchema>} left
+ * @param {Set<ZodexySchema>} right
+ * @returns {ZodexySchema[]}
  */
 function flattenIntersection (left, right) {
   const leftArray = [...left];
@@ -524,8 +524,8 @@ function flattenIntersection (left, right) {
 
 let unionGroupID = 0;
 /**
- * @param {ZodexSchema} schemaObject
- * @param {(ZodexSchema & {
+ * @param {ZodexySchema} schemaObject
+ * @param {(ZodexySchema & {
  *   $unionGroupID?: number, $defaultValue?: any, $readonlyParent?: any
  * })[]} set
  * @returns {void}
@@ -582,9 +582,9 @@ function addModifiers (schemaObject, set) {
 }
 
 /**
- * @param {ZodexSchema} schemaObject
- * @param {ZodexSchema} originalJSON
- * @returns {Set<ZodexSchema>}
+ * @param {ZodexySchema} schemaObject
+ * @param {ZodexySchema} originalJSON
+ * @returns {Set<ZodexySchema>}
  */
 export function getTypesForSchema (schemaObject, originalJSON) {
   for (;;) {
@@ -633,7 +633,7 @@ export function getTypesForSchema (schemaObject, originalJSON) {
     case 'discriminatedUnion':
     case 'xor':
     case 'union': {
-      /** @type {(ZodexSchema & {$discriminator?: string})[]} */
+      /** @type {(ZodexySchema & {$discriminator?: string})[]} */
       let set = [];
       for (const option of schemaObject.options) {
         set = [...set, ...getTypesForSchema(option, originalJSON)];

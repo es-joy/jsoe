@@ -83,7 +83,7 @@ const MAX_PARENT_WAIT_TICKS = 50;
  *   value: import('../formats.js').StructuredCloneValue,
  *   bringIntoFocus?: boolean,
  *   setAValue?: boolean,
- *   schemaContent?: import('../formats/schema.js').ZodexSchema,
+ *   schemaContent?: import('../formats/schema.js').ZodexySchema,
  *   mustBeOptional?: boolean,
  *   schemaIdx?: number
  * }) => HTMLElement|null} AddAndSetArrayElement

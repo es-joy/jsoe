@@ -129,7 +129,7 @@ export const getPropertyValueFromLegend = (legend) => {
 /**
  * @callback GetOptionForType
  * @param {AvailableArbitraryType} type
- * @param {import('./formatAndTypeChoices.js').ZodexSchema|
+ * @param {import('./formatAndTypeChoices.js').ZodexySchema|
  *   undefined} [schemaContent]
  * @returns {[string, {value: AvailableType, title?: string}]}
  */
@@ -138,13 +138,13 @@ export const getPropertyValueFromLegend = (legend) => {
  * @callback GetTypeOptionsForFormatAndState
  * @param {import('./formats.js').AvailableFormat} format
  * @param {string} [parserState]
- * @param {import('./formatAndTypeChoices.js').ZodexSchema|
+ * @param {import('./formatAndTypeChoices.js').ZodexySchema|
  *   undefined} [schemaContent]
- * @param {import('./formatAndTypeChoices.js').ZodexSchema|
+ * @param {import('./formatAndTypeChoices.js').ZodexySchema|
  *   undefined} [schemaOriginal]
  * @returns {{
  *   typeOptions: [string, {value: AvailableType, title?: string}][],
- *   schemaObjects: import('./formats/schema.js').ZodexSchema[]
+ *   schemaObjects: import('./formats/schema.js').ZodexySchema[]
  * }}
  */
 
@@ -158,10 +158,10 @@ export const getPropertyValueFromLegend = (legend) => {
  *   error?: Error,
  *   rootUI?: HTMLElement,
  *   schema?: string,
- *   schemaParent?: import('./formats/schema.js').ZodexSchema,
- *   schemaContent?: import('./formats/schema.js').ZodexSchema,
- *   specificSchema?: import('./formats/schema.js').ZodexSchema,
- *   specificSchemas?: import('./formats/schema.js').ZodexSchema[],
+ *   schemaParent?: import('./formats/schema.js').ZodexySchema,
+ *   schemaContent?: import('./formats/schema.js').ZodexySchema,
+ *   specificSchema?: import('./formats/schema.js').ZodexySchema,
+ *   specificSchemas?: import('./formats/schema.js').ZodexySchema[],
  *   paths?: {[currentPath: string]: {
  *     referentPath: string,
  *     expectArrayReferent: boolean
@@ -183,8 +183,8 @@ export const getPropertyValueFromLegend = (legend) => {
  *   bringIntoFocus?: boolean|undefined,
  *   buildTypeChoices?: import('./typeChoices.js').BuildTypeChoices,
  *   format: import('./formats.js').AvailableFormat,
- *   schemaContent?: import('./formats/schema.js').ZodexSchema
- *   specificSchemaObject?: import('./formats/schema.js').ZodexSchema
+ *   schemaContent?: import('./formats/schema.js').ZodexySchema
+ *   specificSchemaObject?: import('./formats/schema.js').ZodexySchema
  *   value: StructuredCloneValue,
  *   hasValue: boolean,
  *   replaced?: StructuredCloneValue,
@@ -238,8 +238,8 @@ export const getPropertyValueFromLegend = (legend) => {
  *   ][],
  *   parent?: {[key: string]: any},
  *   parentPath?: string|number,
- *   schemaObject?: import('./formatAndTypeChoices.js').ZodexSchema|undefined
- *   schemaOriginal?: import('./formatAndTypeChoices.js').ZodexSchema|undefined
+ *   schemaObject?: import('./formatAndTypeChoices.js').ZodexySchema|undefined
+ *   schemaOriginal?: import('./formatAndTypeChoices.js').ZodexySchema|undefined
  * }) => [
  *   value: StructuredCloneValue,
  *   remnant: string,
@@ -277,7 +277,7 @@ export const getPropertyValueFromLegend = (legend) => {
  *   parent?: object,
  *   parentPath?: string|number,
  *   types?: Types
- *   schemaObject?: import('./formatAndTypeChoices.js').ZodexSchema|undefined
+ *   schemaObject?: import('./formatAndTypeChoices.js').ZodexySchema|undefined
  * }} RootInfo
  */
 
@@ -354,11 +354,11 @@ export const getPropertyValueFromLegend = (legend) => {
  *   topRoot?: HTMLDivElement,
  *   resultType?: "keys"|"values"|"both",
  *   format: import('./formats.js').AvailableFormat,
- *   specificSchemaObject?: import('./formats/schema.js').ZodexSchema,
+ *   specificSchemaObject?: import('./formats/schema.js').ZodexySchema,
  *   types: Types
  *   bringIntoFocus?: boolean|undefined,
  *   buildTypeChoices?: import('./typeChoices.js').BuildTypeChoices,
- *   schemaContent?: import('./formats/schema.js').ZodexSchema
+ *   schemaContent?: import('./formats/schema.js').ZodexySchema
  *   replaced?: any
  *   hasValue?: boolean
  * }) => JamilihArray} viewUI
@@ -374,8 +374,8 @@ export const getPropertyValueFromLegend = (legend) => {
  *   forcedState?: string,
  *   buildTypeChoices?: import('./typeChoices.js').BuildTypeChoices,
  *   topRoot?: HTMLDivElement
- *   schemaContent?: import('./formats/schema.js').ZodexSchema,
- *   specificSchemaObject?: import('./formats/schema.js').ZodexSchema,
+ *   schemaContent?: import('./formats/schema.js').ZodexySchema,
+ *   specificSchemaObject?: import('./formats/schema.js').ZodexySchema,
  *   schemaFallingBack?: boolean,
  *   hasValue?: boolean
  * }) => JamilihArray} editUI
@@ -460,7 +460,7 @@ class Types {
     // Master on/off switch for the raw Typeson edit/view buttons themselves;
     //   when `false` neither button is rendered anywhere in the tree.
     this.showRawTypesonControls = showRawTypesonControls;
-    /** @type {WeakMap<RootElement, import('./formats/schema.js').ZodexSchema>} */
+    /** @type {WeakMap<RootElement, import('./formats/schema.js').ZodexySchema>} */
     this.schemasForRoots = new WeakMap();
 
     /** @type {CustomValidateAllReferences|undefined} */
@@ -830,7 +830,7 @@ class Types {
   /**
    * @param {{
    *   message: string|null|undefined,
-   *   schema?: import('./formats/schema.js').ZodexSchema,
+   *   schema?: import('./formats/schema.js').ZodexySchema,
    *   typeSpecific?: boolean
    * }} cfg
    * @returns {string|null|undefined}

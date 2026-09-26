@@ -13,7 +13,7 @@ const idRegex =
 /**
  * @param {{
  *   root: HTMLDivElement,
- *   specificSchemaObject?: import('../formats/schema.js').ZodexSchema
+ *   specificSchemaObject?: import('../formats/schema.js').ZodexySchema
  *   textareas: HTMLTextAreaElement[]
  *   textareaBody: HTMLTextAreaElement
  * }} cfg
@@ -131,7 +131,7 @@ const getArgsAndBodyOfFunction = (func) => {
  * @param {{
  *   root: HTMLDivElement,
  *   value: import('../types.js').StructuredCloneValue
- *   specificSchemaObject?: import('../formats/schema.js').ZodexSchema
+ *   specificSchemaObject?: import('../formats/schema.js').ZodexySchema
  * }} cfg
  */
 const setValueAndTooltips = ({root, value, specificSchemaObject}) => {

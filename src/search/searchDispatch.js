@@ -49,12 +49,12 @@ import blobHTMLSearchType from './subTypes/blobHTMLSearchType.js';
  * round-trip, `SearchChoicesControl.$applyQuery`, `src/search/index.js`).
  * @typedef {{
  *   buildUI: (cfg: {
- *     schemaObject: import('../formats/schema.js').ZodexSchema,
+ *     schemaObject: import('../formats/schema.js').ZodexySchema,
  *     path: string,
  *     typeNamespace?: string,
  *     topRoot?: import('../types.js').RootElement,
  *     types?: import('../types.js').default,
- *     originalJSON?: import('../formats/schema.js').ZodexSchema
+ *     originalJSON?: import('../formats/schema.js').ZodexySchema
  *   }) => import('../types.js').JamilihArray,
  *   getQuery: (cfg: {
  *     root: HTMLElement,
@@ -165,7 +165,7 @@ const availableSearchTypes = {
   templateLiteral: stringSearchType,
 
   // `getSchemaType` has no case for `catch` at all (unlike `promise`/
-  //   `function`, already in `zodexToStructuredCloningTypeMap`), so it's
+  //   `function`, already in `zodexyToStructuredCloningTypeMap`), so it's
   //   added as its own extra case in `getSearchSchemaType` below
   catch: catchSearchType,
 
@@ -182,14 +182,14 @@ const availableSearchTypes = {
  * adds the extra shape distinctions `getSchemaType`'s own
  * `AvailableArbitraryType` output collapses (tuple, record/looseRecord,
  * union/xor/discriminatedUnion all currently reduce to `'array'`/`'object'`/
- * nothing, per `zodexToStructuredCloningTypeMap`,
+ * nothing, per `zodexyToStructuredCloningTypeMap`,
  * `src/formats/schema.js:30-56`).
  *
  * Intersection schemas are deliberately not a case here - they're resolved
  * before dispatch, by the search-widget walker calling `getTypesForSchema`
  * (search plan §3), reusing jsoe's existing intersection-merging machinery
  * rather than this function reinventing it.
- * @param {import('../formats/schema.js').ZodexSchema} schemaObject
+ * @param {import('../formats/schema.js').ZodexySchema} schemaObject
  * @returns {string}
  */
 export function getSearchSchemaType (schemaObject) {
@@ -210,7 +210,7 @@ export function getSearchSchemaType (schemaObject) {
   }
 
   // `getSchemaType` (`src/formats/schema.js`) has no `catch` case at all -
-  //   its `zodexToStructuredCloningTypeMap` never mapped it, unlike
+  //   its `zodexyToStructuredCloningTypeMap` never mapped it, unlike
   //   `promise`/`function` - so it's added here rather than there, matching
   //   how tuple/record/union already extend the search-only shape space.
   if (schemaObject.type === 'catch') {
@@ -229,7 +229,7 @@ export function getSearchSchemaType (schemaObject) {
  * back to `noneditableSearchType` for any schema shape `getSearchSchemaType`
  * reports that isn't (yet) registered, rather than throwing - the same
  * escape hatch a bare top-level `instanceof` schema falls through to.
- * @param {import('../formats/schema.js').ZodexSchema} schemaObject
+ * @param {import('../formats/schema.js').ZodexySchema} schemaObject
  * @returns {SearchTypeObject}
  */
 export function getSearchTypeObject (schemaObject) {
@@ -246,9 +246,9 @@ export function getSearchTypeObject (schemaObject) {
  * (e.g. one side of the intersection is itself a union) is handed to
  * `unionSearchType.js` unchanged via a synthesized `union` wrapper, the
  * same way `unionSearchType.js` already treats distinguishable branches.
- * @param {import('../formats/schema.js').ZodexSchema} schemaObject
- * @param {import('../formats/schema.js').ZodexSchema} originalJSON
- * @returns {import('../formats/schema.js').ZodexSchema}
+ * @param {import('../formats/schema.js').ZodexySchema} schemaObject
+ * @param {import('../formats/schema.js').ZodexySchema} originalJSON
+ * @returns {import('../formats/schema.js').ZodexySchema}
  */
 function resolveIntersection (schemaObject, originalJSON) {
   if (schemaObject.type !== 'intersection') {
@@ -257,7 +257,7 @@ function resolveIntersection (schemaObject, originalJSON) {
   const merged = [...getTypesForSchema(schemaObject, originalJSON)];
   return merged.length === 1
     ? merged[0]
-    : /** @type {import('../formats/schema.js').ZodexSchema} */ (
+    : /** @type {import('../formats/schema.js').ZodexySchema} */ (
       /** @type {unknown} */ ({type: 'union', options: merged})
     );
 }
@@ -274,12 +274,12 @@ function resolveIntersection (schemaObject, originalJSON) {
  * caller should be threading the true document root through via its own
  * `originalJSON` parameter instead.
  * @param {{
- *   schemaObject: import('../formats/schema.js').ZodexSchema,
+ *   schemaObject: import('../formats/schema.js').ZodexySchema,
  *   path: string,
  *   typeNamespace?: string,
  *   topRoot?: import('../types.js').RootElement,
  *   types?: import('../types.js').default,
- *   originalJSON?: import('../formats/schema.js').ZodexSchema
+ *   originalJSON?: import('../formats/schema.js').ZodexySchema
  * }} cfg
  * @returns {import('../types.js').JamilihArray}
  */

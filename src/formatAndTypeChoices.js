@@ -122,14 +122,14 @@ export const getFormatAndSchemaChoices = ({
  */
 
 /**
- * @typedef {import('./formats/schema.js').ZodexSchema} ZodexSchema
+ * @typedef {import('./formats/schema.js').ZodexySchema} ZodexySchema
  */
 
 /**
  * Builds a selector and container for types.
  * @param {object} cfg
  * @param {string[]} [cfg.schemas] The schema names
- * @param {(schema: string) => Promise<ZodexSchema>} [cfg.getSchemaContent] The
+ * @param {(schema: string) => Promise<ZodexySchema>} [cfg.getSchemaContent] The
  *    schema content retriever
  * @param {boolean} [cfg.hasValue] Set to `true` if you are supplying
  *   your own value. If `false` and `hasKeyPath` is `true`,

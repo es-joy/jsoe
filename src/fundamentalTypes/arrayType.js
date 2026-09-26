@@ -24,7 +24,7 @@ let optionalPropertyId = 0;
  *   type: import('../types.js').AvailableType,
  *   value: import('../formats.js').StructuredCloneValue,
  *   bringIntoFocus: boolean,
- *   schemaContent: import('../formats/schema.js').ZodexSchema,
+ *   schemaContent: import('../formats/schema.js').ZodexySchema,
  * }} cfg
  * @returns {Element}
  */

@@ -22,7 +22,7 @@ function isSelectElement (el) {
 /**
  * @typedef {{
  *   discriminator?: string,
- *   options: import('../../formats/schema.js').ZodexSchema[]
+ *   options: import('../../formats/schema.js').ZodexySchema[]
  * }} UnionLikeSchemaObject
  */
 

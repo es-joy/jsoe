@@ -15,7 +15,7 @@ import {buildSearchWidget} from '../searchDispatch.js';
  * `promiseSearchType.js`'s pass-through (recurse into `.innerType` at the
  * same path, wrap in a `passThrough` leaf), except `getSchemaType`
  * (`src/formats/schema.js`) has no case for `catch` at all - unlike
- * `promise`/`function`, which `zodexToStructuredCloningTypeMap` already
+ * `promise`/`function`, which `zodexyToStructuredCloningTypeMap` already
  * maps - so `getSearchSchemaType` adds `catch` as its own extra case purely
  * for the search side, the same way it already does for `tuple`/`record`/
  * the union family.

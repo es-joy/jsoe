@@ -80,7 +80,7 @@ Leaf kinds, discriminated by `kind`, each carrying a JSON-Pointer `path` (jsoe's
 
 ### 3. Schema-only dispatcher (`src/search/searchDispatch.js`)
 
-Must not reimplement `getSchemaType`'s special-casing (stringbool pipe, `codec`/filelist, `instanceof`, `literal`, `enum`, `templateLiteral`, `getCheckedType` fallback — all at `src/formats/schema.js:117-166`) — it imports and calls `getSchemaType` directly, then adds only the extra shape distinctions that function's own `AvailableArbitraryType` output collapses (tuple, record/looseRecord, union/xor/discriminatedUnion all currently reduce to `'array'`/`'object'`/nothing, per `zodexToStructuredCloningTypeMap`, `schema.js:30-56`):
+Must not reimplement `getSchemaType`'s special-casing (stringbool pipe, `codec`/filelist, `instanceof`, `literal`, `enum`, `templateLiteral`, `getCheckedType` fallback — all at `src/formats/schema.js:117-166`) — it imports and calls `getSchemaType` directly, then adds only the extra shape distinctions that function's own `AvailableArbitraryType` output collapses (tuple, record/looseRecord, union/xor/discriminatedUnion all currently reduce to `'array'`/`'object'`/nothing, per `zodexyToStructuredCloningTypeMap`, `schema.js:30-56`):
 
 ```js
 export function getSearchSchemaType (schemaObject) {
@@ -138,7 +138,7 @@ New `src/search/index.js` exports `buildSearchChoices({schemaContent, typeNamesp
 9. `buildSearchChoices` + `src/index.js` export (composes everything above).
 10. Demo page + Cypress suite.
 
-Resolved watch item: `tsconfig.json` used to exclude `src/formats/schema.js` from type-checking, presumably because zodexy's generic unions were once thought to defeat strict narrowing there. That exclusion (and a stale, unused `./src/index.ts` entry) has since been removed — all three tsc scripts (`tsc`, `tsc:ts7`, `tsc-cypress`) pass cleanly against the whole repo without it. `src/search/searchDispatch.js`'s narrowing over the same `ZodexSchema` union therefore needs no special dispensation; if it somehow does hit a wall `schema.js` didn't, that would be a new, surprising finding worth its own investigation rather than an expected outcome.
+Resolved watch item: `tsconfig.json` used to exclude `src/formats/schema.js` from type-checking, presumably because zodexy's generic unions were once thought to defeat strict narrowing there. That exclusion (and a stale, unused `./src/index.ts` entry) has since been removed — all three tsc scripts (`tsc`, `tsc:ts7`, `tsc-cypress`) pass cleanly against the whole repo without it. `src/search/searchDispatch.js`'s narrowing over the same `ZodexySchema` union therefore needs no special dispensation; if it somehow does hit a wall `schema.js` didn't, that would be a new, surprising finding worth its own investigation rather than an expected outcome.
 
 ### 7. Test plan
 

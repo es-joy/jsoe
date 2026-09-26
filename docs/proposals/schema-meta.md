@@ -68,7 +68,7 @@ Normalize the metadata bag and centralize precedence:
 const RESERVED = new Set(['title', 'description', 'id', 'deprecated']);
 
 /**
- * @param {import('../formats/schema.js').ZodexSchema} [s]
+ * @param {import('../formats/schema.js').ZodexySchema} [s]
  * @returns {{
  *   label: string|undefined,      // short, visible
  *   longText: string|undefined,   // prose for the tooltip only

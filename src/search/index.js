@@ -54,7 +54,7 @@ import {getSearchTypeObject, buildSearchWidget, resolveIntersection} from './sea
  * all at once, the same way `demo/index-search.js`'s "Check validity"
  * button does.
  * @param {{
- *   schemaContent: import('../formats/schema.js').ZodexSchema,
+ *   schemaContent: import('../formats/schema.js').ZodexySchema,
  *   typeNamespace?: string,
  *   topRoot?: import('../types.js').RootElement,
  *   types?: import('../types.js').default

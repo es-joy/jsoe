@@ -17,7 +17,7 @@ import {buildSearchWidget} from '../searchDispatch.js';
 /**
  * @typedef {{
  *   type: 'array',
- *   element: import('../../formats/schema.js').ZodexSchema,
+ *   element: import('../../formats/schema.js').ZodexySchema,
  *   minLength?: number,
  *   maxLength?: number
  * }} FilelistOutputSchema

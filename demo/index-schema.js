@@ -27,7 +27,7 @@ function isInputElement (el) {
   return el.nodeName.toLowerCase() === 'input';
 }
 
-const zodexSchemaJSON = await (
+const zodexySchemaJSON = await (
   await fetch('../vendor/zodexy/dist/schema.zodexy.json')
 ).json();
 
@@ -403,7 +403,7 @@ const schemaInstanceJSONStrings11 = {
 async function getSchemaContent (schema) {
   switch (schema) {
   case 'Zodexy schema':
-    return await zodexSchemaJSON;
+    return await zodexySchemaJSON;
   case 'Zodexy schema instance':
     return schemaInstanceJSON;
   case 'Zodexy schema instance 2':

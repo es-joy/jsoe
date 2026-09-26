@@ -52,8 +52,8 @@
  * @param {{
  *   typeNamespace?: string,
  *   getSchemaContent?: (db: string, store: string) => (
- *     import('./formats/schema.js').ZodexSchema | undefined |
- *     Promise<import('./formats/schema.js').ZodexSchema | undefined>
+ *     import('./formats/schema.js').ZodexySchema | undefined |
+ *     Promise<import('./formats/schema.js').ZodexySchema | undefined>
  *   )
  * }} [options] - `typeNamespace` scopes the jsoe-internal type-choice state
  *   so this doesn't collide with unrelated controls the same page builds

@@ -1,7 +1,7 @@
 import {jml} from '../vendor-imports.js';
 
 /**
- * @typedef {import('../formats/schema.js').ZodexSchema} ZodexSchema
+ * @typedef {import('../formats/schema.js').ZodexySchema} ZodexySchema
  */
 
 /**
@@ -29,7 +29,7 @@ function stringifyMetaValue (val) {
  *   directly on a schema remains supported). `meta.description` is treated as
  *   tooltip-only long-form text only when `meta.title` is also present;
  *   otherwise it is already serving as the label.
- * @param {ZodexSchema} [schemaObject]
+ * @param {ZodexySchema} [schemaObject]
  * @returns {{
  *   label: string|undefined,
  *   longText: string|undefined,
@@ -115,7 +115,7 @@ export function resolveSchemaMeta (schemaObject) {
  * Terse call-site sugar for the visible label of a (sub)schema. Returns
  *   `undefined` when the schema carries no usable metadata, so callers keep
  *   their own `?? fallback`.
- * @param {ZodexSchema} [schemaObject]
+ * @param {ZodexySchema} [schemaObject]
  * @returns {string|undefined}
  */
 export function schemaLabel (schemaObject) {
@@ -124,7 +124,7 @@ export function schemaLabel (schemaObject) {
 
 /**
  * Whether a (sub)schema is marked deprecated via `meta.deprecated`.
- * @param {ZodexSchema} [schemaObject]
+ * @param {ZodexySchema} [schemaObject]
  * @returns {boolean}
  */
 export function isDeprecated (schemaObject) {
@@ -135,7 +135,7 @@ export function isDeprecated (schemaObject) {
 /**
  * ` schema-deprecated` (leading space) when the schema is deprecated, else `''`
  * — for appending to an existing `class` string.
- * @param {ZodexSchema} [schemaObject]
+ * @param {ZodexySchema} [schemaObject]
  * @returns {string}
  */
 export function deprecatedClassSuffix (schemaObject) {
@@ -192,7 +192,7 @@ export function metaTable (rows) {
  * Rendered in both view and edit mode; it never mutates the schema (jsoe edits
  *   data conforming to a schema, not the schema guiding the session).
  * @param {HTMLElement} root
- * @param {ZodexSchema} [schemaObject]
+ * @param {ZodexySchema} [schemaObject]
  * @returns {void}
  */
 export function appendSchemaMeta (root, schemaObject) {

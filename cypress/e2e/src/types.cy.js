@@ -194,8 +194,52 @@ describe('`typeChoices`', function () {
 
       expect(
         fieldset.querySelector('input[type="radio"]:checked')
-      ).to.equal(null);
-      expect(typeContainer.querySelector('[data-type]')).to.equal(null);
+      ).to.be.null;
+      expect(typeContainer.querySelector('[data-type]')).to.be.null;
+    }
+  );
+
+  it(
+    'falls back to `schemaOriginal` for the `xor` match-status check when ' +
+      '`schemaContent` itself is not the `xor` schema (a broadened ' +
+      '`unknown` placeholder standing in for it)',
+    function () {
+      /** @type {import('zodexy').SzXor<any>} */
+      const xorSchema = {
+        type: 'xor',
+        options: [
+          {description: 'Any text', type: 'string'},
+          {description: 'A number', type: 'number'}
+        ]
+      };
+      const choice = typeChoices({
+        format: 'schema',
+        typeNamespace: 'xor-schema-original',
+        schemaContent: {type: 'unknown'},
+        schemaOriginal: xorSchema
+      });
+      document.body.append(...choice.domArray);
+      const fieldset = /**
+                        * @type {import('../../../src/typeChoices.js').TypeChoicesElementAPI}
+                        */ (
+          document.querySelector('.typeChoices-xor-schema-original')
+        );
+      expect(fieldset.matches('fieldset.xorTypeChoices')).to.equal(true);
+
+      /** @type {HTMLInputElement} */ (
+        fieldset.querySelector('input[type="radio"]')
+      ).click();
+
+      // The status text's "of 2" reflects `getXorBranchMatchInfo` having
+      //   been given the real (2-branch) `xor` schema (`schemaOriginal`),
+      //   not the unrelated `{type: 'unknown'}` `schemaContent` - which has
+      //   no `options` and would report 0 branches instead (see its own
+      //   guard).
+      expect(
+        /** @type {HTMLElement} */ (
+          fieldset.querySelector('.xorMatchStatus')
+        ).textContent
+      ).to.contain('of 2');
     }
   );
 

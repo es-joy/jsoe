@@ -14,7 +14,7 @@ import {
 
 import FileList from '../src/utils/FileList.js';
 
-const zodexSchemaJSON = await (
+const zodexySchemaJSON = await (
   await fetch('../vendor/zodexy/dist/schema.zodexy.json')
 ).json();
 
@@ -328,7 +328,7 @@ setTimeout(function () {
             },
             properties: {}
           };
-          const schema = structuredClone(zodexSchemaJSON);
+          const schema = structuredClone(zodexySchemaJSON);
           schema.options = [
             {
               type: 'array',

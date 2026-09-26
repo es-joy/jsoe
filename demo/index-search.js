@@ -173,7 +173,7 @@ function buildExampleAllTypesQuery () {
  * @type {{
  *   id: string,
  *   label: string,
- *   schemaContent: import('../src/formats/schema.js').ZodexSchema
+ *   schemaContent: import('../src/formats/schema.js').ZodexySchema
  * }[]}
  */
 const sections = [

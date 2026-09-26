@@ -11,7 +11,7 @@ import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js
 /**
  * Special number: multiple select of "Infinity", "-Infinity" (README;
  * `NaN` is covered separately by `nanSearchType.js`'s presence-only
- * control, since it's its own zodex schema type - `SpecialRealNumberType.js`
+ * control, since it's its own zodexy schema type - `SpecialRealNumberType.js`
  * itself covers exactly `Infinity`/`-Infinity`/`-0`, not `NaN`).
  * @type {SearchTypeObject}
  */

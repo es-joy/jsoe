@@ -6,7 +6,7 @@ export const isNullish = (obj) => {
 };
 
 /**
- * Zodex schema types which jsoe expands into a flat set of candidate leaf
+ * Zodexy schema types which jsoe expands into a flat set of candidate leaf
  * types and drives from a single type-choices control: `union` (anyOf), `xor`
  * (exactly one), and `discriminatedUnion` (keyed by a literal field). They
  * share `options` and, downstream, the same option-indexing logic.

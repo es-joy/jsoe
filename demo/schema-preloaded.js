@@ -14,7 +14,7 @@ import {
 
 import FileList from '../src/utils/FileList.js';
 
-const zodexSchemaJSON = await (
+const zodexySchemaJSON = await (
   await fetch('../vendor/zodexy/dist/schema.zodexy.json')
 ).json();
 
@@ -318,7 +318,7 @@ setTimeout(function () {
             },
             properties: {}
           };
-          const schema = zodexSchemaJSON;
+          const schema = zodexySchemaJSON;
           return ['div', {class: 'innerItem'}, [
             ...typeChoices({
               autoTrigger: true,
@@ -345,7 +345,7 @@ setTimeout(function () {
               }
             }
           };
-          const schema = zodexSchemaJSON;
+          const schema = zodexySchemaJSON;
           return ['div', {class: 'innerItem'}, [
             ...typeChoices({
               autoTrigger: true,

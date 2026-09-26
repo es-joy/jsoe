@@ -47,12 +47,12 @@ function syncObjectValidity (root) {
  * one row rather than only being able to ask about existence.
  * @param {{
  *   propertyName: string,
- *   propSchema: import('../../formats/schema.js').ZodexSchema,
+ *   propSchema: import('../../formats/schema.js').ZodexySchema,
  *   path: string,
  *   typeNamespace: string|undefined,
  *   topRoot: import('../../types.js').RootElement|undefined,
  *   types: import('../../types.js').default|undefined,
- *   originalJSON: import('../../formats/schema.js').ZodexSchema|undefined,
+ *   originalJSON: import('../../formats/schema.js').ZodexySchema|undefined,
  *   addPropertySelect: HTMLSelectElement
  * }} cfg
  * @returns {HTMLElement}
@@ -200,12 +200,12 @@ function buildHasPropertyRow ({
  * actually invalid again.
  * @param {{
  *   propertyName: string,
- *   propSchema: import('../../formats/schema.js').ZodexSchema,
+ *   propSchema: import('../../formats/schema.js').ZodexySchema,
  *   path: string,
  *   typeNamespace: string|undefined,
  *   topRoot: import('../../types.js').RootElement|undefined,
  *   types: import('../../types.js').default|undefined,
- *   originalJSON: import('../../formats/schema.js').ZodexSchema|undefined
+ *   originalJSON: import('../../formats/schema.js').ZodexySchema|undefined
  * }} cfg
  * @returns {HTMLElement}
  */
