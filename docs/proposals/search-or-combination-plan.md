@@ -1,5 +1,12 @@
 # OR-combination support for search widgets
 
+**Status: implemented and verified.** Every site below is done; every spec
+listed under Testing has been rewritten for the checkbox-based UI and
+passes; a full clean suite run (`npm run cypress`, `ELECTRON_RUN_AS_NODE`
+unset) is green at 1047/1047 with no coverage regressions attributable to
+this work (see the `blobHTMLSearchType.js` section for the one general bug
+found and fixed along the way, in `extractClauseFromList`).
+
 ## Context
 
 jsoe's schema-driven search widgets (`src/search/`) build a query tree from
@@ -200,6 +207,36 @@ handles that natively. `applyQuery` needs a small bespoke lookup (not
 `extractLeafOfKind`/`extractClauseForPath`) since all 4 modes share both
 `kind: 'blobHTML'` *and* the same `path` — disambiguated only by each
 leaf's own `mode` field.
+
+**Status: done.** Implemented as `readBlobHTMLFacet`/`applyBlobHTMLFacet`
+bespoke helpers plus a `blobHTMLModes` array driving `getQuery`/`applyQuery`
+uniformly across all 4 modes; `jsoe.css`'s `.searchAtLeastOneSentinel` rule
+(missed when foundational piece #3 keyed that class) was also fixed to the
+`[class^="searchAtLeastOneSentinel--"]` attribute-prefix form, since every
+sentinel on the page was rendering as a plain visible text input until then.
+`cypress/e2e/search/subTypes/blobHTML.cy.js` fully rewritten (9 tests,
+passing) for the checkbox-based UI, including an AND/OR round-trip pair.
+
+**Bug found and fixed while testing this site (general, not blobHTML-
+specific):** `extractClauseFromList` (`searchUtils.js`) used `findIndex` to
+grab only the *first* clause touching a given path out of an already-
+flattened array. This silently broke `objectSearchType.js`'s optional-
+property restore whenever exactly one optional property was configured and
+that property's own child widget internally combined 2+ leaves via
+`combineOr`/`combineAnd` at the same path (e.g. blobHTML's own two OR'd
+facets) — the ancestor `combineAnd`/`combineOr` collapses its wrapper away
+for a lone survivor (both functions' own doc), so the child's own internal
+`$or`/`$and` surfaces at the flattened level indistinguishable from
+"separate sibling properties," and only the first of its leaves survived
+round-tripping through "Edit raw." Fixed by having `extractClauseFromList`
+collect *every* matching clause and recombine them with a new `combinator`
+parameter (the same combinator `clauses` was itself unwrapped from, which
+both call sites already had in hand) instead of just the first match;
+`extractClauseForPath` and `objectSearchType.js`'s two call sites were
+updated to pass it through. Verified via a dedicated "round-trips an
+OR-combined query of two facets through Edit raw" test in blobHTML.cy.js,
+plus a full re-run of object.cy.js's existing 8 tests to confirm no
+regression.
 
 ## Testing (run for every site touched)
 

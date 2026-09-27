@@ -9,7 +9,8 @@ describe('search: error spec', () => {
 
   it('combines a message literal with a lineNumber range', () => {
     cy.get(sel + 'input.jsoeSearchOptIn--message').check();
-    cy.get(sel + 'input.jsoeSearchValue--message').type('boom');
+    cy.get(sel + 'input.jsoeSearchOptIn--messageLiteral').check();
+    cy.get(sel + 'input.jsoeSearchLiteralValue--message').type('boom');
     cy.get(sel + 'input.jsoeSearchOptIn--lineNumber').check();
     cy.get(sel + 'input.jsoeSearchRangeGte--lineNumber').type('42');
     cy.get(sel + '.getQueryButton').click();
@@ -20,6 +21,26 @@ describe('search: error spec', () => {
         kind: 'literalSet', path: '#/error/message', $in: ['boom']
       });
       expect(leaf.$and).to.deep.include({
+        kind: 'range', path: '#/error/lineNumber', valueType: 'number', $gte: 42
+      });
+    });
+  });
+
+  it('combines message and lineNumber under "Any of" once switched', () => {
+    cy.get(sel + 'input.jsoeSearchOptIn--message').check();
+    cy.get(sel + 'input.jsoeSearchOptIn--messageLiteral').check();
+    cy.get(sel + 'input.jsoeSearchLiteralValue--message').type('boom');
+    cy.get(sel + 'input.jsoeSearchOptIn--lineNumber').check();
+    cy.get(sel + 'input.jsoeSearchRangeGte--lineNumber').type('42');
+    cy.get(sel + 'jsoe-search-error select.jsoeSearchCombinator--').select('or');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      const leaf = query.$and[0];
+      expect(leaf.$or).to.deep.include({
+        kind: 'literalSet', path: '#/error/message', $in: ['boom']
+      });
+      expect(leaf.$or).to.deep.include({
         kind: 'range', path: '#/error/lineNumber', valueType: 'number', $gte: 42
       });
     });
@@ -40,7 +61,8 @@ describe('search: error spec', () => {
 
   it('contributes nothing for a number property opted in with no bound filled in', () => {
     cy.get(sel + 'input.jsoeSearchOptIn--message').check();
-    cy.get(sel + 'input.jsoeSearchValue--message').type('boom');
+    cy.get(sel + 'input.jsoeSearchOptIn--messageLiteral').check();
+    cy.get(sel + 'input.jsoeSearchLiteralValue--message').type('boom');
     cy.get(sel + 'input.jsoeSearchOptIn--lineNumber').check();
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
@@ -54,7 +76,7 @@ describe('search: error spec', () => {
   });
 
   it(
-    'round-trips a saved message query back into the checked opt-in and ' +
+    'round-trips a saved message query back into the checked opt-ins and ' +
       'its value (plain `Error` has no error-class facet to also apply)',
     () => {
       cy.get(sel + '.queryRawEditor .cm-content').type(
@@ -64,7 +86,8 @@ describe('search: error spec', () => {
       cy.get(sel + '.applyQueryButton').click();
       cy.get(sel + '.queryRawEditorError').should('have.text', '');
       cy.get(sel + 'input.jsoeSearchOptIn--message').should('be.checked');
-      cy.get(sel + 'input.jsoeSearchValue--message').should(
+      cy.get(sel + 'input.jsoeSearchOptIn--messageLiteral').should('be.checked');
+      cy.get(sel + 'input.jsoeSearchLiteralValue--message').should(
         'have.value', 'saved'
       );
     }

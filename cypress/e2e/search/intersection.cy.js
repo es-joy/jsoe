@@ -18,7 +18,11 @@ describe('search: intersection resolution', () => {
 
       cy.get(
         sel + '[data-search-path="#/intersectionSingle"] ' +
-          'input.jsoeSearchValue--'
+          'input.jsoeSearchOptIn--Literal'
+      ).check();
+      cy.get(
+        sel + '[data-search-path="#/intersectionSingle"] ' +
+          'input.jsoeSearchLiteralValue--'
       ).type('abc');
       cy.get(sel + '.getQueryButton').click();
       cy.get(sel + '.queryResult').then((elem) => {
@@ -50,7 +54,11 @@ describe('search: intersection resolution', () => {
       ).check();
       cy.get(
         unionSel + 'jsoe-search-string[data-search-path="#/intersectionMulti/intersectionA"] ' +
-          'input.jsoeSearchValue--'
+          'input.jsoeSearchOptIn--Literal'
+      ).check();
+      cy.get(
+        unionSel + 'jsoe-search-string[data-search-path="#/intersectionMulti/intersectionA"] ' +
+          'input.jsoeSearchLiteralValue--'
       ).type('xyz');
 
       cy.get(sel + '.getQueryButton').click();

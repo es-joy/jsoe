@@ -899,17 +899,28 @@ const schemaInstanceJSONSearchAllTypes = {
     //   this one exact value, its checkbox is labelled with that value's
     //   own `viewUI` rather than a generic "present" string.
     literalSingle: {type: 'literal', values: ['solo'], isOptional: true},
+    // `SzKey`'s own value type (`zodexy`'s `types.d.ts`) allows `null`/
+    //   `undefined` among a literal's values alongside every other
+    //   primitive - these single-value fixtures exercise
+    //   `viewUIForLiteralValue`'s own `null`/`undefined` cases specifically
+    //   (a presence-only literal's checkbox label), distinct from
+    //   `literalMixed`'s multi-select `null`/`undefined` options below.
+    literalSingleNull: {type: 'literal', values: [null], isOptional: true},
+    literalSingleUndefined: {
+      type: 'literal', values: [undefined], isOptional: true
+    },
     // A literal with more than one possible value (even all the same JS
     //   type) instead offers a multi-select - one option per value, not
     //   per type - so the user can search for a *particular* literal.
     literal: {type: 'literal', values: ['red', 'green'], isOptional: true},
     // Values spanning several JS types (including `bigint`, quoted/`n`-
     //   suffixed like real JS literal syntax so each type stays visually
-    //   distinct) and one long enough to exercise the option label's own
-    //   length truncation.
+    //   distinct; and `null`/`undefined`, each labelled by a bare
+    //   `String(value)`) and one long enough to exercise the option label's
+    //   own length truncation.
     literalMixed: {
       type: 'literal',
-      values: ['a', 'x'.repeat(50), 1, true, 2n],
+      values: ['a', 'x'.repeat(50), 1, true, 2n, null, undefined],
       isOptional: true
     },
     array: {type: 'array', element: {type: 'number'}, isOptional: true},

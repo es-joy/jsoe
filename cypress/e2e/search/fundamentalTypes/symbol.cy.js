@@ -9,7 +9,8 @@ describe('search: symbol spec', () => {
 
   it('gets a literalSet query against the description', () => {
     const propSel = sel + '[data-search-path="#/symbol"] ';
-    cy.get(propSel + 'input[name$="-value"]').type('mySymbol');
+    cy.get(propSel + 'input.jsoeSearchOptIn--Literal').check();
+    cy.get(propSel + 'input.jsoeSearchLiteralValue--').type('mySymbol');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());
@@ -19,16 +20,24 @@ describe('search: symbol spec', () => {
     });
   });
 
-  it('gets a regex query against the description when that mode is selected', () => {
+  it('gets a regex query against the description from the regex facet', () => {
     const propSel = sel + '[data-search-path="#/symbol"] ';
-    cy.get(propSel + 'select[name$="-mode"]').select('regex');
-    cy.get(propSel + 'input[name$="-value"]').type('^my');
+    cy.get(propSel + 'input.jsoeSearchOptIn--Regex').check();
+    cy.get(propSel + 'input.jsoeSearchRegexValue--').type('^my');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());
       expect(query.$and[0]).to.deep.equal({
         kind: 'regex', path: '#/symbol', $regex: '^my'
       });
+    });
+  });
+
+  it('contributes nothing with no facet opted into', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
     });
   });
 });

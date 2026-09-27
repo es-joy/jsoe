@@ -8,7 +8,8 @@ describe('search: catch spec', () => {
   });
 
   it('wraps the inner type\'s own query in a passThrough leaf', () => {
-    cy.get(sel + 'jsoe-search-catch input[name$="-value"]').type('abc');
+    cy.get(sel + 'jsoe-search-catch input.jsoeSearchOptIn--Literal').check();
+    cy.get(sel + 'jsoe-search-catch input.jsoeSearchLiteralValue--').type('abc');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());

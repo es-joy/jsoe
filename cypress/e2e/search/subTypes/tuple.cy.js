@@ -10,7 +10,8 @@ describe('search: tuple spec', () => {
       'opted into',
     () => {
       cy.get(sel + 'input.jsoeSearchOptIn--0').check();
-      cy.get(sel + '[data-search-path="#/0"] input[name$="-value"]').
+      cy.get(sel + '[data-search-path="#/0"] input.jsoeSearchOptIn--Literal').check();
+      cy.get(sel + '[data-search-path="#/0"] input.jsoeSearchLiteralValue--').
         type('abc');
       // Position 1 is left un-opted-in.
 
@@ -29,7 +30,8 @@ describe('search: tuple spec', () => {
 
   it('gets a per-position match combined with the rest length/element match', () => {
     cy.get(sel + 'input.jsoeSearchOptIn--0').check();
-    cy.get(sel + '[data-search-path="#/0"] input[name$="-value"]').type('abc');
+    cy.get(sel + '[data-search-path="#/0"] input.jsoeSearchOptIn--Literal').check();
+    cy.get(sel + '[data-search-path="#/0"] input.jsoeSearchLiteralValue--').type('abc');
     cy.get(sel + 'input.jsoeSearchOptIn--1').check();
     cy.get(sel + '[data-search-path="#/1"] input[name$="-gte"]').type('7');
     cy.get(sel + '[data-search-path="#"] input[name$="-size"]').type('4');

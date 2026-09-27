@@ -18,7 +18,8 @@ describe('search: map spec', () => {
 
   it('combines key/value matches under a joint flag', () => {
     cy.get(mapSel + 'input.jsoeSearchOptIn--key').check();
-    cy.get(mapSel + '[data-search-path="#/map/*key"] input[name$="-value"]').type('x');
+    cy.get(mapSel + '[data-search-path="#/map/*key"] input.jsoeSearchOptIn--Literal').check();
+    cy.get(mapSel + '[data-search-path="#/map/*key"] input.jsoeSearchLiteralValue--').type('x');
     cy.get(mapSel + 'input.jsoeSearchOptIn--value').check();
     cy.get(mapSel + '[data-search-path="#/map/*value"] input[name$="-gte"]').type('5');
     cy.get(mapSel + 'input[name$="-joint"]').check();
@@ -39,7 +40,8 @@ describe('search: map spec', () => {
 
   it('reports only the key match when the value is not opted into', () => {
     cy.get(mapSel + 'input.jsoeSearchOptIn--key').check();
-    cy.get(mapSel + '[data-search-path="#/map/*key"] input[name$="-value"]').type('x');
+    cy.get(mapSel + '[data-search-path="#/map/*key"] input.jsoeSearchOptIn--Literal').check();
+    cy.get(mapSel + '[data-search-path="#/map/*key"] input.jsoeSearchLiteralValue--').type('x');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());

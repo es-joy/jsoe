@@ -14,10 +14,11 @@ describe('search: form validity', () => {
     cy.get(requiredRowSel + 'input.jsoeSearchCheckbox').check();
     cy.get(sel + '.checkValidityButton').click();
     // Opted in (satisfies the object's own "at least one active row"), but
-    // its own re-enabled Value input is still empty and `required`.
+    // its own re-enabled string child still needs one of its own
+    // literal/regex/notContains facets opted into.
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
 
-    cy.get(requiredRowSel + 'input[name$="-value"]').type('anything');
+    cy.get(requiredRowSel + 'input.jsoeSearchOptIn--Literal').check();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
@@ -26,21 +27,23 @@ describe('search: form validity', () => {
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
   });
 
-  it('goes invalid when an added literal/regex property is left empty, valid once filled, invalid again once removed (the object itself needs an active row)', () => {
+  it('goes invalid when an added literal/regex property has no facet opted into, valid once one is (even with no value entered), invalid again once removed (the object itself needs an active row)', () => {
     cy.get(sel + 'select.addPropertySelect').select('string');
     cy.get(sel + 'button').contains('Add').click();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
 
-    const addedSel = sel + 'jsoe-search-string[data-search-path="#/string"] input[name$="-value"]';
-    cy.get(addedSel).type('abc');
+    const addedSel = sel +
+      'jsoe-search-string[data-search-path="#/string"] input.jsoeSearchOptIn--Literal';
+    cy.get(addedSel).check();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
-    cy.get(addedSel).clear();
+    cy.get(addedSel).uncheck();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
 
+    cy.get(addedSel).check();
     cy.get(
       sel + 'jsoe-search-has-property[data-property-name="string"] button.removePropertyButton'
     ).click();
@@ -121,7 +124,7 @@ describe('search: form validity', () => {
     cy.get(dateSel + '.validityResult').should('have.text', 'Invalid');
   });
 
-  it('is valid when "Has property" is chosen even with the nested value left empty, still combinable, invalid again back at "(any)"', () => {
+  it('is valid when "Has property" is chosen even with no child facet opted into, still combinable, invalid again back at "(any)"', () => {
     cy.get(sel + 'select.addPropertySelect').select('string');
     cy.get(sel + 'button').contains('Add').click();
     cy.get(sel + '.checkValidityButton').click();
@@ -131,12 +134,13 @@ describe('search: form validity', () => {
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
-    const valueSel = sel + 'jsoe-search-string[data-search-path="#/string"] input[name$="-value"]';
-    cy.get(valueSel).type('abc');
+    const optInSel = sel +
+      'jsoe-search-string[data-search-path="#/string"] input.jsoeSearchOptIn--Literal';
+    cy.get(optInSel).check();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
-    cy.get(valueSel).clear();
+    cy.get(optInSel).uncheck();
     cy.get(sel + 'select[name$="-hasProperty-string"]').select('');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
@@ -227,7 +231,7 @@ describe('search: form validity', () => {
     cy.get(tupleSel + '.validityResult').should('have.text', 'Invalid');
 
     cy.get(tupleSel + 'input.jsoeSearchOptIn--0').check();
-    cy.get(tupleSel + '[data-search-path="#/0"] input[name$="-value"]').type('abc');
+    cy.get(tupleSel + '[data-search-path="#/0"] input.jsoeSearchOptIn--Literal').check();
     cy.get(tupleSel + '.checkValidityButton').click();
     cy.get(tupleSel + '.validityResult').should('have.text', 'Valid');
 
@@ -270,7 +274,7 @@ describe('search: form validity', () => {
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
   });
 
-  it('is valid when "Has property" is chosen for a file-typed property, but opting into "Name" still requires its own Value', () => {
+  it('is valid when "Has property" is chosen for a file-typed property, staying valid regardless of which of its own facets are opted into (the ancestor "Has" already exempts them)', () => {
     cy.get(sel + 'select.addPropertySelect').select('file');
     cy.get(sel + 'button').contains('Add').click();
     cy.get(sel + '.checkValidityButton').click();
@@ -283,9 +287,9 @@ describe('search: form validity', () => {
     const fileSel = sel + 'jsoe-search-file[data-search-path="#/file"] ';
     cy.get(fileSel + 'input.jsoeSearchOptIn--name').check();
     cy.get(sel + '.checkValidityButton').click();
-    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
+    cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
-    cy.get(fileSel + 'input.jsoeSearchValue--name').type('report.pdf');
+    cy.get(fileSel + 'input.jsoeSearchOptIn--nameLiteral').check();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
@@ -319,7 +323,7 @@ describe('search: form validity', () => {
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
 
-  it('is valid when "Has property" is chosen for a blobHTML-typed property, and stays valid across a mode switch', () => {
+  it('is valid when "Has property" is chosen for a blobHTML-typed property, and stays valid once any one facet is opted into (even with no value entered)', () => {
     cy.get(sel + 'select.addPropertySelect').select('blobHTML');
     cy.get(sel + 'button').contains('Add').click();
     cy.get(sel + '.checkValidityButton').click();
@@ -330,67 +334,54 @@ describe('search: form validity', () => {
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
     const blobHTMLSel = sel + 'jsoe-search-blob-html[data-search-path="#/blobHTML"] ';
-    cy.get(blobHTMLSel + 'select.jsoeSearchBlobHTMLMode').select('fullText');
+    cy.get(blobHTMLSel + 'input.jsoeSearchOptIn--fullText').check();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
-
-    cy.get(sel + 'select[name$="-hasProperty-blobHTML"]').select('');
-    cy.get(sel + '.checkValidityButton').click();
-    cy.get(sel + '.validityResult').should('have.text', 'Invalid');
   });
 
-  it('requires the currently-visible blobHTML value control only, valid once filled', () => {
+  it('requires at least one blobHTML facet to be opted into, valid once any one is (even with no value entered)', () => {
     cy.get(sel + 'select.addPropertySelect').select('blobHTML');
     cy.get(sel + 'button').contains('Add').click();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
 
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('.title');
+    cy.get(sel + 'input.jsoeSearchOptIn--cssSelector').check();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
-    // Switching to "Full text search" swaps the required control to the
-    // (still-empty) textarea, so the form goes invalid again despite the
-    // input from a moment ago still holding a value.
-    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('fullText');
+    cy.get(sel + 'input.jsoeSearchOptIn--cssSelector').uncheck();
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
-
-    cy.get(sel + 'textarea.jsoeSearchBlobHTMLValue').type('welcome');
-    cy.get(sel + '.checkValidityButton').click();
-    cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
 
   it('rejects a syntactically invalid CSS selector, XPath expression, and regex for blobHTML', () => {
     cy.get(sel + 'select.addPropertySelect').select('blobHTML');
     cy.get(sel + 'button').contains('Add').click();
 
-    // "CSS selector" is the default mode.
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('[[[');
+    cy.get(sel + 'input.jsoeSearchOptIn--cssSelector').check();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--cssSelector').type('[[[');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('.title');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--cssSelector').clear();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--cssSelector').type('.title');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
-    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('xpath');
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('///');
+    cy.get(sel + 'input.jsoeSearchOptIn--xpath').check();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--xpath').type('///');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('//div');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--xpath').clear();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--xpath').type('//div');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
 
-    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('rawHTMLRegex');
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('[[[');
+    cy.get(sel + 'input.jsoeSearchOptIn--rawHTMLRegex').check();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--rawHTMLRegex').type('[[[');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').clear();
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type('^abc$');
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--rawHTMLRegex').clear();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--rawHTMLRegex').type('^abc$');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
@@ -399,8 +390,8 @@ describe('search: form validity', () => {
     cy.get(sel + 'select.addPropertySelect').select('blobHTML');
     cy.get(sel + 'button').contains('Add').click();
 
-    cy.get(sel + 'select.jsoeSearchBlobHTMLMode').select('rawHTMLRegex');
-    cy.get(sel + 'input.jsoeSearchBlobHTMLValue').type(
+    cy.get(sel + 'input.jsoeSearchOptIn--rawHTMLRegex').check();
+    cy.get(sel + 'input.jsoeSearchBlobHTMLValue--rawHTMLRegex').type(
       String.raw`\p{Foo}`, {parseSpecialCharSequences: false}
     );
     cy.get(sel + '.checkValidityButton').click();
@@ -408,7 +399,7 @@ describe('search: form validity', () => {
 
     // `\p{Foo}` is just literal text without the `u` flag, but becomes an
     // (here, unrecognized) Unicode property escape once `u` is chosen.
-    cy.get(sel + 'select.jsoeSearchBlobHTMLFlags').select(['u']);
+    cy.get(sel + 'select.jsoeSearchBlobHTMLFlags--rawHTMLRegex').select(['u']);
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
   });
@@ -418,13 +409,13 @@ describe('search: form validity', () => {
     cy.get(sel + 'button').contains('Add').click();
 
     const propSel = sel + '[data-search-path="#/string"] ';
-    cy.get(propSel + 'select[name$="-mode"]').select('regex');
-    cy.get(propSel + 'input[name$="-value"]').type('[[[');
+    cy.get(propSel + 'input.jsoeSearchOptIn--Regex').check();
+    cy.get(propSel + 'input.jsoeSearchRegexValue--').type('[[[');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
 
-    cy.get(propSel + 'input[name$="-value"]').clear();
-    cy.get(propSel + 'input[name$="-value"]').type('^abc$');
+    cy.get(propSel + 'input.jsoeSearchRegexValue--').clear();
+    cy.get(propSel + 'input.jsoeSearchRegexValue--').type('^abc$');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
@@ -434,13 +425,13 @@ describe('search: form validity', () => {
     cy.get(sel + 'button').contains('Add').click();
 
     const propSel = sel + '[data-search-path="#/regexp"] ';
-    cy.get(propSel + 'select.jsoeSearchMode--').select('regex');
-    cy.get(propSel + 'input[name$="-value"]').type('[[[');
+    cy.get(propSel + 'input.jsoeSearchOptIn--Regex').check();
+    cy.get(propSel + 'input.jsoeSearchRegexValue--').type('[[[');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Invalid');
 
-    cy.get(propSel + 'input[name$="-value"]').clear();
-    cy.get(propSel + 'input[name$="-value"]').type('^abc$');
+    cy.get(propSel + 'input.jsoeSearchRegexValue--').clear();
+    cy.get(propSel + 'input.jsoeSearchRegexValue--').type('^abc$');
     cy.get(sel + '.checkValidityButton').click();
     cy.get(sel + '.validityResult').should('have.text', 'Valid');
   });
@@ -453,13 +444,14 @@ describe('search: form validity', () => {
       cy.get(sel + 'button').contains('Add').click();
 
       const propSel = sel + '[data-search-path="#/string"] ';
-      cy.get(propSel + 'input[name$="-value"]').type('abc');
+      cy.get(propSel + 'input.jsoeSearchOptIn--Literal').check();
+      cy.get(propSel + 'input.jsoeSearchLiteralValue--').type('abc');
       // A real, unprevented submit would navigate the page away (there is
       //   no `action`, so it re-requests the current URL), wiping this
       //   typed value; asserting the value survives is how a suppressed
       //   submit is told apart from one that merely didn't happen.
       cy.get(sel + 'form.searchChoicesContainer').submit();
-      cy.get(propSel + 'input[name$="-value"]').should('have.value', 'abc');
+      cy.get(propSel + 'input.jsoeSearchLiteralValue--').should('have.value', 'abc');
     }
   );
 });

@@ -1,8 +1,10 @@
 import {
   buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery, applyLiteralRegexQuery,
-  buildMultiSelect, readMultiSelect, applyMultiSelect, findOwnControl, extractLeafOfKind
+  wireLiteralRegexControls, readOptInChecked,
+  buildMultiSelect, readMultiSelect, applyMultiSelect, extractLeafOfKind,
+  buildCombinatorSelect, readCombinator, applyCombinator, combinatorOfQuery
 } from '../searchUtils.js';
-import {makeMultiSelectLeaf, combineAnd} from '../queryTreeBuilders.js';
+import {combineAnd, combineOr, makeMultiSelectLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
 
@@ -17,10 +19,16 @@ import regexpType from '../../fundamentalTypes/regexpType.js';
  * §4 - already a plain exported property, no extraction needed). Flags are
  * a property of the regexp itself, not of how its source is being matched,
  * but the Flags control is only shown (and only contributes to the query)
- * while the source's own Mode is "Matches regex" - searching a source
+ * while the source's own Regex facet is opted into - searching a source
  * literal/substring while also constraining flags is a much rarer
  * combination, and hiding Flags the rest of the time keeps the common case
  * uncluttered.
+ *
+ * Two independent combinators live on this one widget, needing distinct
+ * keys to avoid colliding (both would otherwise default to `''`): the
+ * source facet's own internal literal/regex/notContains combinator
+ * (`buildLiteralRegexControls`'s own default key) and this widget's own
+ * source-vs-flags combinator (key `'sourceFlags'`, below).
  * @type {SearchTypeObject}
  */
 const regexpSearchType = {
@@ -32,19 +40,33 @@ const regexpSearchType = {
       title: label,
       $define: {
         /** @this {HTMLElement} */
+        connectedCallback () {
+          /**
+           * @this {HTMLInputElement}
+           * @returns {void}
+           */
+          function syncFlagsVisibility () {
+            const flagsLabel = this.closest('jsoe-search-regexp')?.querySelector(
+              '.searchRegexpFlags'
+            );
+            if (flagsLabel) {
+              /** @type {HTMLElement} */ (flagsLabel).hidden = !this.checked;
+            }
+          }
+          wireLiteralRegexControls(this, '', syncFlagsVisibility);
+        },
+        /** @this {HTMLElement} */
         getQuery () {
           const searchPath = this.dataset.searchPath ??
             /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
             '';
           const sourceLeaf = readLiteralRegexQuery(this, searchPath);
-          const mode = /** @type {HTMLSelectElement|undefined} */ (
-            findOwnControl(this, 'select.jsoeSearchMode--')
-          )?.value;
-          const selectedFlags = mode === 'regex' ? readMultiSelect(this) : [];
+          const selectedFlags = readOptInChecked(this, 'Regex') ? readMultiSelect(this) : [];
           const flagsLeaf = selectedFlags.length
             ? makeMultiSelectLeaf(searchPath, {$in: selectedFlags})
             : undefined;
-          return combineAnd([sourceLeaf, flagsLeaf]);
+          const combine = readCombinator(this, 'sourceFlags') === 'or' ? combineOr : combineAnd;
+          return combine([sourceLeaf, flagsLeaf]);
         },
         /**
          * @this {HTMLElement}
@@ -52,35 +74,22 @@ const regexpSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const {matched: flagsLeaf, rest: sourceLeaf} = extractLeafOfKind(queryNode, 'multiSelect');
-          // Sets Mode/Value first (dispatching the `change` that also
-          // toggles the Flags multi-select's own `hidden` state via this
-          // widget's `onModeChange`), then Flags.
-          applyLiteralRegexQuery(
-            this,
-            /**
-             * @type {import('../queryTree.js').QueryLiteralSetLeaf|
-             *import('../queryTree.js').QueryRegexLeaf|
-              import('../queryTree.js').QueryNotContainsLeaf|undefined} */ (sourceLeaf)
-          );
+          applyCombinator(this, combinatorOfQuery(queryNode), 'sourceFlags');
+          const {matched: flagsLeaf, rest: sourceQuery} = extractLeafOfKind(queryNode, 'multiSelect');
+          // Sets the source facets first (dispatching each opt-in checkbox's
+          // own `change`, which also toggles the Flags multi-select's own
+          // `hidden` state via this widget's `syncFlagsVisibility`), then
+          // Flags.
+          applyLiteralRegexQuery(this, sourceQuery);
           applyMultiSelect(this, flagsLeaf?.$in ?? []);
         }
       }
     }, [
       ['span', {class: 'searchLabel'}, [`${label} (source)`]],
-      buildLiteralRegexControls({
-        name,
-        /** @this {HTMLElement} */
-        onModeChange () {
-          const flagsLabel = this.closest('jsoe-search-regexp')?.querySelector(
-            '.searchRegexpFlags'
-          );
-          if (flagsLabel) {
-            /** @type {HTMLElement} */ (flagsLabel).hidden =
-              /** @type {HTMLSelectElement} */ (this).value !== 'regex';
-          }
-        }
-      }),
+      ['label', [
+        'Combine: ', buildCombinatorSelect({name: `${name}-combinator`, key: 'sourceFlags'})
+      ]],
+      buildLiteralRegexControls({name}),
       ['label', {class: 'searchRegexpFlags', hidden: true}, [
         'Flags: ',
         buildMultiSelect({name: `${name}-flags`, options: regexpType.allowedFlags})

@@ -9,7 +9,8 @@ describe('search: special errors spec', () => {
 
   it('combines a message literal with a columnNumber range', () => {
     cy.get(sel + 'input.jsoeSearchOptIn--message').check();
-    cy.get(sel + 'input.jsoeSearchValue--message').type('agg');
+    cy.get(sel + 'input.jsoeSearchOptIn--messageLiteral').check();
+    cy.get(sel + 'input.jsoeSearchLiteralValue--message').type('agg');
     cy.get(sel + 'input.jsoeSearchOptIn--columnNumber').check();
     cy.get(sel + 'input.jsoeSearchRangeGte--columnNumber').type('12');
     cy.get(sel + '.getQueryButton').click();
@@ -66,7 +67,8 @@ describe('search: special errors spec', () => {
     () => {
       cy.get(sel + 'input.jsoeSearchOptIn--errorClass').check();
       cy.get(sel + 'input.jsoeSearchOptIn--message').check();
-      cy.get(sel + 'input.jsoeSearchValue--message').type('boom');
+      cy.get(sel + 'input.jsoeSearchOptIn--messageLiteral').check();
+      cy.get(sel + 'input.jsoeSearchLiteralValue--message').type('boom');
       cy.get(sel + '.getQueryButton').click();
       cy.get(sel + '.queryResult').then((elem) => {
         const query = JSON.parse(elem.text());

@@ -1,9 +1,12 @@
 import {buildDateInputControl} from '../../fundamentalTypes/dateType.js';
 import {
   buildPathLabel, buildTriStateSelect, readTriStateSelect, isExemptedByAncestorHasProperty,
-  applyTriState, extractLeafOfKind
+  applyTriState, extractLeafOfKind,
+  buildCombinatorSelect, readCombinator, applyCombinator, combinatorOfQuery
 } from '../searchUtils.js';
-import {makeRangeLeaf, makeValidDateCheckLeaf, combineAnd} from '../queryTreeBuilders.js';
+import {
+  makeRangeLeaf, makeValidDateCheckLeaf, combineAnd, combineOr
+} from '../queryTreeBuilders.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 
 /**
@@ -143,7 +146,8 @@ const dateSearchType = {
               ...(gte ? {$gte: new Date(gte).toISOString()} : {}),
               ...(lte ? {$lte: new Date(lte).toISOString()} : {})
             });
-          return combineAnd([validLeaf, rangeLeaf]);
+          const combine = readCombinator(this) === 'or' ? combineOr : combineAnd;
+          return combine([validLeaf, rangeLeaf]);
         },
         /**
          * @this {HTMLElement}
@@ -151,6 +155,7 @@ const dateSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
+          applyCombinator(this, combinatorOfQuery(queryNode));
           const {matched: validLeaf} = extractLeafOfKind(queryNode, 'validDateCheck');
           // Dispatches `change`, which runs the tri-state's own `onChange`
           // (toggling the range fieldset's `disabled` state and re-running
@@ -166,6 +171,7 @@ const dateSearchType = {
       }
     }, [
       ['span', {class: 'searchLabel'}, [label]],
+      ['label', ['Combine: ', buildCombinatorSelect({name: `${name}-combinator`})]],
       ['label', [
         'Valid: ',
         buildTriStateSelect({

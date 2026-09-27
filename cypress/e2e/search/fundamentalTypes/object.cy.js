@@ -12,7 +12,8 @@ describe('search: object spec', () => {
     cy.get(nestedSel + 'select.addPropertySelect').select('nested');
     cy.get(nestedSel + 'button').contains('Add').click();
     cy.get(nestedSel + 'select[name$="-hasProperty-nested"]').select('true');
-    cy.get(nestedSel + 'input[name$="-value"]').type('hello');
+    cy.get(nestedSel + 'input.jsoeSearchOptIn--Literal').check();
+    cy.get(nestedSel + 'input.jsoeSearchLiteralValue--').type('hello');
 
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
@@ -27,6 +28,36 @@ describe('search: object spec', () => {
       });
     });
   });
+
+  it(
+    'switching "Combine optional properties" to "Any of" still exercises ' +
+      'the OR combinator (a single optional row has nothing else to OR ' +
+      'against, so the resulting shape is unchanged)',
+    () => {
+      const nestedSel = sel + 'jsoe-search-object[data-search-path="#/object"] ';
+      cy.get(nestedSel + 'select.addPropertySelect').select('nested');
+      cy.get(nestedSel + 'button').contains('Add').click();
+      cy.get(nestedSel + 'select[name$="-hasProperty-nested"]').select('true');
+      cy.get(nestedSel + 'input.jsoeSearchOptIn--Literal').check();
+      cy.get(nestedSel + 'input.jsoeSearchLiteralValue--').type('hello');
+      cy.get(
+        nestedSel + '> div.searchObjectControls select.jsoeSearchCombinator--'
+      ).select('or');
+
+      cy.get(sel + '.getQueryButton').click();
+      cy.get(sel + '.queryResult').then((elem) => {
+        const query = JSON.parse(elem.text());
+        const leaf = query.$and[0];
+        expect(leaf.$and).to.have.length(2);
+        expect(leaf.$and[0]).to.deep.equal({
+          kind: 'hasProperty', path: '#/object/nested', $exists: true
+        });
+        expect(leaf.$and[1]).to.deep.equal({
+          kind: 'literalSet', path: '#/object/nested', $in: ['hello']
+        });
+      });
+    }
+  );
 
   it('hides the nested widget while "Doesn\'t have" is chosen', () => {
     const nestedSel = sel + 'jsoe-search-object[data-search-path="#/object"] ';
@@ -53,7 +84,8 @@ describe('search: object spec', () => {
       const nestedSel = sel + 'jsoe-search-object[data-search-path="#/object"] ';
       cy.get(nestedSel + 'select.addPropertySelect').select('nested');
       cy.get(nestedSel + 'button').contains('Add').click();
-      cy.get(nestedSel + 'input[name$="-value"]').type('hello');
+      cy.get(nestedSel + 'input.jsoeSearchOptIn--Literal').check();
+      cy.get(nestedSel + 'input.jsoeSearchLiteralValue--').type('hello');
       cy.get(nestedSel + 'select[name$="-hasProperty-nested"]').select('false');
 
       cy.get(sel + '.getQueryButton').click();
@@ -111,7 +143,8 @@ describe('search: object spec', () => {
       const rowSel = nestedSel +
         'jsoe-search-required-property[data-property-name="req"] ';
       cy.get(rowSel + 'input.jsoeSearchCheckbox').check();
-      cy.get(rowSel + 'input[name$="-value"]').type('hello');
+      cy.get(rowSel + 'input.jsoeSearchOptIn--Literal').check();
+      cy.get(rowSel + 'input.jsoeSearchLiteralValue--').type('hello');
 
       cy.get(sel + '.getQueryButton').click();
       cy.get(sel + '.queryResult').then((elem) => {
@@ -124,7 +157,7 @@ describe('search: object spec', () => {
       cy.get(sel + '.loadQueryButton').click();
       cy.get(sel + '.applyQueryButton').click();
       cy.get(sel + '.queryRawEditorError').should('have.text', '');
-      cy.get(rowSel + 'input[name$="-value"]').should('have.value', 'hello');
+      cy.get(rowSel + 'input.jsoeSearchLiteralValue--').should('have.value', 'hello');
     }
   );
 
@@ -146,14 +179,14 @@ describe('search: object spec', () => {
     const rowSel = sel + 'jsoe-search-required-property[data-property-name="requiredString"] ';
     const childSel = rowSel + 'jsoe-search-string[data-search-path="#/requiredString"]';
     cy.get(childSel).should('be.visible');
-    cy.get(childSel + ' input[name$="-value"]').should('be.disabled');
+    cy.get(childSel + ' input.jsoeSearchOptIn--Literal').should('be.disabled');
     cy.get(sel + 'select[name$="-hasProperty-requiredString"]').should('not.exist');
     cy.get(sel + 'select.addPropertySelect option[value="requiredString"]').should('not.exist');
 
     cy.get(rowSel + 'input.jsoeSearchCheckbox').check();
-    cy.get(childSel + ' input[name$="-value"]').should('not.be.disabled');
+    cy.get(childSel + ' input.jsoeSearchOptIn--Literal').should('not.be.disabled');
 
     cy.get(rowSel + 'input.jsoeSearchCheckbox').uncheck();
-    cy.get(childSel + ' input[name$="-value"]').should('be.disabled');
+    cy.get(childSel + ' input.jsoeSearchOptIn--Literal').should('be.disabled');
   });
 });

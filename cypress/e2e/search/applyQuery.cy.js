@@ -10,7 +10,8 @@ describe('search: "Edit raw" apply-query round trip', () => {
     cy.get(sel + 'button').contains('Add').click();
 
     const propSel = sel + '[data-search-path="#/string"] ';
-    cy.get(propSel + 'input[name$="-value"]').type('abc, def');
+    cy.get(propSel + 'input.jsoeSearchOptIn--Literal').check();
+    cy.get(propSel + 'input.jsoeSearchLiteralValue--').type('abc, def');
 
     // Snapshot the current query into the raw editor (no manual JSON typing
     // - `view.dispatch` sets its content programmatically, avoiding
@@ -18,14 +19,14 @@ describe('search: "Edit raw" apply-query round trip', () => {
     cy.get(sel + '.loadQueryButton').click();
 
     // Change the live control so it no longer matches what was captured.
-    cy.get(propSel + 'input[name$="-value"]').clear();
-    cy.get(propSel + 'input[name$="-value"]').type('changed');
-    cy.get(propSel + 'input[name$="-value"]').should('have.value', 'changed');
+    cy.get(propSel + 'input.jsoeSearchLiteralValue--').clear();
+    cy.get(propSel + 'input.jsoeSearchLiteralValue--').type('changed');
+    cy.get(propSel + 'input.jsoeSearchLiteralValue--').should('have.value', 'changed');
 
     // Re-applying the earlier snapshot should restore the original value.
     cy.get(sel + '.applyQueryButton').click();
     cy.get(sel + '.queryRawEditorError').should('have.text', '');
-    cy.get(propSel + 'input[name$="-value"]').should('have.value', 'abc, def');
+    cy.get(propSel + 'input.jsoeSearchLiteralValue--').should('have.value', 'abc, def');
 
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
@@ -56,11 +57,15 @@ describe('search: "Edit raw" apply-query round trip', () => {
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());
       // `$getQuery()` wraps the object's own combined result once more
-      // (`{$and: [result]}`), and the object's own result (with more than
-      // one active row) is itself an `$and` - one clause per property (36:
-      // requiredString + 35 optional).
+      // (`{$and: [result]}`); the object's own result combines its one
+      // required property's leaf with its 35 optional properties' own
+      // combined clause (`combineAnd([...requiredLeaves, combineOptional(
+      // optionalLeaves)])`, `objectSearchType.js`) - 2 top-level entries,
+      // the second of which is itself the 35 optional properties' own
+      // `$and` (their shared "All of"/"Any of" combinator's default).
       expect(query.$and).to.have.length(1);
-      expect(query.$and[0].$and).to.have.length(36);
+      expect(query.$and[0].$and).to.have.length(2);
+      expect(query.$and[0].$and[1].$and).to.have.length(35);
     });
   });
 });

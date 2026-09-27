@@ -51,8 +51,9 @@ describe('search: filelist spec (getQuery)', () => {
     cy.get(filelistSel + 'input[name$="-size"]').type('2');
     cy.get(filelistSel + 'input.jsoeSearchOptIn--').check();
     cy.get(filelistSel + 'jsoe-search-file input.jsoeSearchOptIn--name').check();
+    cy.get(filelistSel + 'jsoe-search-file input.jsoeSearchOptIn--nameLiteral').check();
     cy.get(
-      filelistSel + 'jsoe-search-file input.jsoeSearchValue--name'
+      filelistSel + 'jsoe-search-file input.jsoeSearchLiteralValue--name'
     ).type('report.pdf');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {

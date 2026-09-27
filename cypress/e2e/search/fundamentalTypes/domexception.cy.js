@@ -15,12 +15,12 @@ describe('search: domexception spec', () => {
     });
   });
 
-  it('combines a predefined-name pull-down with a message literal', () => {
-    cy.get(sel + 'jsoe-search-domexception select.jsoeSearchMultiSelect').select(
-      ['NotFoundError']
-    );
-    cy.get(sel + 'input.jsoeSearchOptIn--message').check();
-    cy.get(sel + 'input.jsoeSearchValue--message').type('missing');
+  it('combines a predefined-name pull-down with a message literal under "All of" by default', () => {
+    const propSel = sel + 'jsoe-search-domexception ';
+    cy.get(propSel + 'select.jsoeSearchMultiSelect').select(['NotFoundError']);
+    cy.get(propSel + 'input.jsoeSearchOptIn--message').check();
+    cy.get(propSel + 'input.jsoeSearchOptIn--messageLiteral').check();
+    cy.get(propSel + 'input.jsoeSearchLiteralValue--message').type('missing');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());
@@ -29,6 +29,26 @@ describe('search: domexception spec', () => {
         kind: 'multiSelect', path: '#/domexception/name', $in: ['NotFoundError']
       });
       expect(leaf.$and).to.deep.include({
+        kind: 'literalSet', path: '#/domexception/message', $in: ['missing']
+      });
+    });
+  });
+
+  it('combines name and message under "Any of" once switched', () => {
+    const propSel = sel + 'jsoe-search-domexception ';
+    cy.get(propSel + 'select.jsoeSearchMultiSelect').select(['NotFoundError']);
+    cy.get(propSel + 'input.jsoeSearchOptIn--message').check();
+    cy.get(propSel + 'input.jsoeSearchOptIn--messageLiteral').check();
+    cy.get(propSel + 'input.jsoeSearchLiteralValue--message').type('missing');
+    cy.get(propSel + 'select.jsoeSearchCombinator--').select('or');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      const leaf = query.$and[0];
+      expect(leaf.$or).to.deep.include({
+        kind: 'multiSelect', path: '#/domexception/name', $in: ['NotFoundError']
+      });
+      expect(leaf.$or).to.deep.include({
         kind: 'literalSet', path: '#/domexception/message', $in: ['missing']
       });
     });

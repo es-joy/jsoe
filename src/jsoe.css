@@ -357,7 +357,7 @@ fieldset[class^="jsoeSearchOptInFieldset--"] {
    have" case, just the opposite problem: there, hiding needed to *win*;
    here, hiding must *not* affect validity). Standard "visually-hidden"
    technique - present and rendered, just clipped to nothing. */
-.searchAtLeastOneSentinel {
+input[class^="searchAtLeastOneSentinel--"] {
   position: absolute;
   width: 1px;
   height: 1px;

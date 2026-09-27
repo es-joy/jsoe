@@ -6,7 +6,8 @@ describe('search: record/looseRecord spec', () => {
   it('combines key/value matches under a joint flag (record)', () => {
     const sel = '#section-record ';
     cy.get(sel + 'input.jsoeSearchOptIn--key').check();
-    cy.get(sel + 'input[name$="-value"]').type('x');
+    cy.get(sel + '[data-search-path="#/*key"] input.jsoeSearchOptIn--Literal').check();
+    cy.get(sel + '[data-search-path="#/*key"] input.jsoeSearchLiteralValue--').type('x');
     cy.get(sel + 'input.jsoeSearchOptIn--value').check();
     cy.get(sel + 'input[name$="-gte"]').type('5');
     cy.get(sel + 'input[name$="-joint"]').check();

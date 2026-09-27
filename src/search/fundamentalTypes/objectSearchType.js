@@ -4,9 +4,10 @@ import {
   buildPathLabel, buildHasPropertyToggle, readTriStateSelect, applyTriState, findOwnControl,
   buildCheckbox, readCheckbox, applyCheckbox, buildAtLeastOneSentinel, syncAtLeastOneCheck,
   setDescendantsRequired, revalidateDescendants, resyncAtLeastOne,
-  extractLeafOfKind, extractClauseForPath
+  extractLeafOfKind, extractClauseForPath, extractClauseFromList, unwrapAndClauses,
+  buildCombinatorSelect, readCombinator, applyCombinator, combinatorOfQuery
 } from '../searchUtils.js';
-import {combineAnd, makeHasPropertyLeaf} from '../queryTreeBuilders.js';
+import {combineAnd, combineOr, makeHasPropertyLeaf} from '../queryTreeBuilders.js';
 import {
   findSearchElement, getQueryViaElement, hasGetQuery,
   applyQueryViaElement, hasApplyQuery
@@ -314,8 +315,14 @@ const objectSearchType = {
         },
         /** @this {HTMLElement} */
         getQuery () {
-          const rows = [...this.children].filter(hasGetQuery);
-          return combineAnd(rows.map((row) => row.getQuery()));
+          const requiredLeaves = [
+            ...this.querySelectorAll(':scope > jsoe-search-required-property')
+          ].filter(hasGetQuery).map((row) => row.getQuery());
+          const optionalLeaves = [
+            ...this.querySelectorAll(':scope > jsoe-search-has-property')
+          ].filter(hasGetQuery).map((row) => row.getQuery());
+          const combineOptional = readCombinator(this) === 'or' ? combineOr : combineAnd;
+          return combineAnd([...requiredLeaves, combineOptional(optionalLeaves)]);
         },
         /**
          * `$define` methods are shared once per tag (this file's other
@@ -338,23 +345,11 @@ const objectSearchType = {
             '';
           let remaining = queryNode;
 
-          [...this.querySelectorAll(':scope > jsoe-search-has-property')].forEach((row) => {
-            const propertyName = /** @type {HTMLElement} */ (row).
-              dataset.propertyName ??
-              /* istanbul ignore next -- Guard: buildHasPropertyRow/buildRequiredPropertyRow always set dataset.propertyName */
-              '';
-            const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
-            const {matched, rest} = extractClauseForPath(remaining, childPath);
-            remaining = rest;
-            const {matched: existsLeaf, rest: childQuery} = extractLeafOfKind(matched, 'hasProperty');
-            applyTriState(row, existsLeaf?.$exists);
-            const childEl = findSearchElement(row, childPath);
-            /* istanbul ignore else -- Guard: buildSearchWidget always builds a real search element here */
-            if (childEl && hasApplyQuery(childEl)) {
-              childEl.applyQuery(childQuery);
-            }
-          });
-
+          // Required rows first: their own leaves always sit at the `$and`
+          // top level regardless of the optional combinator below (only the
+          // *optional* rows can be OR'd with each other), so
+          // `extractClauseForPath` against the whole node is still correct
+          // for these, same as before this widget's own OR support.
           [...this.querySelectorAll(':scope > jsoe-search-required-property')].forEach((row) => {
             const propertyName = /** @type {HTMLElement} */ (row).
               dataset.propertyName ??
@@ -368,6 +363,37 @@ const objectSearchType = {
             /* istanbul ignore else -- Guard: buildSearchWidget always builds a real search element here */
             if (childEl && hasApplyQuery(childEl)) {
               childEl.applyQuery(matched);
+            }
+          });
+
+          // Whatever's left in `remaining` is now exactly the
+          // optional-properties-combined node (bare leaf / `$and` / `$or` /
+          // `undefined`) - restore the combinator, then peel each
+          // has-property row's own clause out of its own plain clause array
+          // via `extractClauseFromList` (not `extractClauseForPath`, which
+          // would re-wrap and pull the *entire* remaining node - including
+          // every other still-unprocessed optional property - out on the
+          // first match once 2+ are OR'd together).
+          const optionalCombinator = combinatorOfQuery(remaining);
+          applyCombinator(this, optionalCombinator);
+          let optionalClauses = unwrapAndClauses(remaining);
+
+          [...this.querySelectorAll(':scope > jsoe-search-has-property')].forEach((row) => {
+            const propertyName = /** @type {HTMLElement} */ (row).
+              dataset.propertyName ??
+              /* istanbul ignore next -- Guard: buildHasPropertyRow/buildRequiredPropertyRow always set dataset.propertyName */
+              '';
+            const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
+            const {matched, restClauses} = extractClauseFromList(
+              optionalClauses, childPath, optionalCombinator
+            );
+            optionalClauses = restClauses;
+            const {matched: existsLeaf, rest: childQuery} = extractLeafOfKind(matched, 'hasProperty');
+            applyTriState(row, existsLeaf?.$exists);
+            const childEl = findSearchElement(row, childPath);
+            /* istanbul ignore else -- Guard: buildSearchWidget always builds a real search element here */
+            if (childEl && hasApplyQuery(childEl)) {
+              childEl.applyQuery(childQuery);
             }
           });
 
@@ -387,11 +413,13 @@ const objectSearchType = {
             map((opt) => opt.value).
             forEach((propertyName) => {
               const childPath = `${searchPath}/${escapeJSONPointer(propertyName)}`;
-              const {matched, rest} = extractClauseForPath(remaining, childPath);
+              const {matched, restClauses} = extractClauseFromList(
+                optionalClauses, childPath, optionalCombinator
+              );
               if (matched === undefined) {
                 return;
               }
-              remaining = rest;
+              optionalClauses = restClauses;
               if (addPropertySelect) {
                 addPropertySelect.value = propertyName;
               }
@@ -418,6 +446,15 @@ const objectSearchType = {
     }, [
       ['div', {class: 'searchObjectControls'}, [
         ['span', {class: 'searchLabel'}, [label]],
+        // A static sibling of the pulldown, not tied to any one row - it
+        //   persists naturally as has-property rows are added/removed,
+        //   governing only how those optional rows combine with each other
+        //   (required rows always stay AND'd in on top regardless, `getQuery`'s
+        //   own doc).
+        ['label', [
+          'Combine optional properties: ',
+          buildCombinatorSelect({name: `${typeNamespace}-object-combinator`})
+        ]],
         availableProperties.length
           ? ['label', [
             'Add property: ',

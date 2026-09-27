@@ -53,6 +53,28 @@ describe('search: literal spec', () => {
     );
   });
 
+  describe('single-value literal, null (`values: [null]`)', () => {
+    beforeEach(() => {
+      cy.get(sel + 'select.addPropertySelect').select('literalSingleNull');
+      cy.get(sel + 'button').contains('Add').click();
+    });
+
+    it('labels the checkbox with the value\'s own `viewUI` ("null")', () => {
+      cy.get(sel + 'jsoe-search-literal i[data-type="null"]').should('have.text', 'null');
+    });
+  });
+
+  describe('single-value literal, undefined (`values: [undefined]`)', () => {
+    beforeEach(() => {
+      cy.get(sel + 'select.addPropertySelect').select('literalSingleUndefined');
+      cy.get(sel + 'button').contains('Add').click();
+    });
+
+    it('labels the checkbox with the value\'s own `viewUI` ("undefined")', () => {
+      cy.get(sel + 'jsoe-search-literal i[data-type="undef"]').should('have.text', 'undefined');
+    });
+  });
+
   describe('multi-value, same-type literal (`values: ["red", "green"]`)', () => {
     beforeEach(() => {
       cy.get(sel + 'select.addPropertySelect').select('literal');
@@ -104,10 +126,21 @@ describe('search: literal spec', () => {
         sel + 'jsoe-search-literal select.jsoeSearchLiteralValues'
       ).invoke('val').should('deep.equal', ['1']);
     });
+
+    it('clears all selected options when applying a query with no match', () => {
+      cy.get(sel + 'jsoe-search-literal select.jsoeSearchLiteralValues').select(['0']);
+      cy.get(sel + '.queryRawEditor .cm-content').type('{selectall}{{}$and: []{}}');
+      cy.get(sel + '.applyQueryButton').click();
+      cy.get(sel + '.queryRawEditorError').should('have.text', '');
+      cy.get(
+        sel + 'jsoe-search-literal select.jsoeSearchLiteralValues option:selected'
+      ).should('not.exist');
+    });
   });
 
   describe(
-    'mixed-type literal (`values: ["a", "x".repeat(50), 1, true, 2n]`)',
+    'mixed-type literal (`values: ["a", "x".repeat(50), 1, true, 2n, ' +
+      'null, undefined]`)',
     () => {
       beforeEach(() => {
         cy.get(sel + 'select.addPropertySelect').select('literalMixed');
@@ -116,7 +149,8 @@ describe('search: literal spec', () => {
 
       it(
         'labels each option distinctly per JS type - a string quoted, a ' +
-          'bigint `n`-suffixed, and truncates an over-length value',
+          'bigint `n`-suffixed, `null`/`undefined` bare, and truncates an ' +
+          'over-length value',
         () => {
           const optSel = sel +
             'jsoe-search-literal select.jsoeSearchLiteralValues option';
@@ -127,6 +161,8 @@ describe('search: literal spec', () => {
           cy.get(optSel).eq(2).should('have.text', '1');
           cy.get(optSel).eq(3).should('have.text', 'true');
           cy.get(optSel).eq(4).should('have.text', '2n');
+          cy.get(optSel).eq(5).should('have.text', 'null');
+          cy.get(optSel).eq(6).should('have.text', 'undefined');
         }
       );
 
@@ -143,6 +179,29 @@ describe('search: literal spec', () => {
             expect(query.$and[0]).to.deep.equal({
               kind: 'multiSelect', path: '#/literalMixed', $in: ['2']
             });
+          });
+        }
+      );
+
+      it(
+        'gets a `multiSelect` leaf covering the number/boolean/null/' +
+          'undefined values too',
+        () => {
+          cy.get(
+            sel + 'jsoe-search-literal select.jsoeSearchLiteralValues'
+          ).select(['2', '3', '5', '6']);
+          cy.get(sel + '.getQueryButton').click();
+          cy.get(sel + '.queryResult').then((elem) => {
+            const query = JSON.parse(elem.text());
+            const leaf = query.$and[0];
+            expect(leaf.kind).to.equal('multiSelect');
+            expect(leaf.path).to.equal('#/literalMixed');
+            // `null` and `undefined` both serialize to JSON `null`, so the
+            // two are indistinguishable once round-tripped through
+            // `JSON.stringify` here - this exercises `decodeLiteralValue`'s
+            // own `number`/`boolean`/`null`/`undefined` cases, not their
+            // downstream display fidelity.
+            expect(leaf.$in).to.deep.equal([1, true, null, null]);
           });
         }
       );

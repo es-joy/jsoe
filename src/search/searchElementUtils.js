@@ -1,16 +1,18 @@
 import {
   buildPathLabel, buildCheckbox, readCheckbox,
   buildLiteralRegexControls, readLiteralRegexQuery, applyOptInLiteralRegexFacet,
+  wireLiteralRegexControls,
   buildRangeInputsPair, readRangeInputsPair, syncRangeValidity, applyOptInRangeFacet,
   applyRangeQuery,
   buildTriStateSelect, readTriStateSelect, applyTriState,
   buildOptInFieldset, readOptInChecked, wireOptInFieldset, applyOptIn,
   buildMultiSelect, readMultiSelect, applyOptInMultiSelectFacet,
   buildAtLeastOneSentinel, syncAtLeastOneCheck,
+  buildCombinatorSelect, readCombinator, applyCombinator, combinatorOfQuery,
   extractLeafOfKind
 } from './searchUtils.js';
 import {
-  combineAnd, makeRangeLeaf, makeDomShapeLeaf, makeMultiSelectLeaf
+  combineAnd, combineOr, makeRangeLeaf, makeDomShapeLeaf, makeMultiSelectLeaf
 } from './queryTreeBuilders.js';
 import regexpType from '../fundamentalTypes/regexpType.js';
 import errorsSpecialType from '../superTypes/errorsSpecialType.js';
@@ -190,7 +192,10 @@ const errorClassKey = 'errorClass';
  */
 function buildErrorFamilyChildren ({label, name, includeErrorClassSelect}) {
   /** @type {import('./searchUtils.js').JamilihArray[]} */
-  const children = [['span', {class: 'searchLabel'}, [label]]];
+  const children = [
+    ['span', {class: 'searchLabel'}, [label]],
+    ['label', ['Combine: ', buildCombinatorSelect({name: `${name}-combinator`})]]
+  ];
   if (includeErrorClassSelect) {
     children.push(...buildOptInFieldset({
       name: `${name}-${errorClassKey}`, key: errorClassKey, label: 'Error class',
@@ -281,6 +286,7 @@ export function makeErrorFamilySearchType ({
             [...errorStringProps, ...errorNumberProps].forEach((prop) => (
               wireOptInFieldset(this, prop, () => syncErrorFamilyValidity(this))
             ));
+            errorStringProps.forEach((prop) => wireLiteralRegexControls(this, prop));
             if (includeErrorClassSelect) {
               wireOptInFieldset(
                 this, errorClassKey, () => syncErrorFamilyValidity(this)
@@ -322,7 +328,8 @@ export function makeErrorFamilySearchType ({
                 ...(lte === '' ? {} : {$lte: Number(lte)})
               });
             });
-            return combineAnd([errorClassLeaf, ...stringLeaves, ...numberLeaves]);
+            const combine = readCombinator(this) === 'or' ? combineOr : combineAnd;
+            return combine([errorClassLeaf, ...stringLeaves, ...numberLeaves]);
           },
           /**
            * @this {HTMLElement}
@@ -333,6 +340,7 @@ export function makeErrorFamilySearchType ({
             const searchPath = this.dataset.searchPath ??
               /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
               '';
+            applyCombinator(this, combinatorOfQuery(queryNode));
             if (includeErrorClassSelect) {
               applyOptInMultiSelectFacet(
                 this, queryNode, `${searchPath}/${errorClassKey}`, errorClassKey

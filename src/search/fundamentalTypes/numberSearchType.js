@@ -1,8 +1,9 @@
 import {
   buildPathLabel, buildRangeInputsPair, readRangeInputsPair, buildTriStateSelect,
-  readTriStateSelect, syncRangeValidity, applyRangeQuery, applyTriState, extractLeafOfKind
+  readTriStateSelect, syncRangeValidity, applyRangeQuery, applyTriState, extractLeafOfKind,
+  buildCombinatorSelect, readCombinator, applyCombinator, combinatorOfQuery
 } from '../searchUtils.js';
-import {makeRangeLeaf, makeIntegerCheckLeaf, combineAnd} from '../queryTreeBuilders.js';
+import {makeRangeLeaf, makeIntegerCheckLeaf, combineAnd, combineOr} from '../queryTreeBuilders.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import {getSchemaType} from '../../formats/schema.js';
 
@@ -42,7 +43,8 @@ const numberSearchType = {
           const integerLeaf = isInteger === undefined
             ? undefined
             : makeIntegerCheckLeaf(searchPath, isInteger);
-          return combineAnd([rangeLeaf, integerLeaf]);
+          const combine = readCombinator(this) === 'or' ? combineOr : combineAnd;
+          return combine([rangeLeaf, integerLeaf]);
         },
         /**
          * @this {HTMLElement}
@@ -50,6 +52,7 @@ const numberSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
+          applyCombinator(this, combinatorOfQuery(queryNode));
           const {matched: rangeLeaf} = extractLeafOfKind(queryNode, 'range');
           applyRangeQuery(this, rangeLeaf);
           const {matched: integerLeaf} = extractLeafOfKind(queryNode, 'integerCheck');
@@ -58,6 +61,7 @@ const numberSearchType = {
       }
     }, [
       ['span', {class: 'searchLabel'}, [label]],
+      ['label', ['Combine: ', buildCombinatorSelect({name: `${name}-combinator`})]],
       ...buildRangeInputsPair({name}),
       ['label', [
         'Integer: ',

@@ -9,8 +9,8 @@ describe('search: blob spec', () => {
 
   it('gets a regex query against the MIME type', () => {
     const propSel = sel + '[data-search-path="#/blob"] ';
-    cy.get(propSel + 'select[name$="-mode"]').select('regex');
-    cy.get(propSel + 'input[name$="-value"]').type('^image/');
+    cy.get(propSel + 'input.jsoeSearchOptIn--Regex').check();
+    cy.get(propSel + 'input.jsoeSearchRegexValue--').type('^image/');
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());
@@ -20,17 +20,38 @@ describe('search: blob spec', () => {
     });
   });
 
-  it('allows flags once "Matches regex" is chosen', () => {
+  it('allows flags once the regex facet is opted into', () => {
     const propSel = sel + '[data-search-path="#/blob"] ';
-    cy.get(propSel + 'select[name$="-mode"]').select('regex');
-    cy.get(propSel + 'input[name$="-value"]').type('^image/');
-    cy.get(propSel + 'select.jsoeSearchRegexFlags--').should('be.visible').select(['i']);
+    cy.get(propSel + 'input.jsoeSearchOptIn--Regex').check();
+    cy.get(propSel + 'input.jsoeSearchRegexValue--').type('^image/');
+    cy.get(propSel + 'select.jsoeSearchRegexFlags--').should('not.be.disabled').select(['i']);
     cy.get(sel + '.getQueryButton').click();
     cy.get(sel + '.queryResult').then((elem) => {
       const query = JSON.parse(elem.text());
       expect(query.$and[0]).to.deep.equal({
         kind: 'regex', path: '#/blob', $regex: '^image/', $options: 'i'
       });
+    });
+  });
+
+  it('gets a literalSet query against the MIME type', () => {
+    const propSel = sel + '[data-search-path="#/blob"] ';
+    cy.get(propSel + 'input.jsoeSearchOptIn--Literal').check();
+    cy.get(propSel + 'input.jsoeSearchLiteralValue--').type('image/png');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and[0]).to.deep.equal({
+        kind: 'literalSet', path: '#/blob', $in: ['image/png']
+      });
+    });
+  });
+
+  it('contributes nothing with no facet opted into', () => {
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      expect(query.$and).to.deep.equal([]);
     });
   });
 });

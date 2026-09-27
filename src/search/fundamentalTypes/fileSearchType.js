@@ -1,9 +1,11 @@
 import {
   buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery,
+  wireLiteralRegexControls,
   buildOptInFieldset, readOptInChecked, wireOptInFieldset,
-  buildAtLeastOneSentinel, syncAtLeastOneCheck, applyOptInLiteralRegexFacet
+  buildAtLeastOneSentinel, syncAtLeastOneCheck, applyOptInLiteralRegexFacet,
+  buildCombinatorSelect, readCombinator, applyCombinator, combinatorOfQuery
 } from '../searchUtils.js';
-import {combineAnd} from '../queryTreeBuilders.js';
+import {combineAnd, combineOr} from '../queryTreeBuilders.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
 
@@ -57,6 +59,8 @@ const fileSearchType = {
         connectedCallback () {
           wireOptInFieldset(this, 'name', () => syncFileValidity(this));
           wireOptInFieldset(this, 'type', () => syncFileValidity(this));
+          wireLiteralRegexControls(this, 'name');
+          wireLiteralRegexControls(this, 'type');
           syncFileValidity(this);
         },
         /** @this {HTMLElement} */
@@ -70,7 +74,8 @@ const fileSearchType = {
           const typeLeaf = readOptInChecked(this, 'type')
             ? readLiteralRegexQuery(this, `${searchPath}/type`, 'type')
             : undefined;
-          return combineAnd([nameLeaf, typeLeaf]);
+          const combine = readCombinator(this) === 'or' ? combineOr : combineAnd;
+          return combine([nameLeaf, typeLeaf]);
         },
         /**
          * @this {HTMLElement}
@@ -81,6 +86,7 @@ const fileSearchType = {
           const searchPath = this.dataset.searchPath ??
             /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
             '';
+          applyCombinator(this, combinatorOfQuery(queryNode));
           applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/name`, 'name');
           applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/type`, 'type');
           syncFileValidity(this);
@@ -88,6 +94,7 @@ const fileSearchType = {
       }
     }, [
       ['span', {class: 'searchLabel'}, [label]],
+      ['label', ['Combine: ', buildCombinatorSelect({name: `${name}-combinator`})]],
       ...buildOptInFieldset({
         name: `${name}-name`, key: 'name', label: 'Name',
         children: [buildLiteralRegexControls({

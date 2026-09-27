@@ -1,11 +1,12 @@
 import {domExceptionNames} from '../../fundamentalTypes/domexceptionType.js';
 import {
   buildPathLabel, buildMultiSelect, readMultiSelect, applyMultiSelect,
-  buildLiteralRegexControls,
+  buildLiteralRegexControls, wireLiteralRegexControls,
   readLiteralRegexQuery, buildOptInFieldset, readOptInChecked, wireOptInFieldset,
-  buildAtLeastOneSentinel, syncAtLeastOneCheck, extractLeafOfKind, applyOptInLiteralRegexFacet
+  buildAtLeastOneSentinel, syncAtLeastOneCheck, extractLeafOfKind, applyOptInLiteralRegexFacet,
+  buildCombinatorSelect, readCombinator, applyCombinator, combinatorOfQuery
 } from '../searchUtils.js';
-import {makeMultiSelectLeaf, combineAnd} from '../queryTreeBuilders.js';
+import {makeMultiSelectLeaf, combineAnd, combineOr} from '../queryTreeBuilders.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
 
@@ -49,6 +50,7 @@ const domexceptionSearchType = {
             'change', () => syncDomexceptionValidity(this)
           );
           wireOptInFieldset(this, 'message', () => syncDomexceptionValidity(this));
+          wireLiteralRegexControls(this, 'message');
           syncDomexceptionValidity(this);
         },
         /** @this {HTMLElement} */
@@ -63,7 +65,8 @@ const domexceptionSearchType = {
           const messageLeaf = readOptInChecked(this, 'message')
             ? readLiteralRegexQuery(this, `${searchPath}/message`, 'message')
             : undefined;
-          return combineAnd([nameLeaf, messageLeaf]);
+          const combine = readCombinator(this) === 'or' ? combineOr : combineAnd;
+          return combine([nameLeaf, messageLeaf]);
         },
         /**
          * @this {HTMLElement}
@@ -74,6 +77,7 @@ const domexceptionSearchType = {
           const searchPath = this.dataset.searchPath ??
             /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
             '';
+          applyCombinator(this, combinatorOfQuery(queryNode));
           const {matched: nameLeaf} = extractLeafOfKind(queryNode, 'multiSelect');
           applyMultiSelect(this, nameLeaf?.$in ?? []);
           applyOptInLiteralRegexFacet(this, queryNode, `${searchPath}/message`, 'message');
@@ -82,6 +86,7 @@ const domexceptionSearchType = {
       }
     }, [
       ['span', {class: 'searchLabel'}, [label]],
+      ['label', ['Combine: ', buildCombinatorSelect({name: `${name}-combinator`})]],
       ['div', {class: 'domexceptionName'}, [
         ['span', ['Name: ']],
         buildMultiSelect({name: `${name}-name`, options: domExceptionNames})

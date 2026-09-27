@@ -43,6 +43,25 @@ export function makeOrNode (nodes) {
 }
 
 /**
+ * The `$or` counterpart to `combineAnd` - same filtering/collapsing rules
+ * (drop `undefined`s, `undefined` if none survive, the bare node if exactly
+ * one survives, otherwise wraps via `makeOrNode`), used wherever a widget's
+ * own "All of"/"Any of" combinator (`searchUtils.js`'s
+ * `buildCombinatorSelect`/`readCombinator`) is set to "Any of".
+ * @param {(import('./queryTree.js').QueryNode|undefined)[]} nodes
+ * @returns {import('./queryTree.js').QueryNode|undefined}
+ */
+export function combineOr (nodes) {
+  const filtered = /** @type {import('./queryTree.js').QueryNode[]} */ (
+    nodes.filter((node) => node !== undefined)
+  );
+  if (filtered.length === 0) {
+    return undefined;
+  }
+  return filtered.length === 1 ? filtered[0] : makeOrNode(filtered);
+}
+
+/**
  * @param {string} path
  * @param {boolean} $exists
  * @returns {import('./queryTree.js').QueryHasPropertyLeaf}

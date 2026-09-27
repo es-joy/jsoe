@@ -1,6 +1,8 @@
 import {schemaLabel} from '../utils/schemaMeta.js';
 import {getJSONPointerParts} from '../utils/jsonPointer.js';
-import {combineAnd} from './queryTreeBuilders.js';
+import {
+  combineAnd, combineOr, makeLiteralSetLeaf, makeRegexLeaf, makeNotContainsLeaf
+} from './queryTreeBuilders.js';
 
 /**
  * @typedef {import('../types.js').JamilihArray} JamilihArray
@@ -389,6 +391,64 @@ export function readTriStateSelect (el, key = '') {
 }
 
 /**
+ * The "All of"/"Any of" combinator every widget that combines 2+ sibling
+ * facets via `combineAnd`/`combineOr` adds next to those facets, letting a
+ * user switch the whole group between AND- and OR-combining them (README:
+ * "Need to allow multiple OR'd conditions"). Unlike `buildTriStateSelect`,
+ * there is no "(any)" state: some combinator always applies once 2+ facets
+ * are present, so this always has a definite selected value, defaulting to
+ * "All of" (`'and'`) - the behavior every widget had before this control
+ * existed, so a query built without ever touching this select is unchanged.
+ *
+ * `key` distinguishes multiple combinators *within one widget* (e.g.
+ * `regexpSearchType.js`'s own item-9-restructured "source" facet combinator
+ * alongside its separate source-vs-flags combinator); see
+ * `buildRangeInputsPair`'s doc for why. Leave it at the default `''` for
+ * the common case of a widget with only one.
+ * @param {{name: string, key?: string}} cfg
+ * @returns {JamilihArray}
+ */
+export function buildCombinatorSelect ({name, key = ''}) {
+  return ['select', {name, class: `jsoeSearchCombinator--${key}`}, [
+    ['option', {value: 'and'}, ['All of']],
+    ['option', {value: 'or'}, ['Any of']]
+  ]];
+}
+
+/**
+ * Reads back a `buildCombinatorSelect` - pass the same `key` it was built
+ * with. A missing control (shouldn't happen) defaults to `'and'`.
+ * @param {Element} el
+ * @param {string} [key]
+ * @returns {'and'|'or'}
+ */
+export function readCombinator (el, key = '') {
+  const select = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(el, `select.jsoeSearchCombinator--${key}`)
+  );
+  return select?.value === 'or' ? 'or' : 'and';
+}
+
+/**
+ * The inverse of `readCombinator` - sets the control from a previously
+ * detected combinator (`combinatorOfQuery`).
+ * @param {Element} el
+ * @param {'and'|'or'} value
+ * @param {string} [key]
+ * @returns {void}
+ */
+export function applyCombinator (el, value, key = '') {
+  const select = /** @type {HTMLSelectElement|undefined} */ (
+    findOwnControl(el, `select.jsoeSearchCombinator--${key}`)
+  );
+  if (!select) {
+    return;
+  }
+  select.value = value === 'or' ? 'or' : 'and';
+  select.dispatchEvent(new Event('change'));
+}
+
+/**
  * A single checkbox - the only search affordance the README grants
  * `undefined`/`void`/`null`/`NaN` ("Require present"; they have "no
  * variants to allow for distinct search", since existence only becomes a
@@ -428,98 +488,85 @@ export function readCheckbox (el) {
 }
 
 /**
- * The mode selector for the README's "string, StringObject, Blob, File,
- * regexp (source), symbol (description): OR literal or regex search/Does
- * Not contain search" - one shared control (and reader, below) that
- * `stringSearchType.js`, `symbolSearchType.js`, and `regexpSearchType.js`
- * (for its source) each build their own custom element around, since the
- * query semantics are identical and only the label/target facet differs.
+ * Three independent opt-in facets for the README's "string, StringObject,
+ * Blob, File, regexp (source), symbol (description): OR literal or regex
+ * search/Does Not contain search" - one shared control (and reader, below)
+ * that `stringSearchType.js`, `symbolSearchType.js`, and
+ * `regexpSearchType.js` (for its source) each build their own custom
+ * element around, since the query semantics are identical and only the
+ * label/target facet differs. Each facet (Literal/Regex/Does-not-contain)
+ * is a `buildOptInFieldset`-wrapped Value control, so any two or all three
+ * can be opted into at once, combined via a shared `buildCombinatorSelect`
+ * (README: "Need to allow multiple OR'd conditions... like 'matches regex'
+ * and 'does not contain'") - previously a single mutually-exclusive Mode
+ * `<select>` allowed only one at a time.
  *
  * `key` distinguishes multiple literal/regex controls *within one widget*
  * (e.g. `errorSearchType.js`'s `message`/`name`/`fileName`/`stack`); see
  * `buildRangeInputsPair`'s doc for why. Leave it at the default `''` for
- * the common case of a widget with only one such control.
+ * the common case of a widget with only one such control. Call
+ * `wireLiteralRegexControls(root, key)` once, from the consuming widget's
+ * own `connectedCallback`, to actually connect the three checkboxes (and
+ * the "at least one" sentinel) - this function only builds the static
+ * markup, matching `buildOptInFieldset`'s own build/wire split.
  *
- * The Value input is `required`: unlike an untouched range/checkbox/select
- * (whose empty/default state unambiguously means "no constraint"), a mode
- * is always selected here (there is no "(any)" option), so an empty Value
- * next to it is never a meaningful "no constraint" state - it just means
- * the row was added and never finished. That leaves the whole form invalid
- * from the moment such a row exists (`buildSearchChoices`'s `<form>`,
- * `src/search/index.js`) until either a value is entered or (for an
- * `objectSearchType.js` has-property row) the row is removed via its own
- * "Remove" button.
+ * `flagOptions`, when given, adds a Flags multi-select to the Regex facet
+ * (options passed in by the caller - most callers pass `regexpType.js`'s
+ * own `allowedFlags`, the same list `regexpSearchType.js` uses for the
+ * actual regexp's own flags - kept out of this generic module to avoid it
+ * depending on a specific fundamental type), the same `$options` a
+ * Mongo-flavored `$regex` accepts alongside it. `regexpSearchType.js`'s own
+ * call (matching against the regexp's `.source` text, not to be confused
+ * with its separate, bespoke Flags control for the regexp's *actual*
+ * flags) leaves this unset, since a flag there would have no real regex of
+ * its own to apply to.
  *
- * `onModeChange`, when given, wires the mode select's own `change` event
- * too (in addition to whatever the caller reads back via
- * `readLiteralRegexQuery` at `getQuery` time) - `regexpSearchType.js` uses
- * it to show/hide its Flags multi-select, which only makes sense while
- * "Matches regex" is the chosen mode.
- *
- * `flagOptions`, when given, adds a Flags multi-select (options passed in
- * by the caller - most callers pass `regexpType.js`'s own `allowedFlags`,
- * the same list `regexpSearchType.js` uses for the actual regexp's own
- * flags - kept out of this generic module to avoid it depending on a
- * specific fundamental type), shown only while "Matches regex" is the
- * chosen mode, the same `$options` a Mongo-flavored `$regex` accepts
- * alongside it - a plain literal/substring match has no regex to apply
- * flags to, so it stays hidden otherwise. `regexpSearchType.js`'s own call
- * (matching against the regexp's `.source` text, not to be confused with
- * its separate, bespoke Flags control for the regexp's *actual* flags)
- * leaves this unset, since a flag there would have no real regex of its own
- * to apply to.
- *
- * While "Matches regex" is chosen, the Value input is also live syntax-
- * checked (`syncLiteralRegexValidity`, below) against
- * `new RegExp(value, flags)` - an unparsable pattern (or one only invalid
- * for the currently-selected flags, e.g. `u`/`v`'s stricter escape rules)
- * sets a custom validity message rather than silently accepting it.
- * @param {{
- *   name: string, key?: string, onModeChange?: (this: HTMLElement) => void,
- *   flagOptions?: string[]
- * }} cfg
+ * The Regex facet's Value input is also live syntax-checked
+ * (`syncRegexValidity`, below) against `new RegExp(value, flags)` whenever
+ * that facet is opted in - an unparsable pattern (or one only invalid for
+ * the currently-selected flags, e.g. `u`/`v`'s stricter escape rules) sets
+ * a custom validity message rather than silently accepting it.
+ * @param {{name: string, key?: string, flagOptions?: string[]}} cfg
  * @returns {JamilihArray}
  */
-export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOptions}) {
+export function buildLiteralRegexControls ({name, key = '', flagOptions}) {
+  const literalKey = `${key}Literal`;
+  const regexKey = `${key}Regex`;
+  const notContainsKey = `${key}NotContains`;
+
   /**
-   * Live syntax-checks the Value input against `new RegExp(value, flags)`
-   * whenever the current Mode is "Matches regex" - a literal/does-not-
-   * contain Value is a plain string with no format to violate, so this only
-   * has anything to say once "regex" is chosen, and clears back to valid
-   * the moment it isn't. Flags are folded in (read fresh off the Flags
-   * multi-select, when this call has one) because they can themselves flip
-   * a pattern between valid and invalid - the `u`/`v` flags' stricter escape
-   * rules being the main example - so a Flags `change` needs to re-run this
-   * exactly like a Value `input` or a Mode `change` does.
-   * @param {HTMLElement} el - any one of the Mode/Value/Flags controls
+   * Live syntax-checks the Regex facet's Value input against
+   * `new RegExp(value, flags)` - a literal/does-not-contain Value is a
+   * plain string with no format to violate, so only the Regex facet's own
+   * Value/Flags controls call this. Flags are folded in (read fresh off
+   * the Flags multi-select, when this call has one) because they can
+   * themselves flip a pattern between valid and invalid - the `u`/`v`
+   * flags' stricter escape rules being the main example - so a Flags
+   * `change` needs to re-run this exactly like a Value `input` does.
+   * @param {HTMLElement} el - the Regex facet's Value or Flags control
    * @returns {void}
    */
-  function syncLiteralRegexValidity (el) {
+  function syncRegexValidity (el) {
     const root = el.closest('[data-search-path]');
     /* istanbul ignore if -- Guard: called from a descendant's own handler, so root is always found */
     if (!root) {
       return;
     }
-    const modeEl = /** @type {HTMLSelectElement|undefined} */ (
-      findOwnControl(root, `select.jsoeSearchMode--${key}`)
-    );
     const valueEl = /** @type {HTMLInputElement|undefined} */ (
-      findOwnControl(root, `input.jsoeSearchValue--${key}`)
+      findOwnControl(root, `input.jsoeSearchRegexValue--${key}`)
     );
-    /* istanbul ignore if -- Guard: buildLiteralRegexControls always creates these */
-    if (!modeEl || !valueEl) {
+    /* istanbul ignore if -- Guard: buildLiteralRegexControls always creates this */
+    if (!valueEl) {
       return;
     }
-    if (modeEl.value !== 'regex' || !valueEl.value) {
+    if (!valueEl.value) {
       valueEl.setCustomValidity('');
       return;
     }
     const flagsEl = /** @type {HTMLSelectElement|undefined} */ (
       findOwnControl(root, `select.jsoeSearchRegexFlags--${key}`)
     );
-    const flags = [...(flagsEl?.selectedOptions ??
-      /* istanbul ignore next -- Guard: buildLiteralRegexControls always creates this select */
-      [])].map((opt) => opt.value).join('');
+    const flags = [...(flagsEl?.selectedOptions ?? [])].map((opt) => opt.value).join('');
     try {
       // eslint-disable-next-line no-new -- Testing
       new RegExp(valueEl.value, flags);
@@ -528,104 +575,162 @@ export function buildLiteralRegexControls ({name, key = '', onModeChange, flagOp
       valueEl.setCustomValidity('Enter a valid regular expression.');
     }
   }
-  /**
-   * @this {HTMLElement}
-   * @returns {void}
-   */
-  function handleModeChange () {
-    const flagsLabel = this.closest('[data-search-path]')?.querySelector(
-      `.jsoeSearchRegexFlagsLabel--${key}`
-    );
-    if (flagsLabel) {
-      /** @type {HTMLElement} */ (flagsLabel).hidden =
-        /** @type {HTMLSelectElement} */ (this).value !== 'regex';
-    }
-    syncLiteralRegexValidity(this);
-    onModeChange?.call(this);
-  }
+
   /** @type {JamilihArray[]} */
-  const flagsChildren = [];
+  const regexChildren = [
+    ['label', [
+      'Value: ',
+      ['input', {
+        type: 'text', name: `${name}-regex-value`, class: `jsoeSearchRegexValue--${key}`,
+        $on: {
+          /** @this {HTMLElement} */
+          input () {
+            syncRegexValidity(this);
+          }
+        }
+      }]
+    ]]
+  ];
   if (flagOptions) {
-    flagsChildren.push(['label', {class: `jsoeSearchRegexFlagsLabel--${key}`, hidden: true}, [
+    regexChildren.push(['label', {class: `jsoeSearchRegexFlagsLabel--${key}`}, [
       'Flags: ',
       ['select', {
-        name: `${name}-flags`, multiple: true, class: `jsoeSearchRegexFlags--${key}`,
+        name: `${name}-regex-flags`, multiple: true, class: `jsoeSearchRegexFlags--${key}`,
         $on: {
           /** @this {HTMLElement} */
           change () {
-            syncLiteralRegexValidity(this);
+            syncRegexValidity(this);
           }
         }
       }, flagOptions.map((flag) => ['option', {value: flag}, [flag]])]
     ]]);
   }
+
   return ['span', [
-    ['label', [
-      'Mode: ',
-      ['select', {
-        name: `${name}-mode`, class: `jsoeSearchMode--${key}`,
-        $on: {change: handleModeChange}
-      }, [
-        ['option', {value: 'literal'}, ['One of (comma-separated)']],
-        ['option', {value: 'regex'}, ['Matches regex']],
-        ['option', {value: 'notContains'}, ['Does not contain']]
-      ]]
-    ]],
-    ['label', [
-      'Value: ',
-      ['input', {
-        type: 'text', name: `${name}-value`, class: `jsoeSearchValue--${key}`,
-        required: true,
-        $on: {
-          /** @this {HTMLElement} */
-          input () {
-            syncLiteralRegexValidity(this);
-          }
-        }
-      }]
-    ]],
-    ...flagsChildren
+    ...buildOptInFieldset({
+      name: `${name}-literal`, key: literalKey, label: 'One of (comma-separated)',
+      children: [['label', [
+        'Value: ',
+        ['input', {type: 'text', name: `${name}-literal-value`, class: `jsoeSearchLiteralValue--${key}`}]
+      ]]]
+    }),
+    ...buildOptInFieldset({
+      name: `${name}-regex`, key: regexKey, label: 'Matches regex',
+      children: regexChildren
+    }),
+    ...buildOptInFieldset({
+      name: `${name}-notContains`, key: notContainsKey, label: 'Does not contain',
+      children: [['label', [
+        'Value: ',
+        ['input', {
+          type: 'text', name: `${name}-notContains-value`,
+          class: `jsoeSearchNotContainsValue--${key}`
+        }]
+      ]]]
+    }),
+    ['label', ['Combine: ', buildCombinatorSelect({name: `${name}-combinator`, key})]],
+    buildAtLeastOneSentinel(key)
   ]];
 }
 
 /**
- * Reads back `buildLiteralRegexControls` into the corresponding
- * `literalSet`/`regex`/`notContains` leaf - pass the same `key` it was
- * built with. A `regex` leaf's `$options` is only ever populated when the
- * caller built this with `flagOptions` (see that function's doc) and at
- * least one flag is currently selected.
+ * Connects a `buildLiteralRegexControls`'s three opt-in facets (and its own
+ * "at least one" sentinel) - call once, synchronously, from the consuming
+ * widget's own `connectedCallback` (see `buildOptInFieldset`'s doc for why
+ * this build/wire split exists). Pass the same `key` it was built with.
+ *
+ * `onRegexToggle`, when given, is called after just the Regex facet's own
+ * toggle (with that checkbox as `this`, matching `wireOptInFieldset`'s own
+ * `onToggle` contract) - `regexpSearchType.js` uses it to also toggle its
+ * Flags multi-select's visibility off the Regex facet's own checkbox,
+ * replacing the old Mode-`change`-driven `onModeChange` hook.
+ * @param {Element} root
+ * @param {string} [key]
+ * @param {((this: HTMLInputElement) => void)} [onRegexToggle]
+ * @returns {void}
+ */
+export function wireLiteralRegexControls (
+  root,
+  /* istanbul ignore next -- Guard: every current caller passes `key` explicitly */
+  key = '',
+  /* istanbul ignore next -- Guard: every current caller passes `onRegexToggle` explicitly */
+  onRegexToggle = undefined
+) {
+  const literalKey = `${key}Literal`;
+  const regexKey = `${key}Regex`;
+  const notContainsKey = `${key}NotContains`;
+  const sync = () => syncAtLeastOneCheck(
+    root,
+    () => [literalKey, regexKey, notContainsKey].some(
+      (facetKey) => readOptInChecked(root, facetKey)
+    ),
+    key
+  );
+  wireOptInFieldset(root, literalKey, sync);
+  /**
+   * @this {HTMLInputElement}
+   * @returns {void}
+   */
+  function handleRegexToggle () {
+    sync();
+    onRegexToggle?.call(this);
+  }
+  wireOptInFieldset(root, regexKey, handleRegexToggle);
+  wireOptInFieldset(root, notContainsKey, sync);
+  sync();
+}
+
+/**
+ * Reads back `buildLiteralRegexControls` - pass the same `key` it was built
+ * with. Each of the three facets independently contributes its own leaf
+ * when opted into (a `regex` leaf's `$options` only when the caller built
+ * this with `flagOptions` and at least one flag is currently selected), all
+ * combined via the shared `buildCombinatorSelect`
+ * (`readCombinator(el, key) === 'or' ? combineOr : combineAnd`) - unlike
+ * before this facet's own restructuring, this can now return a real
+ * `$and`/`$or` of 2-3 leaves, not just one bare leaf.
  * @param {HTMLElement} el
  * @param {string} path
  * @param {string} [key]
- * @returns {import('./queryTree.js').QueryLiteralSetLeaf|
- *   import('./queryTree.js').QueryRegexLeaf|
- *   import('./queryTree.js').QueryNotContainsLeaf|undefined}
+ * @returns {import('./queryTree.js').QueryNode|undefined}
  */
 export function readLiteralRegexQuery (el, path, key = '') {
-  const mode = /** @type {HTMLSelectElement|undefined} */ (
-    findOwnControl(el, `select.jsoeSearchMode--${key}`)
-  )?.value;
-  const value = /** @type {HTMLInputElement|undefined} */ (
-    findOwnControl(el, `input.jsoeSearchValue--${key}`)
-  )?.value;
-  if (!value) {
-    return undefined;
-  }
-  if (mode === 'regex') {
-    const flagsSelect = /** @type {HTMLSelectElement|undefined} */ (
-      findOwnControl(el, `select.jsoeSearchRegexFlags--${key}`)
-    );
-    const flags = [...(flagsSelect?.selectedOptions ?? [])].map((opt) => opt.value);
-    return {kind: 'regex', path, $regex: value, ...(flags.length ? {$options: flags.join('')} : {})};
-  }
-  if (mode === 'notContains') {
-    return {kind: 'notContains', path, value};
-  }
-  return {
-    kind: 'literalSet',
-    path,
-    $in: value.split(',').map((v) => v.trim()).filter(Boolean)
-  };
+  const literalLeaf = readOptInChecked(el, `${key}Literal`)
+    ? (() => {
+      const value = /** @type {HTMLInputElement|undefined} */ (
+        findOwnControl(el, `input.jsoeSearchLiteralValue--${key}`)
+      )?.value ??
+        /* istanbul ignore next -- Guard: buildLiteralRegexControls always creates this input */
+        '';
+      const $in = value.split(',').map((v) => v.trim()).filter(Boolean);
+      return $in.length ? makeLiteralSetLeaf(path, {$in}) : undefined;
+    })()
+    : undefined;
+  const regexLeaf = readOptInChecked(el, `${key}Regex`)
+    ? (() => {
+      const value = /** @type {HTMLInputElement|undefined} */ (
+        findOwnControl(el, `input.jsoeSearchRegexValue--${key}`)
+      )?.value;
+      if (!value) {
+        return undefined;
+      }
+      const flagsSelect = /** @type {HTMLSelectElement|undefined} */ (
+        findOwnControl(el, `select.jsoeSearchRegexFlags--${key}`)
+      );
+      const flags = [...(flagsSelect?.selectedOptions ?? [])].map((opt) => opt.value);
+      return makeRegexLeaf(path, value, flags.length ? flags.join('') : undefined);
+    })()
+    : undefined;
+  const notContainsLeaf = readOptInChecked(el, `${key}NotContains`)
+    ? (() => {
+      const value = /** @type {HTMLInputElement|undefined} */ (
+        findOwnControl(el, `input.jsoeSearchNotContainsValue--${key}`)
+      )?.value;
+      return value ? makeNotContainsLeaf(path, value) : undefined;
+    })()
+    : undefined;
+  const combine = readCombinator(el, key) === 'or' ? combineOr : combineAnd;
+  return combine([literalLeaf, regexLeaf, notContainsLeaf]);
 }
 
 /**
@@ -798,17 +903,25 @@ export function wireOptInFieldset (
  * unconfigured should be invalid even though no single facet is itself
  * always required (`mapSearchType.js`/`recordSearchType.js`'s key/value,
  * `fileSearchType.js`'s name/content-type). Pair with `syncAtLeastOneCheck`.
+ *
+ * `key` distinguishes multiple sentinels *within one widget* (e.g.
+ * `fileSearchType.js`'s own top-level "at least one of name/type" sentinel
+ * alongside each of its two `buildLiteralRegexControls` facets' own "at
+ * least one of literal/regex/notContains" sentinel, all three sharing the
+ * same nearest `[data-search-path]` root); see `buildRangeInputsPair`'s doc
+ * for why. Leave it at the default `''` for a widget with only one.
+ * @param {string} [key]
  * @returns {JamilihArray}
  */
-export function buildAtLeastOneSentinel () {
+export function buildAtLeastOneSentinel (key = '') {
   return ['input', {
-    type: 'text', class: 'searchAtLeastOneSentinel', tabindex: -1,
+    type: 'text', class: `searchAtLeastOneSentinel--${key}`, tabindex: -1,
     'aria-hidden': 'true'
   }];
 }
 
 /**
- * @type {WeakMap<Element, () => void>}
+ * @type {WeakMap<Element, Map<string, () => void>>}
  */
 const atLeastOneResyncs = new WeakMap();
 
@@ -842,12 +955,22 @@ const atLeastOneResyncs = new WeakMap();
  * redispatched events reaching every possible child type.
  * @param {Element} root
  * @param {() => boolean} isSatisfied
+ * @param {string} [key]
  * @returns {void}
  */
-export function syncAtLeastOneCheck (root, isSatisfied) {
-  atLeastOneResyncs.set(root, () => syncAtLeastOneCheck(root, isSatisfied));
+export function syncAtLeastOneCheck (
+  root, isSatisfied,
+  /* istanbul ignore next -- Guard: every current caller passes `key` explicitly */
+  key = ''
+) {
+  let perKey = atLeastOneResyncs.get(root);
+  if (!perKey) {
+    perKey = new Map();
+    atLeastOneResyncs.set(root, perKey);
+  }
+  perKey.set(key, () => syncAtLeastOneCheck(root, isSatisfied, key));
   const sentinel = /** @type {HTMLInputElement|undefined} */ (
-    findOwnControl(root, 'input.searchAtLeastOneSentinel')
+    findOwnControl(root, `input.searchAtLeastOneSentinel--${key}`)
   );
   sentinel?.setCustomValidity(
     isSatisfied() || isExemptedByAncestorHasProperty(root)
@@ -864,9 +987,9 @@ export function syncAtLeastOneCheck (root, isSatisfied) {
  * @returns {void}
  */
 export function resyncAtLeastOne (root) {
-  atLeastOneResyncs.get(root)?.();
+  atLeastOneResyncs.get(root)?.forEach((resync) => resync());
   [...root.querySelectorAll('[data-search-path]')].forEach((el) => {
-    atLeastOneResyncs.get(el)?.();
+    atLeastOneResyncs.get(el)?.forEach((resync) => resync());
   });
 }
 
@@ -939,8 +1062,8 @@ export function setDescendantsRequired (root, required) {
  * one `build*`/`read*` pair each.
  *
  * A plain leaf becomes a one-element array; `undefined` (no constraint)
- * becomes `[]`; an `$and` node's own `.$and` array is returned as-is (not
- * further flattened - a nested `$and` stays a single clause, so
+ * becomes `[]`; an `$and`/`$or` node's own combined array is returned as-is
+ * (not further flattened - a nested `$and`/`$or` stays a single clause, so
  * `nodeTouchesPath` below is what actually looks inside one).
  * @param {QueryNode|undefined} queryNode
  * @returns {QueryNode[]}
@@ -949,7 +1072,68 @@ export function unwrapAndClauses (queryNode) {
   if (queryNode === undefined) {
     return [];
   }
+  if ('$or' in queryNode) {
+    return queryNode.$or;
+  }
   return '$and' in queryNode ? queryNode.$and : [queryNode];
+}
+
+/**
+ * Whether `queryNode` is itself a bare `{$or: [...]}` node - `'or'` if so,
+ * else `'and'` (covering a bare leaf, an `$and` node, and `undefined`
+ * alike). This is what every combining site's own `applyQuery` uses to
+ * restore its `buildCombinatorSelect` from a previously-read/hand-edited
+ * query: a query that collapsed to a single surviving leaf (`combineAnd`/
+ * `combineOr`'s own collapsing, neither functions' doc) carries no `$and`/
+ * `$or` wrapper at all to inspect, so it - correctly - defaults back to
+ * `'and'`, indistinguishable from a deliberate "All of".
+ * @param {QueryNode|undefined} queryNode
+ * @returns {'and'|'or'}
+ */
+export function combinatorOfQuery (queryNode) {
+  return queryNode !== undefined && '$or' in queryNode ? 'or' : 'and';
+}
+
+/**
+ * The array-level primitive behind `extractClauseForPath` - finds every
+ * clause in `clauses` that `nodeTouchesPath` says belongs to `path`,
+ * returning the rest of the array with them removed. `objectSearchType.js`
+ * uses this directly (rather than `extractClauseForPath`, which re-wraps the
+ * rest into a fresh `QueryNode` after every single peel) since it must
+ * repeatedly peel one has-property row's own clause at a time out of a
+ * plain array of already-unwrapped optional-property clauses.
+ *
+ * Collects *every* matching clause, not just the first: `clauses` is already
+ * flattened (by `unwrapAndClauses`, one level), so if the property at `path`
+ * is itself the sole survivor of an ancestor `combineAnd`/`combineOr` that
+ * collapsed away its own wrapper (both functions' own doc), its *own*
+ * internally-combined leaves surface here as 2+ separate same-path entries
+ * indistinguishable, at this flattened level, from separate sibling
+ * properties - taking only the first (as this function used to) would
+ * silently discard the rest. `combinator` (the combinator `clauses` was
+ * itself unwrapped from - the caller already has it, from
+ * `combinatorOfQuery`) recombines multiple matches the same way they were
+ * originally combined; with at most one match it's inert, since
+ * `combineAnd`/`combineOr` both return a lone survivor bare regardless.
+ * @param {QueryNode[]} clauses
+ * @param {string} path
+ * @param {'and'|'or'} [combinator]
+ * @returns {{matched: QueryNode|undefined, restClauses: QueryNode[]}}
+ */
+export function extractClauseFromList (
+  clauses, path,
+  /* istanbul ignore next -- Guard: every current caller passes `combinator` explicitly */
+  combinator = 'and'
+) {
+  const matchedClauses = clauses.filter((clause) => nodeTouchesPath(clause, path));
+  if (matchedClauses.length === 0) {
+    return {matched: undefined, restClauses: clauses};
+  }
+  const combine = combinator === 'or' ? combineOr : combineAnd;
+  return {
+    matched: combine(matchedClauses),
+    restClauses: clauses.filter((clause) => !nodeTouchesPath(clause, path))
+  };
 }
 
 /**
@@ -1016,98 +1200,104 @@ export function extractLeafOfKind (queryNode, kind) {
   if (idx === -1) {
     return {matched: undefined, rest: queryNode};
   }
+  const combine = combinatorOfQuery(queryNode) === 'or' ? combineOr : combineAnd;
   return {
     matched: /** @type {Extract<import('./queryTree.js').QueryLeaf, {kind: K}>} */ (
       clauses[idx]
     ),
-    rest: combineAnd(clauses.filter((_clause, i) => i !== idx))
+    rest: combine(clauses.filter((_clause, i) => i !== idx))
   };
 }
 
 /**
- * Pulls the (at most one) top-level clause of `queryNode` that
- * `nodeTouchesPath` says belongs to `path` out of the `$and` it's combined
- * into, leaving the rest re-combined - the path-based counterpart of
- * `extractLeafOfKind`, for a recursed child's own contribution (whose shape
- * isn't a single known leaf `kind`, unlike a container's own facets).
+ * Pulls the top-level clause(s) of `queryNode` that `nodeTouchesPath` says
+ * belong to `path` out of the `$and`/`$or` it's combined into, leaving the
+ * rest re-combined - the path-based counterpart of `extractLeafOfKind`, for
+ * a recursed child's own contribution (whose shape isn't a single known leaf
+ * `kind`, unlike a container's own facets). `extractClauseFromList`'s own doc
+ * covers why more than one clause can legitimately match `path` here.
  * @param {QueryNode|undefined} queryNode
  * @param {string} path
  * @returns {{matched: QueryNode|undefined, rest: QueryNode|undefined}}
  */
 export function extractClauseForPath (queryNode, path) {
   const clauses = unwrapAndClauses(queryNode);
-  const idx = clauses.findIndex((clause) => nodeTouchesPath(clause, path));
-  if (idx === -1) {
+  const combinator = combinatorOfQuery(queryNode);
+  const {matched, restClauses} = extractClauseFromList(clauses, path, combinator);
+  if (matched === undefined) {
     return {matched: undefined, rest: queryNode};
   }
-  return {
-    matched: clauses[idx],
-    rest: combineAnd(clauses.filter((_clause, i) => i !== idx))
-  };
+  const combine = combinator === 'or' ? combineOr : combineAnd;
+  return {matched, rest: combine(restClauses)};
 }
 
 /**
  * The inverse of `readLiteralRegexQuery` - sets `buildLiteralRegexControls`'s
- * Mode/Value/Flags back from a previously-read leaf (or resets to defaults
- * for `undefined`, meaning the facet no longer has a constraint at all).
- * Dispatches `change` on the Mode select (so its own `handleModeChange`
- * shows/hides the Flags control and re-validates) and `input` on the Value
- * input (so `syncLiteralRegexValidity` re-runs), the same events a real user
- * interacting with these controls would fire.
+ * three facets (and their shared combinator) back from a previously-read
+ * `QueryNode` (or resets every facet to unchecked/empty for `undefined`,
+ * meaning none of them has a constraint any more). Unlike before this
+ * facet's own restructuring, `queryNode` may combine up to all three leaf
+ * kinds via `$and`/`$or` - `unwrapAndClauses` finds each independently, so
+ * every facet is restored regardless of how many others accompany it.
+ * Dispatches `input`/`change` on each Value/Flags control (so their own
+ * live validators re-run) and lets `applyOptIn` dispatch `change` on each
+ * checkbox (so `wireLiteralRegexControls`'s own toggle handling re-runs),
+ * the same events a real user interacting with these controls would fire.
  * @param {Element} el
- * @param {import('./queryTree.js').QueryLiteralSetLeaf|
- *   import('./queryTree.js').QueryRegexLeaf|
- *   import('./queryTree.js').QueryNotContainsLeaf|undefined} leaf
+ * @param {import('./queryTree.js').QueryNode|undefined} queryNode
  * @param {string} [key]
  * @returns {void}
  */
-export function applyLiteralRegexQuery (el, leaf, key = '') {
-  const modeEl = /** @type {HTMLSelectElement|undefined} */ (
-    findOwnControl(el, `select.jsoeSearchMode--${key}`)
+export function applyLiteralRegexQuery (el, queryNode, key = '') {
+  const clauses = unwrapAndClauses(queryNode);
+  const literalLeaf = /** @type {import('./queryTree.js').QueryLiteralSetLeaf|undefined} */ (
+    clauses.find((clause) => 'kind' in clause && clause.kind === 'literalSet')
   );
-  const valueEl = /** @type {HTMLInputElement|undefined} */ (
-    findOwnControl(el, `input.jsoeSearchValue--${key}`)
+  const regexLeaf = /** @type {import('./queryTree.js').QueryRegexLeaf|undefined} */ (
+    clauses.find((clause) => 'kind' in clause && clause.kind === 'regex')
   );
-  if (!modeEl || !valueEl) {
-    return;
+  const notContainsLeaf = /** @type {import('./queryTree.js').QueryNotContainsLeaf|undefined} */ (
+    clauses.find((clause) => 'kind' in clause && clause.kind === 'notContains')
+  );
+
+  applyOptIn(el, literalLeaf !== undefined, `${key}Literal`);
+  const literalEl = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, `input.jsoeSearchLiteralValue--${key}`)
+  );
+  if (literalEl) {
+    literalEl.value = literalLeaf ? (literalLeaf.$in ?? []).map(String).join(', ') : '';
+    literalEl.dispatchEvent(new Event('input'));
+  }
+
+  applyOptIn(el, regexLeaf !== undefined, `${key}Regex`);
+  const regexEl = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, `input.jsoeSearchRegexValue--${key}`)
+  );
+  if (regexEl) {
+    regexEl.value = regexLeaf?.$regex ?? '';
+    regexEl.dispatchEvent(new Event('input'));
   }
   const flagsEl = /** @type {HTMLSelectElement|undefined} */ (
     findOwnControl(el, `select.jsoeSearchRegexFlags--${key}`)
   );
-  let mode = 'literal';
-  let value = '';
-  let flags = '';
-  switch (leaf?.kind) {
-  case 'regex': {
-    mode = 'regex';
-    ({$regex: value} = leaf);
-    flags = leaf.$options ?? '';
-
-    break;
-  }
-  case 'notContains': {
-    mode = 'notContains';
-    ({value} = leaf);
-
-    break;
-  }
-  case 'literalSet': {
-    value = (leaf.$in ?? []).map(String).join(', ');
-
-    break;
-  }
-  // No default
-  }
-  modeEl.value = mode;
-  valueEl.value = value;
   if (flagsEl) {
-    const flagChars = new Set(flags.split(''));
+    const flagChars = new Set((regexLeaf?.$options ?? '').split(''));
     [...flagsEl.options].forEach((opt) => {
       opt.selected = flagChars.has(opt.value);
     });
+    flagsEl.dispatchEvent(new Event('change'));
   }
-  modeEl.dispatchEvent(new Event('change'));
-  valueEl.dispatchEvent(new Event('input'));
+
+  applyOptIn(el, notContainsLeaf !== undefined, `${key}NotContains`);
+  const notContainsEl = /** @type {HTMLInputElement|undefined} */ (
+    findOwnControl(el, `input.jsoeSearchNotContainsValue--${key}`)
+  );
+  if (notContainsEl) {
+    notContainsEl.value = notContainsLeaf?.value ?? '';
+    notContainsEl.dispatchEvent(new Event('input'));
+  }
+
+  applyCombinator(el, combinatorOfQuery(queryNode), key);
 }
 
 /**

@@ -1,5 +1,6 @@
 import {
-  buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery, applyLiteralRegexQuery
+  buildPathLabel, buildLiteralRegexControls, readLiteralRegexQuery, applyLiteralRegexQuery,
+  wireLiteralRegexControls
 } from '../searchUtils.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
 import regexpType from '../../fundamentalTypes/regexpType.js';
@@ -26,6 +27,10 @@ const symbolSearchType = {
       title: label,
       $define: {
         /** @this {HTMLElement} */
+        connectedCallback () {
+          wireLiteralRegexControls(this);
+        },
+        /** @this {HTMLElement} */
         getQuery () {
           return readLiteralRegexQuery(this, this.dataset.searchPath ??
             /* istanbul ignore next -- Guard: buildUI always sets dataset.searchPath */
@@ -37,16 +42,7 @@ const symbolSearchType = {
          * @returns {void}
          */
         applyQuery (queryNode) {
-          const leaf = queryNode && '$and' in queryNode
-            ? /* istanbul ignore next -- Guard: hand-edited-raw-query-only */ queryNode.$and[0]
-            : queryNode;
-          applyLiteralRegexQuery(
-            this,
-            /**
-             * @type {import('../queryTree.js').QueryLiteralSetLeaf|
-             *import('../queryTree.js').QueryRegexLeaf|
-              import('../queryTree.js').QueryNotContainsLeaf|undefined} */ (leaf)
-          );
+          applyLiteralRegexQuery(this, queryNode);
         }
       }
     }, [

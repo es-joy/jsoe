@@ -65,6 +65,20 @@ describe('search: date spec', () => {
     });
   });
 
+  it('combines a "Valid date" check with a range under "Any of" once switched', () => {
+    cy.get(sel + 'select.jsoeSearchTriState--valid').select('true');
+    cy.clearTypeAndBlur(sel + 'input[name$="-gte"]', '2021-06-01T00:00');
+    cy.get(sel + 'select.jsoeSearchCombinator--').select('or');
+    cy.get(sel + '.getQueryButton').click();
+    cy.get(sel + '.queryResult').then((elem) => {
+      const query = JSON.parse(elem.text());
+      const leaf = query.$and[0];
+      expect(leaf.$or).to.have.length(2);
+      expect(leaf.$or[0]).to.deep.equal({kind: 'validDateCheck', path: '#', isValid: true});
+      expect(leaf.$or[1].kind).to.equal('range');
+    });
+  });
+
   it('round-trips a one-sided range (gte only, no lte)', () => {
     cy.clearTypeAndBlur(sel + 'input[name$="-gte"]', '2021-06-01T00:00');
     cy.get(sel + '.loadQueryButton').click();
