@@ -220,10 +220,10 @@ convention, to know what a given leaf means.
         1. Need to allow multiple OR'd conditions (e.g.,
             for string) like "matches regex" and "does not contain"
     1. Optional
-        1. Error, Special Errors, DOMException: Literal search of child string properties
-        1. Might allow search on `.cause` and `AggregateError.errors` in the future
         1. Might allow "Edit as raw" as JSON6 (edit query object directly) on each individual object/array/map/tuple/record/filelist
         1. Could add syntax highlighting for CSS Selector, XPath, Regexes
+        1. Error, Special Errors, DOMException: Literal search of child string properties
+        1. Might allow search on `.cause` and `AggregateError.errors` in the future
         1. date, number, NumberObject, bigint, bigint object, BufferSource: Is Not Range
         1. instanceof, Non-editable (no variants to allow for distinct search; if optional, would be in union); non-editable might allow arbitrary JS query against it, but...
         1. symbol (description), string, StringObject: literal match
