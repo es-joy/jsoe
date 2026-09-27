@@ -100,6 +100,65 @@ Supported supertypes include:
     int32array, uint32array, float32array, float64array,
     bigint64array, biguint64array)
 
+## Search widgets
+
+Alongside `viewUI`/`editUI` (rendering controls for a *value*), jsoe can also
+build a search widget from a zodexy schema alone, with no value present -
+e.g., a `Date` property gets range inputs, a `string` gets a literal/regex
+choice, an `Object` gets additive "has property X" controls. Reading a
+search widget back produces a serializable **query object** (an AND/OR tree
+of typed leaf constraints), not an in-memory predicate function, so it can
+be stored, sent over the wire, or handed to a host to translate into a real
+query (MongoDB, [`sift()`](https://github.com/crcn/sift.js), IndexedDB,
+etc.).
+
+### Query vocabulary
+
+The query tree borrows MongoDB's own operator names (`$and`/`$or`,
+`$gt`/`$gte`/`$lt`/`$lte`, `$in`/`$nin`, `$regex`/`$options`, `$exists`)
+wherever a leaf kind has a clean Mongo equivalent, so a host can adapt the
+common cases to `sift()` (or real MongoDB) almost for free. This is *not* a
+claim of full drop-in Mongo query-document compatibility:
+
+- Every leaf keeps jsoe's own `kind`-discriminated, path-carrying shape,
+    not Mongo's field-keyed document shape.
+- Several jsoe-specific leaf kinds - `blobHTML`, `domShape`,
+    `keyValueEnum`, `mapRecordJoint`, `typeOf`, `passThrough` - have no
+    Mongo equivalent and stay custom.
+- The `$` prefix is the tell for which vocabulary a field belongs to: a
+    `$`-prefixed field maps onto a real Mongo operator, while an unprefixed
+    one (`kind`, `path`, and type-specific extras like `searchType`,
+    `mode`, `isInteger`) is jsoe's own invention, with no Mongo equivalent
+    to borrow.
+
+### Why the query needs its schema
+
+A query node is not fully self-describing in isolation - it is meant to be
+read back *alongside* the schema it was built from, not as a standalone
+format. Most leaf kinds don't repeat type information the schema already
+carries at that path; the deliberate exception is `range`'s own `valueType`
+field, needed because five different schema types (`number`,
+`NumberObject`, `bigint`, `date`, `buffersource`) share one leaf shape, and
+two of them (`bigint`, `date`) even serialize their bounds as the same JS
+type (a plain string) - without `valueType`, a host couldn't otherwise tell
+a bigint range from a date range from the leaf alone. A host executing
+these queries should always keep the originating schema on hand, rather
+than treat the query tree as a fully independent, schema-free format.
+
+This isn't applied evenly, though. `range`'s `valueType` is an explicit,
+self-contained tag - a host only has to check one field. Several composite
+widgets instead rely on *position*, not any tag at all: `regexpSearchType.js`
+combines its source leaf (`regex`/`literalSet`/`notContains`) with an
+optional flags leaf at the *same* path via one `$and`
+(`combineAnd([sourceLeaf, flagsLeaf])`), so a bare `multiSelect` leaf found
+there means "flags" only because a host already knows regexp's own fixed
+two-leaf convention - nothing on the leaf itself says so, unlike `range`.
+The same bare `multiSelect` shape is also how `enum`/`SpecialRealNumber`
+express their own constraints at their own paths, so the leaf kind alone is
+never enough; a host needs both the schema type at that path *and*, for
+composite widgets like `regexp`, that type's own specific leaf-combination
+convention, to know what a given leaf means.
+
 ## Known issues
 
 - Cannot provide maps with object keys pointing to the same objects as used
@@ -160,7 +219,6 @@ Supported supertypes include:
     1. Important
         1. Need to allow multiple OR'd conditions (e.g.,
             for string) like "matches regex" and "does not contain"
-        1. regexp multiple select of flags should be labeled as flags-related (possibly others)
     1. Optional
         1. Error, Special Errors, DOMException: Literal search of child string properties
         1. Might allow search on `.cause` and `AggregateError.errors` in the future
