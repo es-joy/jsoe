@@ -17,6 +17,8 @@
 - fix(search): avoid inconsistent selectors across types
 - fix(search): "Is/Is not 3d" hides ranges appropriately
 - fix(search): ensure unions use labels over indexes and xors fall back to type name
+- fix(search): support Literal type which allows
+  searching its children
 - fix(demo): add Boolean, Number, String objects and bigintObject
 - test: improve coverage
 

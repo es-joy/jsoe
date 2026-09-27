@@ -161,7 +161,6 @@ Supported supertypes include:
         1. Need to allow multiple OR'd conditions (e.g.,
             for string) like "matches regex" and "does not contain"
         1. regexp multiple select of flags should be labeled as flags-related (possibly others)
-        1. Literal: pass on children
     1. Optional
         1. Error, Special Errors, DOMException: Literal search of child string properties
         1. Might allow search on `.cause` and `AggregateError.errors` in the future

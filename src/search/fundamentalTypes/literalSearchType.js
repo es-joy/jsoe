@@ -1,8 +1,14 @@
 import {
-  buildPathLabel, buildCheckbox, readCheckbox, findOwnControl, extractLeafOfKind
+  buildPathLabel, readCheckbox, findOwnControl, extractLeafOfKind
 } from '../searchUtils.js';
 import {makeMultiSelectLeaf} from '../queryTreeBuilders.js';
 import {getQueryViaElement, applyQueryViaElement} from '../searchElementUtils.js';
+import stringType from '../../fundamentalTypes/stringType.js';
+import numberType from '../../fundamentalTypes/numberType.js';
+import booleanType from '../../fundamentalTypes/booleanType.js';
+import bigintType from '../../fundamentalTypes/bigintType.js';
+import nullType from '../../fundamentalTypes/nullType.js';
+import undefinedType from '../../fundamentalTypes/undefinedType.js';
 
 /**
  * @typedef {import('../searchDispatch.js').SearchTypeObject} SearchTypeObject
@@ -35,6 +41,42 @@ function labelForLiteralValue (value) {
   return str.length > MAX_LITERAL_VALUE_LABEL_LENGTH
     ? `${str.slice(0, MAX_LITERAL_VALUE_LABEL_LENGTH)}…`
     : str;
+}
+
+/**
+ * @type {{[key: string]: import('../../types.js').TypeObject}}
+ */
+const literalValueTypes = {
+  string: stringType,
+  number: numberType,
+  boolean: booleanType,
+  bigint: bigintType,
+  null: nullType,
+  undefined: undefinedType
+};
+
+/**
+ * The single value of a presence-only literal is already fully known, so
+ * its checkbox is labelled with the real `viewUI` a value-editing control
+ * would show for it (`stringType.js`/`numberType.js`/etc.'s own `viewUI`,
+ * every one of which only ever needs `value`/`specificSchemaObject` for a
+ * bare primitive), rather than a generic "Require X present" string.
+ * Called directly against each fundamental type's own module - not
+ * `types.getTypeObject(...)` - since a `literal` inside a "Has property"
+ * row is built without a live `Types` instance at all (`objectSearchType.js`
+ * builds those rows from just the schema and path).
+ * @param {unknown} value
+ * @returns {import('../../types.js').JamilihArray}
+ */
+function viewUIForLiteralValue (value) {
+  const type = value === null
+    ? 'null'
+    : value === undefined ? 'undefined' : typeof value;
+  return literalValueTypes[type].viewUI(
+    /** @type {Parameters<typeof stringType.viewUI>[0]} */ (
+      {value, specificSchemaObject: undefined}
+    )
+  );
 }
 
 /**
@@ -178,9 +220,15 @@ const literalSearchType = {
     }, [
       ['span', {class: 'searchLabel'}, [label]],
       values.length <= 1
-        ? buildCheckbox({
-          name, label: `Require ${label} present`, checked: true, disabled: true
-        })
+        ? ['label', [
+          'Require ',
+          viewUIForLiteralValue(values[0]),
+          ' present: ',
+          ['input', {
+            type: 'checkbox', name, class: 'jsoeSearchCheckbox',
+            checked: true, disabled: true
+          }]
+        ]]
         : ['select', {
           name, multiple: true, required: true, class: 'jsoeSearchLiteralValues'
         }, [

@@ -5,24 +5,33 @@ describe('search: literal spec', () => {
     cy.visit('http://127.0.0.1:8087/demo/index-search-instrumented.html');
   });
 
-  describe('single-type literal (`values: ["red", "green"]`)', () => {
+  describe('single-value literal (`values: ["solo"]`)', () => {
     beforeEach(() => {
-      cy.get(sel + 'select.addPropertySelect').select('literal');
+      cy.get(sel + 'select.addPropertySelect').select('literalSingle');
       cy.get(sel + 'button').contains('Add').click();
     });
 
     it(
-      'gets a presence query automatically (the checkbox is pre-checked ' +
-        'and disabled), same as `undefined`/`null`/`NaN`',
+      'labels the checkbox with the value\'s own `viewUI` (a plain ' +
+        '`stringType.js` span), not a generic "present" string',
       () => {
+        cy.get(
+          sel + 'jsoe-search-literal span[data-type="string"]'
+        ).should('have.text', 'solo');
         cy.get(
           sel + 'jsoe-search-literal input[type="checkbox"]'
         ).should('be.checked').and('be.disabled');
+      }
+    );
+
+    it(
+      'gets a presence query automatically, same as `undefined`/`null`/`NaN`',
+      () => {
         cy.get(sel + '.getQueryButton').click();
         cy.get(sel + '.queryResult').then((elem) => {
           const query = JSON.parse(elem.text());
           expect(query.$and[0]).to.deep.equal({
-            kind: 'presence', path: '#/literal', $exists: true
+            kind: 'presence', path: '#/literalSingle', $exists: true
           });
         });
       }
@@ -32,53 +41,51 @@ describe('search: literal spec', () => {
       'drops the (permanently-checked) presence leaf entirely when ' +
         '"Doesn\'t have" is chosen',
       () => {
-        cy.get(sel + 'select[name$="-hasProperty-literal"]').select('false');
+        cy.get(sel + 'select[name$="-hasProperty-literalSingle"]').select('false');
         cy.get(sel + '.getQueryButton').click();
         cy.get(sel + '.queryResult').then((elem) => {
           const query = JSON.parse(elem.text());
           expect(query.$and[0]).to.deep.equal({
-            kind: 'hasProperty', path: '#/literal', $exists: false
+            kind: 'hasProperty', path: '#/literalSingle', $exists: false
           });
         });
       }
     );
   });
 
-  describe('mixed-type literal (`values: ["a", 1]`)', () => {
+  describe('multi-value, same-type literal (`values: ["red", "green"]`)', () => {
     beforeEach(() => {
-      cy.get(sel + 'select.addPropertySelect').select('literalMixed');
+      cy.get(sel + 'select.addPropertySelect').select('literal');
       cy.get(sel + 'button').contains('Add').click();
     });
 
-    it(
-      'labels each type-group option by its own possible value(s), not ' +
-        'its type name or a bare array index (deliberately undescribed)',
-      () => {
-        cy.get(
-          sel + 'jsoe-search-literal select.jsoeSearchTypeOf option'
-        ).eq(1).should('have.text', 'a');
-        cy.get(
-          sel + 'jsoe-search-literal select.jsoeSearchTypeOf option'
-        ).eq(2).should('have.text', '1');
-      }
-    );
+    it('labels each option with its own quoted string value', () => {
+      cy.get(
+        sel + 'jsoe-search-literal select.jsoeSearchLiteralValues option'
+      ).eq(0).should('have.text', '"red"');
+      cy.get(
+        sel + 'jsoe-search-literal select.jsoeSearchLiteralValues option'
+      ).eq(1).should('have.text', '"green"');
+    });
 
     it(
-      'gets a bare `typeOf` leaf for the chosen type - no further branch ' +
-        'widget, since every value of that type is already fully known',
+      'gets a `multiSelect` leaf for one or more chosen values - a ' +
+        'particular literal, not a type category',
       () => {
-        cy.get(sel + 'jsoe-search-literal select.jsoeSearchTypeOf').select('1');
+        cy.get(
+          sel + 'jsoe-search-literal select.jsoeSearchLiteralValues'
+        ).select(['0', '1']);
         cy.get(sel + '.getQueryButton').click();
         cy.get(sel + '.queryResult').then((elem) => {
           const query = JSON.parse(elem.text());
           expect(query.$and[0]).to.deep.equal({
-            kind: 'typeOf', path: '#/literalMixed', searchType: 'number'
+            kind: 'multiSelect', path: '#/literal', $in: ['red', 'green']
           });
         });
       }
     );
 
-    it('contributes nothing when left at "(any)"', () => {
+    it('contributes nothing when nothing is selected', () => {
       cy.get(sel + '.getQueryButton').click();
       cy.get(sel + '.queryResult').then((elem) => {
         const query = JSON.parse(elem.text());
@@ -86,38 +93,57 @@ describe('search: literal spec', () => {
       });
     });
 
-    it('round-trips a saved `typeOf` leaf back into the selected option', () => {
+    it('round-trips a saved `multiSelect` leaf back into the selected options', () => {
       cy.get(sel + '.queryRawEditor .cm-content').type(
-        '{selectall}{{}$and: [{{}kind: "typeOf", path: "#/literalMixed", ' +
-          'searchType: "string"{}}]{}}'
+        '{selectall}{{}$and: [{{}kind: "multiSelect", path: "#/literal", ' +
+          '$in: ["green"]{}}]{}}'
       );
       cy.get(sel + '.applyQueryButton').click();
       cy.get(sel + '.queryRawEditorError').should('have.text', '');
       cy.get(
-        sel + 'jsoe-search-literal select.jsoeSearchTypeOf'
-      ).should('have.value', '0');
+        sel + 'jsoe-search-literal select.jsoeSearchLiteralValues'
+      ).invoke('val').should('deep.equal', ['1']);
     });
   });
 
   describe(
-    'mixed-type literal with a same-typed group of several values ' +
-      '(`values: ["a", "b", "x".repeat(50), 2]`)',
+    'mixed-type literal (`values: ["a", "x".repeat(50), 1, true, 2n]`)',
     () => {
       beforeEach(() => {
-        cy.get(sel + 'select.addPropertySelect').select('literalMixedLong');
+        cy.get(sel + 'select.addPropertySelect').select('literalMixed');
         cy.get(sel + 'button').contains('Add').click();
       });
 
       it(
-        'comma-joins a group\'s several values and truncates the result ' +
-          'once it exceeds the fallback label\'s fixed length',
+        'labels each option distinctly per JS type - a string quoted, a ' +
+          'bigint `n`-suffixed, and truncates an over-length value',
+        () => {
+          const optSel = sel +
+            'jsoe-search-literal select.jsoeSearchLiteralValues option';
+          cy.get(optSel).eq(0).should('have.text', '"a"');
+          cy.get(optSel).eq(1).should(
+            'have.text', `"${'x'.repeat(39)}…`
+          );
+          cy.get(optSel).eq(2).should('have.text', '1');
+          cy.get(optSel).eq(3).should('have.text', 'true');
+          cy.get(optSel).eq(4).should('have.text', '2n');
+        }
+      );
+
+      it(
+        'gets a `multiSelect` leaf keeping a selected `bigint` as a ' +
+          'decimal string (JSON-serializable, matching `bigintSearchType.js`)',
         () => {
           cy.get(
-            sel + 'jsoe-search-literal select.jsoeSearchTypeOf option'
-          ).eq(1).should('have.text', `a, b, ${'x'.repeat(34)}…`);
-          cy.get(
-            sel + 'jsoe-search-literal select.jsoeSearchTypeOf option'
-          ).eq(2).should('have.text', '2');
+            sel + 'jsoe-search-literal select.jsoeSearchLiteralValues'
+          ).select(['4']);
+          cy.get(sel + '.getQueryButton').click();
+          cy.get(sel + '.queryResult').then((elem) => {
+            const query = JSON.parse(elem.text());
+            expect(query.$and[0]).to.deep.equal({
+              kind: 'multiSelect', path: '#/literalMixed', $in: ['2']
+            });
+          });
         }
       );
     }

@@ -87,9 +87,33 @@ function getValueType (value) {
  * @returns {Set<ZodexySchema>}
  */
 function splitConstrainedSchema (schema) {
-  const values = /** @type {unknown[]} */ (schema.type === 'literal'
-    ? schema.values
-    : Object.values(schema.values));
+  // Split into two branches (rather than a single shared return keyed off
+  //   `schema.type === 'literal'`) so each branch's own `values` override is
+  //   type-checked against `schema` narrowed to exactly `SzLiteral`/`SzEnum`
+  //   - a shared ternary can't correlate the check with which `values`
+  //   shape (array vs. record) it's actually allowed to produce.
+  if (schema.type === 'literal') {
+    const {values, defaultValue} = schema;
+    const valueTypes = new Set(values.map((value) => getValueType(value)));
+    return new Set([...valueTypes].flatMap((type) => {
+      /* istanbul ignore if -- Guard: getValueType never returns undefined for a real zod value */
+      if (!type) {
+        return [];
+      }
+      const typeValues = values.filter((value) => {
+        return getValueType(value) === type;
+      });
+      return [{
+        ...schema,
+        values: typeValues,
+        defaultValue: typeValues.includes(defaultValue)
+          ? defaultValue
+          : typeValues[0]
+      }];
+    }));
+  }
+  const {values: enumValues, defaultValue} = schema;
+  const values = Object.values(enumValues);
   const valueTypes = new Set(values.map((value) => getValueType(value)));
   return new Set([...valueTypes].flatMap((type) => {
     /* istanbul ignore if -- Guard: getValueType never returns undefined for a real zod value */
@@ -99,14 +123,11 @@ function splitConstrainedSchema (schema) {
     const typeValues = values.filter((value) => {
       return getValueType(value) === type;
     });
-    const {defaultValue} = schema;
     return [{
       ...schema,
-      values: schema.type === 'literal'
-        ? typeValues
-        : Object.fromEntries(Object.entries(schema.values).filter(([, value]) => {
-          return getValueType(value) === type;
-        })),
+      values: Object.fromEntries(Object.entries(enumValues).filter(([, value]) => {
+        return getValueType(value) === type;
+      })),
       defaultValue: typeValues.includes(defaultValue)
         ? defaultValue
         : typeValues[0]
