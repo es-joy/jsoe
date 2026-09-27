@@ -28,7 +28,7 @@
     "coverage": "open-cli http://localhost:8087/coverage/lcov-report/",
     "open": "open-cli http://localhost:8087/demo/",
     "start": "node server 8087",
-    "stop": "lsof -tiTCP:8087 -sTCP:LISTEN | xargs kill 2>/dev/null",
+    "stop": "lsof -tiTCP:8087 -sTCP:LISTEN | xargs kill 2>/dev/null || true; sleep 1; lsof -tiTCP:8087 -sTCP:LISTEN | xargs kill -9 2>/dev/null || true",
     "start-instrumented": "node server 8087 instrumented",
     "wait-for-server": "n=0; until curl -sf -o /dev/null http://127.0.0.1:8087/demo/index-instrumented.html || [ \"$n\" -ge 60 ]; do n=$((n+1)); sleep 0.5; done; curl -sf -o /dev/null http://127.0.0.1:8087/demo/index-instrumented.html",
     "cypress:open": "cypress open",
@@ -57,7 +57,7 @@
     "cypress:sample-spec": "rm -Rf .nyc_output && cypress run --browser chrome --reporter=mocha-multi-reporters --reporter-options configFile=mmr.json --spec cypress/e2e/subTypes/true.cy.js; npm run report && npm run coveradge",
     "report": "nyc report",
     "test-series": "run-s eslint rollup cypress",
-    "test": "npm run stop && (npm run start-instrumented &) && npm run wait-for-server && npm run test-series; e=$?; npm run stop; exit $e"
+    "test": "npm run stop && (npm run start-instrumented > .server-test.log 2>&1 &) && npm run wait-for-server && npm run test-series; e=$?; npm run stop; exit $e"
   },
   "browserslist": [
     "baseline widely available, not op_mini all"
