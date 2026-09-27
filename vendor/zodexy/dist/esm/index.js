@@ -628,7 +628,7 @@ function dezerialize(shape, opts = {}) {
 import { z as z2 } from "zod";
 
 // zodexySchema.ts
-var zodexySchema_default = "https://github.com/brettz9/zodexy/releases/tag/v0.32.0";
+var zodexySchema_default = "https://github.com/brettz9/zodexy/releases/tag/v0.32.1";
 
 // zerialize.ts
 var PRIMITIVES = {

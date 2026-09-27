@@ -8,6 +8,7 @@ import regexpSearchType from './fundamentalTypes/regexpSearchType.js';
 import booleanSearchType from './fundamentalTypes/booleanSearchType.js';
 import symbolSearchType from './fundamentalTypes/symbolSearchType.js';
 import undefinedSearchType from './fundamentalTypes/undefinedSearchType.js';
+import literalSearchType from './fundamentalTypes/literalSearchType.js';
 import nullSearchType from './fundamentalTypes/nullSearchType.js';
 import nanSearchType from './fundamentalTypes/nanSearchType.js';
 import enumSearchType from './fundamentalTypes/enumSearchType.js';
@@ -127,6 +128,7 @@ const availableSearchTypes = {
   undef: undefinedSearchType,
   null: nullSearchType,
   nan: nanSearchType,
+  literal: literalSearchType,
   array: arraySearchType,
   arrayNonindexKeys: arraySearchType,
   object: objectSearchType,
@@ -204,8 +206,12 @@ export function getSearchSchemaType (schemaObject) {
 
   // An `enum` control can show a multiple-select list and template literal
   //   parts might justify their own search controls, so need to detect
-  //   these schema types.
-  if (['templateLiteral', 'enum'].includes(schemaObject.type)) {
+  //   these schema types. `literal` likewise needs its own dedicated
+  //   search type (`literalSearchType.js`) rather than `getSchemaType`'s
+  //   own resolution (the JS type of the literal's first value alone) -
+  //   a literal's own fixed, fully-known value set is nothing like an
+  //   unconstrained value of that same type.
+  if (['templateLiteral', 'enum', 'literal'].includes(schemaObject.type)) {
     return schemaObject.type;
   }
 

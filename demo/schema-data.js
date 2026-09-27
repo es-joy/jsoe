@@ -895,6 +895,25 @@ const schemaInstanceJSONSearchAllTypes = {
     enumNumeric: {
       type: 'enum', values: {zero: 0, one: 1}, isOptional: true
     },
+    // A single-type literal (even with several values) is presence-only -
+    //   `getTypesForSchema` itself never splits same-typed values apart, so
+    //   there is nothing to choose between beyond "is it present".
+    literal: {type: 'literal', values: ['red', 'green'], isOptional: true},
+    // A literal whose values span more than one JS type instead gets a
+    //   "Has type" pull-down, one option per type present - deliberately
+    //   left undescribed, exercising the fallback to each option's own
+    //   possible value(s) (never its type name or a bare index).
+    literalMixed: {
+      type: 'literal', values: ['a', 1], isOptional: true
+    },
+    // Exercises that same fallback's own comma-joining (a group with
+    //   several same-typed values) and length truncation (a value long
+    //   enough to exceed the fallback's own fixed cutoff).
+    literalMixedLong: {
+      type: 'literal',
+      values: ['a', 'b', 'x'.repeat(50), 2],
+      isOptional: true
+    },
     array: {type: 'array', element: {type: 'number'}, isOptional: true},
     object: {
       type: 'object',
