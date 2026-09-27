@@ -1,10 +1,11 @@
 # CHANGES TO `@es-joy/jsoe`
 
-## 0.32.1
+## 0.33.0
 
 - chore: update codemirror packages, node-static, style-mod,
   typeson-registry, devDeps; lint
 - docs: update license badge
+- feat(search): OR conditions
 - fix: `getValue` issues with readonly `viewUI` (raw-editor "View raw" on
   array/object/date controls)
 - fix: blob/file video preview and recorded-media object URLs were never
