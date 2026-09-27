@@ -30,6 +30,7 @@
     "start": "node server 8087",
     "stop": "lsof -tiTCP:8087 -sTCP:LISTEN | xargs kill 2>/dev/null",
     "start-instrumented": "node server 8087 instrumented",
+    "wait-for-server": "n=0; until curl -sf -o /dev/null http://127.0.0.1:8087/demo/index-instrumented.html || [ \"$n\" -ge 60 ]; do n=$((n+1)); sleep 0.5; done; curl -sf -o /dev/null http://127.0.0.1:8087/demo/index-instrumented.html",
     "cypress:open": "cypress open",
     "rollup": "rollup -c",
     "instrument-add": "nyc instrument src instrumented",
@@ -55,9 +56,8 @@
     "cypress:record": "cypress run --browser chrome --record --parallel",
     "cypress:sample-spec": "rm -Rf .nyc_output && cypress run --browser chrome --reporter=mocha-multi-reporters --reporter-options configFile=mmr.json --spec cypress/e2e/subTypes/true.cy.js; npm run report && npm run coveradge",
     "report": "nyc report",
-    "stop-and-start": "run-s stop start",
     "test-series": "run-s eslint rollup cypress",
-    "test": "run-p -r stop-and-start test-series"
+    "test": "npm run stop && (npm run start-instrumented &) && npm run wait-for-server && npm run test-series; e=$?; npm run stop; exit $e"
   },
   "browserslist": [
     "baseline widely available, not op_mini all"
