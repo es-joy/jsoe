@@ -12,7 +12,8 @@ describe('search: string object spec', () => {
       'exactly like a plain string',
     () => {
       const propSel = sel + '[data-search-path="#/stringObject"] ';
-      cy.get(propSel + 'input[name$="-value"]').type('abc, def');
+      cy.get(propSel + 'input.jsoeSearchOptIn--Literal').check();
+      cy.get(propSel + 'input.jsoeSearchLiteralValue--').type('abc, def');
       cy.get(sel + '.getQueryButton').click();
       cy.get(sel + '.queryResult').then((elem) => {
         const query = JSON.parse(elem.text());
