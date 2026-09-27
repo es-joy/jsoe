@@ -16,6 +16,7 @@
 - fix(search): missing error types selection for special Errors
 - fix(search): avoid inconsistent selectors across types
 - fix(search): "Is/Is not 3d" hides ranges appropriately
+- fix(search): ensure unions use labels over indexes and xors fall back to type name
 - fix(demo): add Boolean, Number, String objects and bigintObject
 - test: improve coverage
 

@@ -162,7 +162,6 @@ Supported supertypes include:
             for string) like "matches regex" and "does not contain"
         1. regexp multiple select of flags should be labeled as flags-related (possibly others)
         1. Literal: pass on children
-        1. Union/Discriminated Union: "Has type &lt;type pull-down>" (including when union is part of a key to records, maps, discriminator of discriminated union, etc.); list something besides numeric index (description, etc.)
     1. Optional
         1. Error, Special Errors, DOMException: Literal search of child string properties
         1. Might allow search on `.cause` and `AggregateError.errors` in the future

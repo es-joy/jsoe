@@ -22,4 +22,17 @@ describe('search: union spec', () => {
       });
     });
   });
+
+  it(
+    'labels each branch option from its own schema description, not a ' +
+      'bare array index',
+    () => {
+      cy.get(
+        sel + 'jsoe-search-union select.jsoeSearchTypeOf option'
+      ).eq(1).should('have.text', 'Some text');
+      cy.get(
+        sel + 'jsoe-search-union select.jsoeSearchTypeOf option'
+      ).eq(2).should('have.text', 'A number');
+    }
+  );
 });

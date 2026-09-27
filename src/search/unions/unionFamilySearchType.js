@@ -1,5 +1,6 @@
 import {jml} from '../../vendor-imports.js';
 import {buildPathLabel, findOwnControl, extractLeafOfKind} from '../searchUtils.js';
+import {schemaLabel} from '../../utils/schemaMeta.js';
 import {makeTypeOfLeaf, combineAnd} from '../queryTreeBuilders.js';
 import {
   findSearchElement, getQueryViaElement, hasGetQuery,
@@ -74,10 +75,13 @@ export function makeUnionFamilySearchType ({tagName, searchKind, discriminated})
             [discriminatorValue] = discSchema.values;
           }
         }
+        // `buildPathLabel`'s own fallback (the JSON Pointer path's last
+        //   segment) is wrong here - for a branch, that's just its bare
+        //   array index ("0", "1", ...), not a legible name - so check the
+        //   schema's own label directly and fall back to the branch's
+        //   search-dispatch type name instead, never the index.
         const optLabel = discriminatorValue === undefined
-          ? (buildPathLabel(option, `${path}/${idx}`) ||
-            /* istanbul ignore next -- Guard: buildPathLabel always returns a non-empty string for a branch's own path */
-            searchType)
+          ? (schemaLabel(option) || searchType)
           : String(discriminatorValue);
         return {idx, option, searchType, discriminatorValue, optLabel};
       });

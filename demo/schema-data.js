@@ -937,8 +937,18 @@ const schemaInstanceJSONSearchAllTypes = {
       output: {type: 'boolean'},
       isOptional: true
     },
+    // Branches carry their own `description` (unionFamilySearchType.js's
+    //   "Has type" pull-down prefers a branch's own schema label over its
+    //   bare array index) - `xor` below deliberately leaves its branches
+    //   undescribed to also exercise the fallback (search-dispatch type
+    //   name, e.g. "boolean"/"string" - still never a bare index).
     union: {
-      type: 'union', options: [{type: 'string'}, {type: 'number'}], isOptional: true
+      type: 'union',
+      options: [
+        {type: 'string', description: 'Some text'},
+        {type: 'number', description: 'A number'}
+      ],
+      isOptional: true
     },
     xor: {
       type: 'xor', options: [{type: 'boolean'}, {type: 'string'}], isOptional: true

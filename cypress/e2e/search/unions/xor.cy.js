@@ -22,4 +22,17 @@ describe('search: xor spec', () => {
       });
     });
   });
+
+  it(
+    'labels each undescribed branch option by its search-dispatch type ' +
+      'name, not a bare array index',
+    () => {
+      cy.get(
+        sel + 'jsoe-search-xor select.jsoeSearchTypeOf option'
+      ).eq(1).should('have.text', 'boolean');
+      cy.get(
+        sel + 'jsoe-search-xor select.jsoeSearchTypeOf option'
+      ).eq(2).should('have.text', 'string');
+    }
+  );
 });
