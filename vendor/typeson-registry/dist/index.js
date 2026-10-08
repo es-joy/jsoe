@@ -1151,6 +1151,53 @@ const gpucompilationmessage = {
     }
 };
 
+/* globals GPUPipelineError -- Newer API */
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const gpupipelineerror = {
+    gpupipelineerror: {
+        test (x) { return toStringTag(x) === 'GPUPipelineError'; },
+        // Note that we can't support the `source` property (defaults
+        //   to `stream` instead of `session`)
+        replace ({
+            message, reason,
+            cause, stack, fileName, lineNumber, columnNumber
+        }) {
+            return {
+                message, reason,
+                cause, stack, fileName, lineNumber, columnNumber
+            };
+        },
+        revive (obj) {
+            const {message, reason} = obj;
+            // TS lib still models the older two-argument
+            //   `(message, options)` form; browsers implement a single
+            //   `init` object (which also carries `message`).
+            const e = /**
+                       * @type {{
+                       *   name: string,
+                       *   cause: Error,
+                       *   stack: string,
+                       *   fileName?: string,
+                       *   lineNumber?: import('typeson').Integer,
+                       *   columnNumber?: import('typeson').Integer
+                       * }}
+                       */
+                (new GPUPipelineError(message, {reason}));
+
+            e.cause = obj.cause;
+            e.stack = obj.stack;
+            e.fileName = obj.fileName;
+            e.lineNumber = obj.lineNumber;
+            e.columnNumber = obj.columnNumber;
+
+            return e;
+        }
+    }
+};
+
 /* globals IDBKeyRange -- Polyfill needed */
 
 
@@ -2253,7 +2300,9 @@ const expObj = [
     /* c8 ignore next -- Later support */
     typeof GPUCompilationInfo !== 'undefined' ? gpucompilationinfo : [],
     /* c8 ignore next -- Later support */
-    typeof GPUCompilationMessage !== 'undefined' ? gpucompilationmessage : []
+    typeof GPUCompilationMessage !== 'undefined' ? gpucompilationmessage : [],
+    /* c8 ignore next -- Later support */
+    typeof GPUPipelineError !== 'undefined' ? gpupipelineerror : []
 );
 
 /**
@@ -2459,5 +2508,5 @@ const universal = [
     //   built-in into ecmasript standard.
 ];
 
-export { c as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, audiodata, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, encodedaudiochunk, encodedvideochunk, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, gpucompilationinfo, gpucompilationmessage, hasConstructorOf, idbkeyrange, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, quotaexceedederror, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningForStorage, structuredCloningThrowing, symbol, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject, videoframe, webtransporterror };
+export { c as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, audiodata, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, encodedaudiochunk, encodedvideochunk, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, gpucompilationinfo, gpucompilationmessage, gpupipelineerror, hasConstructorOf, idbkeyrange, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, quotaexceedederror, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningForStorage, structuredCloningThrowing, symbol, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject, videoframe, webtransporterror };
 //# sourceMappingURL=index.js.map

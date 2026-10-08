@@ -187,6 +187,7 @@ convention, to know what a given leaf means.
             1. Web/API types
                 1. quotaexceedederror
                 1. webtransporterror
+                1. gpupipelineerror
                 1. imagedata
                 1. imagebitmap
                 1. domquad
