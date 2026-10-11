@@ -8,5 +8,5 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src/**/*.js", "typings/sceditor.d.ts", "typings/json-6.d.ts"]
+  "include": ["src/**/*.js", "typings/sceditor.d.ts"]
 }

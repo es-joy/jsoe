@@ -6,7 +6,6 @@ import {
 } from '../vendor-imports.js';
 import {structuredCloningJsoe} from '../formats/structuredCloning.js';
 import {parseValue} from '../formats/schema.js';
-import {stringifyJSON6} from './json6Stringify.js';
 
 /**
  * @returns {import('typeson').Typeson}
@@ -59,7 +58,11 @@ export async function getTypesonTextForValue (value) {
   const encapsulated = await typeson.encapsulateAsync(value, null, {
     throwOnBadSyncType: false
   });
-  return stringifyJSON6(encapsulated, '  ', '');
+  return /** @type {string} */ (
+    JSON6.stringify(encapsulated, null, 2, {
+      sortKeys: false
+    })
+  );
 }
 
 /**
@@ -70,7 +73,12 @@ export async function getTypesonTextForValue (value) {
  */
 export function getValueForTypesonText (text) {
   const typeson = buildTypeson();
-  const parsed = JSON6.parse(text);
+  const parsed = JSON6.parse(text, undefined, {
+    esStrictCompatible: true,
+    forbidTemplateSubstitution: true,
+    normalizeNumericKeys: true,
+    warnWithCommentWithoutEOL: false
+  });
   return typeson.revive(parsed);
 }
 

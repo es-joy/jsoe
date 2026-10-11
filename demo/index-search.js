@@ -1,7 +1,6 @@
 import {
   jml, body, EditorView, basicSetup, javascript, JSON6
 } from '../src/vendor-imports.js';
-import {stringifyJSON6} from '../src/utils/json6Stringify.js';
 import {buildSearchChoices} from '../src/index.js';
 import {
   combineAnd, makeHasPropertyLeaf, makeRangeLeaf, makeLiteralSetLeaf,
@@ -212,14 +211,10 @@ jml('section', {role: 'main'}, [
     const validityResult = /** @type {HTMLElement} */ (
       jml('span', {class: 'validityResult'})
     );
-    // A CodeMirror-backed JSON6 editor for "Edit raw", the same combination
-    // `rawTypesonEditor.js`'s "View raw"/"Edit raw" dialog uses for the
-    // value-editing side, syntax-highlighting the pasted/typed query rather
-    // than leaving it a plain `<textarea>`. Its own content is seeded via
-    // that same module's `stringifyJSON6` (unquoted identifier-like keys),
-    // parsed back via `JSON6.parse` on "Apply query" below - `JSON6.stringify`
-    // itself is not used; see `stringifyJSON6`'s own doc for the real bug in
-    // the package's version that this avoids.
+    // A CodeMirror-backed JSON6 editor for "Edit raw", syntax-highlighting
+    // the pasted/typed query rather than leaving it a plain `<textarea>`.
+    // Seeded via `JSON6.stringify` and parsed back via `JSON6.parse` on
+    // "Apply query" below.
     const editorHost = /** @type {HTMLElement} */ (
       jml('div', {class: 'queryRawEditor'})
     );
@@ -227,7 +222,9 @@ jml('section', {role: 'main'}, [
       jml('div', {class: 'queryRawEditorError', role: 'alert'})
     );
     const view = new EditorView({
-      doc: stringifyJSON6({$and: []}, '  ', ''),
+      doc: JSON6.stringify({$and: []}, null, 2, {
+        sortKeys: false
+      }),
       extensions: [basicSetup, javascript()],
       parent: editorHost
     });
@@ -255,7 +252,9 @@ jml('section', {role: 'main'}, [
             view.dispatch({
               changes: {
                 from: 0, to: view.state.doc.length,
-                insert: stringifyJSON6(query, '  ', '')
+                insert: JSON6.stringify(query, null, 2, {
+                  sortKeys: false
+                })
               }
             });
           }
@@ -270,7 +269,9 @@ jml('section', {role: 'main'}, [
               view.dispatch({
                 changes: {
                   from: 0, to: view.state.doc.length,
-                  insert: stringifyJSON6(buildExampleAllTypesQuery(), '  ', '')
+                  insert: JSON6.stringify(buildExampleAllTypesQuery(), null, 2, {
+                    sortKeys: false
+                  })
                 }
               });
             }
@@ -289,7 +290,12 @@ jml('section', {role: 'main'}, [
             let queryDoc;
             try {
               queryDoc = /** @type {import('../src/search/queryTree.js').QueryAnd} */ (
-                JSON6.parse(view.state.doc.toString())
+                JSON6.parse(view.state.doc.toString(), undefined, {
+                  esStrictCompatible: true,
+                  forbidTemplateSubstitution: true,
+                  normalizeNumericKeys: true,
+                  warnWithCommentWithoutEOL: false
+                })
               );
             } catch (error) {
               editorError.textContent = /** @type {Error} */ (error).message;
