@@ -1,5 +1,9 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.33.2
+
+- fix: dedupe codemirror packages
+
 ## 0.33.1
 
 - fix: resolve `$ref`s against the document root when editing a nested schema via "Edit raw"

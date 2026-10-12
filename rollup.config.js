@@ -6,6 +6,19 @@ import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import istanbul from 'rollup-plugin-istanbul';
 
+// pnpm can install more than one version of a CodeMirror/Lezer package
+//   (e.g., `@codemirror/language` pinned to an older `@codemirror/view` than
+//   `codemirror` itself uses). Bundling both copies breaks syntax
+//   highlighting silently: the highlighter registers its decorations on one
+//   copy's `EditorView` facets while the editor reads the other copy's. Force
+//   a single (root) copy of each.
+const dedupe = [
+  '@codemirror/state', '@codemirror/view', '@codemirror/language',
+  '@codemirror/commands', '@codemirror/search', '@codemirror/autocomplete',
+  '@codemirror/lint', '@codemirror/lang-javascript',
+  '@lezer/common', '@lezer/highlight', '@lezer/lr', '@lezer/javascript'
+];
+
 export default [{
   input: 'src/index.js',
   output: {
@@ -23,7 +36,7 @@ export default [{
       keep_classnames: true // Keep in case implementing above as classes
       /* eslint-enable camelcase -- API */
     }),
-    nodeResolve({browser: true}),
+    nodeResolve({browser: true, dedupe}),
     commonjs()
   ]
 }, {
@@ -36,7 +49,7 @@ export default [{
     builtins(),
     json(),
     istanbul({exclude: ['node_modules/**']}),
-    nodeResolve({browser: true}),
+    nodeResolve({browser: true, dedupe}),
     commonjs()
   ]
 }, {
@@ -48,7 +61,7 @@ export default [{
   plugins: [
     builtins(),
     istanbul({exclude: ['node_modules/**']}),
-    nodeResolve({browser: true}),
+    nodeResolve({browser: true, dedupe}),
     commonjs()
   ]
 }, {
@@ -60,7 +73,7 @@ export default [{
   plugins: [
     builtins(),
     istanbul({exclude: ['node_modules/**']}),
-    nodeResolve({browser: true}),
+    nodeResolve({browser: true, dedupe}),
     commonjs()
   ]
 }, {
@@ -72,7 +85,7 @@ export default [{
   plugins: [
     builtins(),
     istanbul({exclude: ['node_modules/**']}),
-    nodeResolve({browser: true}),
+    nodeResolve({browser: true, dedupe}),
     commonjs()
   ]
 }, {
@@ -84,7 +97,7 @@ export default [{
   plugins: [
     builtins(),
     istanbul({exclude: ['node_modules/**']}),
-    nodeResolve({browser: true}),
+    nodeResolve({browser: true, dedupe}),
     commonjs()
   ]
 }, {
@@ -96,7 +109,7 @@ export default [{
   plugins: [
     builtins(),
     istanbul({exclude: ['node_modules/**']}),
-    nodeResolve({browser: true}),
+    nodeResolve({browser: true, dedupe}),
     commonjs()
   ]
 }, {
