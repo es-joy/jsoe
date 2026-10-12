@@ -247,7 +247,10 @@ export function parseValue (types, schemaObject, originalShape, value) {
  */
 export function parseValueForSchema (types, schemaObject, value) {
   return parseValue(
-    types, schemaObject, originalSchemas.get(schemaObject) ?? schemaObject,
+    types, schemaObject,
+    /* istanbul ignore next -- Guard: every schema reaching here (a control's
+       `specificSchemaObject`) was remembered by `getTypesForSchema` itself */
+    originalSchemas.get(schemaObject) ?? schemaObject,
     value
   );
 }
@@ -1122,7 +1125,9 @@ const schema = {
         codecs: dezerializerCodecs,
         instances: dezerializerInstances,
         // A sub-schema alone cannot resolve `$ref`s into its document
-        originalShape: originalSchemas.get(schema) ?? documentSchema
+        originalShape: /* istanbul ignore next -- Guard: every `schema` here
+          came from `getTypesForSchema`, which remembers each one */
+          originalSchemas.get(schema) ?? documentSchema
       });
       const parsed = type === 'promise'
         ? {success: true}
