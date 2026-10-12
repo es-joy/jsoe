@@ -43,7 +43,7 @@ minimumReleaseAgeExclude:
   - '@rollup/rollup-win32-x64-msvc@4.63.1 || 4.63.2 || 4.63.3 || 4.64.2 || 4.64.5'
   - eslint-plugin-escompat@3.11.6 || 3.12.0
   - rollup@4.63.1 || 4.63.2 || 4.63.3 || 4.64.2 || 4.64.5
-  - zod@4.5.2 || 4.5.4 || 4.6.1 || 4.6.3 || 4.6.4
+  - zod@4.5.2 || 4.5.4 || 4.6.1 || 4.6.3 || 4.6.4 || 4.6.6
   - '@typescript-eslint/eslint-plugin@8.69.0'
   - '@typescript-eslint/parser@8.69.0'
   - '@typescript-eslint/project-service@8.69.0'
@@ -66,3 +66,4 @@ minimumReleaseAgeExclude:
   - jsdom@30.1.0
   - eslint-plugin-unicorn@76.0.0
   - json-6@1.1.5 || 1.1.6
+  - mime@4.1.1

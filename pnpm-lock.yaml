@@ -69,8 +69,8 @@ importers:
         specifier: ^1.1.6
         version: 1.1.6
       mime:
-        specifier: ^4.1.0
-        version: 4.1.0
+        specifier: ^4.1.1
+        version: 4.1.1
       sceditor:
         specifier: 3.2.2
         version: 3.2.2
@@ -84,11 +84,11 @@ importers:
         specifier: ^2.2.8
         version: 2.2.8
       zod:
-        specifier: ^4.6.5
-        version: 4.6.5
+        specifier: ^4.6.6
+        version: 4.6.6
       zodexy:
         specifier: ^0.32.1
-        version: 0.32.1(zod@4.6.5)
+        version: 0.32.1(zod@4.6.6)
     devDependencies:
       '@babel/core':
         specifier: ^8.0.7
@@ -4147,8 +4147,8 @@ packages:
     engines: {node: '>=10.0.0'}
     hasBin: true
 
-  mime@4.1.0:
-    resolution: {integrity: sha512-X5ju04+cAzsojXKes0B/S4tcYtFAJ6tTMuSPBEn9CPGlrWr8Fiw7qYeLT0XyH80HSoAoqWCaz+MWKh22P7G1cw==}
+  mime@4.1.1:
+    resolution: {integrity: sha512-YAApRsTpM2+gnUFHhRNGfkX8NK0V5xj1nyQLufGlwEI+eX4xRsTcel2IXDuMEGSGjBvzykNW4VuoEACgwYe7BQ==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -5752,8 +5752,8 @@ packages:
     resolution: {integrity: sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==}
     engines: {node: '>=12.20'}
 
-  zod@4.6.5:
-    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
   zodexy@0.32.1:
     resolution: {integrity: sha512-zNqVApJp3Ai9gGupNSRaH5pmyWFE0vdN5QojtggTVnutEHiILSv31btX5g0qkdiGAlWrU43DP1hjJOWN5OqiIQ==}
@@ -10377,7 +10377,7 @@ snapshots:
 
   mime@3.0.0: {}
 
-  mime@4.1.0: {}
+  mime@4.1.1: {}
 
   mimic-fn@2.1.0: {}
 
@@ -12137,11 +12137,11 @@ snapshots:
 
   yocto-queue@1.2.1: {}
 
-  zod@4.6.5: {}
+  zod@4.6.6: {}
 
-  zodexy@0.32.1(zod@4.6.5):
+  zodexy@0.32.1(zod@4.6.6):
     dependencies:
       type-fest: 4.41.0
-      zod: 4.6.5
+      zod: 4.6.6
 
   zwitch@2.0.4: {}

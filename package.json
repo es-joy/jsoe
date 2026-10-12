@@ -95,12 +95,12 @@
     "crelt": "^1.0.7",
     "jamilih": "0.70.2",
     "json-6": "^1.1.6",
-    "mime": "^4.1.0",
+    "mime": "^4.1.1",
     "sceditor": "3.2.2",
     "style-mod": "^4.1.4",
     "typeson-registry": "15.2.0",
     "w3c-keyname": "^2.2.8",
-    "zod": "^4.6.5",
+    "zod": "^4.6.6",
     "zodexy": "^0.32.1"
   },
   "devDependencies": {

@@ -948,6 +948,66 @@ describe('rawTypesonEditor', function () {
     );
 
     it(
+      'saves a raw edit of a nested control whose schema uses a `$ref` ' +
+        'into the document\'s `$defs` (resolved against the whole ' +
+        'document, not the nested schema as its own root)',
+      function () {
+        const schemaContent = /** @type {import('zodexy').SzObject} */ (
+          /** @type {unknown} */ ({
+            $defs: {num: {type: 'number'}},
+            type: 'object',
+            properties: {
+              inner: {
+                type: 'object',
+                properties: {a: {$ref: '#/$defs/num'}}
+              }
+            }
+          })
+        );
+        const typeNamespace = 'edit-raw-save-schema-ref';
+        cy.wrap(null).then(async () => {
+          const {
+            formatChoices, typesHolder, setValue, whenReady
+          } = await formatAndTypeChoices({
+            schemas: ['schema'],
+            selectedSchema: 'schema',
+            getSchemaContent: () => Promise.resolve(schemaContent),
+            hasValue: false,
+            singleValue: true,
+            typeNamespace
+          });
+          document.body.append(formatChoices, typesHolder);
+          await whenReady;
+          await setValue({inner: {a: 1}}, {
+            readonly: false,
+            typeNamespace,
+            schemaContent
+          });
+          return typesHolder;
+        }).as('typesHolder');
+
+        // The nested `inner` control's own "Edit raw" button (the last one,
+        //   as the document root's precedes it in document order)
+        cy.get('@typesHolder').find('.editRawTypeson').
+          should('have.length.at.least', 2);
+        cy.get('@typesHolder').find('.editRawTypeson').last().
+          invoke('click');
+        getOpenDialog().as('dialog');
+
+        cy.get('@dialog').find('.jsoe-raw-editor .cm-content').
+          // eslint-disable-next-line sonarjs/no-forced-browser-interaction -- Wrong-frame element, see the "Save" test above
+          type('{selectall}{{}a: 2{}}', {force: true});
+        cy.get('@dialog').find('> .submit > button.submit').
+          contains('Save').invoke('click');
+
+        // Previously threw `Cannot use 'in' operator to search for
+        //   'isOptional' in undefined` (the unresolved `$ref`), leaving the
+        //   dialog open with no error shown
+        cy.get('@dialog').should('not.exist');
+      }
+    );
+
+    it(
       'shows an error (rather than crashing) when switching to eval mode ' +
         'cannot reseed the current value',
       function () {

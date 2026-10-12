@@ -5,7 +5,7 @@ import {
   javascript, toStringTag
 } from '../vendor-imports.js';
 import {structuredCloningJsoe} from '../formats/structuredCloning.js';
-import {parseValue} from '../formats/schema.js';
+import {parseValueForSchema} from '../formats/schema.js';
 
 /**
  * @returns {import('typeson').Typeson}
@@ -598,8 +598,8 @@ export async function openRawEditorDialog ({
           return;
         }
         if (specificSchemaObject) {
-          const result = parseValue(
-            types, specificSchemaObject, specificSchemaObject, newValue
+          const result = parseValueForSchema(
+            types, specificSchemaObject, newValue
           );
           if (!result.success) {
             showError(

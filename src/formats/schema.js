@@ -236,6 +236,23 @@ export function parseValue (types, schemaObject, originalShape, value) {
 }
 
 /**
+ * Like `parseValue`, but resolves `$ref`s against the document the schema
+ *   came from (as remembered by `getTypesForSchema`) rather than requiring
+ *   the caller to have it. A sub-schema parsed as its own root cannot
+ *   resolve pointers such as `#/$defs/...`.
+ * @param {InstanceType<typeof import('../types.js').default>} types
+ * @param {ZodexySchema} schemaObject
+ * @param {unknown} value
+ * @returns {ReturnType<ReturnType<typeof dezerialize>['safeParse']>}
+ */
+export function parseValueForSchema (types, schemaObject, value) {
+  return parseValue(
+    types, schemaObject, originalSchemas.get(schemaObject) ?? schemaObject,
+    value
+  );
+}
+
+/**
  * @param {InstanceType<typeof import('../types.js').default>} types
  * @param {ZodexySchema} schemaObject
  * @param {ZodexySchema} originalShape
@@ -1057,11 +1074,13 @@ const schema = {
     if (!currentSchema) {
       return {type: typesonType};
     }
+    // `stateObj.schemaContent` may itself be a sub-schema (a scoped
+    //   re-population), which cannot resolve `$ref`s into its document
+    const documentSchema = /** @type {import('zodexy').SzType} */ (
+      originalSchemas.get(stateObj.schemaContent) ?? stateObj.schemaContent
+    );
     const schemaObjects = [...getTypesForSchema(
-      currentSchema,
-      /** @type {import('zodexy').SzType} */ (
-        stateObj.schemaContent
-      )
+      currentSchema, documentSchema
     )];
     // console.log(
     //   'vvv', v, currentSchema,
@@ -1101,7 +1120,8 @@ const schema = {
         checks: getChecks(types),
         codecs: dezerializerCodecs,
         instances: dezerializerInstances,
-        originalShape: stateObj.schemaContent
+        // A sub-schema alone cannot resolve `$ref`s into its document
+        originalShape: originalSchemas.get(schema) ?? documentSchema
       });
       const parsed = type === 'promise'
         ? {success: true}
