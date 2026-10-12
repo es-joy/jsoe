@@ -1,8 +1,12 @@
 # CHANGES TO `@es-joy/jsoe`
 
-## ?
+## 0.33.1
 
-- chore: update codemirror/lezer, acorn, sceditor, typeson-registry, devDeps.
+- fix: resolve `$ref`s against the document root when editing a nested schema via "Edit raw"
+- chore: update json-6, codemirror/lezer, acorn, sceditor, typeson-registry, devDeps.
+- chore: add `@codemirror/streamparser`
+- chore: fix hanging after tests
+- chore: ensure npm test exits and starts the instrumented server
 
 ## 0.33.0
 
