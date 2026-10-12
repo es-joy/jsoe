@@ -1076,9 +1076,10 @@ const schema = {
     }
     // `stateObj.schemaContent` may itself be a sub-schema (a scoped
     //   re-population), which cannot resolve `$ref`s into its document
-    const documentSchema = /** @type {import('zodexy').SzType} */ (
-      originalSchemas.get(stateObj.schemaContent) ?? stateObj.schemaContent
-    );
+    const contentSchema = stateObj.schemaContent ??
+      /* istanbul ignore next -- Guard: a `currentSchema` is only derived from a `parentSchema`, which only exists when the state object carries `schemaContent`; the fallback satisfies the type */
+      currentSchema;
+    const documentSchema = originalSchemas.get(contentSchema) ?? contentSchema;
     const schemaObjects = [...getTypesForSchema(
       currentSchema, documentSchema
     )];
