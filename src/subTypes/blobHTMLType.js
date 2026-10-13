@@ -126,12 +126,21 @@ const blobHTMLType = {
        */ (
         jml('textarea', {name: `${typeNamespace}-blobHTML`})
       );
-    textarea.sceditorInstance = {
-      /* istanbul ignore next -- Guard */
-      val () {
-        throw new Error('Not yet instantiated');
+    // Until SCEditor can be instantiated (below, once connected), hold the
+    //   content here so that a `getValue`/`setValue` arriving early (e.g., a
+    //   large imported form submitted before every editor has been created)
+    //   neither throws nor loses the not-yet-edited content.
+    let pending = '';
+    const placeholder = {
+      val (/** @type {string|undefined} */ v) {
+        if (v === undefined) {
+          return pending;
+        }
+        pending = v;
+        return undefined;
       }
     };
+    textarea.sceditorInstance = placeholder;
 
     const root = jml(
       'div',
@@ -155,6 +164,12 @@ const blobHTMLType = {
       if (!await whenConnected(textarea, 250)) {
         return;
       }
+      // Rows can be rebuilt/removed (e.g., a re-import) between the wait
+      //   resolving and now; SCEditor throws when its textarea is detached
+      /* istanbul ignore if -- Guard */
+      if (!textarea.isConnected) {
+        return;
+      }
       // Push onto these: https://www.sceditor.com/documentation/formats/xhtml/
       // sceditor.formats.xhtml.converters array
       // sceditor.formats.xhtml.allowedAttribs object
@@ -169,36 +184,44 @@ const blobHTMLType = {
       //   'sceditor.formats.xhtml.converters',
       //   sceditor.formats.xhtml.converters.map((c) => c.conv.toString())
       // );
-      sceditor.create(textarea, {
-        // Todo (low): "dragdrop" plugin is for file handling (could
-        //   treat as Blobs but would need to reference them)
-        // "autoyoutube" plugin may be ok
-        // toolbarExclude (default of `null` doesn't exclude any)
-        // Must also add languages files (after editor files but
-        //   before editor creation)
-        // locale: 'en',
-        // emoticons: {}, icons, //
-        // width, height, resizeMinWidth, resizeMinHeight, autoExpand: true,
-        // autofocus, autofocusEnd
-        // id, spellcheck, toolbarContainer, dropDownCss, fonts, colors
-        // disableBlockRemove, parserOptions
-        width: '1000px',
-        height: '225px',
-        // auto-updates original textbox when the editor loses focus
-        autoUpdate: true,
-        resizeMaxHeight: -1,
-        resizeMaxWidth: -1,
-        plugins: 'xhtml,plaintext,undo',
-        emoticonsRoot: 'node_modules/sceditor/',
-        style: '/node_modules/sceditor/minified/themes/content/default.min.css'
-      });
-      textarea.sceditorInstance = sceditor.instance(textarea);
-      if (!isNullish(value)) {
-        /** @type {Required<import('../types.js').TypeObject>} */ (
-          this
-        ).setValue({root, value});
+      try {
+        sceditor.create(textarea, {
+          // Todo (low): "dragdrop" plugin is for file handling (could
+          //   treat as Blobs but would need to reference them)
+          // "autoyoutube" plugin may be ok
+          // toolbarExclude (default of `null` doesn't exclude any)
+          // Must also add languages files (after editor files but
+          //   before editor creation)
+          // locale: 'en',
+          // emoticons: {}, icons, //
+          // width, height, resizeMinWidth, resizeMinHeight, autoExpand: true,
+          // autofocus, autofocusEnd
+          // id, spellcheck, toolbarContainer, dropDownCss, fonts, colors
+          // disableBlockRemove, parserOptions
+          width: '1000px',
+          height: '225px',
+          // auto-updates original textbox when the editor loses focus
+          autoUpdate: true,
+          resizeMaxHeight: -1,
+          resizeMaxWidth: -1,
+          plugins: 'xhtml,plaintext,undo',
+          emoticonsRoot: 'node_modules/sceditor/',
+          style: '/node_modules/sceditor/minified/themes/content/default.min.css'
+        });
+        const instance = sceditor.instance(textarea);
+        instance.val(pending);
+        textarea.sceditorInstance = instance;
+      } catch (err) {
+        // Keep the content-holding placeholder so `getValue` still works
+
+        console.error('SCEditor could not be created', err);
       }
     })();
+    if (!isNullish(value)) {
+      /** @type {Required<import('../types.js').TypeObject>} */ (
+        this
+      ).setValue({root, value});
+    }
     return [root];
   }
 };
