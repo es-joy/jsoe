@@ -1,5 +1,9 @@
 # CHANGES TO `@es-joy/jsoe`
 
+## 0.33.4
+
+- fix(types): add search typedefs
+
 ## 0.33.3
 
 - fix(blobHTML): don't throw or lose content before SCEditor exists
