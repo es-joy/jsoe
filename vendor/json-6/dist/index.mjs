@@ -10,7 +10,7 @@ function requireJson6() {
   hasRequiredJson6 = 1;
   (function (module) {
 
-    const version = "1.1.6";
+    const version = "1.1.7";
     const VALUE_UNDEFINED = -1;
     const VALUE_UNSET = 0;
     const VALUE_NULL = 1;
@@ -480,13 +480,13 @@ function requireJson6() {
           if (!status) throw new Error("Parser is in an error state, please reset.");
           for (retcode = this._write(/** @type {string|undefined|null} */msg, false); retcode > 0; retcode = this._write()) {
             this.finalError();
-            if (typeof reviver === 'function') 
+            if (typeof reviver === 'function') result =
             /**
             * @param {Record<string, unknown>} holder
             * @param {string} key
             * @returns {unknown}
             */
-            (function walk(holder, key) {
+            function walk(holder, key) {
               const value = holder[key];
               if (value && typeof value === 'object') {
                 const record = /** @type {Record<string, unknown>} */value;
@@ -502,7 +502,7 @@ function requireJson6() {
                 }
               }
               return reviver.call(holder, key, value);
-            })({
+            }({
               '': result
             }, '');
             cb(result);
@@ -874,7 +874,7 @@ function requireJson6() {
                   // break;
                 }
               } else {
-                if (cInt == 32 /*' '*/ || cInt == 160 /* &nbsp */ || cInt == 13 || cInt == 10 || cInt == 9 || cInt == 11 /*VT*/ || cInt == 12 /*FF*/ || cInt == 0x2028 /*LS*/ || cInt == 0x2029 /*PS*/ || cInt == 0xFEFF || cInt == 44 /*','*/ || cInt == 125 /*'}'*/ || cInt == 93 /*']'*/ || cInt == 58 /*':'*/) {
+                if (cInt == 32 /*' '*/ || cInt == 160 /* &nbsp */ || cInt == 13 || cInt == 10 || cInt == 9 || cInt == 11 /*VT*/ || cInt == 12 /*FF*/ || cInt == 0x2028 /*LS*/ || cInt == 0x2029 /*PS*/ || cInt == 0xFEFF || cInt == 44 /*','*/ || cInt == 125 /*'}'*/ || cInt == 93 /*']'*/ || cInt == 58 /*':'*/ || cInt == 47 /*'/'*/) {
                   break;
                 } else {
                   if (complete_at_end) {
@@ -932,6 +932,7 @@ function requireJson6() {
               if (string_status > 0) {
                 gatheringString = false;
                 val.value_type = VALUE_STRING;
+                if (parse_context != CONTEXT_OBJECT_FIELD) word = WORD_POS_END;
               }
             }
             if (gatheringNumber) {
@@ -967,7 +968,7 @@ function requireJson6() {
                   if (cInt == 42 /*'*'*/) comment = 4;
                 } else {
                   // if( comment == 4 ) { // '/* ... *'
-                  if (cInt == 47 /*'/'*/) comment = 0;else comment = 3; // any other char, goto expect * to close */
+                  if (cInt == 47 /*'/'*/) comment = 0;else if (cInt != 42 /*'*'*/) comment = 3; // another '*' can still begin the close
                 }
                 continue;
               }
@@ -1536,14 +1537,14 @@ function requireJson6() {
           parser.finalError();
           throw new Error("No value found in document");
         }
-        const result = parser.value();
-        if (typeof reviver === 'function') 
+        let result = parser.value();
+        if (typeof reviver === 'function') result =
         /**
         * @param {Record<string, unknown>} holder
         * @param {string} key
         * @returns {unknown}
         */
-        (function walk(holder, key) {
+        function walk(holder, key) {
           const value = holder[key];
           if (value && typeof value === 'object') {
             const record = /** @type {Record<string, unknown>} */value;
@@ -1559,7 +1560,7 @@ function requireJson6() {
             }
           }
           return reviver.call(holder, key, value);
-        })({
+        }({
           '': result
         }, '');
         return result;
@@ -1637,7 +1638,7 @@ function requireJson6() {
       function getIdentifier(s) {
         if (!s.length) return useQuote + useQuote;
         // should check also for if any non ident in string...
-        return s in keywords /* [ "true","false","null","NaN","Infinity","undefined"].find( keyword=>keyword===s )*/ || /([0-9-])/.test(s[0]) || /((\n|\r|\t)|[ #{}()<>!+\-*/.:,])/.test(s) ? useQuote + JSON6.escape(s) + useQuote : s;
+        return s in keywords /* [ "true","false","null","NaN","Infinity","undefined"].find( keyword=>keyword===s )*/ || /([0-9-])/.test(s[0]) || /[\s"'`[\]#{}()<>!+\-*/.:,]/.test(s) ? useQuote + JSON6.escape(s) + useQuote : s;
       }
 
       /**
@@ -1649,8 +1650,7 @@ function requireJson6() {
        * @returns {string|undefined}
        */
       function stringify(stringifier, object, replacer, space, asField) {
-        if (object === undefined) return "undefined";
-        if (object === null) return "null";
+        if (object === undefined && typeof replacer !== "function") return "undefined";
         /** @type {string} */
         let gap = "";
         /** @type {string} */
@@ -1697,16 +1697,6 @@ function requireJson6() {
           const mind = gap;
           /** @type {unknown} */
           let value = holder[key];
-          // A string *value* must always be quoted: unlike an object key,
-          //   a bareword here would parse back as an identifier/variable
-          //   reference rather than as the string itself, so `getIdentifier`
-          //   (which intentionally leaves identifier-shaped keys unquoted)
-          //   is not applicable to values. Using it here previously emitted
-          //   invalid, non-reparseable output for any identifier-shaped
-          //   string value (e.g. `"hello"` became the bare word `hello`).
-          if ("string" === typeof value) {
-            value = useQuote + JSON6.escape(value) + useQuote;
-          }
           if (value !== undefined && value !== null && typeof value === "object" && typeof toJSOX === "function") {
             // is encoding?
             gap += indent;
@@ -1722,7 +1712,7 @@ function requireJson6() {
           // What happens next depends on the value's type.
           switch (typeof value) {
             case "string":
-              return value;
+              return useQuote + JSON6.escape(value) + useQuote;
             case "number":
               return '' + value;
             //useQuote+JSOX.escape( value )+useQuote;

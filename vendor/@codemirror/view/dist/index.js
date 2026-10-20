@@ -545,14 +545,19 @@ function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
     for (let cur = dom, stop = false; cur && !stop;) {
         if (isElt(cur)) { // Element
             let bounding, top = cur == doc.body;
-            let scaleX = 1, scaleY = 1;
+            let scaleX = 1, scaleY = 1, xScroll = true, yScroll = true;
             if (top) {
                 bounding = windowRect(win);
             }
             else {
-                if (/^(fixed|sticky)$/.test(getComputedStyle(cur).position))
+                let style = getComputedStyle(cur);
+                if (/^(fixed|sticky)$/.test(style.position))
                     stop = true;
-                if (cur.scrollHeight <= cur.clientHeight && cur.scrollWidth <= cur.clientWidth) {
+                if (cur.scrollHeight <= cur.clientHeight || !/auto|scroll/.test(style.overflowY))
+                    yScroll = false;
+                if (cur.scrollWidth <= cur.clientWidth || !/auto|scroll/.test(style.overflowX))
+                    xScroll = false;
+                if (!xScroll && !yScroll) {
                     cur = cur.assignedSlot || cur.parentNode;
                     continue;
                 }
@@ -563,7 +568,8 @@ function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
                     top: rect.top, bottom: rect.top + cur.clientHeight * scaleY };
             }
             let moveX = 0, moveY = 0;
-            if (y == "nearest") {
+            if (!yScroll) ;
+            else if (y == "nearest") {
                 if (rect.top < bounding.top + yMargin) {
                     moveY = rect.top - (bounding.top + yMargin);
                     if (side > 0 && rect.bottom > bounding.bottom + moveY)
@@ -582,7 +588,8 @@ function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
                         rect.bottom - boundingHeight + yMargin;
                 moveY = targetTop - bounding.top;
             }
-            if (x == "nearest") {
+            if (!xScroll) ;
+            else if (x == "nearest") {
                 if (rect.left < bounding.left + xMargin) {
                     moveX = rect.left - (bounding.left + xMargin);
                     if (side > 0 && rect.right > bounding.right + moveX)
@@ -647,9 +654,9 @@ function scrollableParents(dom, getX = true) {
             break;
         }
         else if (isElt(cur)) {
-            if (!y && cur.scrollHeight > cur.clientHeight)
+            if (!y && cur.scrollHeight > cur.clientHeight && /scroll|auto/.test(getComputedStyle(cur).overflowY))
                 y = cur;
-            if (getX && !x && cur.scrollWidth > cur.clientWidth)
+            if (getX && !x && cur.scrollWidth > cur.clientWidth && /scroll|auto/.test(getComputedStyle(cur).overflowX))
                 x = cur;
             cur = cur.assignedSlot || cur.parentNode;
         }
@@ -1334,7 +1341,6 @@ function autoDirection(text, from, to) {
         if (type == 2 /* T.R */ || type == 4 /* T.AL */)
             return RTL;
     }
-    return LTR;
 }
 
 const clickAddsSelectionRange = /*@__PURE__*/Facet.define();
@@ -1560,8 +1566,6 @@ function getIsolatedRanges(view, line) {
             let level = result;
             for (let i = active.length - 1; i >= 0; i--, open--) {
                 let direction = active[i].spec.bidiIsolate, update;
-                if (direction == null)
-                    direction = autoDirection(line.text, from, to);
                 if (open > 0 && level.length &&
                     (update = level[level.length - 1]).to == from && update.direction == direction) {
                     update.to = to;
@@ -1575,7 +1579,28 @@ function getIsolatedRanges(view, line) {
             }
         }
     });
-    return result;
+    return resolveIsolates(line.text, result);
+}
+function resolveIsolates(text, isolates) {
+    for (let i of isolates) {
+        if (i.direction == null) {
+            for (let pos = i.from, j = 0; pos < i.to; j++) {
+                let nextInner = j < i.inner.length ? i.inner[j] : null;
+                let dir = autoDirection(text, pos, nextInner ? nextInner.from : i.to);
+                if (dir) {
+                    i.direction = dir;
+                    break;
+                }
+                if (!nextInner)
+                    break;
+                pos = nextInner.to;
+            }
+            if (i.direction == null)
+                i.direction = Direction.LTR;
+        }
+        resolveIsolates(text, i.inner);
+    }
+    return isolates;
 }
 const scrollMargins = /*@__PURE__*/Facet.define();
 function getScrollMargins(view) {
@@ -3692,12 +3717,12 @@ function moveToLineBoundary(view, start, forward, includeWrap) {
     if (coords) {
         let editorRect = view.dom.getBoundingClientRect();
         let direction = view.textDirectionAt(block.from);
-        let pos = view.posAtCoords({ x: forward == (direction == Direction.LTR) ? editorRect.right - 1 : editorRect.left + 1,
+        let pos = view.posAndSideAtCoords({ x: forward == (direction == Direction.LTR) ? editorRect.right - 1 : editorRect.left + 1,
             y: (coords.top + coords.bottom) / 2 });
-        if (pos != null)
-            return EditorSelection.cursor(pos, forward ? -1 : 1);
+        if (pos)
+            return EditorSelection.cursor(pos.pos, pos.assoc);
     }
-    return EditorSelection.cursor(forward ? block.to : block.from, forward ? -1 : 1);
+    return EditorSelection.cursor(forward ? block.to : block.from, forward ? 1 : -1);
 }
 function moveByChar(view, start, forward, by) {
     let line = view.state.doc.lineAt(start.head), spans = view.bidiSpans(line);
@@ -6305,7 +6330,7 @@ class ViewState {
     updateScaler() {
         let scaler = this.scaler;
         this.scaler = this.heightMap.height <= 7000000 /* VP.MaxDOMHeight */ ? IdScaler :
-            new BigScaler(this.heightOracle, this.heightMap, this.viewports);
+            BigScaler.get(this.heightOracle, this.heightMap, this.viewports);
         return scaler.eq(this.scaler) ? 0 : 2 /* UpdateFlag.Height */;
     }
     updateViewportLines() {
@@ -6681,7 +6706,7 @@ class ViewState {
             : (this.scrollParent ? this.scrollParent.getBoundingClientRect().top : 0) - this.view.contentDOM.getBoundingClientRect().top;
     }
     scrollAnchorAt(scrollOffset) {
-        let block = this.lineBlockAtHeight(scrollOffset + 8);
+        let block = this.lineBlockAtHeight(scrollOffset + 12 - this.paddingTop);
         return block.from >= this.viewport.from || this.viewportLines[0].top - scrollOffset > 200 ? block : this.viewportLines[0];
     }
     elementAtHeight(height) {
@@ -6767,20 +6792,27 @@ function staticDeco(state) {
 // regions outside the viewports so that the total height is
 // VP.MaxDOMHeight.
 class BigScaler {
-    constructor(oracle, heightMap, viewports) {
+    constructor(scale, viewports) {
+        this.scale = scale;
+        this.viewports = viewports;
+    }
+    static get(oracle, heightMap, viewports) {
         let vpHeight = 0, base = 0, domBase = 0;
-        this.viewports = viewports.map(({ from, to }) => {
+        let vps = viewports.map(({ from, to }) => {
             let top = heightMap.lineAt(from, QueryType.ByPos, oracle, 0, 0).top;
             let bottom = heightMap.lineAt(to, QueryType.ByPos, oracle, 0, 0).bottom;
             vpHeight += bottom - top;
             return { from, to, top, bottom, domTop: 0, domBottom: 0 };
         });
-        this.scale = (7000000 /* VP.MaxDOMHeight */ - vpHeight) / (heightMap.height - vpHeight);
-        for (let obj of this.viewports) {
-            obj.domTop = domBase + (obj.top - base) * this.scale;
+        if (heightMap.height - vpHeight < 10)
+            return IdScaler;
+        let scale = (7000000 /* VP.MaxDOMHeight */ - vpHeight) / (heightMap.height - vpHeight);
+        for (let obj of vps) {
+            obj.domTop = domBase + (obj.top - base) * scale;
             domBase = obj.domBottom = obj.domTop + (obj.bottom - obj.top);
             base = obj.bottom;
         }
+        return new BigScaler(scale, vps);
     }
     toDOM(n) {
         for (let i = 0, base = 0, domBase = 0;; i++) {
@@ -7235,7 +7267,7 @@ class DOMObserver {
     }
     onScroll(e) {
         if (this.intersecting)
-            this.flush(false);
+            this.flush(this.pendingRecords().length > 0);
         if (this.editContext)
             this.view.requestMeasure(this.editContext.measureReq);
         this.onScrollChanged(e);
@@ -11347,6 +11379,8 @@ function createDialog(view, config, result) {
     if (config.class)
         panel.className = config.class;
     panel.classList.add("cm-dialog");
+    let focus = typeof config.focus == "string" ? content.querySelector(config.focus)
+        : config.focus ? content.querySelector("input") || content.querySelector("button") : null;
     function done(form) {
         if (panel.contains(panel.ownerDocument.activeElement))
             view.focus();
@@ -11356,18 +11390,14 @@ function createDialog(view, config, result) {
         dom: panel,
         top: config.top,
         mount: () => {
-            if (config.focus) {
-                let focus;
-                if (typeof config.focus == "string")
-                    focus = content.querySelector(config.focus);
-                else
-                    focus = content.querySelector("input") || content.querySelector("button");
-                if (focus && "select" in focus)
+            if (focus) {
+                if ("select" in focus)
                     focus.select();
-                else if (focus && "focus" in focus)
+                else if ("focus" in focus)
                     focus.focus();
             }
-        }
+        },
+        destroy: () => result(null)
     };
 }
 
