@@ -1731,6 +1731,62 @@ const symbol = {
     }
 };
 
+/**
+ * @template {{toJSON: () => string}} T
+ * @param {string} name
+ * @param {(json: string) => T} from
+ * @returns {import('typeson').TypeSpecSet[string]}
+ */
+const buildSpec = (name, from) => {
+    return {
+        /**
+         * @param {unknown} x
+         * @returns {boolean}
+         */
+        test (x) { return toStringTag(x) === `Temporal.${name}`; },
+        /**
+         * @param {T} t
+         * @returns {string}
+         */
+        replace (t) { return t.toJSON(); },
+        /**
+         * @param {string} json
+         * @returns {T}
+         */
+        revive (json) { return from(json); }
+    };
+};
+
+/**
+ * @type {import('typeson').TypeSpecSet}
+ */
+const temporal = {
+    temporalDuration: buildSpec(
+        'Duration', (json) => Temporal.Duration.from(json)
+    ),
+    temporalInstant: buildSpec(
+        'Instant', (json) => Temporal.Instant.from(json)
+    ),
+    temporalPlainDate: buildSpec(
+        'PlainDate', (json) => Temporal.PlainDate.from(json)
+    ),
+    temporalPlainDateTime: buildSpec(
+        'PlainDateTime', (json) => Temporal.PlainDateTime.from(json)
+    ),
+    temporalPlainMonthDay: buildSpec(
+        'PlainMonthDay', (json) => Temporal.PlainMonthDay.from(json)
+    ),
+    temporalPlainTime: buildSpec(
+        'PlainTime', (json) => Temporal.PlainTime.from(json)
+    ),
+    temporalPlainYearMonth: buildSpec(
+        'PlainYearMonth', (json) => Temporal.PlainYearMonth.from(json)
+    ),
+    temporalZonedDateTime: buildSpec(
+        'ZonedDateTime', (json) => Temporal.ZonedDateTime.from(json)
+    )
+};
+
 // Support all kinds of typed arrays (views of ArrayBuffers)
 
 /**
@@ -2508,5 +2564,5 @@ const universal = [
     //   built-in into ecmasript standard.
 ];
 
-export { c as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, audiodata, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, encodedaudiochunk, encodedvideochunk, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, gpucompilationinfo, gpucompilationmessage, gpupipelineerror, hasConstructorOf, idbkeyrange, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, quotaexceedederror, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningForStorage, structuredCloningThrowing, symbol, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject, videoframe, webtransporterror };
+export { c as JSON_TYPES, Typeson, TypesonPromise, Undefined, arrayNonindexKeys, arraybuffer, audiodata, bigint, bigintObject, blob, expObj$1 as builtin, cloneable, cryptokey, dataview, date, domexception, dommatrix, dompoint, domquad, domrect, encodedaudiochunk, encodedvideochunk, error, errors, escapeKeyPathComponent, file, filelist, getByKeyPath, getJSONType, gpucompilationinfo, gpucompilationmessage, gpupipelineerror, hasConstructorOf, idbkeyrange, imagebitmap, imagedata, infinity, intlTypes, isObject, isPlainObject, isThenable, isUserObject, map, nan, negativeInfinity, negativeZero, nonbuiltinIgnore, postmessage, primitiveObjects, promise, quotaexceedederror, regexp, resurrectable, set, setAtKeyPath, socketio, sparseUndefined, specialNumbers, expObj as structuredCloning, structuredCloningForStorage, structuredCloningThrowing, symbol, temporal, toStringTag, typedArrays, typedArraysSocketIO as typedArraysSocketio, undef$1 as undef, undef as undefPreset, unescapeKeyPathComponent, universal, userObject, videoframe, webtransporterror };
 //# sourceMappingURL=index.js.map

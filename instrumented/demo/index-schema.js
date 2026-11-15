@@ -3551,7 +3551,7 @@ class TypesonPromise{constructor(e){this.p=new Promise(e);}}TypesonPromise.__typ
  * @file Typeson - JSON with types.
  * @license The MIT License (MIT)
  * @copyright (c) 2016-2018 David Fahlander, Brett Zamir
- */const{keys:r,hasOwn:n}=Object,{isArray:o}=Array,a=["type","replaced","iterateIn","iterateUnsetNumeric","iterateSymbols","addLength"];function setOwnEnumerable(e,t,r){Object.defineProperty(e,t,{configurable:true,enumerable:true,value:r,writable:true});}const s=["asyncIterator","hasInstance","isConcatSpreadable","iterator","match","matchAll","replace","search","species","split","toPrimitive","toStringTag","unscopables"];function nestedPathsFirst(e,t){if(""===e.keypath)return  -1;let r=e.keypath.match(/\./gu)??0,n=t.keypath.match(/\./gu)??0;return r&&(r=r.length),n&&(n=n.length),r>n?-1:r<n?1:e.keypath<t.keypath?-1:e.keypath>t.keypath?1:0}class Typeson{constructor(e){this.options=e,this.plainObjectReplacers=[],this.nonplainObjectReplacers=[],this.revivers={},this.types={},this.symbolsByName=Object.create(null),this.symbolsByValue=new Map;const t=e?.symbols;t&&Object.entries(t).forEach(([e,t])=>{if("symbol"!=typeof t)throw new TypeError("Non-symbol value supplied for `symbols` entry: "+e);this.symbolsByName[e]=t,this.symbolsByValue.set(t,e);});}stringify(e,t,r,n){n={...this.options,...n,stringification:true};const a=this.encapsulate(e,null,n);return o(a)?JSON.stringify(a[0],t,r):a.then(e=>JSON.stringify(e,t,r))}stringifySync(e,t,r,n){return this.stringify(e,t,r,{throwOnBadSyncType:true,...n,sync:true})}stringifyAsync(e,t,r,n){return this.stringify(e,t,r,{throwOnBadSyncType:true,...n,sync:false})}parse(e,t,r){return r={...this.options,...r,parse:true},this.revive(JSON.parse(e,t),r)}parseSync(e,t,r){return this.parse(e,t,{throwOnBadSyncType:true,...r,sync:true})}parseAsync(e,t,r){return this.parse(e,t,{throwOnBadSyncType:true,...r,sync:false})}specialTypeNames(e,t,r={}){return this.encapsulate(e,t,{...r,returnTypeNames:true})}rootTypeName(e,t,r={}){return this.encapsulate(e,t,{...r,iterateNone:true})}encapsulate(e,t,i){const c={sync:true,...this.options,...i},{sync:l}=c,u={},y={},p=[],f=[],m=[],d=!("cyclic"in c)||c.cyclic,{encapsulateObserver:h,encapsulateError:g}=c,finish=e=>{const t=Object.values(u);if(c.iterateNone)return t.length?t[0]:getJSONType(e);if(c.returnTypeNames)return !!t.length&&[...new Set(t)];const r=Object.keys(y).length>0,o=isObject$1(e)&&(n(e,"$types")||n(e,"$symbolKeys"));return r||t.length?(!o&&e&&isPlainObject$1(e)?t.length&&(e.$types=u):e={$:e,$types:{$:u}},r&&(e.$symbolKeys=y)):o&&(e={$:e,$types:true}),e},checkPromises=async(e,t)=>{const r=await Promise.all(t.map(e=>e[1].p));return await Promise.all(r.map(async function(r){const n=[],[o]=t.splice(0,1),[a,,s,i,c,l,u]=o,y=_encapsulate(a,r,s,i,n,true,u),p=hasConstructorOf(y,TypesonPromise);return a&&p?(setOwnEnumerable(c,l,await y.p),checkPromises(e,n)):(a?setOwnEnumerable(c,l,y):e=p?y.p:y,checkPromises(e,n))})),e},_adaptBuiltinStateObjectProperties=(e,t,r)=>{Object.assign(e,t);const n=a.map(t=>{const r=e[t];return delete e[t],r});r(),a.forEach((t,r)=>{e[t]=n[r];});},_encapsulate=(e,t,a,i,l,m,d)=>{let b,v={};const w=h?function(r){const n=d??i.type??getJSONType(t);h(Object.assign(r??v,{keypath:e,value:t,cyclic:a,stateObj:i,promisesData:l,resolvingTypesonPromise:m,awaitingTypesonPromise:hasConstructorOf(t,TypesonPromise)},{type:n}));}:null,getEncapsulatedValue=(e,t,r)=>{try{return {value:_encapsulate(e,t[r],Boolean(a),i,l,m)}}catch(n){if(!g)throw n;const o=d??i.type??getJSONType(t),a=g({keypath:e,error:n,parent:t,key:r,stateObj:i,type:o});if(!a)throw n;if("substitute"in a)return {value:a.substitute,substitute:true};if(a.ignore)return;throw n}};if(["string","boolean","number","undefined"].includes(typeof t))return void 0===t||t===1/0||0===t||t===-1/0||Number.isNaN(t)?(b=i.replaced?t:replace(e,t,i,l,false,m,w),b!==t&&(v={replaced:b})):b=t,w&&w(),b;if(null===t)return w&&w(),t;if(a&&t&&"object"==typeof t&&!i.iterateIn&&!i.iterateUnsetNumeric){const r=p.indexOf(t);if(-1!==r)return u[e]="#",w&&w({cyclicKeypath:f[r]}),"#"+f[r];true===a&&(p.push(t),f.push(e));}const O=isPlainObject$1(t),A=o(t),T=(O||A)&&(!this.plainObjectReplacers.length||i.replaced)||i.iterateIn?t:replace(e,t,i,l,O||A,null,w);let S;if(T!==t?(b=T,v={replaced:T}):""===e&&hasConstructorOf(t,TypesonPromise)?(l.push([e,t,a,i,void 0,void 0,i.type]),b=t):A&&"object"!==i.iterateIn||"array"===i.iterateIn?(S=new Array(t.length),v={clone:S}):!O&&("object"!=typeof t||"toJSON"in t||hasConstructorOf(t,TypesonPromise)||hasConstructorOf(t,Promise)||hasConstructorOf(t,ArrayBuffer))&&"object"!==i.iterateIn?b=t:(S={},i.addLength&&(S.length=t.length),v={clone:S}),w&&w(),c.iterateNone)return S??b;if(!S)return b;if(i.iterateIn){for(const r in t){const o={ownKeys:n(t,r)};_adaptBuiltinStateObjectProperties(i,o,()=>{const n=e+(e?".":"")+escapeKeyPathComponent(r),o=getEncapsulatedValue(n,t,r),s=o&&o.value;hasConstructorOf(s,TypesonPromise)?l.push([n,s,Boolean(a),i,S,r,i.type]):o&&(void 0!==s||"substitute"in o)&&setOwnEnumerable(S,r,s);});}w&&w({endIterateIn:true,end:true});}else r(t).forEach(function(r){const n=e+(e?".":"")+escapeKeyPathComponent(r);_adaptBuiltinStateObjectProperties(i,{ownKeys:true},()=>{const e=getEncapsulatedValue(n,t,r),o=e&&e.value;hasConstructorOf(o,TypesonPromise)?l.push([n,o,Boolean(a),i,S,r,i.type]):e&&(void 0!==o||"substitute"in e)&&setOwnEnumerable(S,r,o);});}),w&&w({endIterateOwn:true,end:true}),(i.iterateSymbols||c.iterateSymbols)&&(Object.getOwnPropertySymbols(t).filter(e=>Object.prototype.propertyIsEnumerable.call(t,e)).forEach(r=>{const n=function resolveSymbolIdentity(e,t){const r=Symbol.keyFor(e);if(void 0!==r)return {for:r};const n=s.find(t=>Symbol[t]===e);if(n)return {wellKnown:n};const o=t.get(e);return void 0!==o?{registered:o}:null}(r,this.symbolsByValue);if(!n){if(c.throwOnUnregisteredSymbol)throw new TypeError("Cannot serialize a Symbol-keyed property whose Symbol has no portable identity (not global, not well-known, and not in the `symbols` option): "+String(r));return}const o=y[e]??=[],u={key:n};o.push(u);const p=o.length-1,f=`$symbolKeys.${escapeKeyPathComponent(e)}.${String(p)}.value`,m={value:t[r]};_adaptBuiltinStateObjectProperties(i,{ownKeys:true},()=>{const e=getEncapsulatedValue(f,m,"value"),t=e&&e.value;hasConstructorOf(t,TypesonPromise)?l.push([f,t,Boolean(a),i,u,"value",i.type]):e&&(void 0!==t||"substitute"in e)&&setOwnEnumerable(u,"value",t);});}),w&&w({endIterateSymbols:true,end:true}));if(i.iterateUnsetNumeric){const r=t.length;for(let n=0;n<r;n++){if(n in t)continue;const r=`${e}${e?".":""}${String(n)}`;_adaptBuiltinStateObjectProperties(i,{ownKeys:false},()=>{const e=_encapsulate(r,void 0,Boolean(a),i,l,m);hasConstructorOf(e,TypesonPromise)?l.push([r,e,Boolean(a),i,S,n,i.type]):void 0!==e&&setOwnEnumerable(S,n,e);});}w&&w({endIterateUnsetNumeric:true,end:true});}return S},replace=(e,t,r,n,o,a,s)=>{const i=o?this.plainObjectReplacers:this.nonplainObjectReplacers;let c=i.length;for(;c--;){const o=i[c];if(o.test(t,r)){const{type:i}=o;if(Object.hasOwn(this.revivers,i)){const t=u[e];u[e]=t?[i].concat(t):i;}if(Object.assign(r,{type:i,replaced:true}),(l||!o.replaceAsync)&&!o.replace)return s&&s({typeDetected:true}),_encapsulate(e,t,d&&"readonly",r,n,a,i);let c;if(s&&s({replacing:true}),l||!o.replaceAsync){if(void 0===o.replace)throw new TypeError("Missing replacer");c=o.replace(t,r);}else c=o.replaceAsync(t,r);return _encapsulate(e,c,d&&"readonly",r,n,a,i)}}return t},b=_encapsulate("",e,d,t??{},m);if(m.length)return l&&c.throwOnBadSyncType?(()=>{throw new TypeError("Sync method requested but async result obtained")})():Promise.resolve(checkPromises(b,m)).then(finish);if(!l&&c.throwOnBadSyncType)throw new TypeError("Async method requested but sync result obtained");return l&&c.stringification?[finish(b)]:l?finish(b):Promise.resolve(finish(b))}encapsulateSync(e,t,r){return this.encapsulate(e,t,{throwOnBadSyncType:true,...r,sync:true})}encapsulateAsync(e,t,r){return this.encapsulate(e,t,{throwOnBadSyncType:true,...r,sync:false})}revive(e,t){const a={sync:true,...this.options,...t},{sync:i}=a;function finishRevival(e){if(i)return e;if(a.throwOnBadSyncType)throw new TypeError("Async method requested but sync result obtained");return Promise.resolve(e)}if(!e||"object"!=typeof e||Array.isArray(e))return finishRevival(e);let c=e.$types;if(true===c)return finishRevival(e.$);const l=e.$symbolKeys;let u=void 0!==l;if(!c||"object"!=typeof c||Array.isArray(c)){if(!l)return finishRevival(e);c={};}const y=[],p=Object.create(null),f={};let m=true;c.$&&isPlainObject$1(c.$)&&(e=e.$,c=c.$,m=false,u=false,void 0!==l&&isObject$1(e)&&!n(e,"$symbolKeys")&&(e.$symbolKeys=l,u=true));const executeReviver=(e,t)=>{const[r]=this.revivers[e]??[];if(!r)throw new Error("Unregistered type: "+e);if(i&&!("revive"in r))return t;if(!i&&r.reviveAsync)return r.reviveAsync(t,f);if(r.revive)return r.revive(t,f);throw new Error("Missing reviver")},d=[];function checkUndefined(e){return hasConstructorOf(e,Undefined)?void 0:e}const reHomeSymbolKeys=e=>{if(!isObject$1(e))return;const t=u?e.$symbolKeys:l;t&&(Object.entries(t).forEach(([t,r])=>{const o=getByKeyPath(e,t);isObject$1(o)&&r.forEach(e=>{if(!n(e,"value"))return;const t=function resolveSymbolFromIdentity(e,t){if("for"in e)return Symbol.for(e.for);if("wellKnown"in e){const t=s.find(t=>t===e.wellKnown);if(!t)throw new Error("Unknown well-known Symbol: "+e.wellKnown);return Symbol[t]}if(!n(t,e.registered))throw new Error("Unregistered symbol: "+e.registered);return t[e.registered]}(e.key,this.symbolsByName),r=checkUndefined(e.value);e.descriptor?Object.defineProperty(o,t,{configurable:true,enumerable:true,writable:true,...e.descriptor,value:r}):o[t]=r;});}),u&&delete e.$symbolKeys);},h=(()=>{if(!c)throw new Error("Found bad `types`");const t=[];if(Object.entries(c).forEach(([e,r])=>{"#"!==r&&[].concat(r).forEach(r=>{const[,{plain:n}]=this.revivers[r]??[null,{}];n&&(t.push({keypath:e,type:r}),delete c[e]);});}),t.length)return t.sort(nestedPathsFirst),t.reduce(function reducer(t,{keypath:r,type:n}){if(isThenable(t))return t.then(e=>reducer(e,{keypath:r,type:n}));let o=getByKeyPath(e,r);if(o=executeReviver(n,o),hasConstructorOf(o,TypesonPromise))return o.then(t=>{const n=setAtKeyPath(e,r,t);n===t&&(e=n);});const a=setAtKeyPath(e,r,o);a===o&&(e=a);},void 0)})();let g;return hasConstructorOf(h,TypesonPromise)?g=h.then(()=>e):(g=function _revive(e,t,a,s,l){if(m&&"$types"===e)return;const u=d.length,f=n(c,e)?c[e]:void 0,h=o(t);if(h||isPlainObject$1(t)){const o=h?new Array(t.length):{};for(r(t).forEach(r=>{const n=_revive(e+(e?".":"")+escapeKeyPathComponent(r),t[r],a??o,o,r),set=e=>(hasConstructorOf(e,Undefined)?setOwnEnumerable(o,r,void 0):void 0!==e&&setOwnEnumerable(o,r,e),e);hasConstructorOf(n,TypesonPromise)?d.push(n.then(e=>set(e))):set(n);}),t=o;y.length;){const[[e,t,r,o]]=y,a=n(p,t),s=a?p[t]:getByKeyPath(e,t);if(!a&&void 0===s)break;setOwnEnumerable(r,o,s),y.shift();}}if(!f)return p[e]=t,t;if("#"===f){const e=t.slice(1),r=n(p,e),o=r?p[e]:getByKeyPath(a,e);return r||void 0!==o||y.push([a,e,s,l]),o}const applyType=t=>{const r=[].concat(f).reduce(function reducer(e,t){if(hasConstructorOf(e,TypesonPromise))return e.then(e=>reducer(e,t));if("string"!=typeof t)throw new TypeError("Bad type JSON");return executeReviver(t,e)},t);return hasConstructorOf(r,TypesonPromise)?r.then(t=>(p[e]=t,t)):(p[e]=r,r)};return !i&&d.length>u?TypesonPromise.all(d.slice(u)).then(()=>applyType(t)):applyType(t)}("",e,null),d.length&&(g=TypesonPromise.resolve(g).then(e=>TypesonPromise.all([e,...d])).then(([e])=>e))),l&&(isThenable(g)?g=g.then(e=>(reHomeSymbolKeys(e),e)):reHomeSymbolKeys(g)),isThenable(g)?i&&a.throwOnBadSyncType?(()=>{throw new TypeError("Sync method requested but async result obtained")})():hasConstructorOf(g,TypesonPromise)?g.p.then(checkUndefined):g:!i&&a.throwOnBadSyncType?(()=>{throw new TypeError("Async method requested but sync result obtained")})():i?checkUndefined(g):Promise.resolve(checkUndefined(g))}reviveSync(e,t){return this.revive(e,{throwOnBadSyncType:true,...t,sync:true})}reviveAsync(e,t){return this.revive(e,{throwOnBadSyncType:true,...t,sync:false})}register(e,t){const n=t??{},reg=e=>{o(e)?e.forEach(e=>{reg(e);}):r(e).forEach(t=>{if("#"===t)throw new TypeError("# cannot be used as a type name as it is reserved for cyclic objects");if(i$2.includes(t))throw new TypeError("Plain JSON object types are reserved as type names");let r=e[t];if([this.plainObjectReplacers,this.nonplainObjectReplacers].forEach(e=>{const r=e.findIndex(e=>e.type===t);-1!==r&&e.splice(r,1);}),delete this.revivers[t],delete this.types[t],"function"==typeof r){const e=r;r={test:t=>t&&t.constructor===e,replace:e=>({...e}),revive:t=>Object.assign(Object.create(e.prototype),t)};}else if(o(r)){const[e,t,n]=r;r={test:e,replace:t,revive:n};}if(!r?.test)return;const a={type:t,test:r.test.bind(r)};r.replace&&(a.replace=r.replace.bind(r)),r.replaceAsync&&(a.replaceAsync=r.replaceAsync.bind(r));const s="number"==typeof n.fallback?n.fallback:n.fallback?0:1/0;if(r.testPlainObjects?this.plainObjectReplacers.splice(s,0,a):this.nonplainObjectReplacers.splice(s,0,a),r.revive||r.reviveAsync){const e={};r.revive&&(e.revive=r.revive.bind(r)),r.reviveAsync&&(e.reviveAsync=r.reviveAsync.bind(r)),this.revivers[t]=[e,{plain:r.testPlainObjects}];}this.types[t]=r;});};return [].concat(e).forEach(e=>{reg(e);}),this}}class Undefined{}Undefined.__typeson__type__="TypesonUndefined";const i$2=["null","boolean","number","string","array","object"];for(var c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",l=new Uint8Array(256),u=0;u<64;u++)l[c.codePointAt(u)]=u;var y=function encode(e,t,r){null==r&&(r=e.byteLength);for(var n=new Uint8Array(e,0,r),o=n.length,a="",s=0;s<o;s+=3)a+=c[n[s]>>2],a+=c[(3&n[s])<<4|n[s+1]>>4],a+=c[(15&n[s+1])<<2|n[s+2]>>6],a+=c[63&n[s+2]];return o%3==2?a=a.slice(0,-1)+"=":o%3==1&&(a=a.slice(0,-2)+"=="),a},p=function decode(e,t){var r=e.length;if(r%4)throw new Error("Bad base64 length: not divisible by four");var n,o,a,s,i=.75*e.length,c=0;"="===e[e.length-1]&&(i--,"="===e[e.length-2]&&i--);for(var u=new ArrayBuffer(i,t),y=new Uint8Array(u),p=0;p<r;p+=4)n=l[e.codePointAt(p)],o=l[e.codePointAt(p+1)],a=l[e.codePointAt(p+2)],s=l[e.codePointAt(p+3)],y[c++]=n<<2|o>>4,y[c++]=(15&o)<<4|a>>2,y[c++]=(3&a)<<6|63&s;return u};const f={arraybuffer:{test:e=>"ArrayBuffer"===toStringTag(e),replace(e,t){t.buffers||(t.buffers=[]);const r=t.buffers.indexOf(e);return  -1!==r?{index:r}:(t.buffers.push(e),{s:y(e),maxByteLength:e.maxByteLength,resizable:e.resizable})},revive(e,t){if(t.buffers||(t.buffers=[]),Object.hasOwn(e,"index"))return t.buffers[e.index];const r=p(e.s,e.resizable?{maxByteLength:e.maxByteLength}:void 0);return t.buffers.push(r),r}}},m={audiodata:{test:e=>"AudioData"===toStringTag(e),replace(e){const{format:t,sampleRate:r,numberOfFrames:n,numberOfChannels:o,timestamp:a}=e,s=t.endsWith("-planar")?o:1,i=[];let c=0;for(let t=0;t<s;t++){const r=e.allocationSize({planeIndex:t});i.push(r),c+=r;}const l=new ArrayBuffer(c);let u=0;for(let t=0;t<s;t++){const r=new Uint8Array(l,u,i[t]);e.copyTo(r,{planeIndex:t}),u+=i[t];}return {format:t,sampleRate:r,numberOfFrames:n,numberOfChannels:o,timestamp:a,data:l}},revive:({format:e,sampleRate:t,numberOfFrames:r,numberOfChannels:n,timestamp:o,data:a})=>new AudioData({format:e,sampleRate:t,numberOfFrames:r,numberOfChannels:n,timestamp:o,data:new Uint8Array(a)})}},d$1={bigintObject:{test:e=>"object"==typeof e&&hasConstructorOf(e,BigInt),replace:String,revive:e=>new Object(BigInt(e))}},h={bigint:{test:e=>"bigint"==typeof e,replace:String,revive:e=>BigInt(e)}};function arraybuffer2string(e){return new Uint8Array(e).reduce((e,t)=>e+String.fromCodePoint(t),"")}function string2arraybuffer(e){const t=new Uint8Array(e.length);for(let r=0;r<e.length;r++)t[r]=e.charCodeAt(r);return t.buffer}const g={blob:{test:e=>"Blob"===toStringTag(e),replace(e){const t=new XMLHttpRequest;if(t.overrideMimeType("text/plain; charset=x-user-defined"),t.open("GET",URL.createObjectURL(e),false),t.send(),200!==t.status&&0!==t.status)throw new Error("Bad Blob access: "+t.status);return {type:e.type,stringContents:t.responseText}},revive(e){const{type:t,stringContents:r}=e;return new Blob([string2arraybuffer(r)],{type:t})},replaceAsync:e=>new TypesonPromise((t,r)=>{const n=new FileReader;n.addEventListener("load",()=>{t({type:e.type,stringContents:arraybuffer2string(n.result)});}),n.addEventListener("error",()=>{r(n.error);}),n.readAsArrayBuffer(e);})}};function generateUUID(){let e=Date.now();return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replaceAll(/[xy]/gu,function(t){const r=Math.trunc((e+16*Math.random())%16);return e=Math.floor(e/16),("x"===t?r:3&r|8).toString(16)})}const w={cryptokey:{test:e=>"CryptoKey"===toStringTag(e)&&e.extractable,replaceAsync:e=>new TypesonPromise(async(t,r)=>{let n;try{n=await crypto.subtle.exportKey("jwk",e);}catch(e){return void r(e)}t({jwk:n,algorithm:e.algorithm,usages:e.usages});}),revive(e){const{jwk:t,algorithm:r,usages:n}=e;return crypto.subtle.importKey("jwk",t,r,true,n)}}},O={dataview:{test:e=>"DataView"===toStringTag(e),replace({buffer:e,byteOffset:t,byteLength:r},n){n.buffers||(n.buffers=[]);const o=n.buffers.indexOf(e);return  -1!==o?{index:o,byteOffset:t,byteLength:r}:(n.buffers.push(e),{encoded:y(e),maxByteLength:e.maxByteLength,resizable:e.resizable,byteOffset:t,byteLength:r})},revive(e,t){t.buffers||(t.buffers=[]);const{byteOffset:r,byteLength:n,encoded:o,index:a,maxByteLength:s,resizable:i}=e;let c;return "index"in e?c=t.buffers[a]:(c=p(o,i?{maxByteLength:s}:s),t.buffers.push(c)),new DataView(c,r,n)}}},A={date:{test:e=>"Date"===toStringTag(e),replace(e){const t=e.getTime();return Number.isNaN(t)?"NaN":t},revive:e=>new Date("NaN"===e?NaN:e)}},T={domexception:{test:e=>"DOMException"===toStringTag(e),replace:e=>({name:e.name,message:e.message}),revive:({message:e,name:t})=>new DOMException(e,t)}},S={};function create$5(e){S[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>e.is2D?{a:e.a,b:e.b,c:e.c,d:e.d,e:e.e,f:e.f}:{m11:e.m11,m12:e.m12,m13:e.m13,m14:e.m14,m21:e.m21,m22:e.m22,m23:e.m23,m24:e.m24,m31:e.m31,m32:e.m32,m33:e.m33,m34:e.m34,m41:e.m41,m42:e.m42,m43:e.m43,m44:e.m44},revive:t=>Object.hasOwn(t,"a")?new e([t.a,t.b,t.c,t.d,t.e,t.f]):new e([t.m11,t.m12,t.m13,t.m14,t.m21,t.m22,t.m23,t.m24,t.m31,t.m32,t.m33,t.m34,t.m41,t.m42,t.m43,t.m44])};}"undefined"!=typeof DOMMatrix&&create$5(DOMMatrix),"undefined"!=typeof DOMMatrixReadOnly&&create$5(DOMMatrixReadOnly);const P={};function create$4(e){P[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>({x:e.x,y:e.y,z:e.z,w:e.w}),revive:({x:t,y:r,z:n,w:o})=>new e(t,r,n,o)};}"undefined"!=typeof DOMPoint&&create$4(DOMPoint),"undefined"!=typeof DOMPointReadOnly&&create$4(DOMPointReadOnly);const N={domquad:{test:e=>"DOMQuad"===toStringTag(e),replace:e=>({p1:e.p1,p2:e.p2,p3:e.p3,p4:e.p4}),revive:({p1:e,p2:t,p3:r,p4:n})=>new DOMQuad(e,t,r,n)}},E={};function create$3(e){E[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>({x:e.x,y:e.y,width:e.width,height:e.height}),revive:({x:t,y:r,width:n,height:o})=>new e(t,r,n,o)};}"undefined"!=typeof DOMRect&&create$3(DOMRect),"undefined"!=typeof DOMRectReadOnly&&create$3(DOMRectReadOnly);const x={encodedaudiochunk:{test:e=>"EncodedAudioChunk"===toStringTag(e),replace(e){const{type:t,timestamp:r,duration:n,byteLength:o}=e,a=new ArrayBuffer(o);return e.copyTo(a),{type:t,timestamp:r,duration:n,data:a}},revive({type:e,timestamp:t,duration:r,data:n}){const o={type:e,timestamp:t,data:new Uint8Array(n)};return null!=r&&(o.duration=r),new EncodedAudioChunk(o)}}},I={encodedvideochunk:{test:e=>"EncodedVideoChunk"===toStringTag(e),replace(e){const{type:t,timestamp:r,duration:n,byteLength:o}=e,a=new ArrayBuffer(o);return e.copyTo(a),{type:t,timestamp:r,duration:n,data:a}},revive({type:e,timestamp:t,duration:r,data:n}){const o={type:e,timestamp:t,data:new Uint8Array(n)};return null!=r&&(o.duration=r),new EncodedVideoChunk(o)}}},j={error:{test:e=>"Error"===toStringTag(e),replace:({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s})=>({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s}),revive(e){const t=new Error(e.message);return t.name=e.name,t.cause=e.cause,t.stack=e.stack,t.fileName=e.fileName,t.lineNumber=e.lineNumber,t.columnNumber=e.columnNumber,t}}},C$1={};function create$2(e){C$1[e.name.toLowerCase()]={test:t=>hasConstructorOf(t,e),replace:({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s,errors:i})=>({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s,errors:i}),revive(t){const r="undefined"!=typeof AggregateError&&e===AggregateError?new e(t.errors,t.message):new e(t.message);return r.name=t.name,r.cause=t.cause,r.stack=t.stack,r.fileName=t.fileName,r.lineNumber=t.lineNumber,r.columnNumber=t.columnNumber,r}};}[TypeError,RangeError,SyntaxError,ReferenceError,EvalError,URIError].forEach(e=>create$2(e)),"undefined"!=typeof AggregateError&&create$2(AggregateError),"function"==typeof InternalError&&create$2(InternalError);const B={file:{test:e=>"File"===toStringTag(e),replace(e){const t=new XMLHttpRequest;if(t.overrideMimeType("text/plain; charset=x-user-defined"),t.open("GET",URL.createObjectURL(e),false),t.send(),200!==t.status&&0!==t.status)throw new Error("Bad File access: "+t.status);return {type:e.type,stringContents:t.responseText,name:e.name,lastModified:e.lastModified}},revive:({name:e,type:t,stringContents:r,lastModified:n})=>new File([string2arraybuffer(r)],e,{type:t,lastModified:n}),replaceAsync:e=>new TypesonPromise(function(t,r){const n=new FileReader;n.addEventListener("load",function(){t({type:e.type,stringContents:arraybuffer2string(n.result),name:e.name,lastModified:e.lastModified});}),n.addEventListener("error",function(){r(n.error);}),n.readAsArrayBuffer(e);})}},U$1={file:B.file,filelist:{test:e=>"FileList"===toStringTag(e),replace(e){const t=[];for(let r=0;r<e.length;r++)t[r]=e.item(r);return t},revive(e){class FileList{constructor(){this._files=arguments[0],this.length=this._files.length;}item(e){return this._files[e]}get[Symbol.toStringTag](){return "FileList"}}return new FileList(e)}}},k={gpucompilationinfo:{test:e=>"GPUCompilationInfo"===toStringTag(e),replace:({messages:e})=>({messages:e}),revive({messages:e}){class GPUCompilationInfo{get[Symbol.toStringTag](){return "GPUCompilationInfo"}get messages(){return e}}return new GPUCompilationInfo}}},_={gpucompilationmessage:{test:e=>"GPUCompilationMessage"===toStringTag(e),replace:({length:e,lineNum:t,linePos:r,message:n,offset:o,type:a})=>({length:e,lineNum:t,linePos:r,message:n,offset:o,type:a}),revive({length:e,lineNum:t,linePos:r,message:n,offset:o,type:a}){class GPUCompilationMessage{get[Symbol.toStringTag](){return "GPUCompilationMessage"}get length(){return e}get lineNum(){return t}get linePos(){return r}get message(){return n}get offset(){return o}get type(){return a}}return new GPUCompilationMessage}}},M={gpupipelineerror:{test:e=>"GPUPipelineError"===toStringTag(e),replace:({message:e,reason:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s})=>({message:e,reason:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s}),revive(e){const{message:t,reason:r}=e,n=new GPUPipelineError(t,{reason:r});return n.cause=e.cause,n.stack=e.stack,n.fileName=e.fileName,n.lineNumber=e.lineNumber,n.columnNumber=e.columnNumber,n}}},D={imagebitmap:{test:e=>"ImageBitmap"===toStringTag(e),replace(e){const t=document.createElement("canvas");return t.getContext("2d").drawImage(e,0,0),{width:e.width,height:e.height,dataURL:t.toDataURL()}},revive(e){const t="undefined"==typeof OffscreenCanvas?document.createElement("canvas"):new OffscreenCanvas(e.width,e.height),r=t.getContext("2d"),n=document.createElement("img");return n.addEventListener("load",function(){try{r.drawImage(n,0,0);}catch{}}),n.src=e.dataURL,"undefined"==typeof OffscreenCanvas?t:t.transferToImageBitmap()},reviveAsync(e){const t=document.createElement("canvas"),r=t.getContext("2d"),n=document.createElement("img");return n.addEventListener("load",function(){r.drawImage(n,0,0);}),n.src=e.dataURL,new TypesonPromise(async(e,r)=>{try{e(await createImageBitmap(t));}catch(e){r(e);}})}}},F={imagedata:{test:e=>"ImageData"===toStringTag(e),replace(e){const t="Float16Array"===toStringTag(e.data)?"rgba-float16":"rgba-unorm8";return {array:[...e.data],width:e.width,height:e.height,pixelFormat:t,colorSpace:e.colorSpace}},revive(e){const{array:t,width:r,height:n,colorSpace:o,pixelFormat:a}=e;return "rgba-float16"===a?new ImageData(new Float16Array(t),r,n,{colorSpace:o,pixelFormat:a}):new ImageData(new Uint8ClampedArray(t),r,n,{colorSpace:o,pixelFormat:a})}}},L={infinity:{test:e=>e===1/0,replace:()=>"Infinity",revive:()=>1/0}},W={map:{test:e=>"Map"===toStringTag(e),replace:e=>e.entries().toArray(),revive:e=>new Map(e)}},q={nan:{test:e=>Number.isNaN(e),replace:()=>"NaN",revive:()=>NaN}},G={negativeInfinity:{test:e=>e===-1/0,replace:()=>"-Infinity",revive:()=>-1/0}},z$2={negativeZero:{test:e=>Object.is(e,-0),replace:()=>0,revive:()=>-0}},J={StringObject:{test:e=>"String"===toStringTag(e)&&"object"==typeof e,replace:String,revive:e=>new String(e)},BooleanObject:{test:e=>"Boolean"===toStringTag(e)&&"object"==typeof e,replace:e=>e.valueOf(),revive:e=>new Boolean(e)},NumberObject:{test:e=>"Number"===toStringTag(e)&&"object"==typeof e,replace(e){const t=e.valueOf();return Number.isNaN(t)?"NaN":t===1/0?"Infinity":t===-1/0?"-Infinity":Object.is(t,-0)?"-0":t},revive:e=>new Number("NaN"===e?NaN:"Infinity"===e?1/0:"-Infinity"===e?-1/0:"-0"===e?-0:e)}},H={promise:{test:e=>"Promise"===toStringTag(e),replaceAsync:e=>new TypesonPromise(async t=>{try{t({value:await e});}catch(e){t({error:e});}}),revive:e=>e.error?Promise.reject(e.error):Promise.resolve(e.value)}},Q={quotaexceedederror:{test:e=>"QuotaExceededError"===toStringTag(e),replace:({message:e,quota:t,requested:r,cause:n,stack:o,fileName:a,lineNumber:s,columnNumber:i})=>({message:e,quota:t,requested:r,cause:n,stack:o,fileName:a,lineNumber:s,columnNumber:i}),revive(e){const{message:t,quota:r,requested:n}=e,o={};null!=r&&(o.quota=r),null!=n&&(o.requested=n);const a=new QuotaExceededError(t,o);return a.cause=e.cause,a.stack=e.stack,a.fileName=e.fileName,a.lineNumber=e.lineNumber,a.columnNumber=e.columnNumber,a}}},X={regexp:{test:e=>"RegExp"===toStringTag(e),replace:e=>({source:e.source,flags:(e.global?"g":"")+(e.ignoreCase?"i":"")+(e.multiline?"m":"")+(e.sticky?"y":"")+(e.unicode?"u":"")+(e.unicodeSets?"v":"")+(e.hasIndices?"d":"")+(e.dotAll?"s":"")}),revive:({source:e,flags:t})=>new RegExp(e,t)}},Y={},Z={resurrectable:{test:e=>e&&!Array.isArray(e)&&["object","function","symbol"].includes(typeof e),replace(e){const t=generateUUID();return Y[t]=e,t},revive:e=>Y[e]}},ee={set:{test:e=>"Set"===toStringTag(e),replace:e=>e.values().toArray(),revive:e=>new Set(e)}},te={symbol:{test:e=>"symbol"==typeof e,replace:e=>({global:void 0!==Symbol.keyFor(e),sym:String(e).slice(7,-1)}),revive:e=>e.global?Symbol.for(e.sym):Symbol(e.sym)}},re={};"function"==typeof Int8Array&&[Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,..."function"==typeof BigInt64Array?[BigInt64Array,BigUint64Array]:[],..."function"==typeof Float16Array?[Float16Array]:[]].forEach(e=>function create$1(e){const t=e.name;re[t.toLowerCase()]={test:e=>toStringTag(e)===t,replace:e=>(0===e.byteOffset&&e.byteLength===e.buffer.byteLength?e:e.slice(0)).buffer,revive:t=>"ArrayBuffer"===toStringTag(t)?new e(t):t};}(e));const ne$1={};"function"==typeof Int8Array&&[Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,..."function"==typeof BigInt64Array?[BigInt64Array,BigUint64Array]:[],..."function"==typeof Float16Array?[Float16Array]:[]].forEach(e=>function create(e){const t=e.name;ne$1[t.toLowerCase()]={test:e=>toStringTag(e)===t,replace({buffer:e,byteOffset:t,length:r},n){n.buffers||(n.buffers=[]);const o=n.buffers.indexOf(e);return  -1!==o?{index:o,byteOffset:t,length:r}:(n.buffers.push(e),{maxByteLength:e.maxByteLength,resizable:e.resizable,encoded:y(e),byteOffset:t,length:r})},revive(t,r){r.buffers||(r.buffers=[]);const{byteOffset:n,length:o,encoded:a,index:s,maxByteLength:i,resizable:c}=t;let l;return "index"in t?l=r.buffers[s]:(l=p(a,c?{maxByteLength:i}:void 0),r.buffers.push(l)),new e(l,n,o)}};}(e));const oe={undef:{test:(e,t)=>void 0===e&&(t.ownKeys||!("ownKeys"in t)),replace:()=>0,revive:()=>new Undefined}},ae={userObject:{test:e=>isUserObject(e),replace:e=>({...e}),revive:e=>e}},se={videoframe:{test:e=>"VideoFrame"===toStringTag(e),replaceAsync:e=>new TypesonPromise(async(t,r)=>{try{const{format:r,codedWidth:n,codedHeight:o,timestamp:a,duration:s,visibleRect:i,displayWidth:c,displayHeight:l,colorSpace:u}=e,y=new ArrayBuffer(e.allocationSize());await e.copyTo(y),t({format:r,codedWidth:n,codedHeight:o,timestamp:a,duration:s,visibleRect:{x:i.x,y:i.y,width:i.width,height:i.height},displayWidth:c,displayHeight:l,colorSpace:{primaries:u.primaries,transfer:u.transfer,matrix:u.matrix,fullRange:u.fullRange},data:y});}catch(e){r(e);}}),revive({format:e,codedWidth:t,codedHeight:r,timestamp:n,duration:o,visibleRect:a,displayWidth:s,displayHeight:i,colorSpace:c,data:l}){const u={format:e,codedWidth:t,codedHeight:r,timestamp:n,visibleRect:a,displayWidth:s,displayHeight:i,colorSpace:c};return null!=o&&(u.duration=o),new VideoFrame(new Uint8Array(l),u)}}},ie$2={webtransporterror:{test:e=>"WebTransportError"===toStringTag(e),replace:({message:e,streamErrorCode:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s})=>({message:e,streamErrorCode:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s}),revive(e){const{message:t,streamErrorCode:r}=e,n=new WebTransportError({message:t,streamErrorCode:r});return n.cause=e.cause,n.stack=e.stack,n.fileName=e.fileName,n.lineNumber=e.lineNumber,n.columnNumber=e.columnNumber,n}}},ce=[{arrayNonindexKeys:{testPlainObjects:true,test:(e,t)=>!!Array.isArray(e)&&(Object.keys(e).some(e=>String(Number(e))!==e)&&(t.iterateIn="object",t.addLength=true),true),replace:(e,t)=>(t.iterateUnsetNumeric=true,e),revive(e){if(Array.isArray(e))return e;const t=[];return Object.entries(e).forEach(([e,r])=>{t[e]=r;}),t}}},{sparseUndefined:{test:(e,t)=>void 0===e&&false===t.ownKeys,replace:()=>0,revive(){}}}],le=[q,L,G,z$2],me=[ae,oe,ce,J,le,A,X,F,D,B,U$1,g,j,C$1].concat("function"==typeof Map?W:[],"function"==typeof Set?ee:[],"function"==typeof ArrayBuffer?f:[],"function"==typeof Uint8Array?ne$1:[],"function"==typeof DataView?O:[],"undefined"!=typeof crypto?w:[],"undefined"!=typeof BigInt?[h,d$1]:[],"undefined"!=typeof DOMException?T:[],"undefined"!=typeof QuotaExceededError?Q:[],"undefined"!=typeof WebTransportError?ie$2:[],"undefined"!=typeof DOMRect?E:[],"undefined"!=typeof DOMPoint?P:[],"undefined"!=typeof DOMQuad?N:[],"undefined"!=typeof DOMMatrix?S:[],"undefined"!=typeof AudioData?m:[],"undefined"!=typeof EncodedAudioChunk?x:[],"undefined"!=typeof EncodedVideoChunk?I:[],"undefined"!=typeof VideoFrame?se:[],"undefined"!=typeof GPUCompilationInfo?k:[],"undefined"!=typeof GPUCompilationMessage?_:[],"undefined"!=typeof GPUPipelineError?M:[]);const de$1=me.concat({checkDataCloneException:{test(e){const t={}.toString.call(e).slice(8,-1);if(["symbol","function"].includes(typeof e)||["Arguments","Module","Promise","WeakMap","WeakSet","WeakRef","FinalizationRegistry","Generator","AsyncGenerator","String Iterator","Array Iterator","Map Iterator","Set Iterator","RegExp String Iterator","Intl.Collator","Intl.DateTimeFormat","Intl.DisplayNames","Intl.DurationFormat","Intl.ListFormat","Intl.Locale","Intl.NumberFormat","Intl.PluralRules","Intl.RelativeTimeFormat","Intl.Segmenter","Event","MessageChannel","MessagePort","ReadableStream","WritableStream","TransformStream","OffscreenCanvas"].includes(t)||e&&e.constructor&&["MessageChannel","MessagePort"].includes(e.constructor.name)||["ArrayBuffer","DataView","Int8Array","Uint8Array","Uint8ClampedArray","Int16Array","Uint16Array","Int32Array","Uint32Array","Float32Array","Float64Array","BigInt64Array","BigUint64Array"].includes(t)&&function isBufferDetached(e){if("boolean"==typeof e.detached)return e.detached;if(0!==e.byteLength)return  false;try{return new Uint8Array(e),!1}catch{return  true}}(e)||e&&"object"==typeof e&&"number"==typeof e.nodeType&&"function"==typeof e.insertBefore)throw new DOMException("The object cannot be cloned.","DataCloneError");return  false}}}),he$1=de$1.concat({checkSharedArrayBufferException:{test(e){if("SharedArrayBuffer"==={}.toString.call(e).slice(8,-1))throw new DOMException("The object cannot be cloned.","DataCloneError");return  false}}});
+ */const{keys:r,hasOwn:n}=Object,{isArray:o}=Array,a=["type","replaced","iterateIn","iterateUnsetNumeric","iterateSymbols","addLength"];function setOwnEnumerable(e,t,r){Object.defineProperty(e,t,{configurable:true,enumerable:true,value:r,writable:true});}const s=["asyncIterator","hasInstance","isConcatSpreadable","iterator","match","matchAll","replace","search","species","split","toPrimitive","toStringTag","unscopables"];function nestedPathsFirst(e,t){if(""===e.keypath)return  -1;let r=e.keypath.match(/\./gu)??0,n=t.keypath.match(/\./gu)??0;return r&&(r=r.length),n&&(n=n.length),r>n?-1:r<n?1:e.keypath<t.keypath?-1:e.keypath>t.keypath?1:0}class Typeson{constructor(e){this.options=e,this.plainObjectReplacers=[],this.nonplainObjectReplacers=[],this.revivers={},this.types={},this.symbolsByName=Object.create(null),this.symbolsByValue=new Map;const t=e?.symbols;t&&Object.entries(t).forEach(([e,t])=>{if("symbol"!=typeof t)throw new TypeError("Non-symbol value supplied for `symbols` entry: "+e);this.symbolsByName[e]=t,this.symbolsByValue.set(t,e);});}stringify(e,t,r,n){n={...this.options,...n,stringification:true};const a=this.encapsulate(e,null,n);return o(a)?JSON.stringify(a[0],t,r):a.then(e=>JSON.stringify(e,t,r))}stringifySync(e,t,r,n){return this.stringify(e,t,r,{throwOnBadSyncType:true,...n,sync:true})}stringifyAsync(e,t,r,n){return this.stringify(e,t,r,{throwOnBadSyncType:true,...n,sync:false})}parse(e,t,r){return r={...this.options,...r,parse:true},this.revive(JSON.parse(e,t),r)}parseSync(e,t,r){return this.parse(e,t,{throwOnBadSyncType:true,...r,sync:true})}parseAsync(e,t,r){return this.parse(e,t,{throwOnBadSyncType:true,...r,sync:false})}specialTypeNames(e,t,r={}){return this.encapsulate(e,t,{...r,returnTypeNames:true})}rootTypeName(e,t,r={}){return this.encapsulate(e,t,{...r,iterateNone:true})}encapsulate(e,t,i){const c={sync:true,...this.options,...i},{sync:l}=c,u={},y={},p=[],f=[],m=[],d=!("cyclic"in c)||c.cyclic,{encapsulateObserver:h,encapsulateError:g}=c,finish=e=>{const t=Object.values(u);if(c.iterateNone)return t.length?t[0]:getJSONType(e);if(c.returnTypeNames)return !!t.length&&[...new Set(t)];const r=Object.keys(y).length>0,o=isObject$1(e)&&(n(e,"$types")||n(e,"$symbolKeys"));return r||t.length?(!o&&e&&isPlainObject$1(e)?t.length&&(e.$types=u):e={$:e,$types:{$:u}},r&&(e.$symbolKeys=y)):o&&(e={$:e,$types:true}),e},checkPromises=async(e,t)=>{const r=await Promise.all(t.map(e=>e[1].p));return await Promise.all(r.map(async function(r){const n=[],[o]=t.splice(0,1),[a,,s,i,c,l,u]=o,y=_encapsulate(a,r,s,i,n,true,u),p=hasConstructorOf(y,TypesonPromise);return a&&p?(setOwnEnumerable(c,l,await y.p),checkPromises(e,n)):(a?setOwnEnumerable(c,l,y):e=p?y.p:y,checkPromises(e,n))})),e},_adaptBuiltinStateObjectProperties=(e,t,r)=>{Object.assign(e,t);const n=a.map(t=>{const r=e[t];return delete e[t],r});r(),a.forEach((t,r)=>{e[t]=n[r];});},_encapsulate=(e,t,a,i,l,m,d)=>{let b,v={};const w=h?function(r){const n=d??i.type??getJSONType(t);h(Object.assign(r??v,{keypath:e,value:t,cyclic:a,stateObj:i,promisesData:l,resolvingTypesonPromise:m,awaitingTypesonPromise:hasConstructorOf(t,TypesonPromise)},{type:n}));}:null,getEncapsulatedValue=(e,t,r)=>{try{return {value:_encapsulate(e,t[r],Boolean(a),i,l,m)}}catch(n){if(!g)throw n;const o=d??i.type??getJSONType(t),a=g({keypath:e,error:n,parent:t,key:r,stateObj:i,type:o});if(!a)throw n;if("substitute"in a)return {value:a.substitute,substitute:true};if(a.ignore)return;throw n}};if(["string","boolean","number","undefined"].includes(typeof t))return void 0===t||t===1/0||0===t||t===-1/0||Number.isNaN(t)?(b=i.replaced?t:replace(e,t,i,l,false,m,w),b!==t&&(v={replaced:b})):b=t,w&&w(),b;if(null===t)return w&&w(),t;if(a&&t&&"object"==typeof t&&!i.iterateIn&&!i.iterateUnsetNumeric){const r=p.indexOf(t);if(-1!==r)return u[e]="#",w&&w({cyclicKeypath:f[r]}),"#"+f[r];true===a&&(p.push(t),f.push(e));}const O=isPlainObject$1(t),T=o(t),A=(O||T)&&(!this.plainObjectReplacers.length||i.replaced)||i.iterateIn?t:replace(e,t,i,l,O||T,null,w);let S;if(A!==t?(b=A,v={replaced:A}):""===e&&hasConstructorOf(t,TypesonPromise)?(l.push([e,t,a,i,void 0,void 0,i.type]),b=t):T&&"object"!==i.iterateIn||"array"===i.iterateIn?(S=new Array(t.length),v={clone:S}):!O&&("object"!=typeof t||"toJSON"in t||hasConstructorOf(t,TypesonPromise)||hasConstructorOf(t,Promise)||hasConstructorOf(t,ArrayBuffer))&&"object"!==i.iterateIn?b=t:(S={},i.addLength&&(S.length=t.length),v={clone:S}),w&&w(),c.iterateNone)return S??b;if(!S)return b;if(i.iterateIn){for(const r in t){const o={ownKeys:n(t,r)};_adaptBuiltinStateObjectProperties(i,o,()=>{const n=e+(e?".":"")+escapeKeyPathComponent(r),o=getEncapsulatedValue(n,t,r),s=o&&o.value;hasConstructorOf(s,TypesonPromise)?l.push([n,s,Boolean(a),i,S,r,i.type]):o&&(void 0!==s||"substitute"in o)&&setOwnEnumerable(S,r,s);});}w&&w({endIterateIn:true,end:true});}else r(t).forEach(function(r){const n=e+(e?".":"")+escapeKeyPathComponent(r);_adaptBuiltinStateObjectProperties(i,{ownKeys:true},()=>{const e=getEncapsulatedValue(n,t,r),o=e&&e.value;hasConstructorOf(o,TypesonPromise)?l.push([n,o,Boolean(a),i,S,r,i.type]):e&&(void 0!==o||"substitute"in e)&&setOwnEnumerable(S,r,o);});}),w&&w({endIterateOwn:true,end:true}),(i.iterateSymbols||c.iterateSymbols)&&(Object.getOwnPropertySymbols(t).filter(e=>Object.prototype.propertyIsEnumerable.call(t,e)).forEach(r=>{const n=function resolveSymbolIdentity(e,t){const r=Symbol.keyFor(e);if(void 0!==r)return {for:r};const n=s.find(t=>Symbol[t]===e);if(n)return {wellKnown:n};const o=t.get(e);return void 0!==o?{registered:o}:null}(r,this.symbolsByValue);if(!n){if(c.throwOnUnregisteredSymbol)throw new TypeError("Cannot serialize a Symbol-keyed property whose Symbol has no portable identity (not global, not well-known, and not in the `symbols` option): "+String(r));return}const o=y[e]??=[],u={key:n};o.push(u);const p=o.length-1,f=`$symbolKeys.${escapeKeyPathComponent(e)}.${String(p)}.value`,m={value:t[r]};_adaptBuiltinStateObjectProperties(i,{ownKeys:true},()=>{const e=getEncapsulatedValue(f,m,"value"),t=e&&e.value;hasConstructorOf(t,TypesonPromise)?l.push([f,t,Boolean(a),i,u,"value",i.type]):e&&(void 0!==t||"substitute"in e)&&setOwnEnumerable(u,"value",t);});}),w&&w({endIterateSymbols:true,end:true}));if(i.iterateUnsetNumeric){const r=t.length;for(let n=0;n<r;n++){if(n in t)continue;const r=`${e}${e?".":""}${String(n)}`;_adaptBuiltinStateObjectProperties(i,{ownKeys:false},()=>{const e=_encapsulate(r,void 0,Boolean(a),i,l,m);hasConstructorOf(e,TypesonPromise)?l.push([r,e,Boolean(a),i,S,n,i.type]):void 0!==e&&setOwnEnumerable(S,n,e);});}w&&w({endIterateUnsetNumeric:true,end:true});}return S},replace=(e,t,r,n,o,a,s)=>{const i=o?this.plainObjectReplacers:this.nonplainObjectReplacers;let c=i.length;for(;c--;){const o=i[c];if(o.test(t,r)){const{type:i}=o;if(Object.hasOwn(this.revivers,i)){const t=u[e];u[e]=t?[i].concat(t):i;}if(Object.assign(r,{type:i,replaced:true}),(l||!o.replaceAsync)&&!o.replace)return s&&s({typeDetected:true}),_encapsulate(e,t,d&&"readonly",r,n,a,i);let c;if(s&&s({replacing:true}),l||!o.replaceAsync){if(void 0===o.replace)throw new TypeError("Missing replacer");c=o.replace(t,r);}else c=o.replaceAsync(t,r);return _encapsulate(e,c,d&&"readonly",r,n,a,i)}}return t},b=_encapsulate("",e,d,t??{},m);if(m.length)return l&&c.throwOnBadSyncType?(()=>{throw new TypeError("Sync method requested but async result obtained")})():Promise.resolve(checkPromises(b,m)).then(finish);if(!l&&c.throwOnBadSyncType)throw new TypeError("Async method requested but sync result obtained");return l&&c.stringification?[finish(b)]:l?finish(b):Promise.resolve(finish(b))}encapsulateSync(e,t,r){return this.encapsulate(e,t,{throwOnBadSyncType:true,...r,sync:true})}encapsulateAsync(e,t,r){return this.encapsulate(e,t,{throwOnBadSyncType:true,...r,sync:false})}revive(e,t){const a={sync:true,...this.options,...t},{sync:i}=a;function finishRevival(e){if(i)return e;if(a.throwOnBadSyncType)throw new TypeError("Async method requested but sync result obtained");return Promise.resolve(e)}if(!e||"object"!=typeof e||Array.isArray(e))return finishRevival(e);let c=e.$types;if(true===c)return finishRevival(e.$);const l=e.$symbolKeys;let u=void 0!==l;if(!c||"object"!=typeof c||Array.isArray(c)){if(!l)return finishRevival(e);c={};}const y=[],p=Object.create(null),f={};let m=true;c.$&&isPlainObject$1(c.$)&&(e=e.$,c=c.$,m=false,u=false,void 0!==l&&isObject$1(e)&&!n(e,"$symbolKeys")&&(e.$symbolKeys=l,u=true));const executeReviver=(e,t)=>{const[r]=this.revivers[e]??[];if(!r)throw new Error("Unregistered type: "+e);if(i&&!("revive"in r))return t;if(!i&&r.reviveAsync)return r.reviveAsync(t,f);if(r.revive)return r.revive(t,f);throw new Error("Missing reviver")},d=[];function checkUndefined(e){return hasConstructorOf(e,Undefined)?void 0:e}const reHomeSymbolKeys=e=>{if(!isObject$1(e))return;const t=u?e.$symbolKeys:l;t&&(Object.entries(t).forEach(([t,r])=>{const o=getByKeyPath(e,t);isObject$1(o)&&r.forEach(e=>{if(!n(e,"value"))return;const t=function resolveSymbolFromIdentity(e,t){if("for"in e)return Symbol.for(e.for);if("wellKnown"in e){const t=s.find(t=>t===e.wellKnown);if(!t)throw new Error("Unknown well-known Symbol: "+e.wellKnown);return Symbol[t]}if(!n(t,e.registered))throw new Error("Unregistered symbol: "+e.registered);return t[e.registered]}(e.key,this.symbolsByName),r=checkUndefined(e.value);e.descriptor?Object.defineProperty(o,t,{configurable:true,enumerable:true,writable:true,...e.descriptor,value:r}):o[t]=r;});}),u&&delete e.$symbolKeys);},h=(()=>{if(!c)throw new Error("Found bad `types`");const t=[];if(Object.entries(c).forEach(([e,r])=>{"#"!==r&&[].concat(r).forEach(r=>{const[,{plain:n}]=this.revivers[r]??[null,{}];n&&(t.push({keypath:e,type:r}),delete c[e]);});}),t.length)return t.sort(nestedPathsFirst),t.reduce(function reducer(t,{keypath:r,type:n}){if(isThenable(t))return t.then(e=>reducer(e,{keypath:r,type:n}));let o=getByKeyPath(e,r);if(o=executeReviver(n,o),hasConstructorOf(o,TypesonPromise))return o.then(t=>{const n=setAtKeyPath(e,r,t);n===t&&(e=n);});const a=setAtKeyPath(e,r,o);a===o&&(e=a);},void 0)})();let g;return hasConstructorOf(h,TypesonPromise)?g=h.then(()=>e):(g=function _revive(e,t,a,s,l){if(m&&"$types"===e)return;const u=d.length,f=n(c,e)?c[e]:void 0,h=o(t);if(h||isPlainObject$1(t)){const o=h?new Array(t.length):{};for(r(t).forEach(r=>{const n=_revive(e+(e?".":"")+escapeKeyPathComponent(r),t[r],a??o,o,r),set=e=>(hasConstructorOf(e,Undefined)?setOwnEnumerable(o,r,void 0):void 0!==e&&setOwnEnumerable(o,r,e),e);hasConstructorOf(n,TypesonPromise)?d.push(n.then(e=>set(e))):set(n);}),t=o;y.length;){const[[e,t,r,o]]=y,a=n(p,t),s=a?p[t]:getByKeyPath(e,t);if(!a&&void 0===s)break;setOwnEnumerable(r,o,s),y.shift();}}if(!f)return p[e]=t,t;if("#"===f){const e=t.slice(1),r=n(p,e),o=r?p[e]:getByKeyPath(a,e);return r||void 0!==o||y.push([a,e,s,l]),o}const applyType=t=>{const r=[].concat(f).reduce(function reducer(e,t){if(hasConstructorOf(e,TypesonPromise))return e.then(e=>reducer(e,t));if("string"!=typeof t)throw new TypeError("Bad type JSON");return executeReviver(t,e)},t);return hasConstructorOf(r,TypesonPromise)?r.then(t=>(p[e]=t,t)):(p[e]=r,r)};return !i&&d.length>u?TypesonPromise.all(d.slice(u)).then(()=>applyType(t)):applyType(t)}("",e,null),d.length&&(g=TypesonPromise.resolve(g).then(e=>TypesonPromise.all([e,...d])).then(([e])=>e))),l&&(isThenable(g)?g=g.then(e=>(reHomeSymbolKeys(e),e)):reHomeSymbolKeys(g)),isThenable(g)?i&&a.throwOnBadSyncType?(()=>{throw new TypeError("Sync method requested but async result obtained")})():hasConstructorOf(g,TypesonPromise)?g.p.then(checkUndefined):g:!i&&a.throwOnBadSyncType?(()=>{throw new TypeError("Async method requested but sync result obtained")})():i?checkUndefined(g):Promise.resolve(checkUndefined(g))}reviveSync(e,t){return this.revive(e,{throwOnBadSyncType:true,...t,sync:true})}reviveAsync(e,t){return this.revive(e,{throwOnBadSyncType:true,...t,sync:false})}register(e,t){const n=t??{},reg=e=>{o(e)?e.forEach(e=>{reg(e);}):r(e).forEach(t=>{if("#"===t)throw new TypeError("# cannot be used as a type name as it is reserved for cyclic objects");if(i$2.includes(t))throw new TypeError("Plain JSON object types are reserved as type names");let r=e[t];if([this.plainObjectReplacers,this.nonplainObjectReplacers].forEach(e=>{const r=e.findIndex(e=>e.type===t);-1!==r&&e.splice(r,1);}),delete this.revivers[t],delete this.types[t],"function"==typeof r){const e=r;r={test:t=>t&&t.constructor===e,replace:e=>({...e}),revive:t=>Object.assign(Object.create(e.prototype),t)};}else if(o(r)){const[e,t,n]=r;r={test:e,replace:t,revive:n};}if(!r?.test)return;const a={type:t,test:r.test.bind(r)};r.replace&&(a.replace=r.replace.bind(r)),r.replaceAsync&&(a.replaceAsync=r.replaceAsync.bind(r));const s="number"==typeof n.fallback?n.fallback:n.fallback?0:1/0;if(r.testPlainObjects?this.plainObjectReplacers.splice(s,0,a):this.nonplainObjectReplacers.splice(s,0,a),r.revive||r.reviveAsync){const e={};r.revive&&(e.revive=r.revive.bind(r)),r.reviveAsync&&(e.reviveAsync=r.reviveAsync.bind(r)),this.revivers[t]=[e,{plain:r.testPlainObjects}];}this.types[t]=r;});};return [].concat(e).forEach(e=>{reg(e);}),this}}class Undefined{}Undefined.__typeson__type__="TypesonUndefined";const i$2=["null","boolean","number","string","array","object"];for(var c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",l=new Uint8Array(256),u=0;u<64;u++)l[c.codePointAt(u)]=u;var y=function encode(e,t,r){null==r&&(r=e.byteLength);for(var n=new Uint8Array(e,0,r),o=n.length,a="",s=0;s<o;s+=3)a+=c[n[s]>>2],a+=c[(3&n[s])<<4|n[s+1]>>4],a+=c[(15&n[s+1])<<2|n[s+2]>>6],a+=c[63&n[s+2]];return o%3==2?a=a.slice(0,-1)+"=":o%3==1&&(a=a.slice(0,-2)+"=="),a},p=function decode(e,t){var r=e.length;if(r%4)throw new Error("Bad base64 length: not divisible by four");var n,o,a,s,i=.75*e.length,c=0;"="===e[e.length-1]&&(i--,"="===e[e.length-2]&&i--);for(var u=new ArrayBuffer(i,t),y=new Uint8Array(u),p=0;p<r;p+=4)n=l[e.codePointAt(p)],o=l[e.codePointAt(p+1)],a=l[e.codePointAt(p+2)],s=l[e.codePointAt(p+3)],y[c++]=n<<2|o>>4,y[c++]=(15&o)<<4|a>>2,y[c++]=(3&a)<<6|63&s;return u};const f={arraybuffer:{test:e=>"ArrayBuffer"===toStringTag(e),replace(e,t){t.buffers||(t.buffers=[]);const r=t.buffers.indexOf(e);return  -1!==r?{index:r}:(t.buffers.push(e),{s:y(e),maxByteLength:e.maxByteLength,resizable:e.resizable})},revive(e,t){if(t.buffers||(t.buffers=[]),Object.hasOwn(e,"index"))return t.buffers[e.index];const r=p(e.s,e.resizable?{maxByteLength:e.maxByteLength}:void 0);return t.buffers.push(r),r}}},m={audiodata:{test:e=>"AudioData"===toStringTag(e),replace(e){const{format:t,sampleRate:r,numberOfFrames:n,numberOfChannels:o,timestamp:a}=e,s=t.endsWith("-planar")?o:1,i=[];let c=0;for(let t=0;t<s;t++){const r=e.allocationSize({planeIndex:t});i.push(r),c+=r;}const l=new ArrayBuffer(c);let u=0;for(let t=0;t<s;t++){const r=new Uint8Array(l,u,i[t]);e.copyTo(r,{planeIndex:t}),u+=i[t];}return {format:t,sampleRate:r,numberOfFrames:n,numberOfChannels:o,timestamp:a,data:l}},revive:({format:e,sampleRate:t,numberOfFrames:r,numberOfChannels:n,timestamp:o,data:a})=>new AudioData({format:e,sampleRate:t,numberOfFrames:r,numberOfChannels:n,timestamp:o,data:new Uint8Array(a)})}},d$1={bigintObject:{test:e=>"object"==typeof e&&hasConstructorOf(e,BigInt),replace:String,revive:e=>new Object(BigInt(e))}},h={bigint:{test:e=>"bigint"==typeof e,replace:String,revive:e=>BigInt(e)}};function arraybuffer2string(e){return new Uint8Array(e).reduce((e,t)=>e+String.fromCodePoint(t),"")}function string2arraybuffer(e){const t=new Uint8Array(e.length);for(let r=0;r<e.length;r++)t[r]=e.charCodeAt(r);return t.buffer}const g={blob:{test:e=>"Blob"===toStringTag(e),replace(e){const t=new XMLHttpRequest;if(t.overrideMimeType("text/plain; charset=x-user-defined"),t.open("GET",URL.createObjectURL(e),false),t.send(),200!==t.status&&0!==t.status)throw new Error("Bad Blob access: "+t.status);return {type:e.type,stringContents:t.responseText}},revive(e){const{type:t,stringContents:r}=e;return new Blob([string2arraybuffer(r)],{type:t})},replaceAsync:e=>new TypesonPromise((t,r)=>{const n=new FileReader;n.addEventListener("load",()=>{t({type:e.type,stringContents:arraybuffer2string(n.result)});}),n.addEventListener("error",()=>{r(n.error);}),n.readAsArrayBuffer(e);})}};function generateUUID(){let e=Date.now();return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replaceAll(/[xy]/gu,function(t){const r=Math.trunc((e+16*Math.random())%16);return e=Math.floor(e/16),("x"===t?r:3&r|8).toString(16)})}const w={cryptokey:{test:e=>"CryptoKey"===toStringTag(e)&&e.extractable,replaceAsync:e=>new TypesonPromise(async(t,r)=>{let n;try{n=await crypto.subtle.exportKey("jwk",e);}catch(e){return void r(e)}t({jwk:n,algorithm:e.algorithm,usages:e.usages});}),revive(e){const{jwk:t,algorithm:r,usages:n}=e;return crypto.subtle.importKey("jwk",t,r,true,n)}}},O={dataview:{test:e=>"DataView"===toStringTag(e),replace({buffer:e,byteOffset:t,byteLength:r},n){n.buffers||(n.buffers=[]);const o=n.buffers.indexOf(e);return  -1!==o?{index:o,byteOffset:t,byteLength:r}:(n.buffers.push(e),{encoded:y(e),maxByteLength:e.maxByteLength,resizable:e.resizable,byteOffset:t,byteLength:r})},revive(e,t){t.buffers||(t.buffers=[]);const{byteOffset:r,byteLength:n,encoded:o,index:a,maxByteLength:s,resizable:i}=e;let c;return "index"in e?c=t.buffers[a]:(c=p(o,i?{maxByteLength:s}:s),t.buffers.push(c)),new DataView(c,r,n)}}},T={date:{test:e=>"Date"===toStringTag(e),replace(e){const t=e.getTime();return Number.isNaN(t)?"NaN":t},revive:e=>new Date("NaN"===e?NaN:e)}},A={domexception:{test:e=>"DOMException"===toStringTag(e),replace:e=>({name:e.name,message:e.message}),revive:({message:e,name:t})=>new DOMException(e,t)}},S={};function create$5(e){S[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>e.is2D?{a:e.a,b:e.b,c:e.c,d:e.d,e:e.e,f:e.f}:{m11:e.m11,m12:e.m12,m13:e.m13,m14:e.m14,m21:e.m21,m22:e.m22,m23:e.m23,m24:e.m24,m31:e.m31,m32:e.m32,m33:e.m33,m34:e.m34,m41:e.m41,m42:e.m42,m43:e.m43,m44:e.m44},revive:t=>Object.hasOwn(t,"a")?new e([t.a,t.b,t.c,t.d,t.e,t.f]):new e([t.m11,t.m12,t.m13,t.m14,t.m21,t.m22,t.m23,t.m24,t.m31,t.m32,t.m33,t.m34,t.m41,t.m42,t.m43,t.m44])};}"undefined"!=typeof DOMMatrix&&create$5(DOMMatrix),"undefined"!=typeof DOMMatrixReadOnly&&create$5(DOMMatrixReadOnly);const P={};function create$4(e){P[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>({x:e.x,y:e.y,z:e.z,w:e.w}),revive:({x:t,y:r,z:n,w:o})=>new e(t,r,n,o)};}"undefined"!=typeof DOMPoint&&create$4(DOMPoint),"undefined"!=typeof DOMPointReadOnly&&create$4(DOMPointReadOnly);const N={domquad:{test:e=>"DOMQuad"===toStringTag(e),replace:e=>({p1:e.p1,p2:e.p2,p3:e.p3,p4:e.p4}),revive:({p1:e,p2:t,p3:r,p4:n})=>new DOMQuad(e,t,r,n)}},E={};function create$3(e){E[e.name.toLowerCase()]={test:t=>toStringTag(t)===e.name,replace:e=>({x:e.x,y:e.y,width:e.width,height:e.height}),revive:({x:t,y:r,width:n,height:o})=>new e(t,r,n,o)};}"undefined"!=typeof DOMRect&&create$3(DOMRect),"undefined"!=typeof DOMRectReadOnly&&create$3(DOMRectReadOnly);const x={encodedaudiochunk:{test:e=>"EncodedAudioChunk"===toStringTag(e),replace(e){const{type:t,timestamp:r,duration:n,byteLength:o}=e,a=new ArrayBuffer(o);return e.copyTo(a),{type:t,timestamp:r,duration:n,data:a}},revive({type:e,timestamp:t,duration:r,data:n}){const o={type:e,timestamp:t,data:new Uint8Array(n)};return null!=r&&(o.duration=r),new EncodedAudioChunk(o)}}},I={encodedvideochunk:{test:e=>"EncodedVideoChunk"===toStringTag(e),replace(e){const{type:t,timestamp:r,duration:n,byteLength:o}=e,a=new ArrayBuffer(o);return e.copyTo(a),{type:t,timestamp:r,duration:n,data:a}},revive({type:e,timestamp:t,duration:r,data:n}){const o={type:e,timestamp:t,data:new Uint8Array(n)};return null!=r&&(o.duration=r),new EncodedVideoChunk(o)}}},j={error:{test:e=>"Error"===toStringTag(e),replace:({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s})=>({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s}),revive(e){const t=new Error(e.message);return t.name=e.name,t.cause=e.cause,t.stack=e.stack,t.fileName=e.fileName,t.lineNumber=e.lineNumber,t.columnNumber=e.columnNumber,t}}},C$1={};function create$2(e){C$1[e.name.toLowerCase()]={test:t=>hasConstructorOf(t,e),replace:({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s,errors:i})=>({name:e,message:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s,errors:i}),revive(t){const r="undefined"!=typeof AggregateError&&e===AggregateError?new e(t.errors,t.message):new e(t.message);return r.name=t.name,r.cause=t.cause,r.stack=t.stack,r.fileName=t.fileName,r.lineNumber=t.lineNumber,r.columnNumber=t.columnNumber,r}};}[TypeError,RangeError,SyntaxError,ReferenceError,EvalError,URIError].forEach(e=>create$2(e)),"undefined"!=typeof AggregateError&&create$2(AggregateError),"function"==typeof InternalError&&create$2(InternalError);const B={file:{test:e=>"File"===toStringTag(e),replace(e){const t=new XMLHttpRequest;if(t.overrideMimeType("text/plain; charset=x-user-defined"),t.open("GET",URL.createObjectURL(e),false),t.send(),200!==t.status&&0!==t.status)throw new Error("Bad File access: "+t.status);return {type:e.type,stringContents:t.responseText,name:e.name,lastModified:e.lastModified}},revive:({name:e,type:t,stringContents:r,lastModified:n})=>new File([string2arraybuffer(r)],e,{type:t,lastModified:n}),replaceAsync:e=>new TypesonPromise(function(t,r){const n=new FileReader;n.addEventListener("load",function(){t({type:e.type,stringContents:arraybuffer2string(n.result),name:e.name,lastModified:e.lastModified});}),n.addEventListener("error",function(){r(n.error);}),n.readAsArrayBuffer(e);})}},U$1={file:B.file,filelist:{test:e=>"FileList"===toStringTag(e),replace(e){const t=[];for(let r=0;r<e.length;r++)t[r]=e.item(r);return t},revive(e){class FileList{constructor(){this._files=arguments[0],this.length=this._files.length;}item(e){return this._files[e]}get[Symbol.toStringTag](){return "FileList"}}return new FileList(e)}}},k={gpucompilationinfo:{test:e=>"GPUCompilationInfo"===toStringTag(e),replace:({messages:e})=>({messages:e}),revive({messages:e}){class GPUCompilationInfo{get[Symbol.toStringTag](){return "GPUCompilationInfo"}get messages(){return e}}return new GPUCompilationInfo}}},_={gpucompilationmessage:{test:e=>"GPUCompilationMessage"===toStringTag(e),replace:({length:e,lineNum:t,linePos:r,message:n,offset:o,type:a})=>({length:e,lineNum:t,linePos:r,message:n,offset:o,type:a}),revive({length:e,lineNum:t,linePos:r,message:n,offset:o,type:a}){class GPUCompilationMessage{get[Symbol.toStringTag](){return "GPUCompilationMessage"}get length(){return e}get lineNum(){return t}get linePos(){return r}get message(){return n}get offset(){return o}get type(){return a}}return new GPUCompilationMessage}}},D={gpupipelineerror:{test:e=>"GPUPipelineError"===toStringTag(e),replace:({message:e,reason:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s})=>({message:e,reason:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s}),revive(e){const{message:t,reason:r}=e,n=new GPUPipelineError(t,{reason:r});return n.cause=e.cause,n.stack=e.stack,n.fileName=e.fileName,n.lineNumber=e.lineNumber,n.columnNumber=e.columnNumber,n}}},R={imagebitmap:{test:e=>"ImageBitmap"===toStringTag(e),replace(e){const t=document.createElement("canvas");return t.getContext("2d").drawImage(e,0,0),{width:e.width,height:e.height,dataURL:t.toDataURL()}},revive(e){const t="undefined"==typeof OffscreenCanvas?document.createElement("canvas"):new OffscreenCanvas(e.width,e.height),r=t.getContext("2d"),n=document.createElement("img");return n.addEventListener("load",function(){try{r.drawImage(n,0,0);}catch{}}),n.src=e.dataURL,"undefined"==typeof OffscreenCanvas?t:t.transferToImageBitmap()},reviveAsync(e){const t=document.createElement("canvas"),r=t.getContext("2d"),n=document.createElement("img");return n.addEventListener("load",function(){r.drawImage(n,0,0);}),n.src=e.dataURL,new TypesonPromise(async(e,r)=>{try{e(await createImageBitmap(t));}catch(e){r(e);}})}}},F={imagedata:{test:e=>"ImageData"===toStringTag(e),replace(e){const t="Float16Array"===toStringTag(e.data)?"rgba-float16":"rgba-unorm8";return {array:[...e.data],width:e.width,height:e.height,pixelFormat:t,colorSpace:e.colorSpace}},revive(e){const{array:t,width:r,height:n,colorSpace:o,pixelFormat:a}=e;return "rgba-float16"===a?new ImageData(new Float16Array(t),r,n,{colorSpace:o,pixelFormat:a}):new ImageData(new Uint8ClampedArray(t),r,n,{colorSpace:o,pixelFormat:a})}}},L={infinity:{test:e=>e===1/0,replace:()=>"Infinity",revive:()=>1/0}},W={map:{test:e=>"Map"===toStringTag(e),replace:e=>e.entries().toArray(),revive:e=>new Map(e)}},q={nan:{test:e=>Number.isNaN(e),replace:()=>"NaN",revive:()=>NaN}},G={negativeInfinity:{test:e=>e===-1/0,replace:()=>"-Infinity",revive:()=>-1/0}},z$2={negativeZero:{test:e=>Object.is(e,-0),replace:()=>0,revive:()=>-0}},J={StringObject:{test:e=>"String"===toStringTag(e)&&"object"==typeof e,replace:String,revive:e=>new String(e)},BooleanObject:{test:e=>"Boolean"===toStringTag(e)&&"object"==typeof e,replace:e=>e.valueOf(),revive:e=>new Boolean(e)},NumberObject:{test:e=>"Number"===toStringTag(e)&&"object"==typeof e,replace(e){const t=e.valueOf();return Number.isNaN(t)?"NaN":t===1/0?"Infinity":t===-1/0?"-Infinity":Object.is(t,-0)?"-0":t},revive:e=>new Number("NaN"===e?NaN:"Infinity"===e?1/0:"-Infinity"===e?-1/0:"-0"===e?-0:e)}},H={promise:{test:e=>"Promise"===toStringTag(e),replaceAsync:e=>new TypesonPromise(async t=>{try{t({value:await e});}catch(e){t({error:e});}}),revive:e=>e.error?Promise.reject(e.error):Promise.resolve(e.value)}},Q={quotaexceedederror:{test:e=>"QuotaExceededError"===toStringTag(e),replace:({message:e,quota:t,requested:r,cause:n,stack:o,fileName:a,lineNumber:s,columnNumber:i})=>({message:e,quota:t,requested:r,cause:n,stack:o,fileName:a,lineNumber:s,columnNumber:i}),revive(e){const{message:t,quota:r,requested:n}=e,o={};null!=r&&(o.quota=r),null!=n&&(o.requested=n);const a=new QuotaExceededError(t,o);return a.cause=e.cause,a.stack=e.stack,a.fileName=e.fileName,a.lineNumber=e.lineNumber,a.columnNumber=e.columnNumber,a}}},Y={regexp:{test:e=>"RegExp"===toStringTag(e),replace:e=>({source:e.source,flags:(e.global?"g":"")+(e.ignoreCase?"i":"")+(e.multiline?"m":"")+(e.sticky?"y":"")+(e.unicode?"u":"")+(e.unicodeSets?"v":"")+(e.hasIndices?"d":"")+(e.dotAll?"s":"")}),revive:({source:e,flags:t})=>new RegExp(e,t)}},Z={},X={resurrectable:{test:e=>e&&!Array.isArray(e)&&["object","function","symbol"].includes(typeof e),replace(e){const t=generateUUID();return Z[t]=e,t},revive:e=>Z[e]}},ee={set:{test:e=>"Set"===toStringTag(e),replace:e=>e.values().toArray(),revive:e=>new Set(e)}},te={symbol:{test:e=>"symbol"==typeof e,replace:e=>({global:void 0!==Symbol.keyFor(e),sym:String(e).slice(7,-1)}),revive:e=>e.global?Symbol.for(e.sym):Symbol(e.sym)}},ne$1={};"function"==typeof Int8Array&&[Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,..."function"==typeof BigInt64Array?[BigInt64Array,BigUint64Array]:[],..."function"==typeof Float16Array?[Float16Array]:[]].forEach(e=>function create$1(e){const t=e.name;ne$1[t.toLowerCase()]={test:e=>toStringTag(e)===t,replace:e=>(0===e.byteOffset&&e.byteLength===e.buffer.byteLength?e:e.slice(0)).buffer,revive:t=>"ArrayBuffer"===toStringTag(t)?new e(t):t};}(e));const oe={};"function"==typeof Int8Array&&[Int8Array,Uint8Array,Uint8ClampedArray,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,..."function"==typeof BigInt64Array?[BigInt64Array,BigUint64Array]:[],..."function"==typeof Float16Array?[Float16Array]:[]].forEach(e=>function create(e){const t=e.name;oe[t.toLowerCase()]={test:e=>toStringTag(e)===t,replace({buffer:e,byteOffset:t,length:r},n){n.buffers||(n.buffers=[]);const o=n.buffers.indexOf(e);return  -1!==o?{index:o,byteOffset:t,length:r}:(n.buffers.push(e),{maxByteLength:e.maxByteLength,resizable:e.resizable,encoded:y(e),byteOffset:t,length:r})},revive(t,r){r.buffers||(r.buffers=[]);const{byteOffset:n,length:o,encoded:a,index:s,maxByteLength:i,resizable:c}=t;let l;return "index"in t?l=r.buffers[s]:(l=p(a,c?{maxByteLength:i}:void 0),r.buffers.push(l)),new e(l,n,o)}};}(e));const ae={undef:{test:(e,t)=>void 0===e&&(t.ownKeys||!("ownKeys"in t)),replace:()=>0,revive:()=>new Undefined}},se={userObject:{test:e=>isUserObject(e),replace:e=>({...e}),revive:e=>e}},ie$2={videoframe:{test:e=>"VideoFrame"===toStringTag(e),replaceAsync:e=>new TypesonPromise(async(t,r)=>{try{const{format:r,codedWidth:n,codedHeight:o,timestamp:a,duration:s,visibleRect:i,displayWidth:c,displayHeight:l,colorSpace:u}=e,y=new ArrayBuffer(e.allocationSize());await e.copyTo(y),t({format:r,codedWidth:n,codedHeight:o,timestamp:a,duration:s,visibleRect:{x:i.x,y:i.y,width:i.width,height:i.height},displayWidth:c,displayHeight:l,colorSpace:{primaries:u.primaries,transfer:u.transfer,matrix:u.matrix,fullRange:u.fullRange},data:y});}catch(e){r(e);}}),revive({format:e,codedWidth:t,codedHeight:r,timestamp:n,duration:o,visibleRect:a,displayWidth:s,displayHeight:i,colorSpace:c,data:l}){const u={format:e,codedWidth:t,codedHeight:r,timestamp:n,visibleRect:a,displayWidth:s,displayHeight:i,colorSpace:c};return null!=o&&(u.duration=o),new VideoFrame(new Uint8Array(l),u)}}},ce={webtransporterror:{test:e=>"WebTransportError"===toStringTag(e),replace:({message:e,streamErrorCode:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s})=>({message:e,streamErrorCode:t,cause:r,stack:n,fileName:o,lineNumber:a,columnNumber:s}),revive(e){const{message:t,streamErrorCode:r}=e,n=new WebTransportError({message:t,streamErrorCode:r});return n.cause=e.cause,n.stack=e.stack,n.fileName=e.fileName,n.lineNumber=e.lineNumber,n.columnNumber=e.columnNumber,n}}},le=[{arrayNonindexKeys:{testPlainObjects:true,test:(e,t)=>!!Array.isArray(e)&&(Object.keys(e).some(e=>String(Number(e))!==e)&&(t.iterateIn="object",t.addLength=true),true),replace:(e,t)=>(t.iterateUnsetNumeric=true,e),revive(e){if(Array.isArray(e))return e;const t=[];return Object.entries(e).forEach(([e,r])=>{t[e]=r;}),t}}},{sparseUndefined:{test:(e,t)=>void 0===e&&false===t.ownKeys,replace:()=>0,revive(){}}}],ue=[q,L,G,z$2],de$1=[se,ae,le,J,ue,T,Y,F,R,B,U$1,g,j,C$1].concat("function"==typeof Map?W:[],"function"==typeof Set?ee:[],"function"==typeof ArrayBuffer?f:[],"function"==typeof Uint8Array?oe:[],"function"==typeof DataView?O:[],"undefined"!=typeof crypto?w:[],"undefined"!=typeof BigInt?[h,d$1]:[],"undefined"!=typeof DOMException?A:[],"undefined"!=typeof QuotaExceededError?Q:[],"undefined"!=typeof WebTransportError?ce:[],"undefined"!=typeof DOMRect?E:[],"undefined"!=typeof DOMPoint?P:[],"undefined"!=typeof DOMQuad?N:[],"undefined"!=typeof DOMMatrix?S:[],"undefined"!=typeof AudioData?m:[],"undefined"!=typeof EncodedAudioChunk?x:[],"undefined"!=typeof EncodedVideoChunk?I:[],"undefined"!=typeof VideoFrame?ie$2:[],"undefined"!=typeof GPUCompilationInfo?k:[],"undefined"!=typeof GPUCompilationMessage?_:[],"undefined"!=typeof GPUPipelineError?D:[]);const he$1=de$1.concat({checkDataCloneException:{test(e){const t={}.toString.call(e).slice(8,-1);if(["symbol","function"].includes(typeof e)||["Arguments","Module","Promise","WeakMap","WeakSet","WeakRef","FinalizationRegistry","Generator","AsyncGenerator","String Iterator","Array Iterator","Map Iterator","Set Iterator","RegExp String Iterator","Intl.Collator","Intl.DateTimeFormat","Intl.DisplayNames","Intl.DurationFormat","Intl.ListFormat","Intl.Locale","Intl.NumberFormat","Intl.PluralRules","Intl.RelativeTimeFormat","Intl.Segmenter","Event","MessageChannel","MessagePort","ReadableStream","WritableStream","TransformStream","OffscreenCanvas"].includes(t)||e&&e.constructor&&["MessageChannel","MessagePort"].includes(e.constructor.name)||["ArrayBuffer","DataView","Int8Array","Uint8Array","Uint8ClampedArray","Int16Array","Uint16Array","Int32Array","Uint32Array","Float32Array","Float64Array","BigInt64Array","BigUint64Array"].includes(t)&&function isBufferDetached(e){if("boolean"==typeof e.detached)return e.detached;if(0!==e.byteLength)return  false;try{return new Uint8Array(e),!1}catch{return  true}}(e)||e&&"object"==typeof e&&"number"==typeof e.nodeType&&"function"==typeof e.insertBefore)throw new DOMException("The object cannot be cloned.","DataCloneError");return  false}}}),ge=he$1.concat({checkSharedArrayBufferException:{test(e){if("SharedArrayBuffer"==={}.toString.call(e).slice(8,-1))throw new DOMException("The object cannot be cloned.","DataCloneError");return  false}}});
 
 // This file was generated. Do not modify manually!
 var astralIdentifierCodes = [509, 0, 227, 0, 150, 4, 294, 9, 1368, 2, 2, 1, 6, 3, 41, 2, 5, 0, 166, 1, 574, 3, 9, 9, 7, 9, 32, 4, 318, 1, 31, 4, 33, 15, 71, 10, 50, 3, 123, 2, 54, 14, 32, 10, 3, 1, 11, 3, 46, 10, 8, 0, 46, 9, 7, 2, 37, 13, 2, 9, 6, 1, 45, 0, 13, 2, 49, 13, 9, 3, 2, 11, 83, 11, 7, 0, 3, 0, 158, 11, 6, 9, 7, 3, 56, 1, 2, 6, 3, 1, 3, 2, 10, 0, 11, 1, 3, 6, 4, 4, 68, 8, 2, 0, 3, 0, 2, 3, 2, 4, 2, 0, 15, 1, 83, 17, 10, 9, 5, 0, 82, 19, 13, 9, 214, 6, 3, 8, 28, 1, 83, 16, 16, 9, 82, 12, 9, 9, 7, 19, 58, 14, 5, 9, 243, 14, 166, 9, 71, 5, 2, 1, 3, 3, 2, 0, 2, 1, 13, 9, 120, 6, 3, 6, 4, 0, 29, 9, 41, 6, 2, 3, 9, 0, 10, 10, 47, 15, 199, 7, 137, 9, 54, 7, 2, 7, 17, 9, 57, 21, 2, 13, 123, 5, 4, 0, 2, 1, 2, 6, 2, 0, 9, 9, 49, 4, 2, 1, 2, 4, 9, 9, 55, 9, 7, 0, 259, 3, 10, 1, 2, 0, 49, 6, 4, 4, 14, 10, 5350, 0, 7, 14, 11465, 27, 2343, 9, 87, 9, 39, 4, 60, 6, 26, 9, 535, 9, 470, 0, 2, 54, 8, 3, 82, 0, 12, 1, 19628, 1, 4178, 9, 519, 45, 3, 22, 481, 1, 61, 4, 4, 5, 9, 7, 3, 6, 31, 3, 149, 2, 12, 2, 9, 1, 3, 0, 33, 1, 1357, 49, 513, 54, 5, 49, 9, 0, 15, 0, 23, 4, 2, 14, 1361, 6, 2, 16, 3, 6, 2, 1, 2, 4, 101, 0, 161, 6, 10, 9, 357, 0, 62, 13, 499, 13, 245, 1, 2, 9, 233, 0, 3, 0, 8, 1, 6, 0, 475, 6, 110, 6, 6, 9, 4759, 9, 787719, 239];
@@ -12664,7 +12664,7 @@ function requireDist () {
 			  hasRequiredJson6 = 1;
 			  (function (module) {
 
-			    const version = "1.1.6";
+			    const version = "1.1.7";
 			    const VALUE_UNDEFINED = -1;
 			    const VALUE_UNSET = 0;
 			    const VALUE_NULL = 1;
@@ -13134,13 +13134,13 @@ function requireDist () {
 			          if (!status) throw new Error("Parser is in an error state, please reset.");
 			          for (retcode = this._write(/** @type {string|undefined|null} */msg, false); retcode > 0; retcode = this._write()) {
 			            this.finalError();
-			            if (typeof reviver === 'function') 
+			            if (typeof reviver === 'function') result =
 			            /**
 			            * @param {Record<string, unknown>} holder
 			            * @param {string} key
 			            * @returns {unknown}
 			            */
-			            (function walk(holder, key) {
+			            function walk(holder, key) {
 			              const value = holder[key];
 			              if (value && typeof value === 'object') {
 			                const record = /** @type {Record<string, unknown>} */value;
@@ -13156,7 +13156,7 @@ function requireDist () {
 			                }
 			              }
 			              return reviver.call(holder, key, value);
-			            })({
+			            }({
 			              '': result
 			            }, '');
 			            cb(result);
@@ -13528,7 +13528,7 @@ function requireDist () {
 			                  // break;
 			                }
 			              } else {
-			                if (cInt == 32 /*' '*/ || cInt == 160 /* &nbsp */ || cInt == 13 || cInt == 10 || cInt == 9 || cInt == 11 /*VT*/ || cInt == 12 /*FF*/ || cInt == 0x2028 /*LS*/ || cInt == 0x2029 /*PS*/ || cInt == 0xFEFF || cInt == 44 /*','*/ || cInt == 125 /*'}'*/ || cInt == 93 /*']'*/ || cInt == 58 /*':'*/) {
+			                if (cInt == 32 /*' '*/ || cInt == 160 /* &nbsp */ || cInt == 13 || cInt == 10 || cInt == 9 || cInt == 11 /*VT*/ || cInt == 12 /*FF*/ || cInt == 0x2028 /*LS*/ || cInt == 0x2029 /*PS*/ || cInt == 0xFEFF || cInt == 44 /*','*/ || cInt == 125 /*'}'*/ || cInt == 93 /*']'*/ || cInt == 58 /*':'*/ || cInt == 47 /*'/'*/) {
 			                  break;
 			                } else {
 			                  if (complete_at_end) {
@@ -13586,6 +13586,7 @@ function requireDist () {
 			              if (string_status > 0) {
 			                gatheringString = false;
 			                val.value_type = VALUE_STRING;
+			                if (parse_context != CONTEXT_OBJECT_FIELD) word = WORD_POS_END;
 			              }
 			            }
 			            if (gatheringNumber) {
@@ -13621,7 +13622,7 @@ function requireDist () {
 			                  if (cInt == 42 /*'*'*/) comment = 4;
 			                } else {
 			                  // if( comment == 4 ) { // '/* ... *'
-			                  if (cInt == 47 /*'/'*/) comment = 0;else comment = 3; // any other char, goto expect * to close */
+			                  if (cInt == 47 /*'/'*/) comment = 0;else if (cInt != 42 /*'*'*/) comment = 3; // another '*' can still begin the close
 			                }
 			                continue;
 			              }
@@ -14190,14 +14191,14 @@ function requireDist () {
 			          parser.finalError();
 			          throw new Error("No value found in document");
 			        }
-			        const result = parser.value();
-			        if (typeof reviver === 'function') 
+			        let result = parser.value();
+			        if (typeof reviver === 'function') result =
 			        /**
 			        * @param {Record<string, unknown>} holder
 			        * @param {string} key
 			        * @returns {unknown}
 			        */
-			        (function walk(holder, key) {
+			        function walk(holder, key) {
 			          const value = holder[key];
 			          if (value && typeof value === 'object') {
 			            const record = /** @type {Record<string, unknown>} */value;
@@ -14213,7 +14214,7 @@ function requireDist () {
 			            }
 			          }
 			          return reviver.call(holder, key, value);
-			        })({
+			        }({
 			          '': result
 			        }, '');
 			        return result;
@@ -14291,7 +14292,7 @@ function requireDist () {
 			      function getIdentifier(s) {
 			        if (!s.length) return useQuote + useQuote;
 			        // should check also for if any non ident in string...
-			        return s in keywords /* [ "true","false","null","NaN","Infinity","undefined"].find( keyword=>keyword===s )*/ || /([0-9-])/.test(s[0]) || /((\n|\r|\t)|[ #{}()<>!+\-*/.:,])/.test(s) ? useQuote + JSON6.escape(s) + useQuote : s;
+			        return s in keywords /* [ "true","false","null","NaN","Infinity","undefined"].find( keyword=>keyword===s )*/ || /([0-9-])/.test(s[0]) || /[\s"'`[\]#{}()<>!+\-*/.:,]/.test(s) ? useQuote + JSON6.escape(s) + useQuote : s;
 			      }
 
 			      /**
@@ -14303,8 +14304,7 @@ function requireDist () {
 			       * @returns {string|undefined}
 			       */
 			      function stringify(stringifier, object, replacer, space, asField) {
-			        if (object === undefined) return "undefined";
-			        if (object === null) return "null";
+			        if (object === undefined && typeof replacer !== "function") return "undefined";
 			        /** @type {string} */
 			        let gap = "";
 			        /** @type {string} */
@@ -14351,16 +14351,6 @@ function requireDist () {
 			          const mind = gap;
 			          /** @type {unknown} */
 			          let value = holder[key];
-			          // A string *value* must always be quoted: unlike an object key,
-			          //   a bareword here would parse back as an identifier/variable
-			          //   reference rather than as the string itself, so `getIdentifier`
-			          //   (which intentionally leaves identifier-shaped keys unquoted)
-			          //   is not applicable to values. Using it here previously emitted
-			          //   invalid, non-reparseable output for any identifier-shaped
-			          //   string value (e.g. `"hello"` became the bare word `hello`).
-			          if ("string" === typeof value) {
-			            value = useQuote + JSON6.escape(value) + useQuote;
-			          }
 			          if (value !== undefined && value !== null && typeof value === "object" && typeof toJSOX === "function") {
 			            // is encoding?
 			            gap += indent;
@@ -14376,7 +14366,7 @@ function requireDist () {
 			          // What happens next depends on the value's type.
 			          switch (typeof value) {
 			            case "string":
-			              return value;
+			              return useQuote + JSON6.escape(value) + useQuote;
 			            case "number":
 			              return '' + value;
 			            //useQuote+JSOX.escape( value )+useQuote;
@@ -19442,14 +19432,19 @@ function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
     for (let cur = dom, stop = false; cur && !stop;) {
         if (isElt(cur)) { // Element
             let bounding, top = cur == doc.body;
-            let scaleX = 1, scaleY = 1;
+            let scaleX = 1, scaleY = 1, xScroll = true, yScroll = true;
             if (top) {
                 bounding = windowRect(win);
             }
             else {
-                if (/^(fixed|sticky)$/.test(getComputedStyle(cur).position))
+                let style = getComputedStyle(cur);
+                if (/^(fixed|sticky)$/.test(style.position))
                     stop = true;
-                if (cur.scrollHeight <= cur.clientHeight && cur.scrollWidth <= cur.clientWidth) {
+                if (cur.scrollHeight <= cur.clientHeight || !/auto|scroll/.test(style.overflowY))
+                    yScroll = false;
+                if (cur.scrollWidth <= cur.clientWidth || !/auto|scroll/.test(style.overflowX))
+                    xScroll = false;
+                if (!xScroll && !yScroll) {
                     cur = cur.assignedSlot || cur.parentNode;
                     continue;
                 }
@@ -19460,7 +19455,8 @@ function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
                     top: rect.top, bottom: rect.top + cur.clientHeight * scaleY };
             }
             let moveX = 0, moveY = 0;
-            if (y == "nearest") {
+            if (!yScroll) ;
+            else if (y == "nearest") {
                 if (rect.top < bounding.top + yMargin) {
                     moveY = rect.top - (bounding.top + yMargin);
                     if (side > 0 && rect.bottom > bounding.bottom + moveY)
@@ -19479,7 +19475,8 @@ function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
                         rect.bottom - boundingHeight + yMargin;
                 moveY = targetTop - bounding.top;
             }
-            if (x == "nearest") {
+            if (!xScroll) ;
+            else if (x == "nearest") {
                 if (rect.left < bounding.left + xMargin) {
                     moveX = rect.left - (bounding.left + xMargin);
                     if (side > 0 && rect.right > bounding.right + moveX)
@@ -19544,9 +19541,9 @@ function scrollableParents(dom, getX = true) {
             break;
         }
         else if (isElt(cur)) {
-            if (!y && cur.scrollHeight > cur.clientHeight)
+            if (!y && cur.scrollHeight > cur.clientHeight && /scroll|auto/.test(getComputedStyle(cur).overflowY))
                 y = cur;
-            if (getX && !x && cur.scrollWidth > cur.clientWidth)
+            if (getX && !x && cur.scrollWidth > cur.clientWidth && /scroll|auto/.test(getComputedStyle(cur).overflowX))
                 x = cur;
             cur = cur.assignedSlot || cur.parentNode;
         }
@@ -20231,7 +20228,6 @@ function autoDirection(text, from, to) {
         if (type == 2 /* T.R */ || type == 4 /* T.AL */)
             return RTL;
     }
-    return LTR;
 }
 
 const clickAddsSelectionRange = /*@__PURE__*/Facet.define();
@@ -20457,8 +20453,6 @@ function getIsolatedRanges(view, line) {
             let level = result;
             for (let i = active.length - 1; i >= 0; i--, open--) {
                 let direction = active[i].spec.bidiIsolate, update;
-                if (direction == null)
-                    direction = autoDirection(line.text, from, to);
                 if (open > 0 && level.length &&
                     (update = level[level.length - 1]).to == from && update.direction == direction) {
                     update.to = to;
@@ -20472,7 +20466,28 @@ function getIsolatedRanges(view, line) {
             }
         }
     });
-    return result;
+    return resolveIsolates(line.text, result);
+}
+function resolveIsolates(text, isolates) {
+    for (let i of isolates) {
+        if (i.direction == null) {
+            for (let pos = i.from, j = 0; pos < i.to; j++) {
+                let nextInner = j < i.inner.length ? i.inner[j] : null;
+                let dir = autoDirection(text, pos, nextInner ? nextInner.from : i.to);
+                if (dir) {
+                    i.direction = dir;
+                    break;
+                }
+                if (!nextInner)
+                    break;
+                pos = nextInner.to;
+            }
+            if (i.direction == null)
+                i.direction = Direction.LTR;
+        }
+        resolveIsolates(text, i.inner);
+    }
+    return isolates;
 }
 const scrollMargins = /*@__PURE__*/Facet.define();
 function getScrollMargins(view) {
@@ -22589,12 +22604,12 @@ function moveToLineBoundary(view, start, forward, includeWrap) {
     if (coords) {
         let editorRect = view.dom.getBoundingClientRect();
         let direction = view.textDirectionAt(block.from);
-        let pos = view.posAtCoords({ x: forward == (direction == Direction.LTR) ? editorRect.right - 1 : editorRect.left + 1,
+        let pos = view.posAndSideAtCoords({ x: forward == (direction == Direction.LTR) ? editorRect.right - 1 : editorRect.left + 1,
             y: (coords.top + coords.bottom) / 2 });
-        if (pos != null)
-            return EditorSelection.cursor(pos, forward ? -1 : 1);
+        if (pos)
+            return EditorSelection.cursor(pos.pos, pos.assoc);
     }
-    return EditorSelection.cursor(forward ? block.to : block.from, forward ? -1 : 1);
+    return EditorSelection.cursor(forward ? block.to : block.from, forward ? 1 : -1);
 }
 function moveByChar(view, start, forward, by) {
     let line = view.state.doc.lineAt(start.head), spans = view.bidiSpans(line);
@@ -25202,7 +25217,7 @@ class ViewState {
     updateScaler() {
         let scaler = this.scaler;
         this.scaler = this.heightMap.height <= 7000000 /* VP.MaxDOMHeight */ ? IdScaler :
-            new BigScaler(this.heightOracle, this.heightMap, this.viewports);
+            BigScaler.get(this.heightOracle, this.heightMap, this.viewports);
         return scaler.eq(this.scaler) ? 0 : 2 /* UpdateFlag.Height */;
     }
     updateViewportLines() {
@@ -25578,7 +25593,7 @@ class ViewState {
             : (this.scrollParent ? this.scrollParent.getBoundingClientRect().top : 0) - this.view.contentDOM.getBoundingClientRect().top;
     }
     scrollAnchorAt(scrollOffset) {
-        let block = this.lineBlockAtHeight(scrollOffset + 8);
+        let block = this.lineBlockAtHeight(scrollOffset + 12 - this.paddingTop);
         return block.from >= this.viewport.from || this.viewportLines[0].top - scrollOffset > 200 ? block : this.viewportLines[0];
     }
     elementAtHeight(height) {
@@ -25664,20 +25679,27 @@ function staticDeco(state) {
 // regions outside the viewports so that the total height is
 // VP.MaxDOMHeight.
 class BigScaler {
-    constructor(oracle, heightMap, viewports) {
+    constructor(scale, viewports) {
+        this.scale = scale;
+        this.viewports = viewports;
+    }
+    static get(oracle, heightMap, viewports) {
         let vpHeight = 0, base = 0, domBase = 0;
-        this.viewports = viewports.map(({ from, to }) => {
+        let vps = viewports.map(({ from, to }) => {
             let top = heightMap.lineAt(from, QueryType$1.ByPos, oracle, 0, 0).top;
             let bottom = heightMap.lineAt(to, QueryType$1.ByPos, oracle, 0, 0).bottom;
             vpHeight += bottom - top;
             return { from, to, top, bottom, domTop: 0, domBottom: 0 };
         });
-        this.scale = (7000000 /* VP.MaxDOMHeight */ - vpHeight) / (heightMap.height - vpHeight);
-        for (let obj of this.viewports) {
-            obj.domTop = domBase + (obj.top - base) * this.scale;
+        if (heightMap.height - vpHeight < 10)
+            return IdScaler;
+        let scale = (7000000 /* VP.MaxDOMHeight */ - vpHeight) / (heightMap.height - vpHeight);
+        for (let obj of vps) {
+            obj.domTop = domBase + (obj.top - base) * scale;
             domBase = obj.domBottom = obj.domTop + (obj.bottom - obj.top);
             base = obj.bottom;
         }
+        return new BigScaler(scale, vps);
     }
     toDOM(n) {
         for (let i = 0, base = 0, domBase = 0;; i++) {
@@ -26132,7 +26154,7 @@ class DOMObserver {
     }
     onScroll(e) {
         if (this.intersecting)
-            this.flush(false);
+            this.flush(this.pendingRecords().length > 0);
         if (this.editContext)
             this.view.requestMeasure(this.editContext.measureReq);
         this.onScrollChanged(e);
@@ -30122,6 +30144,8 @@ function createDialog(view, config, result) {
     if (config.class)
         panel.className = config.class;
     panel.classList.add("cm-dialog");
+    let focus = typeof config.focus == "string" ? content.querySelector(config.focus)
+        : config.focus ? content.querySelector("input") || content.querySelector("button") : null;
     function done(form) {
         if (panel.contains(panel.ownerDocument.activeElement))
             view.focus();
@@ -30131,18 +30155,14 @@ function createDialog(view, config, result) {
         dom: panel,
         top: config.top,
         mount: () => {
-            if (config.focus) {
-                let focus;
-                if (typeof config.focus == "string")
-                    focus = content.querySelector(config.focus);
-                else
-                    focus = content.querySelector("input") || content.querySelector("button");
-                if (focus && "select" in focus)
+            if (focus) {
+                if ("select" in focus)
                     focus.select();
-                else if (focus && "focus" in focus)
+                else if ("focus" in focus)
                     focus.focus();
             }
-        }
+        },
+        destroy: () => result(null)
     };
 }
 
@@ -31999,13 +32019,16 @@ function buildTree(data) {
             cursor.next();
             let localChildren = [], localPositions = [];
             let localInRepeat = id >= minRepeatType ? id : -1;
-            let lastGroup = 0, lastEnd = end;
+            let lastGroup = 0, lastEnd = end, groupLookAhead = lookAheadAtStart;
             while (cursor.pos > endPos) {
                 if (localInRepeat >= 0 && cursor.id == localInRepeat && cursor.size >= 0) {
                     if (cursor.end <= lastEnd - maxBufferLength) {
-                        makeRepeatLeaf(localChildren, localPositions, start, lastGroup, cursor.end, lastEnd, localInRepeat, lookAheadAtStart, contextAtStart);
+                        makeRepeatLeaf(localChildren, localPositions, start, lastGroup, cursor.end, lastEnd, localInRepeat, groupLookAhead, contextAtStart);
                         lastGroup = localChildren.length;
                         lastEnd = cursor.end;
+                        // The buffer is read backwards, so the current look-ahead is
+                        // the one recorded after the next group's end.
+                        groupLookAhead = lookAhead;
                     }
                     cursor.next();
                 }
@@ -32013,11 +32036,21 @@ function buildTree(data) {
                     takeFlatNode(start, endPos, localChildren, localPositions);
                 }
                 else {
+                    // If the next entry is a reused node matching the local
+                    // repeat, flush a repeat leaf and move lastGroup past it
+                    if (localInRepeat >= 0 && cursor.size == -1 /* SpecialRecord.Reuse */ &&
+                        reused[cursor.id].type == nodeSet.types[localInRepeat]) {
+                        if (lastGroup < localChildren.length)
+                            makeRepeatLeaf(localChildren, localPositions, start, lastGroup, cursor.end, lastEnd, localInRepeat, groupLookAhead, contextAtStart);
+                        lastGroup = localChildren.length + 1;
+                        lastEnd = cursor.start;
+                        groupLookAhead = lookAhead;
+                    }
                     takeNode(start, endPos, localChildren, localPositions, localInRepeat, depth + 1);
                 }
             }
             if (localInRepeat >= 0 && lastGroup > 0 && lastGroup < localChildren.length)
-                makeRepeatLeaf(localChildren, localPositions, start, lastGroup, start, lastEnd, localInRepeat, lookAheadAtStart, contextAtStart);
+                makeRepeatLeaf(localChildren, localPositions, start, lastGroup, start, lastEnd, localInRepeat, groupLookAhead, contextAtStart);
             localChildren.reverse();
             localPositions.reverse();
             if (localInRepeat > -1 && lastGroup > 0) {
@@ -32070,7 +32103,7 @@ function buildTree(data) {
                 if (!lastI && last.type == type && last.length == length)
                     return last;
                 if (lookAheadProp = last.prop(NodeProp.lookAhead))
-                    lookAhead = positions[lastI] + last.length + lookAheadProp;
+                    lookAhead = positions[lastI] + last.length + lookAheadProp - length;
             }
             return makeTree(type, children, positions, length, lookAhead, contextHash);
         };
@@ -39164,7 +39197,7 @@ const commitCharacters = /*@__PURE__*/Prec.highest(/*@__PURE__*/EditorView.domEv
     keydown(event, view) {
         let field = view.state.field(completionState, false);
         if (!field || !field.open || field.open.disabled || field.open.selected < 0 ||
-            event.key.length > 1 || event.ctrlKey && !(windows && event.altKey) || event.metaKey)
+            !event.key || event.key.length > 1 || event.ctrlKey && !(windows && event.altKey) || event.metaKey)
             return false;
         let option = field.open.options[field.open.selected];
         let result = field.active.find(a => a.source == option.source);
@@ -40136,14 +40169,14 @@ function renderDiagnostic(view, diagnostic, inPanel) {
     var _a;
     let keys = inPanel ? assignKeys(diagnostic.actions) : [];
     return crelt("li", { class: "cm-diagnostic cm-diagnostic-" + diagnostic.severity }, crelt("span", { class: "cm-diagnosticText" }, diagnostic.renderMessage ? diagnostic.renderMessage(view) : diagnostic.message), (_a = diagnostic.actions) === null || _a === void 0 ? void 0 : _a.map((action, i) => {
-        let fired = false, click = (e) => {
+        let fired = 0, click = (e) => {
             e.preventDefault();
-            if (fired)
+            if (fired > Date.now() - 100)
                 return;
-            fired = true;
             let found = findDiagnostic(view.state.field(lintState).diagnostics, diagnostic);
             if (found)
                 action.apply(view, found.from, found.to);
+            fired = Date.now();
         };
         let { name } = action, keyIndex = keys[i] ? name.indexOf(keys[i]) : -1;
         let nameElt = keyIndex < 0 ? name : [name.slice(0, keyIndex),
@@ -41657,6 +41690,8 @@ class FragmentCursor {
                 this.nextFragment();
                 return null;
             }
+            if (pos < this.safeFrom)
+                return null;
             let top = this.trees[last], index = this.index[last];
             if (index == top.children.length) {
                 this.trees.pop();
@@ -41682,9 +41717,6 @@ class FragmentCursor {
                         }
                         if (start == pos)
                             return next;
-                    }
-                    else if (start == pos) {
-                        return null;
                     }
                 }
                 this.index[last]++;
@@ -43149,7 +43181,7 @@ cov_2i9f9gddfq=function(){return actualCoverage;};}return actualCoverage;}cov_2i
       only `Typeson` instance this `functionSpec` is registered on
       (`iterate`, below) only ever calls `encapsulateAsync` (encode), never
       a decode method, so this is never actually invoked */revive(o){// eslint-disable-next-line no-eval -- User opted in
-return eval(o);}}});const structuredCloningJsoe=(cov_2i9f9gddfq().s[3]++,he$1.filter(typeSpecSet=>{cov_2i9f9gddfq().f[2]++;cov_2i9f9gddfq().s[4]++;return [// Not yet supported within JSOE
+return eval(o);}}});const structuredCloningJsoe=(cov_2i9f9gddfq().s[3]++,ge.filter(typeSpecSet=>{cov_2i9f9gddfq().f[2]++;cov_2i9f9gddfq().s[4]++;return [// Not yet supported within JSOE
 'imagedata','imagebitmap','domquad','quotaexceedederror','webtransporterror','cryptokey','audiodata','encodedaudiochunk','encodedvideochunk','videoframe','gpucompilationinfo','gpucompilationmessage'].every(prop=>{cov_2i9f9gddfq().f[3]++;cov_2i9f9gddfq().s[5]++;return !Object.hasOwn(typeSpecSet,prop);});}));/**
  * A deferred child build registers its own element in `parents` only once its
  *   own build has run. A deeper node's build can wake on the same tick and find
@@ -43160,7 +43192,7 @@ return eval(o);}}});const structuredCloningJsoe=(cov_2i9f9gddfq().s[3]++,he$1.fi
  *   promoted to the root UI).
  * @type {number}
  */const MAX_PARENT_WAIT_TICKS=(cov_2i9f9gddfq().s[6]++,50);// We modify resurrectable in hopes an including application doesn't need it
-/** @type {import('typeson').TypeSpecSet} */cov_2i9f9gddfq().s[7]++;Z.resurrectable.test=/** @type {import('typeson').Tester} */x=>{cov_2i9f9gddfq().f[4]++;cov_2i9f9gddfq().s[8]++;return (cov_2i9f9gddfq().b[0][0]++,x)&&(cov_2i9f9gddfq().b[0][1]++,typeof x==='object')&&(cov_2i9f9gddfq().b[0][2]++,!Array.isArray(x))&&(cov_2i9f9gddfq().b[0][3]++,// Could be a user object with a string tag, but we can't tell
+/** @type {import('typeson').TypeSpecSet} */cov_2i9f9gddfq().s[7]++;X.resurrectable.test=/** @type {import('typeson').Tester} */x=>{cov_2i9f9gddfq().f[4]++;cov_2i9f9gddfq().s[8]++;return (cov_2i9f9gddfq().b[0][0]++,x)&&(cov_2i9f9gddfq().b[0][1]++,typeof x==='object')&&(cov_2i9f9gddfq().b[0][2]++,!Array.isArray(x))&&(cov_2i9f9gddfq().b[0][3]++,// Could be a user object with a string tag, but we can't tell
 toStringTag(x)!=='Object');};/**
  * Delegates data-based UI building to method for adding child elements (a
  *   method which is housed in the array type object).
@@ -43329,7 +43361,7 @@ if(!stateObj.buildWarnings){cov_2i9f9gddfq().b[44][0]++;cov_2i9f9gddfq().s[100]+
 superType===valType)&&(cov_2i9f9gddfq().b[53][3]++,valueMatch(v))||(cov_2i9f9gddfq().b[53][4]++,childTypes)&&(cov_2i9f9gddfq().b[53][5]++,childTypes.includes(valType))){cov_2i9f9gddfq().b[52][0]++;cov_2i9f9gddfq().s[126]++;ret=allowableType;cov_2i9f9gddfq().s[127]++;return true;}else {cov_2i9f9gddfq().b[52][1]++;}cov_2i9f9gddfq().s[128]++;return false;});cov_2i9f9gddfq().s[129]++;if(ret===undefined){cov_2i9f9gddfq().b[54][0]++;cov_2i9f9gddfq().s[130]++;// We run this separately from the `childTypes` check above
 //    to ensure `childTypes` have priority regardless of position
 allowableTypes.some(allowableType=>{cov_2i9f9gddfq().f[18]++;cov_2i9f9gddfq().s[131]++;if(allowableType===valType){cov_2i9f9gddfq().b[55][0]++;cov_2i9f9gddfq().s[132]++;ret=allowableType;cov_2i9f9gddfq().s[133]++;return true;}else {cov_2i9f9gddfq().b[55][1]++;}cov_2i9f9gddfq().s[134]++;return false;});cov_2i9f9gddfq().s[135]++;if(ret===undefined){cov_2i9f9gddfq().b[56][0]++;cov_2i9f9gddfq().s[136]++;console.log('AALLLowableTypes',state,allowableTypes,'::',valType,v);cov_2i9f9gddfq().s[137]++;return isInvalid(valType);}else {cov_2i9f9gddfq().b[56][1]++;}}else {cov_2i9f9gddfq().b[54][1]++;}cov_2i9f9gddfq().s[138]++;return {newType:ret,schema};};/** @type {import('../formats.js').Format} */const structuredCloning=(cov_2i9f9gddfq().s[139]++,{async iterate(records,stateObj){cov_2i9f9gddfq().f[19]++;cov_2i9f9gddfq().s[140]++;/* istanbul ignore if -- Just a guard */if(!stateObj.format){stateObj.format='structuredCloning';}else {cov_2i9f9gddfq().b[57][0]++;}cov_2i9f9gddfq().s[141]++;structuredCloningJsoe.splice(// Add after userObjects
-1,0,Z);const typeson=(cov_2i9f9gddfq().s[142]++,new Typeson({encapsulateObserver:encapsulateObserver(stateObj)}).register((cov_2i9f9gddfq().b[59][0]++,stateObj.format==='arbitraryJS')||(cov_2i9f9gddfq().b[59][1]++,// Todo: Should have an arbitraryJS variant of schema instead
+1,0,X);const typeson=(cov_2i9f9gddfq().s[142]++,new Typeson({encapsulateObserver:encapsulateObserver(stateObj)}).register((cov_2i9f9gddfq().b[59][0]++,stateObj.format==='arbitraryJS')||(cov_2i9f9gddfq().b[59][1]++,// Todo: Should have an arbitraryJS variant of schema instead
 //    to allow function/promise/symbol schemas to be cloneable but not
 //    through same schema
 // Todo: Typeson has an issue for symbol-iterating keys; then add
@@ -45697,7 +45729,7 @@ class Doc {
 const version = {
     major: 4,
     minor: 6,
-    patch: 6,
+    patch: 7,
 };
 
 const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
@@ -67436,7 +67468,7 @@ function cov_1k8s4p1zgp(){var path="/Users/brett/jsoe/src/fundamentalTypes/promi
 cov_1k8s4p1zgp=function(){return actualCoverage;};}return actualCoverage;}cov_1k8s4p1zgp();/**
  *
  */cov_1k8s4p1zgp().s[0]++;const getTypeson=()=>{cov_1k8s4p1zgp().f[0]++;cov_1k8s4p1zgp().s[1]++;structuredCloningJsoe.splice(// Add after userObjects
-1,0,Z);cov_1k8s4p1zgp().s[2]++;return new Typeson().register([...structuredCloningJsoe,te,H,functionSpec]);};/**
+1,0,X);cov_1k8s4p1zgp().s[2]++;return new Typeson().register([...structuredCloningJsoe,te,H,functionSpec]);};/**
  * @type {import('../types.js').TypeObject}
  */const promiseType=(cov_1k8s4p1zgp().s[3]++,{option:['Promise'],regexEndings:[',',')'],stringRegexBegin:/^Promise\(/u,stringRegexEnd:/^\)/u,array:true,valueMatch(x){cov_1k8s4p1zgp().f[1]++;cov_1k8s4p1zgp().s[4]++;return toStringTag(x)==='Promise';},toValue(...args){cov_1k8s4p1zgp().f[2]++;const val=(/** @type {import('../types.js').ToValue} */cov_1k8s4p1zgp().s[5]++,arrayType.toValue.apply(this,args));cov_1k8s4p1zgp().s[6]++;return {value:Promise.resolve(val.value[0]),remnant:val.remnant};},getInput({root}){cov_1k8s4p1zgp().f[3]++;const childRoot=(/** @type {HTMLDivElement} */cov_1k8s4p1zgp().s[7]++,$e(root,'div[data-type]'));cov_1k8s4p1zgp().s[8]++;return/** @type {HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement|HTMLButtonElement} */this.types?.getFormControlForRoot(childRoot);},setValue({root,value}){cov_1k8s4p1zgp().f[4]++;cov_1k8s4p1zgp().s[9]++;// Need to wait a tick; return a promise that settles once the resolved
 //   value's child editor is built and populated.
@@ -67905,7 +67937,7 @@ let valObj;cov_pmr8wb3j7().s[144]++;try{const typeObj=(/** @type {TypeObject} */
 cov_pmr8wb3j7().s[157]++;remnant=remnant.slice(endMatch[0].length);}else {cov_pmr8wb3j7().b[65][1]++;}}else {cov_pmr8wb3j7().b[63][1]++;}cov_pmr8wb3j7().s[158]++;if(firstRun){cov_pmr8wb3j7().b[66][0]++;// Todo: should take into account `format`, e.g., to widen to
 //        allow `arbitraryJS` values; should also be using
 //        `structuredCloningFixed`
-const typeson=(cov_pmr8wb3j7().s[159]++,new Typeson().register(he$1));cov_pmr8wb3j7().s[160]++;try{const topRoot=(cov_pmr8wb3j7().s[161]++,typeson.revive(value));cov_pmr8wb3j7().s[162]++;rootHolder.forEach(([type,parent,parentPath,path])=>{cov_pmr8wb3j7().f[30]++;const typeObject=(cov_pmr8wb3j7().s[163]++,this.availableTypes[(/** @type {AvailableType} */type+'Reference')]);// @ts-expect-error Reference method exists
+const typeson=(cov_pmr8wb3j7().s[159]++,new Typeson().register(ge));cov_pmr8wb3j7().s[160]++;try{const topRoot=(cov_pmr8wb3j7().s[161]++,typeson.revive(value));cov_pmr8wb3j7().s[162]++;rootHolder.forEach(([type,parent,parentPath,path])=>{cov_pmr8wb3j7().f[30]++;const typeObject=(cov_pmr8wb3j7().s[163]++,this.availableTypes[(/** @type {AvailableType} */type+'Reference')]);// @ts-expect-error Reference method exists
 const val=(cov_pmr8wb3j7().s[164]++,typeObject.resolveReference(path,topRoot));const basicType=(cov_pmr8wb3j7().s[165]++,getJSONType(val));/* istanbul ignore else -- Successful reference always an object/array? */cov_pmr8wb3j7().s[166]++;if((cov_pmr8wb3j7().b[68][0]++,basicType===type)&&(cov_pmr8wb3j7().b[68][1]++,['array','object'].includes(type))){cov_pmr8wb3j7().b[67][0]++;cov_pmr8wb3j7().s[167]++;/** @type {{[key: string]: any}} */parent[(/** @type {string|number} */parentPath)]=val;}else {}});cov_pmr8wb3j7().s[168]++;return [topRoot,remnant,beginOnly,assign];}catch(err){cov_pmr8wb3j7().s[169]++;console.log('failed Typeson revival',err);}}else {cov_pmr8wb3j7().b[66][1]++;}cov_pmr8wb3j7().s[170]++;return [value,remnant,beginOnly,assign];}else {cov_pmr8wb3j7().b[58][1]++;}cov_pmr8wb3j7().s[171]++;throw new Error('Bad parsing data');}/**
    * @param {AvailableArbitraryType} type
    * @returns {Partial<TypeObject>|string[]}

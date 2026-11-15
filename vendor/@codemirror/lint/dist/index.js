@@ -1,4 +1,4 @@
-import { Decoration, showPanel, EditorView, ViewPlugin, gutter, showTooltip, hoverTooltip, getPanel, activateHover, logException, WidgetType, GutterMarker } from '@codemirror/view';
+import { showPanel, EditorView, Decoration, ViewPlugin, gutter, showTooltip, hoverTooltip, logException, GutterMarker, WidgetType, getPanel, activateHover } from '@codemirror/view';
 import { StateEffect, StateField, Facet, combineConfig, RangeSet, RangeSetBuilder } from '@codemirror/state';
 import elt from 'crelt';
 
@@ -421,14 +421,14 @@ function renderDiagnostic(view, diagnostic, inPanel) {
     var _a;
     let keys = inPanel ? assignKeys(diagnostic.actions) : [];
     return elt("li", { class: "cm-diagnostic cm-diagnostic-" + diagnostic.severity }, elt("span", { class: "cm-diagnosticText" }, diagnostic.renderMessage ? diagnostic.renderMessage(view) : diagnostic.message), (_a = diagnostic.actions) === null || _a === void 0 ? void 0 : _a.map((action, i) => {
-        let fired = false, click = (e) => {
+        let fired = 0, click = (e) => {
             e.preventDefault();
-            if (fired)
+            if (fired > Date.now() - 100)
                 return;
-            fired = true;
             let found = findDiagnostic(view.state.field(lintState).diagnostics, diagnostic);
             if (found)
                 action.apply(view, found.from, found.to);
+            fired = Date.now();
         };
         let { name } = action, keyIndex = keys[i] ? name.indexOf(keys[i]) : -1;
         let nameElt = keyIndex < 0 ? name : [name.slice(0, keyIndex),

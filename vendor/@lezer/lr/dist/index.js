@@ -1105,6 +1105,8 @@ class FragmentCursor {
                 this.nextFragment();
                 return null;
             }
+            if (pos < this.safeFrom)
+                return null;
             let top = this.trees[last], index = this.index[last];
             if (index == top.children.length) {
                 this.trees.pop();
@@ -1130,9 +1132,6 @@ class FragmentCursor {
                         }
                         if (start == pos)
                             return next;
-                    }
-                    else if (start == pos) {
-                        return null;
                     }
                 }
                 this.index[last]++;
